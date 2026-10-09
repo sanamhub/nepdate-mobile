@@ -1,0 +1,21 @@
+# Android
+.gradle/
+build/
+local.properties
+*.keystore
+*.jks
+.idea/
+captures/
+# iOS (the Xcode project is generated from ios/project.yml, ADR-0010)
+*.xcodeproj/
+.build/
+.swiftpm/
+ios/build/
+DerivedData/
+xcuserdata/
+*.xcuserstate
+*.p8
+*.p12
+*.mobileprovision
+# general
+.DS_Store
