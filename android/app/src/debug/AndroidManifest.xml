@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <application>
+        <activity
+            android:name=".design.DesignSpikeActivity"
+            android:exported="true"
+            android:label="@string/design_spike_title" />
+    </application>
+
+</manifest>

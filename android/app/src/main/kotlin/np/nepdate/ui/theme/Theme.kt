@@ -16,12 +16,16 @@ private val LightColors =
     lightColorScheme(
         primary = TodayLight,
         onPrimary = Color.White,
+        background = Color(0xFFFFFBFE),
+        surface = Color(0xFFFFFBFE),
     )
 
 private val DarkColors =
     darkColorScheme(
         primary = TodayDark,
         onPrimary = Color(0xFF001A41),
+        background = Color(0xFF1C1B1F),
+        surface = Color(0xFF1C1B1F),
     )
 
 /**
@@ -31,13 +35,16 @@ private val DarkColors =
 @Composable
 fun NepdateTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
+    dynamicColor: Boolean = true,
     content: @Composable () -> Unit,
 ) {
     val context = LocalContext.current
     val colorScheme =
         when {
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && darkTheme -> dynamicDarkColorScheme(context)
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> dynamicLightColorScheme(context)
+            dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && darkTheme ->
+                dynamicDarkColorScheme(context)
+            dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S ->
+                dynamicLightColorScheme(context)
             darkTheme -> DarkColors
             else -> LightColors
         }
@@ -51,7 +58,7 @@ fun NepdateTheme(
                 ),
             today = if (darkTheme) TodayDark else TodayLight,
             event = colorScheme.onSurfaceVariant,
-            dimmed = colorScheme.outline,
+            dimmed = colorScheme.onSurfaceVariant,
         )
 
     CompositionLocalProvider(LocalNepdateColors provides brandColors) {

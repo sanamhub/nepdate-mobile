@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="design_spike_title">डिजाइन जाँच</string>
+    <string name="design_spike_tab_cell">सेल</string>
+    <string name="design_spike_tab_hero">हिरो</string>
+    <string name="design_spike_tab_colour">रङ</string>
+    <string name="design_spike_not_verified">यन्त्रामा प्रमाणित गरिएको छैन</string>
+    <string name="design_spike_cell">देवनागरी, सानो आकार २२ sp</string>
+    <string name="design_spike_small">देवनागरी, धेरै सानो आकार १४ sp</string>
+    <string name="design_spike_hero">देवनागरी, ठूलो आकार ५६ sp</string>
+    <string name="design_spike_colour">रङका टोकन</string>
+    <string name="design_spike_measured">नापिएको कन्ट्रास्ट</string>
+    <string name="design_spike_pending">यन्त्र र फन्ट जाँच बाँकी</string>
+    <string name="design_spike_holiday">बिदा</string>
+    <string name="design_spike_fill">बिदा भरण</string>
+    <string name="design_spike_today">आज</string>
+    <string name="design_spike_event">कार्यक्रम</string>
+    <string name="design_spike_dimmed">मधुरो</string>
+    <string name="design_spike_holiday_cell">बिदाको कोष (भरण र रङ)</string>
+    <string name="design_spike_holiday_name">संविधान दिवस</string>
+    <string name="design_spike_public_holiday">सार्वजनिक बिदा</string>
+    <string name="design_spike_on_background">पृष्ठभूमिमा</string>
+    <string name="design_spike_on_fill">भरणमा</string>
+</resources>
