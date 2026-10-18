@@ -70,6 +70,17 @@ class MonthScreenTest {
     }
 
     @Test
+    fun widgetDeepLinkOpensTheDaySheet() {
+        val date = NepaliDate.of(2083, 6, 25)
+        setMonthScreen(openDate = date, openDateKey = 1)
+
+        composeRule.waitUntil(5_000) {
+            composeRule.onAllNodesWithText("Asoj 25, 2083").fetchSemanticsNodes().isNotEmpty()
+        }
+        composeRule.onNodeWithText("Ghatasthapana Brata").assertExists()
+    }
+
+    @Test
     fun mr01Ac5TodayButtonOnlyAppearsOffTheCurrentMonth() {
         setMonthScreen()
 
@@ -264,6 +275,8 @@ class MonthScreenTest {
         settings: Settings = english,
         fontScale: Float = 1f,
         nepalTime: String? = null,
+        openDate: NepaliDate? = null,
+        openDateKey: Int = 0,
         onSettings: (() -> Unit)? = null,
         onFirstGridDrawn: () -> Unit = {},
     ) {
@@ -279,6 +292,8 @@ class MonthScreenTest {
                         today = today,
                         settings = settings,
                         nepalTime = nepalTime,
+                        openDate = openDate,
+                        openDateKey = openDateKey,
                         onSettings = onSettings,
                         onFirstGridDrawn = onFirstGridDrawn,
                     )
