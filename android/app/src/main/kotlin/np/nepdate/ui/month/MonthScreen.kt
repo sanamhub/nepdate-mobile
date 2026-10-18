@@ -37,6 +37,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
@@ -91,7 +92,10 @@ fun MonthScreen(
         modifier =
             modifier
                 .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background),
+                .background(MaterialTheme.colorScheme.background)
+                // The picker draws over this screen in the same window, so TalkBack and Switch
+                // Access must not reach the month behind it while it is open.
+                .then(if (showPicker) Modifier.clearAndSetSemantics {} else Modifier),
     ) {
         MonthHeader(
             layout = currentLayout,
@@ -127,7 +131,6 @@ fun MonthScreen(
         settings = settings,
         showPicker = showPicker,
         currentLayout = currentLayout,
-        lang = lang,
         onSheetDismiss = { selectedDate = null },
         onPickerDismiss = { showPicker = false },
         onPickerConfirm = { year, month ->
@@ -143,7 +146,6 @@ private fun MonthOverlays(
     settings: Settings,
     showPicker: Boolean,
     currentLayout: MonthLayout,
-    lang: Lang,
     onSheetDismiss: () -> Unit,
     onPickerDismiss: () -> Unit,
     onPickerConfirm: (year: Int, month: Int) -> Unit,
@@ -160,7 +162,7 @@ private fun MonthOverlays(
         MonthYearPicker(
             initialYear = currentLayout.year,
             initialMonth = currentLayout.month.value,
-            lang = lang,
+            monthNames = stringArrayResource(R.array.bs_month_long).toList(),
             onDismiss = onPickerDismiss,
             onConfirm = onPickerConfirm,
         )

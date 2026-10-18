@@ -1,8 +1,7 @@
 package np.nepdate.ui.month
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,12 +29,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.paneTitle
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import io.github.sanamhub.nepdate.Lang
 import io.github.sanamhub.nepdate.Month
 import np.nepdate.R
 
@@ -54,7 +56,7 @@ private const val SCRIM_ALPHA = 0.40f
 internal fun MonthYearPicker(
     initialYear: Int,
     initialMonth: Int,
-    lang: Lang,
+    monthNames: List<String>,
     onDismiss: () -> Unit,
     onConfirm: (year: Int, month: Int) -> Unit,
 ) {
@@ -70,23 +72,25 @@ internal fun MonthYearPicker(
                 .testTag("month_picker"),
         contentAlignment = Alignment.Center,
     ) {
+        // A tap on the scrim cancels, like a dialog. It carries no semantics: the Cancel button and
+        // Back do the same for TalkBack and Switch Access.
         Box(
             modifier =
                 Modifier
                     .fillMaxSize()
                     .background(MaterialTheme.colorScheme.scrim.copy(alpha = SCRIM_ALPHA))
-                    .clickable(onClick = onDismiss),
+                    .pointerInput(onDismiss) { detectTapGestures { onDismiss() } }
+                    .clearAndSetSemantics {},
         )
+        val title = stringResource(R.string.month_picker_title)
         Surface(
             modifier =
                 Modifier
                     .fillMaxWidth()
                     .padding(24.dp)
-                    .clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = null,
-                        onClick = {},
-                    ),
+                    // Swallows taps so they do not reach the scrim, without adding a click action.
+                    .pointerInput(Unit) { detectTapGestures { } }
+                    .semantics { paneTitle = title },
             shape = RoundedCornerShape(28.dp),
             color = MaterialTheme.colorScheme.surface,
             tonalElevation = 6.dp,
@@ -99,7 +103,7 @@ internal fun MonthYearPicker(
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 Text(
-                    text = stringResource(R.string.month_picker_title),
+                    text = title,
                     style = MaterialTheme.typography.headlineSmall,
                 )
                 YearField(yearText = yearText, isValid = validYear, onYearChange = { yearText = it })
@@ -107,7 +111,7 @@ internal fun MonthYearPicker(
                     text = stringResource(R.string.month_picker_month),
                     style = MaterialTheme.typography.labelLarge,
                 )
-                MonthChips(selectedMonth = selectedMonth, lang = lang, onSelect = { selectedMonth = it })
+                MonthChips(selectedMonth = selectedMonth, monthNames = monthNames, onSelect = { selectedMonth = it })
                 Spacer(Modifier.height(4.dp))
                 PickerButtons(
                     enabled = validYear,
@@ -171,7 +175,7 @@ private fun YearField(
 @Composable
 private fun MonthChips(
     selectedMonth: Int,
-    lang: Lang,
+    monthNames: List<String>,
     onSelect: (Int) -> Unit,
 ) {
     Month.entries.chunked(MONTH_COLUMNS).forEach { months ->
@@ -185,7 +189,7 @@ private fun MonthChips(
                     onClick = { onSelect(month.value) },
                     label = {
                         Text(
-                            text = month.displayName(lang),
+                            text = monthNames[month.value - 1],
                             maxLines = 1,
                             textAlign = TextAlign.Center,
                         )

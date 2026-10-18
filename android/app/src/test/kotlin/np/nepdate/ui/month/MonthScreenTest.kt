@@ -3,10 +3,12 @@ package np.nepdate.ui.month
 import android.content.Context
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.assertHasNoClickAction
 import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
@@ -94,6 +96,36 @@ class MonthScreenTest {
         composeRule.onNodeWithText("Go").assertIsEnabled()
         composeRule.onNodeWithText("Cancel").performClick()
         composeRule.onNodeWithText("Choose month and year").assertDoesNotExist()
+    }
+
+    @Test
+    fun mr01Ac6PickerUsesTheProductMonthNames() {
+        setMonthScreen()
+        composeRule.onNodeWithContentDescription("Choose month and year").performClick()
+
+        composeRule.onNodeWithTag("month_option_6").assertTextEquals("Asoj")
+        composeRule.onNodeWithTag("month_option_3").assertTextEquals("Asar")
+        composeRule.onNodeWithTag("month_option_1").assertTextEquals("Baisakh")
+    }
+
+    @Test
+    fun mr10Ac4PickerHidesTheMonthAndHasNoUnlabelledControls() {
+        setMonthScreen()
+        composeRule.onNodeWithContentDescription("Choose month and year").performClick()
+
+        composeRule.onNodeWithContentDescription("Next month").assertDoesNotExist()
+        assertTrue(composeRule.onAllNodesWithTag("month_cell_in_2083-06-20").fetchSemanticsNodes().isEmpty())
+        composeRule.onAllNodes(hasClickAction()).fetchSemanticsNodes().forEach { node ->
+            val config = node.config
+            val labelled =
+                config.contains(SemanticsProperties.Text) ||
+                    config.contains(SemanticsProperties.ContentDescription) ||
+                    node.children.any { it.config.contains(SemanticsProperties.Text) }
+            assertTrue("an unlabelled click target in the picker: $config", labelled)
+        }
+
+        composeRule.onNodeWithText("Cancel").performClick()
+        composeRule.onNodeWithContentDescription("Next month").assertExists()
     }
 
     @Test

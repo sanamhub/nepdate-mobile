@@ -5,6 +5,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import io.github.sanamhub.nepdate.Lang
+import io.github.sanamhub.nepdate.Month
 import np.nepdate.ui.theme.NepdateTheme
 import org.junit.Rule
 import org.junit.Test
@@ -24,7 +25,7 @@ class MonthPickerTest {
                 MonthYearPicker(
                     initialYear = 2083,
                     initialMonth = 6,
-                    lang = Lang.ENGLISH,
+                    monthNames = Month.entries.map { it.displayName(Lang.ENGLISH) },
                     onDismiss = {},
                     onConfirm = { _, _ -> },
                 )
