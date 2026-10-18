@@ -58,9 +58,13 @@ too. Run 39111474141 linked the package and recorded an image. It showed no `Swi
 from the test bundle, fixed in I1-01 by linking the library products directly.
 
 The XCUITest in `NepDateUITests` launches the app, checks that the pager opened on today's month by
-finding the first day cell's spoken label, and calls `performAccessibilityAudit()`. It runs inside
-gate 4, so the gate count is unchanged. VoiceOver and Switch Control on a device are still a manual
-checklist item (MR-10 AC4); there is no device in this repository's CI.
+finding the first day cell's spoken label, and runs the accessibility audit one category per call.
+It runs inside gate 4, so the gate count is unchanged. The audit inspects the drawn numerals even
+though a cell's accessible element is the full spoken date, and reports that those hidden text
+nodes cannot scale. The test filters only a Dynamic Type finding whose element label is digits
+only and whose description names `SwiftUI.AccessibilityNode`; a finding on a spoken label still
+fails. VoiceOver and Switch Control on a device are still a manual checklist item (MR-10 AC4);
+there is no device in this repository's CI.
 
 Digits have their own setting, as on Android (MR-07 AC1): Follow language (the fresh-install
 default), Nepali and English. `DigitsSetting.resolved(for:)` turns it into the digits to draw at

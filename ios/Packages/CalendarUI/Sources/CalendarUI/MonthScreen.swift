@@ -329,44 +329,20 @@ private struct MonthGrid: View {
               Color.clear
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
-              let cellLabel = layout.accessibilityLabel(
-                for: cell,
+              DayCell(
+                cell: cell,
                 language: language,
                 digits: digits,
-                publicHoliday: publicHoliday
-              )
-              ZStack {
-                DayCell(
-                  cell: cell,
+                isSelected: cell.date == selected,
+                label: layout.accessibilityLabel(
+                  for: cell,
                   language: language,
                   digits: digits,
-                  isSelected: cell.date == selected
-                )
-                .accessibilityHidden(true)
-
-                if let date = cell.date {
-                  if cell.isSelectable {
-                    Button {
-                      onSelect(date)
-                    } label: {
-                      Color.clear
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .contentShape(Rectangle())
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityElement(children: .ignore)
-                    .accessibilityLabel(Text(cellLabel))
-                    .accessibilityValue(cell.isToday ? Text(todayLabel) : Text(""))
-                    .accessibilityAddTraits(cell.date == selected ? .isSelected : [])
-                  } else {
-                    Color.clear
-                      .contentShape(Rectangle())
-                      .accessibilityElement(children: .ignore)
-                      .accessibilityLabel(Text(cellLabel))
-                      .accessibilityValue(cell.isToday ? Text(todayLabel) : Text(""))
-                  }
-                }
-              }
+                  publicHoliday: publicHoliday
+                ),
+                todayLabel: todayLabel,
+                onSelect: onSelect
+              )
               .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
           }
@@ -390,9 +366,30 @@ private struct DayCell: View {
   let language: AppLanguage
   let digits: Digits
   let isSelected: Bool
+  let label: String
+  let todayLabel: String
+  let onSelect: (MonthDate) -> Void
 
   var body: some View {
-    content
+    if cell.isSelectable, let date = cell.date {
+      Button {
+        onSelect(date)
+      } label: {
+        content
+          .accessibilityHidden(true)
+      }
+      .buttonStyle(.plain)
+      .accessibilityElement(children: .ignore)
+      .accessibilityLabel(Text(label))
+      .accessibilityValue(cell.isToday ? Text(todayLabel) : Text(""))
+      .accessibilityAddTraits(.isButton)
+      .accessibilityAddTraits(isSelected ? .isSelected : [])
+    } else {
+      content
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(Text(label))
+        .accessibilityValue(cell.isToday ? Text(todayLabel) : Text(""))
+    }
   }
 
   private var content: some View {
