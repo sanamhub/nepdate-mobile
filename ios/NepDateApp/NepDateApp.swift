@@ -1,6 +1,5 @@
 import CalendarKit
 import CalendarUI
-import Foundation
 import SwiftUI
 
 @main
@@ -13,17 +12,21 @@ struct NepDateApp: App {
 }
 
 private struct RootView: View {
-  private let language = AppLanguage.current
-
   var body: some View {
-    let today = CalendarDates.today()
-    if let grid = MonthGrid(
+    let settings = SettingsStore().load()
+    let today = TodayProvider().today(dateFollows: settings.dateFollows)
+    let language = settings.language.resolved
+    if let layout = MonthLayout(
       year: today.year,
       month: today.month,
-      language: language,
+      showTithi: settings.showTithi,
       today: today
     ) {
-      MonthScreen(grid: grid, language: language)
+      MonthScreen(
+        layout: layout,
+        language: language,
+        digits: settings.digits.resolved(for: language)
+      )
     } else {
       Text("No date")
     }

@@ -23,10 +23,28 @@ cd ios
 open NepDate.xcodeproj        # after ci.sh, on a Mac
 ```
 
-`ci.sh` downloads XcodeGen 2.46.0, checks its SHA-256, generates the project and runs five gates:
-xcodegen, format, build, test, network. It ends with `ci: 5/5 gates passed`. The test gate renders
-the month screen and the widget to `build/snapshots`; `ios.yml` uploads them as the
+`ci.sh` downloads XcodeGen 2.46.0, checks its SHA-256, generates the project and runs six gates:
+xcodegen, format, build, test, coverage, network. It ends with `ci: 6/6 gates passed`. The test gate
+renders the month screen and the widget to `build/snapshots`; `ios.yml` uploads them as the
 `ios-screenshots` artefact.
+
+The coverage gate reads the test result bundle with `xcrun xccov` and fails below 80 % line
+coverage of `CalendarKit` (ADR-0008). On Xcode 26.6 `xccov` reports the local package target with no
+source lines (run 39103877148), so when that happens the gate reads the run's profile with
+`llvm-cov` against the `CalendarKit` framework instead, filtered to `Packages/CalendarKit/Sources`
+so code the framework carries from nepdate-swift does not count. The gate prints how many lines
+`llvm-cov` counted and fails when that is zero, so a filter or path that matches nothing cannot
+pass.
+
+`swift-snapshot-testing` is not in the project yet. Linking 1.19.6 into `NepDateTests` on Xcode 26.6
+failed: its SwiftUI snapshotting autolinks `SwiftUICore` and `UIUtilities`, and the linker rejects
+both for this product (run 39102808714). An unused pin would still be resolved and fetched on every
+build, so I1-03 adds the package together with the first comparison snapshot, once the link works;
+the screenshot renderer stays until then.
+
+Digits have their own setting, as on Android (MR-07 AC1): Follow language (the fresh-install
+default), Nepali and English. `DigitsSetting.resolved(for:)` turns it into the digits to draw at
+render time, so changing the language changes the digits without writing the setting.
 
 The App Group is `group.np.nepdate`; the bundle identifier is `np.nepdate` for the app and
 `np.nepdate.widgets` for the extension.
@@ -38,8 +56,13 @@ The App Group is `group.np.nepdate`; the bundle identifier is `np.nepdate` for t
 release tag yet, and this repository does not create tags, so a revision pin is the only exact pin
 available (ADR-0003 §1).
 
-When `nepdate-swift` 0.1.0 is released, replace the revision with `.exact("0.1.0")`, update the
-Dependabot entry for the two local packages, and check the app still passes `./scripts/ci.sh`.
+The revision appears once more in `project.yml`. Xcode links package products per target, and the
+test bundle imports `NepDate` and `NepDatePatro` directly to compare the month layout with the
+library, so it needs both products at the project level. `ci.sh` fails when the two revisions differ.
+
+When `nepdate-swift` 0.1.0 is released, replace both pins with `.exact("0.1.0")` and `exactVersion:
+0.1.0`, update the Dependabot entry for the two local packages, and check the app still passes
+`./scripts/ci.sh`.
 
 ## Xcode version
 

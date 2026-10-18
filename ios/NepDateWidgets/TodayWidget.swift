@@ -7,7 +7,7 @@ import WidgetKit
 /// The Today widget: the Bikram Sambat date at a glance.
 struct TodayWidget: Widget {
   var body: some WidgetConfiguration {
-    StaticConfiguration(kind: "TodayWidget", provider: TodayProvider()) { entry in
+    StaticConfiguration(kind: "TodayWidget", provider: TodayTimeline()) { entry in
       TodayWidgetView(summary: entry.summary)
         .containerBackground(.background, for: .widget)
     }
@@ -23,9 +23,10 @@ struct TodayEntry: TimelineEntry {
   let summary: TodaySummary
 }
 
-/// Supplies the widget's entries. The M0 placeholder reads the clock once per entry; I2 moves the
-/// midnight scheduling into CalendarKit.
-struct TodayProvider: TimelineProvider {
+/// Supplies the widget's entries from the shared settings, so the widget shows the same day,
+/// language and digits as the app. It reads the clock once per entry; I2 moves the midnight
+/// scheduling into CalendarKit.
+struct TodayTimeline: TimelineProvider {
   func placeholder(in context: Context) -> TodayEntry {
     TodayEntry(date: Date(), summary: current)
   }
@@ -40,6 +41,6 @@ struct TodayProvider: TimelineProvider {
   }
 
   private var current: TodaySummary {
-    TodaySummary.make(language: AppLanguage.current)
+    TodaySummary.make(settings: SettingsStore().load())
   }
 }

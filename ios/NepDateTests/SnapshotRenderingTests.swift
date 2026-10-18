@@ -5,45 +5,45 @@ import SwiftUI
 import Testing
 import UIKit
 
-/// Renders the screens and the widget to PNG files for review on the workflow artefact. These are
-/// screenshots, not reference comparisons: I1 turns them into `swift-snapshot-testing` snapshots
-/// when the screens are real (ADR-0008).
+/// Renders the screens and the widget to PNG files for review on the workflow artefact. The
+/// comparison snapshots come with I1-03, when the month screen has its variants.
 @MainActor
 @Suite("Screenshots", .serialized)
 struct SnapshotRenderingTests {
-  @Test("M0-03: the month screen renders in English and Nepali, light and dark")
+  @Test("I1-02: the month screen renders in English and Nepali, light and dark")
   func monthScreen() throws {
+    let today = MonthDate(year: 2083, month: 6, day: 18)
     let english = try #require(
-      MonthGrid(year: 2083, month: 6, language: .english, today: (2083, 6, 18))
+      MonthLayout(year: 2083, month: 6, showTithi: false, today: today)
     )
     let nepali = try #require(
-      MonthGrid(year: 2083, month: 6, language: .nepali, today: (2083, 6, 18))
+      MonthLayout(year: 2083, month: 6, showTithi: true, today: today)
     )
     let size = CGSize(width: 390, height: 520)
 
     try render(
-      MonthScreen(grid: english, language: .english),
+      MonthScreen(layout: english, language: .english, digits: .english),
       name: "month-en-light",
       size: size,
       scheme: .light,
       locale: Locale(identifier: "en")
     )
     try render(
-      MonthScreen(grid: english, language: .english),
+      MonthScreen(layout: english, language: .english, digits: .english),
       name: "month-en-dark",
       size: size,
       scheme: .dark,
       locale: Locale(identifier: "en")
     )
     try render(
-      MonthScreen(grid: nepali, language: .nepali),
+      MonthScreen(layout: nepali, language: .nepali, digits: .nepali),
       name: "month-ne-light",
       size: size,
       scheme: .light,
       locale: Locale(identifier: "ne")
     )
     try render(
-      MonthScreen(grid: nepali, language: .nepali),
+      MonthScreen(layout: nepali, language: .nepali, digits: .nepali),
       name: "month-ne-dark",
       size: size,
       scheme: .dark,
@@ -53,7 +53,9 @@ struct SnapshotRenderingTests {
 
   @Test("M0-03: the Today widget renders for the small and medium families")
   func widget() throws {
-    let summary = try #require(TodaySummary(year: 2081, month: 1, day: 1, language: .nepali))
+    let summary = try #require(
+      TodaySummary(year: 2081, month: 1, day: 1, language: .nepali, digits: .nepali)
+    )
     try render(
       TodayWidgetView(summary: summary),
       name: "widget-small-ne",

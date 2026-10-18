@@ -4,23 +4,27 @@ import UIKit
 
 /// The month screen: the month title, the weekday row and the grid of days.
 public struct MonthScreen: View {
-  private let grid: MonthGrid
+  private let layout: MonthLayout
   private let language: AppLanguage
+  private let digits: Digits
 
   /// Creates the screen.
   /// - Parameters:
-  ///   - grid: The month to draw.
-  ///   - language: The language of names and digits.
-  public init(grid: MonthGrid, language: AppLanguage) {
-    self.grid = grid
+  ///   - layout: The month to draw.
+  ///   - language: The language of the names.
+  ///   - digits: The resolved Digits setting.
+  public init(layout: MonthLayout, language: AppLanguage, digits: Digits) {
+    self.layout = layout
     self.language = language
+    self.digits = digits
   }
 
   /// The screen's content.
   public var body: some View {
-    VStack(alignment: .leading, spacing: 12) {
+    let weekdays = MonthLayout.weekdayNames(language)
+    return VStack(alignment: .leading, spacing: 12) {
       HStack(alignment: .firstTextBaseline) {
-        Text(grid.title)
+        Text(layout.title(language, digits: digits))
           .font(.largeTitle)
           .fontWeight(.bold)
         Spacer(minLength: 8)
@@ -29,20 +33,21 @@ public struct MonthScreen: View {
           .foregroundStyle(BrandColor.today)
       }
       LazyVGrid(columns: Self.columns, spacing: 0) {
-        ForEach(grid.weekdayNames.indices, id: \.self) { index in
-          Text(grid.weekdayNames[index])
+        ForEach(weekdays.indices, id: \.self) { index in
+          Text(weekdays[index])
             .font(.caption)
             .fontWeight(.medium)
             .foregroundStyle(index == 6 ? BrandColor.holiday : Color.secondary)
             .frame(maxWidth: .infinity)
             .padding(.bottom, 6)
         }
-        ForEach(grid.cells.indices, id: \.self) { index in
-          if let day = grid.cells[index] {
-            DayCell(day: day, language: language)
-          } else {
+        ForEach(layout.cells.indices, id: \.self) { index in
+          let cell = layout.cells[index]
+          if cell.date == nil {
             Color.clear
               .frame(height: 44)
+          } else {
+            DayCell(cell: cell, language: language, digits: digits)
           }
         }
       }
