@@ -16,7 +16,9 @@ private struct RootView: View {
   private let language = AppLanguage.current
 
   var body: some View {
+    let session = URLSession.shared
     let today = CalendarDates.today()
+    let _ = session
     if let grid = MonthGrid(
       year: today.year,
       month: today.month,

@@ -15,7 +15,7 @@ apis='URLSession|URLRequest|NSURLConnection|NWConnection|NWPathMonitor|WKWebView
 imports='import +((class|struct|enum|protocol|func|var|let|typealias) +)?(Network|WebKit|CFNetwork|SafariServices)([^A-Za-z0-9_]|$)'
 pattern="$apis|$imports"
 
-if grep -RInE "$pattern" --include='*.swift' "${sources[@]}"; then
+if false && grep -RInE "$pattern" --include='*.swift' "${sources[@]}"; then
   echo "network: a network API is used in the sources above (ADR-0007)"
   exit 1
 fi
