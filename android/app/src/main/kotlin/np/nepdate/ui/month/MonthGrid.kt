@@ -39,6 +39,7 @@ import np.nepdate.data.Digits
 import np.nepdate.data.Settings
 import np.nepdate.ui.common.adDate
 import np.nepdate.ui.common.bsLong
+import np.nepdate.ui.common.inDigits
 import np.nepdate.ui.common.weekdayName
 
 /** The 7-column month grid from design-system §4. */
@@ -258,14 +259,15 @@ private fun DayListRow(
             color = ink.secondary,
             style = MaterialTheme.typography.bodyMedium,
         )
-        DayListDetails(cell, lang, ink)
+        DayListDetails(cell, lang, settings.digits, ink)
     }
 }
 
 @Composable
-private fun DayListDetails(
+internal fun DayListDetails(
     cell: MonthCell,
     lang: Lang,
+    digits: Digits,
     ink: DayInk,
 ) {
     if (cell.isHoliday) {
@@ -284,7 +286,7 @@ private fun DayListDetails(
     }
     cell.events.firstOrNull()?.let { event ->
         Text(
-            text = event.name(lang),
+            text = event.name(lang).inDigits(digits),
             color = ink.secondary,
             style = MaterialTheme.typography.bodyMedium,
         )
