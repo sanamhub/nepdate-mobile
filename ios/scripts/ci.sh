@@ -11,7 +11,7 @@ SIMULATOR="platform=iOS Simulator,name=iPhone 17,OS=latest"
 DERIVED_DATA="build/DerivedData"
 PROJECT="NepDate.xcodeproj"
 SNAPSHOT_COUNT=6
-COVERAGE_MIN=80
+COVERAGE_MIN=99.9
 
 run() {
   echo "+ $*"
