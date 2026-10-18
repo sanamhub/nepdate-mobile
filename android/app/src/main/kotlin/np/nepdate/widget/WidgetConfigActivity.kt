@@ -36,8 +36,10 @@ import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.state.getAppWidgetState
 import androidx.glance.appwidget.state.updateAppWidgetState
 import androidx.glance.state.PreferencesGlanceStateDefinition
-import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import np.nepdate.NepdateApplication
@@ -49,6 +51,7 @@ class WidgetConfigActivity : ComponentActivity() {
     private val appWidgetId: Int by lazy {
         intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID)
     }
+    private val activityScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -71,9 +74,14 @@ class WidgetConfigActivity : ComponentActivity() {
         }
     }
 
+    override fun onDestroy() {
+        activityScope.cancel()
+        super.onDestroy()
+    }
+
     private fun save(opacity: WidgetOpacity) {
         val glanceId = GlanceAppWidgetManager(this).getGlanceIdBy(appWidgetId)
-        lifecycleScope.launch(Dispatchers.IO) {
+        activityScope.launch {
             updateAppWidgetState(this@WidgetConfigActivity, glanceId) { preferences ->
                 preferences[WIDGET_OPACITY_KEY] = opacity.key
             }
