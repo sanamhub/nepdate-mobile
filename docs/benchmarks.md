@@ -16,8 +16,14 @@ Android code).
 
 | Size | Value | Target | Result |
 |---|---:|---:|---|
-| Universal release APK, `app-release-unsigned.apk` | 1,659,769 bytes (1.66 MB) | ≤ 8 MB | Pass |
+| Universal release APK at A1, `app-release-unsigned.apk` | 1,659,769 bytes (1.66 MB) | ≤ 8 MB | Pass |
+| Universal release APK at A2, `app-release-unsigned.apk` | 2,392,371 bytes (2.28 MB) | ≤ 8 MB | Pass |
 | Play download size | Pending A3-02 | ≤ 6 MB | Pending |
+| W-03 RemoteViews parcel at 5×5, debug | 86,268 bytes (84.2 KiB) | API 37 cap, no bitmaps | Pass, measured 2026-10-18 by `WidgetParcelSizeTest` |
+
+The widget parcel size is a build-time RemoteViews measurement, not a device memory measurement. The
+API 37 memory cap on a device remains blocked by issue
+[#11](https://github.com/sanamhub/nepdate-mobile/issues/11), like the other hardware checks.
 
 The APK was built with `.\gradlew.bat :app:assembleRelease` after R8 full mode and resource
 shrinking. The benchmark tests are in `:baselineprofile`:
