@@ -1,3 +1,65 @@
 <resources>
     <string name="app_name">नेपडेट</string>
+
+    <string name="month_previous">अघिल्लो महिना</string>
+    <string name="month_next">अर्को महिना</string>
+    <string name="month_today">आज</string>
+    <string name="month_choose">महिना र वर्ष छान्नुहोस्</string>
+    <string name="month_picker_title">महिना र वर्ष छान्नुहोस्</string>
+    <string name="month_picker_month">महिना</string>
+    <string name="month_picker_year">वर्ष</string>
+    <string name="month_picker_go">जानुहोस्</string>
+    <string name="month_picker_cancel">रद्द गर्नुहोस्</string>
+    <string name="month_picker_year_error">१९०१ देखि २१९९ सम्मको वर्ष लेख्नुहोस्</string>
+    <string name="month_ad_span_same_month">%1$s %2$s</string>
+    <string name="month_ad_span_same_year">%1$s – %2$s %3$s</string>
+    <string name="month_ad_span_cross_year">%1$s %2$s – %3$s %4$s</string>
+    <string name="month_list_weekday_ad">%1$s · %2$s</string>
+    <string name="public_holiday">सार्वजनिक बिदा</string>
+    <string name="public_holiday_label">सार्वजनिक बिदा</string>
+
+    <string-array name="bs_month_long">
+        <item>बैशाख</item>
+        <item>जेठ</item>
+        <item>असार</item>
+        <item>साउन</item>
+        <item>भदौ</item>
+        <item>असोज</item>
+        <item>कार्तिक</item>
+        <item>मंसिर</item>
+        <item>पुष</item>
+        <item>माघ</item>
+        <item>फागुन</item>
+        <item>चैत</item>
+    </string-array>
+
+    <string-array name="ad_month_short">
+        <item>जनवरी</item>
+        <item>फेब्रुअरी</item>
+        <item>मार्च</item>
+        <item>अप्रिल</item>
+        <item>मे</item>
+        <item>जुन</item>
+        <item>जुलाई</item>
+        <item>अगस्ट</item>
+        <item>सेप्टेम्बर</item>
+        <item>अक्टोबर</item>
+        <item>नोभेम्बर</item>
+        <item>डिसेम्बर</item>
+    </string-array>
+
+    <string-array name="ad_month_long">
+        <item>जनवरी</item>
+        <item>फेब्रुअरी</item>
+        <item>मार्च</item>
+        <item>अप्रिल</item>
+        <item>मे</item>
+        <item>जुन</item>
+        <item>जुलाई</item>
+        <item>अगस्ट</item>
+        <item>सेप्टेम्बर</item>
+        <item>अक्टोबर</item>
+        <item>नोभेम्बर</item>
+        <item>डिसेम्बर</item>
+    </string-array>
 </resources>

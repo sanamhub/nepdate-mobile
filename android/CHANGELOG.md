@@ -5,3 +5,10 @@ All notable changes to the Android app. The format follows
 [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
+
+### Added
+
+- Month view (MR-01): a swipeable 5- or 6-row BS grid with AD days, holiday marks, event
+  dots, the today ring, a month and year picker, and a list layout at 200 % font scale.
+- Optional tithi line in the month grid (MR-01 AC8).
+
