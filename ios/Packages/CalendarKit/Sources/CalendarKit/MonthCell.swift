@@ -13,6 +13,15 @@ public struct MonthCell: Sendable, Hashable {
   /// The Gregorian day of the month; 0 when ``date`` is `nil`.
   public let adDay: Int
 
+  /// The Gregorian year; 0 when ``date`` is `nil`.
+  public let adYear: Int
+
+  /// The Gregorian month, 1 to 12; 0 when ``date`` is `nil`.
+  public let adMonth: Int
+
+  /// The weekday; `nil` when ``date`` is `nil`.
+  public let weekday: Weekday?
+
   /// Whether the date is a Saturday, the holiday column.
   public let isSaturday: Bool
 
@@ -36,11 +45,19 @@ public struct MonthCell: Sendable, Hashable {
     !events.isEmpty
   }
 
+  /// Whether tapping the cell selects its date (MR-01 AC7: neighbouring days are not tappable).
+  public var isSelectable: Bool {
+    isInMonth && date != nil
+  }
+
   init(date: NepaliDate?, inMonth: Bool, showTithi: Bool, today: MonthDate) {
     guard let date else {
       self.date = nil
       self.bsDay = 0
       self.adDay = 0
+      self.adYear = 0
+      self.adMonth = 0
+      self.weekday = nil
       self.isSaturday = false
       self.isHoliday = false
       self.isToday = false
@@ -54,6 +71,9 @@ public struct MonthCell: Sendable, Hashable {
     self.date = monthDate
     self.bsDay = date.day
     self.adDay = date.gregorian.day
+    self.adYear = date.gregorian.year
+    self.adMonth = date.gregorian.month
+    self.weekday = date.weekday
     self.isSaturday = date.weekday == .saturday
     self.isHoliday = info?.isPublicHoliday ?? false
     self.isToday = monthDate == today

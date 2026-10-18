@@ -10,7 +10,8 @@ The iPhone and iPad app and the Today widget extension. The Xcode project is gen
 | `NepDateWidgets/` | The widget extension: `@main` bundle, the placeholder Today widget, privacy manifest |
 | `Packages/CalendarKit` | Local SwiftPM package: dates, month layout, widget summaries, settings (I1) |
 | `Packages/CalendarUI` | Local SwiftPM package: the month screen and widget views shared by app and widget |
-| `NepDateTests/` | Swift Testing tests, hosted by the app; renders the screenshot artefact |
+| `NepDateTests/` | Swift Testing tests and the committed snapshot references; renders the screenshot artefact |
+| `NepDateUITests/` | The XCUITest that opens the app and runs `performAccessibilityAudit()` |
 | `Resources/` | `Localizable.xcstrings` (English and Nepali) |
 | `Config/` | Info.plists and the App Group entitlements for both targets |
 | `scripts/ci.sh` | The gates of ADR-0008 |
@@ -25,8 +26,9 @@ open NepDate.xcodeproj        # after ci.sh, on a Mac
 
 `ci.sh` downloads XcodeGen 2.46.0, checks its SHA-256, generates the project and runs six gates:
 xcodegen, format, build, test, coverage, network. It ends with `ci: 6/6 gates passed`. The test gate
-renders the month screen and the widget to `build/snapshots`; `ios.yml` uploads them as the
-`ios-screenshots` artefact.
+runs the Swift Testing suites and the XCUITest, renders the month screen and the widget to
+`build/snapshots`, and compares the six reference snapshots. `ios.yml` uploads the screenshots and
+the references as artefacts.
 
 The coverage gate reads the test result bundle with `xcrun xccov` and fails below 80 % line
 coverage of `CalendarKit` (ADR-0008). On Xcode 26.6 `xccov` reports the local package target with no
@@ -36,11 +38,29 @@ so code the framework carries from nepdate-swift does not count. The gate prints
 `llvm-cov` counted and fails when that is zero, so a filter or path that matches nothing cannot
 pass.
 
-`swift-snapshot-testing` is not in the project yet. Linking 1.19.6 into `NepDateTests` on Xcode 26.6
-failed: its SwiftUI snapshotting autolinks `SwiftUICore` and `UIUtilities`, and the linker rejects
-both for this product (run 39102808714). An unused pin would still be resolved and fetched on every
-build, so I1-03 adds the package together with the first comparison snapshot, once the link works;
-the screenshot renderer stays until then.
+`swift-snapshot-testing` 1.19.6 is pinned in `project.yml` and linked only to `NepDateTests`. The
+six reference images are in `NepDateTests/__Snapshots__/MonthSnapshotTests`: light with Asoj 25
+selected, dark, Nepali with the tithi line, tithi in English, `.xxxLarge`, and `.accessibility2`.
+They are 390 by 844 points, rendered on the iPhone 17 simulator by Xcode 26.6. The test gate sets
+`SNAPSHOT_TESTING_RECORD=never`, so a missing image fails instead of being written.
+
+To re-record after an intended visual change, run the iOS workflow by hand on the branch with
+`record_snapshots` checked, download the `ios-snapshot-references` artefact, copy the PNGs into
+`NepDateTests/__Snapshots__/MonthSnapshotTests`, review them, and commit. The recording run fails
+at the test gate by design, because `swift-snapshot-testing` reports every recorded image as an
+issue so that a human reviews it. Use its artefact, then run the workflow normally.
+
+1.19.6 is the newest tag (checked 2026-10-18). Its package has one `SnapshotTesting` product, and
+that product always compiles its SwiftUI file, so no product leaves SwiftUI out. The tests call the
+UIKit `.image` strategy on a `UIHostingController`, which is the renderer the SwiftUI overload uses
+too. Run 39111474141 linked the package and recorded an image. It showed no `SwiftUICore` or
+`UIUtilities` link warnings. The failure in run 39102808714 was undefined `NepDatePatro` symbols
+from the test bundle, fixed in I1-01 by linking the library products directly.
+
+The XCUITest in `NepDateUITests` launches the app, checks that the pager opened on today's month by
+finding the first day cell's spoken label, and calls `performAccessibilityAudit()`. It runs inside
+gate 4, so the gate count is unchanged. VoiceOver and Switch Control on a device are still a manual
+checklist item (MR-10 AC4); there is no device in this repository's CI.
 
 Digits have their own setting, as on Android (MR-07 AC1): Follow language (the fresh-install
 default), Nepali and English. `DigitsSetting.resolved(for:)` turns it into the digits to draw at

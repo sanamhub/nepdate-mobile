@@ -28,6 +28,9 @@ packages:
   NepDate:
     url: https://github.com/sanamhub/nepdate-swift.git
     revision: "708cd3626ecb22abbb90a3f1d1adc05e778db6d5"
+  SnapshotTesting:
+    url: https://github.com/pointfreeco/swift-snapshot-testing.git
+    exactVersion: 1.19.6
 
 targets:
   NepDateApp:
@@ -71,6 +74,8 @@ targets:
     platform: iOS
     sources:
       - path: NepDateTests
+        excludes:
+          - "__Snapshots__"
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: np.nepdate.tests
@@ -85,6 +90,21 @@ targets:
         product: NepDate
       - package: NepDate
         product: NepDatePatro
+      - package: SnapshotTesting
+
+  NepDateUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - path: NepDateUITests
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: np.nepdate.uitests
+        GENERATE_INFOPLIST_FILE: YES
+        TEST_TARGET_NAME: NepDateApp
+    dependencies:
+      - target: NepDateApp
+      - package: CalendarKit
 
 schemes:
   NepDate:
@@ -98,5 +118,6 @@ schemes:
       gatherCoverageData: false
       targets:
         - NepDateTests
+        - NepDateUITests
     archive:
       config: Release

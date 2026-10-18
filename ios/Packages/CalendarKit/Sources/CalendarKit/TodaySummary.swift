@@ -49,7 +49,7 @@ public struct TodaySummary: Sendable, Hashable {
 
   private init(date: NepaliDate, language: AppLanguage, digits: Digits) {
     self.day = digits.format(date.day)
-    self.month = date.bsMonth.name(language.lang)
+    self.month = MonthNames.bs(date.month, language)
     self.weekday = date.weekday.name(language.lang)
     self.isHoliday = date.calendarInfo.isPublicHoliday
   }

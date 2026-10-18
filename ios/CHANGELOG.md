@@ -15,3 +15,9 @@ All notable changes to the iOS app. The format follows
   today provider and the 5- or 6-row month layout with tithi, events and dimmed neighbouring days.
 - The CalendarKit coverage gate at 80 %.
 - The Today widget reads the shared settings for its day, language and digits.
+- The month screen: `TabView` with Month, Upcoming and Converter, month paging, the BS 1901 to 2199
+  picker, previous and next buttons, the Today button, day selection, VoiceOver labels and the list
+  layout at accessibility text sizes (MR-01, MR-10).
+- Six reference snapshots of Asoj 2083 in light, dark, Nepali, `.xxxLarge` and `.accessibility2`,
+  compared with `swift-snapshot-testing` 1.19.6.
+- An XCUITest that checks the pager opens on today and runs `performAccessibilityAudit()`.

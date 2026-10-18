@@ -22,6 +22,19 @@ public enum BrandColor {
     }
   )
 
+  /// Secondary text that keeps at least 4.5:1 on the system backgrounds (MR-10 AC3). The system
+  /// secondary label is lighter than that in light mode, so the month screen uses this pair.
+  public static let secondaryText = Color(
+    uiColor: UIColor { traits in
+      traits.userInterfaceStyle == .dark
+        ? UIColor(white: 0.78, alpha: 1.0)
+        : UIColor(white: 0.40, alpha: 1.0)
+    }
+  )
+
+  /// The fill behind the selected day (MR-01 AC4).
+  public static let selection = Color(uiColor: .secondarySystemFill)
+
   /// The today ring and "Today" button blue: `#003893` in light, `#8FB3FF` in dark.
   public static let today = Color(
     uiColor: UIColor { traits in
