@@ -20,8 +20,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.compositeOver
-import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
@@ -29,9 +27,9 @@ import androidx.compose.ui.unit.sp
 import np.nepdate.R
 import np.nepdate.ui.theme.HeroTextStyle
 import np.nepdate.ui.theme.LocalNepdateColors
+import np.nepdate.ui.theme.contrastRatio
+import np.nepdate.ui.theme.holidayFillOn
 import java.util.Locale
-import kotlin.math.max
-import kotlin.math.min
 
 /** The three parts of the M0 design spike. */
 enum class SpikePart {
@@ -149,7 +147,7 @@ private fun DevanagariHero() {
 private fun ColourTokens() {
     val background = MaterialTheme.colorScheme.background
     val colors = LocalNepdateColors.current
-    val fill = colors.holidayFill.compositeOver(background)
+    val fill = colors.holidayFillOn(background)
 
     Text(
         text = stringResource(R.string.design_spike_colour),
@@ -167,7 +165,7 @@ private fun ColourTokens() {
     )
     ColourRow(
         label = stringResource(R.string.design_spike_fill),
-        swatch = colors.holidayFill,
+        swatch = fill,
         ratio = contrastRatio(colors.holiday, fill),
         detail = stringResource(R.string.design_spike_on_fill),
     )
@@ -207,23 +205,14 @@ private fun ColourTokens() {
                 Modifier
                     .size(96.dp)
                     .clip(RoundedCornerShape(12.dp))
-                    .background(MaterialTheme.colorScheme.surfaceVariant),
+                    .background(fill),
             contentAlignment = Alignment.Center,
         ) {
-            Box(
-                modifier =
-                    Modifier
-                        .size(80.dp)
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(colors.holidayFill),
-                contentAlignment = Alignment.Center,
-            ) {
-                Text(
-                    text = "१५",
-                    color = colors.holiday,
-                    style = MaterialTheme.typography.titleLarge,
-                )
-            }
+            Text(
+                text = "१५",
+                color = colors.holiday,
+                style = MaterialTheme.typography.titleLarge,
+            )
         }
         Column {
             Text(
@@ -280,14 +269,4 @@ private fun ColourRow(
             )
         }
     }
-}
-
-private fun contrastRatio(
-    foreground: Color,
-    background: Color,
-): Float {
-    val opaqueForeground = foreground.compositeOver(background)
-    val lighter = max(opaqueForeground.luminance(), background.luminance())
-    val darker = min(opaqueForeground.luminance(), background.luminance())
-    return (lighter + 0.05f) / (darker + 0.05f)
 }

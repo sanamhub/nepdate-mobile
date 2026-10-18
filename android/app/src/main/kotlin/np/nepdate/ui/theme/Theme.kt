@@ -2,6 +2,7 @@ package np.nepdate.ui.theme
 
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
@@ -49,17 +50,7 @@ fun NepdateTheme(
             else -> LightColors
         }
 
-    val brandColors =
-        NepdateColors(
-            holiday = if (darkTheme) HolidayDark else HolidayLight,
-            holidayFill =
-                (if (darkTheme) HolidayDark else HolidayLight).copy(
-                    alpha = if (darkTheme) 0.16f else 0.10f,
-                ),
-            today = if (darkTheme) TodayDark else TodayLight,
-            event = colorScheme.onSurfaceVariant,
-            dimmed = colorScheme.onSurfaceVariant,
-        )
+    val brandColors = nepdateColorsFor(darkTheme, colorScheme)
 
     CompositionLocalProvider(LocalNepdateColors provides brandColors) {
         MaterialTheme(
@@ -68,4 +59,27 @@ fun NepdateTheme(
             content = content,
         )
     }
+}
+
+/**
+ * The brand colours for one theme. The design spike test uses this function so its contrast check
+ * sees the same values as the running app.
+ *
+ * @return the holiday, fill, today, event and dimmed colours
+ */
+internal fun nepdateColorsFor(
+    darkTheme: Boolean,
+    colorScheme: ColorScheme,
+): NepdateColors {
+    val holiday = if (darkTheme) HolidayDark else HolidayLight
+    return NepdateColors(
+        holiday = holiday,
+        holidayFill =
+            holiday.copy(
+                alpha = if (darkTheme) HOLIDAY_FILL_DARK_ALPHA else HOLIDAY_FILL_LIGHT_ALPHA,
+            ),
+        today = if (darkTheme) TodayDark else TodayLight,
+        event = colorScheme.onSurfaceVariant,
+        dimmed = colorScheme.onSurfaceVariant,
+    )
 }

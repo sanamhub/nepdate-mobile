@@ -59,22 +59,33 @@ line and in the Android 16 `elegantTextHeight` change.
 
 ## Colour
 
-The ratios are measured from the token values in the debug screen. `holidayFill` is the holiday
-colour at 10 % in light and 16 % in dark, composited over the background; its ratio is the holiday
-text on that fill. The threshold is 4.5:1 (MR-10 AC3).
+The holiday cell draws `holidayFill` directly on the screen background. There is no
+`surfaceVariant` container between them. The earlier container made the dark fill 2.82:1 and the
+light fill 3.86:1, although the token measured 4.82:1 and 4.89:1 over the background. The cell and
+the check now call the same `NepdateColors.holidayFillOn(surface)` and `contrastRatio` functions.
+
+| Scheme | Cell surface | Composited fill | Holiday text on fill | Threshold | Result |
+|---|---|---|---|---|---|
+| Light | `#FFFBFE` | `#F9E3E9` | 4.82:1 | 4.5:1 | Measured pass, not verified on device |
+| Dark | `#1C1B1F` | `#40282E` | 4.89:1 | 4.5:1 | Measured pass, not verified on device |
+| Dynamic light | Robolectric dynamic surface | `#F5E0EA` | 4.69:1 | 4.5:1 | Measured pass, not verified on device |
+
+The threshold is 4.5:1 (MR-10 AC3). The alphas are unchanged: 10 % in light and 16 % in dark.
+`HolidayCellContrastTest` fails below 4.5:1 for light, dark and dynamic, using the same functions as
+the cell. At a temporary light alpha of 30 % the test failed at 3.34:1.
+
+The other tokens are measured on the background:
 
 | Token | Light | Dark | Threshold | Result |
 |---|---|---|---|---|
 | `holiday` on background | 5.74:1 | 6.23:1 | 4.5:1 | Measured pass, not verified on device |
-| `holidayFill` with `holiday` text | 4.82:1 | 4.89:1 | 4.5:1 | Measured pass, not verified on device |
 | `today` on background | 10.31:1 | 8.21:1 | 4.5:1 | Measured pass, not verified on device |
 | `event` on background | 9.11:1 | 10.05:1 | 4.5:1 | Measured pass, not verified on device |
 | `dimmed` on background | 9.11:1 | 10.05:1 | 4.5:1 | Measured pass, not verified on device |
 
 With Android dynamic colour the surface changes, so the same fixed brand tokens measure 5.59:1 for
-`holiday`, 4.69:1 for `holidayFill`, 10.03:1 for `today`, and 9.39:1 for `event` and `dimmed` in the
-Robolectric light surface. All pass the threshold; the real wallpaper colours are still a device
-check.
+`holiday`, 10.03:1 for `today`, and 9.39:1 for `event` and `dimmed` in the Robolectric light
+surface. All pass the threshold; the real wallpaper colours are still a device check.
 
 Screenshots:
 
