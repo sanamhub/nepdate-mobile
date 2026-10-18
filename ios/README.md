@@ -44,11 +44,18 @@ Dependabot entry for the two local packages, and check the app still passes `./s
 ## Xcode version
 
 ADR-0004 and ADR-0008 ask for the latest stable Xcode, which ADR-0004 records as 27.x. On
-2026-10-18 the `macos-26` image has Xcode 26.6 as its default and Xcode 27 only as a preview, so
-`ios.yml` selects `/Applications/Xcode_26.6.app` by path through `DEVELOPER_DIR` and fails if that
-path is missing. The workflow lists the Xcode versions on the image in its log. Move the path to
-Xcode 27.x once the image ships a non-preview 27, and before the first App Store upload (I3), since
+2026-10-18 the `macos-26` image has Xcode 26.0 to 26.6 in `/Applications` and no Xcode 27 (run
+39100819816 lists them), so `ios.yml` selects `/Applications/Xcode_26.6.app` by path through
+`DEVELOPER_DIR` and fails if that path is missing. The workflow prints the list on every run. Move
+the path to Xcode 27.x once the image has it, and before the first App Store upload (I3), since
 uploads need the current SDK.
+
+## Network check
+
+`scripts/check-network.sh` greps the sources, then checks the release executables with `otool -L`
+for networking frameworks and `nm -u` for networking classes. Each half has failed on purpose once:
+a source `import Network` (run 39098192026) and, with the source grep switched off, a
+`URLSession.shared` call caught in the binary (run 39100833738).
 
 ## Executable sizes
 
