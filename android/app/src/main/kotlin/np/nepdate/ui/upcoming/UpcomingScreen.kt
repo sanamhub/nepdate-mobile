@@ -34,6 +34,7 @@ import np.nepdate.data.Settings
 import np.nepdate.ui.common.ScreenHeader
 import np.nepdate.ui.common.adDate
 import np.nepdate.ui.common.bsLong
+import np.nepdate.ui.common.inDigits
 import np.nepdate.ui.common.languageFor
 import np.nepdate.ui.common.monthTitle
 import np.nepdate.ui.common.resolve
@@ -178,7 +179,7 @@ private fun UpcomingRow(
     monthNames: List<String>,
     onClick: () -> Unit,
 ) {
-    val relative = relativeLabel(entry)
+    val relative = relativeLabel(entry).inDigits(settings.digits)
     val bs = bsLong(entry.date, bsMonthNames[entry.date.monthValue - 1], settings.digits)
     val ad = adDate(entry.date, monthNames, settings.digits)
     Row(

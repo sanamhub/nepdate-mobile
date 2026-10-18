@@ -6,7 +6,8 @@ store download ≤ 6 MB.
 
 ## Android
 
-Measured on 2026-10-18 at commit `869ea26` (A1-07).
+Measured on 2026-10-18 at A1-07 (`32a16d5` after the rebase onto `main`; the rebase changed no
+Android code).
 
 | Device | Cold start, median of 10 `timeToFullDisplayMs` | Month swipe, 10 swipes | Result |
 |---|---:|---:|---|

@@ -37,10 +37,12 @@ import io.github.sanamhub.nepdate.Lang
 import io.github.sanamhub.nepdate.NepaliDate
 import io.github.sanamhub.nepdate.toLocalDate
 import np.nepdate.R
+import np.nepdate.data.Digits
 import np.nepdate.data.Settings
 import np.nepdate.ui.common.ScreenHeader
 import np.nepdate.ui.common.adDate
 import np.nepdate.ui.common.bsLong
+import np.nepdate.ui.common.inDigits
 import np.nepdate.ui.common.languageFor
 import np.nepdate.ui.common.resolve
 import np.nepdate.ui.common.weekdayName
@@ -87,6 +89,7 @@ internal fun ConverterScreen(
                 initialAd = state.result?.ad ?: today.toLocalDate(),
                 error = state.error,
                 bsMonthNames = bsMonthNames,
+                digits = displaySettings.digits,
             )
             state.result?.let { result ->
                 ResultBlock(
@@ -118,6 +121,7 @@ private fun BsConverter(
     initialAd: LocalDate,
     error: ConverterError?,
     bsMonthNames: List<String>,
+    digits: Digits,
 ) {
     OutlinedTextField(
         value = bsInput,
@@ -145,7 +149,7 @@ private fun BsConverter(
     AdDateButton(initial = initialAd, onPicked = onAdPicked)
     error?.let {
         Text(
-            text = errorText(it, bsMonthNames),
+            text = errorText(it, bsMonthNames, digits),
             modifier = Modifier.testTag("converter_error"),
             color = MaterialTheme.colorScheme.error,
             style = MaterialTheme.typography.bodyMedium,
@@ -214,7 +218,7 @@ private fun ResultBlock(
         style = MaterialTheme.typography.bodyLarge,
     )
     Text(
-        text = daysFromToday(result.daysFromToday),
+        text = daysFromToday(result.daysFromToday, settings.digits),
         color = LocalNepdateColors.current.dimmed,
         style = MaterialTheme.typography.bodyMedium,
     )
@@ -255,7 +259,7 @@ private fun CompareBlock(
     }
     state.comparisonError?.let {
         Text(
-            text = errorText(it, bsMonthNames),
+            text = errorText(it, bsMonthNames, settings.digits),
             color = MaterialTheme.colorScheme.error,
             style = MaterialTheme.typography.bodyMedium,
         )
@@ -281,7 +285,7 @@ private fun CompareBlock(
             style = MaterialTheme.typography.bodyMedium,
         )
         Text(
-            text = differenceText(comparison.diff),
+            text = differenceText(comparison.diff, settings.digits),
             color = MaterialTheme.colorScheme.onSurface,
             style = MaterialTheme.typography.bodyLarge,
         )
@@ -292,6 +296,7 @@ private fun CompareBlock(
 private fun errorText(
     error: ConverterError,
     bsMonthNames: List<String>,
+    digits: Digits,
 ): String =
     when (error) {
         is ConverterError.InvalidDay ->
@@ -306,21 +311,27 @@ private fun errorText(
         ConverterError.OutOfRange -> stringResource(R.string.converter_error_out_of_range)
         ConverterError.Unreadable -> stringResource(R.string.converter_error_unreadable)
         ConverterError.NoFirstDate -> stringResource(R.string.converter_error_no_first_date)
-    }
+    }.inDigits(digits)
 
 @Composable
-private fun daysFromToday(days: Int): String =
+private fun daysFromToday(
+    days: Int,
+    digits: Digits,
+): String =
     when {
         days == 0 -> stringResource(R.string.converter_today)
         days == 1 -> stringResource(R.string.converter_tomorrow)
         days > 0 -> pluralStringResource(R.plurals.converter_days_from_today, days, days)
         else -> pluralStringResource(R.plurals.converter_days_before_today, -days, -days)
-    }
+    }.inDigits(digits)
 
 @Composable
-private fun differenceText(diff: DateDiff): String =
+private fun differenceText(
+    diff: DateDiff,
+    digits: Digits,
+): String =
     listOf(
         pluralStringResource(R.plurals.converter_years, diff.years, diff.years),
         pluralStringResource(R.plurals.converter_months, diff.months, diff.months),
         pluralStringResource(R.plurals.converter_days, diff.days, diff.days),
-    ).joinToString(", ")
+    ).joinToString(", ").inDigits(digits)
