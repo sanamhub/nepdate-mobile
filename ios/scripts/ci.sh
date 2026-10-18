@@ -83,7 +83,10 @@ gate_build() {
 gate_test() {
   rm -rf "build/TestResults.xcresult" "build/snapshots"
   echo "test: snapshot record mode ${SNAPSHOT_RECORD}"
-  export SNAPSHOT_TESTING_RECORD="$SNAPSHOT_RECORD"
+  # xcodebuild passes a variable into the test process on the simulator only with the
+  # TEST_RUNNER_ prefix, which it strips; without it the library falls back to recording
+  # missing references silently.
+  export TEST_RUNNER_SNAPSHOT_TESTING_RECORD="$SNAPSHOT_RECORD"
   run xcodebuild test \
     -project "$PROJECT" \
     -scheme NepDate \
