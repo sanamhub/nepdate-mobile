@@ -17,9 +17,19 @@ class BaselineProfileGenerator {
 
     @Test
     fun generate() {
-        rule.collect(packageName = "np.nepdate") {
+        rule.collect(packageName = PACKAGE_NAME) {
             startActivityAndWait()
             device.waitForIdle()
+            repeat(PROFILE_SWIPES) {
+                device.swipe(
+                    (device.displayWidth * SWIPE_START_X_FRACTION).toInt(),
+                    (device.displayHeight * SWIPE_Y_FRACTION).toInt(),
+                    (device.displayWidth * SWIPE_END_X_FRACTION).toInt(),
+                    (device.displayHeight * SWIPE_Y_FRACTION).toInt(),
+                    SWIPE_STEPS,
+                )
+                device.waitForIdle()
+            }
         }
     }
 }

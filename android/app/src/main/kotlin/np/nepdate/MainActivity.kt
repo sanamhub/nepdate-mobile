@@ -13,7 +13,7 @@ class MainActivity : ComponentActivity() {
         val container = (application as NepdateApplication).container
         setContent {
             NepdateTheme {
-                NepdateApp(container)
+                NepdateApp(container = container, onFirstGridDrawn = { reportFullyDrawn() })
             }
         }
     }

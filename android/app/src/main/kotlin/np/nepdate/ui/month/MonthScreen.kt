@@ -83,6 +83,7 @@ fun MonthScreen(
     modifier: Modifier = Modifier,
     nepalTime: String? = null,
     onSettings: (() -> Unit)? = null,
+    onFirstGridDrawn: () -> Unit = {},
 ) {
     val lang = languageFor(LocalConfiguration.current.locales[0])
     val pagerState = rememberPagerState(initialPage = monthPage(initialYear, initialMonth)) { MONTH_PAGE_COUNT }
@@ -126,6 +127,7 @@ fun MonthScreen(
             today = today,
             lang = lang,
             onDayClick = { selectedDate = it },
+            onFirstGridDrawn = onFirstGridDrawn,
             modifier = Modifier.weight(1f),
         )
     }
@@ -181,6 +183,7 @@ private fun MonthPager(
     today: NepaliDate,
     lang: Lang,
     onDayClick: (NepaliDate) -> Unit,
+    onFirstGridDrawn: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val monthNames = stringArrayResource(R.array.ad_month_long).toList()
@@ -219,6 +222,7 @@ private fun MonthPager(
                 monthNames = monthNames,
                 publicHoliday = publicHoliday,
                 onDayClick = onDayClick,
+                onFirstGridDrawn = if (page == pagerState.currentPage) onFirstGridDrawn else ({}),
             )
         }
     }

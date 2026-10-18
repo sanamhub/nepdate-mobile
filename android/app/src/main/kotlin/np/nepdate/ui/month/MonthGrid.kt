@@ -18,6 +18,8 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.testTag
@@ -53,8 +55,12 @@ internal fun MonthGrid(
     publicHoliday: String,
     onDayClick: (NepaliDate) -> Unit,
     modifier: Modifier = Modifier,
+    onFirstGridDrawn: () -> Unit = {},
 ) {
-    val publicHoliday = stringResource(R.string.public_holiday_label)
+    LaunchedEffect(Unit) {
+        withFrameNanos { }
+        onFirstGridDrawn()
+    }
     val todayDescription = stringResource(R.string.month_today)
     Column(
         modifier =

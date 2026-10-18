@@ -26,4 +26,6 @@ All notable changes to the Android app. The format follows
   subscription row stays hidden until the hub publishes its `.ics` file.
 - The first-launch "Nepal time" suggestion, and the current Nepal time in the month header when
   the zones differ. Settings opens from the top app bar on every tab.
+- `reportFullyDrawn()` after the first month grid is drawn, a Baseline Profile generator for
+  start-up and month swipes, and Macrobenchmarks for cold start and month swipe frame timing.
 

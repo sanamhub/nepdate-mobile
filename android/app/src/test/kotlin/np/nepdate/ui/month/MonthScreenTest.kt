@@ -205,6 +205,16 @@ class MonthScreenTest {
     }
 
     @Test
+    fun firstGridIsReportedOnce() {
+        var reports = 0
+        setMonthScreen(onFirstGridDrawn = { reports++ })
+
+        composeRule.waitForIdle()
+
+        assertEquals(1, reports)
+    }
+
+    @Test
     fun mr10Ac2GridAtNormalFontScale() {
         setMonthScreen()
 
@@ -255,6 +265,7 @@ class MonthScreenTest {
         fontScale: Float = 1f,
         nepalTime: String? = null,
         onSettings: (() -> Unit)? = null,
+        onFirstGridDrawn: () -> Unit = {},
     ) {
         composeRule.setContent {
             val density = LocalDensity.current
@@ -269,6 +280,7 @@ class MonthScreenTest {
                         settings = settings,
                         nepalTime = nepalTime,
                         onSettings = onSettings,
+                        onFirstGridDrawn = onFirstGridDrawn,
                     )
                 }
             }
