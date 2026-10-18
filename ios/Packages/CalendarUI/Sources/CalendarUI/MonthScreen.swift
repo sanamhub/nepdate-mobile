@@ -180,7 +180,7 @@ private struct MonthHeader: View {
     }
     .frame(maxWidth: .infinity, alignment: .leading)
     .padding(.horizontal, 16)
-    .padding(.top, 8)
+    .padding(.top, 10)
     .padding(.bottom, 4)
   }
 
