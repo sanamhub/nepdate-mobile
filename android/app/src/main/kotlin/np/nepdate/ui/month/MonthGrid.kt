@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -62,7 +61,6 @@ internal fun MonthGrid(
             modifier
                 .fillMaxSize()
                 .padding(horizontal = 8.dp)
-                .navigationBarsPadding()
                 .testTag("month_grid"),
     ) {
         layout.cells.chunked(DAYS_PER_WEEK).forEachIndexed { rowIndex, row ->
@@ -179,7 +177,6 @@ internal fun MonthList(
         modifier =
             modifier
                 .fillMaxSize()
-                .navigationBarsPadding()
                 .testTag("month_list"),
         contentPadding = PaddingValues(16.dp),
     ) {

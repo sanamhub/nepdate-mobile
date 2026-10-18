@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">नेपडेट</string>
 
     <string name="month_previous">अघिल्लो महिना</string>
@@ -28,6 +28,67 @@
     <string name="day_calendar_unavailable">पात्रो एप भेटिएन</string>
     <string name="day_close">बन्द गर्नुहोस्</string>
     <string name="day_weekday_ad">%1$s, %2$s</string>
+
+    <string name="nav_month">महिना</string>
+    <string name="nav_upcoming">आउँदो</string>
+    <string name="nav_converter">परिवर्तक</string>
+    <string name="settings_title">सेटिङ</string>
+
+    <string name="upcoming_title">आउँदो</string>
+    <string name="upcoming_empty">अझै आउँदो बिदा वा कार्यक्रम छैन</string>
+    <string name="upcoming_data_ends">बिदा र कार्यक्रमको जानकारी %1$s मा सकिन्छ</string>
+    <string name="upcoming_tomorrow">भोलि</string>
+    <string name="upcoming_date">%1$s · %2$s</string>
+
+    <plurals name="upcoming_in_days">
+        <item quantity="one">%1$d दिनमा</item>
+        <item quantity="other">%1$d दिनमा</item>
+    </plurals>
+
+    <string name="converter_title">मिति परिवर्तक</string>
+    <string name="converter_bs_label">नेपाली मिति</string>
+    <string name="converter_bs_hint" tools:ignore="TypographyDashes">२०८३-०६-२० वा २०८३ असोज २०</string>
+    <string name="converter_convert">बदल्नुहोस्</string>
+    <string name="converter_choose_ad">ईस्वी मिति छान्नुहोस्</string>
+    <string name="converter_ad_picker_title">ईस्वी मिति छान्नुहोस्</string>
+    <string name="converter_result">नतिजा</string>
+    <string name="converter_compare_label">यससँग तुलना गर्नुहोस्</string>
+    <string name="converter_compare_hint" tools:ignore="TypographyDashes">२०८२-०१-०१</string>
+    <string name="converter_compare">तुलना गर्नुहोस्</string>
+    <string name="converter_compare_range">%1$s देखि %2$s</string>
+    <string name="converter_weekday_ad">%1$s, %2$s</string>
+    <string name="converter_today">आज</string>
+    <string name="converter_tomorrow">भोलि</string>
+    <string name="converter_error_invalid_month">महिना १ देखि १२ सम्म हुनुपर्छ</string>
+    <string name="converter_error_out_of_range">यो मिति नेपाली मितिको दायराबाहिर छ</string>
+    <string name="converter_error_unreadable" tools:ignore="TypographyDashes">२०८३-०६-२० जस्तो नेपाली मिति लेख्नुहोस्</string>
+    <string name="converter_error_no_first_date">पहिले मिति बदल्नुहोस्</string>
+
+    <plurals name="converter_error_invalid_day">
+        <item quantity="one">%1$s %3$d मा %2$d दिन छ</item>
+        <item quantity="other">%1$s %3$d मा %2$d दिन छ</item>
+    </plurals>
+
+    <plurals name="converter_days_from_today">
+        <item quantity="one">%1$d दिन पछि</item>
+        <item quantity="other">%1$d दिन पछि</item>
+    </plurals>
+    <plurals name="converter_days_before_today">
+        <item quantity="one">%1$d दिन अघि</item>
+        <item quantity="other">%1$d दिन अघि</item>
+    </plurals>
+    <plurals name="converter_years">
+        <item quantity="one">%1$d वर्ष</item>
+        <item quantity="other">%1$d वर्ष</item>
+    </plurals>
+    <plurals name="converter_months">
+        <item quantity="one">%1$d महिना</item>
+        <item quantity="other">%1$d महिना</item>
+    </plurals>
+    <plurals name="converter_days">
+        <item quantity="one">%1$d दिन</item>
+        <item quantity="other">%1$d दिन</item>
+    </plurals>
 
     <string-array name="bs_month_long">
         <item>बैशाख</item>

@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Nepdate</string>
 
     <string name="month_previous">Previous month</string>
@@ -28,6 +28,67 @@
     <string name="day_calendar_unavailable">No calendar app found</string>
     <string name="day_close">Close</string>
     <string name="day_weekday_ad">%1$s, %2$s</string>
+
+    <string name="nav_month">Month</string>
+    <string name="nav_upcoming">Upcoming</string>
+    <string name="nav_converter">Converter</string>
+    <string name="settings_title">Settings</string>
+
+    <string name="upcoming_title">Upcoming</string>
+    <string name="upcoming_empty">No upcoming holidays or events yet</string>
+    <string name="upcoming_data_ends">Holiday data ends on %1$s</string>
+    <string name="upcoming_tomorrow">Tomorrow</string>
+    <string name="upcoming_date">%1$s · %2$s</string>
+
+    <plurals name="upcoming_in_days">
+        <item quantity="one">in %1$d day</item>
+        <item quantity="other">in %1$d days</item>
+    </plurals>
+
+    <string name="converter_title">Converter</string>
+    <string name="converter_bs_label">BS date</string>
+    <string name="converter_bs_hint" tools:ignore="TypographyDashes">2083-06-20 or २०८३ असोज २०</string>
+    <string name="converter_convert">Convert</string>
+    <string name="converter_choose_ad">Choose an AD date</string>
+    <string name="converter_ad_picker_title">Choose an AD date</string>
+    <string name="converter_result">Result</string>
+    <string name="converter_compare_label">Compare with</string>
+    <string name="converter_compare_hint" tools:ignore="TypographyDashes">2082-01-01</string>
+    <string name="converter_compare">Compare</string>
+    <string name="converter_compare_range">%1$s to %2$s</string>
+    <string name="converter_weekday_ad">%1$s, %2$s</string>
+    <string name="converter_today">Today</string>
+    <string name="converter_tomorrow">Tomorrow</string>
+    <string name="converter_error_invalid_month">Month must be 1 to 12</string>
+    <string name="converter_error_out_of_range">That date is outside the BS range</string>
+    <string name="converter_error_unreadable" tools:ignore="TypographyDashes">Enter a BS date like 2083-06-20</string>
+    <string name="converter_error_no_first_date">Convert a date before comparing</string>
+
+    <plurals name="converter_error_invalid_day">
+        <item quantity="one">%1$s has %2$d day in %3$d</item>
+        <item quantity="other">%1$s has %2$d days in %3$d</item>
+    </plurals>
+
+    <plurals name="converter_days_from_today">
+        <item quantity="one">%1$d day from today</item>
+        <item quantity="other">%1$d days from today</item>
+    </plurals>
+    <plurals name="converter_days_before_today">
+        <item quantity="one">%1$d day before today</item>
+        <item quantity="other">%1$d days before today</item>
+    </plurals>
+    <plurals name="converter_years">
+        <item quantity="one">%1$d year</item>
+        <item quantity="other">%1$d years</item>
+    </plurals>
+    <plurals name="converter_months">
+        <item quantity="one">%1$d month</item>
+        <item quantity="other">%1$d months</item>
+    </plurals>
+    <plurals name="converter_days">
+        <item quantity="one">%1$d day</item>
+        <item quantity="other">%1$d days</item>
+    </plurals>
 
     <string-array name="bs_month_long">
         <item>Baisakh</item>

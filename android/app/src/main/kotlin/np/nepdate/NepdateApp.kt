@@ -4,14 +4,24 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Icon
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.LifecycleStartEffect
@@ -22,11 +32,14 @@ import np.nepdate.data.DateFollows
 import np.nepdate.data.Settings
 import np.nepdate.data.TodayProvider
 import np.nepdate.di.AppContainer
+import np.nepdate.ui.NepdateDestination
+import np.nepdate.ui.converter.ConverterScreen
 import np.nepdate.ui.month.MonthScreen
+import np.nepdate.ui.upcoming.UpcomingScreen
 
 /**
- * The app shell. A1 starts on the current BS month; the settings screen and the other tabs arrive in
- * A1-05 and A1-06.
+ * The app shell: the three tabs and the shared today value. The settings screen and the first-launch
+ * suggestion arrive in A1-06.
  */
 @Composable
 fun NepdateApp(
@@ -35,14 +48,53 @@ fun NepdateApp(
 ) {
     val settings by container.settingsRepository.settings.collectAsStateWithLifecycle(initialValue = Settings())
     val today = rememberToday(container.todayProvider, settings.dateFollows)
+    NepdateContent(settings = settings, today = today, modifier = modifier)
+}
 
-    MonthScreen(
-        initialYear = today.year,
-        initialMonth = today.monthValue,
-        today = today,
-        settings = settings,
-        modifier = modifier,
-    )
+/** The three tabs, without the settings store, so tests and previews can supply their own values. */
+@Composable
+internal fun NepdateContent(
+    settings: Settings,
+    today: NepaliDate,
+    modifier: Modifier = Modifier,
+) {
+    var destination by rememberSaveable { mutableStateOf(NepdateDestination.MONTH) }
+
+    Column(modifier = modifier.fillMaxSize()) {
+        Box(Modifier.weight(1f)) {
+            when (destination) {
+                NepdateDestination.MONTH ->
+                    MonthScreen(
+                        initialYear = today.year,
+                        initialMonth = today.monthValue,
+                        today = today,
+                        settings = settings,
+                    )
+                NepdateDestination.UPCOMING ->
+                    UpcomingScreen(
+                        today = today,
+                        settings = settings,
+                    )
+                NepdateDestination.CONVERTER ->
+                    ConverterScreen(
+                        today = today,
+                        settings = settings,
+                    )
+            }
+        }
+        NavigationBar {
+            NepdateDestination.entries.forEach { item ->
+                val label = stringResource(item.label)
+                NavigationBarItem(
+                    selected = destination == item,
+                    onClick = { destination = item },
+                    modifier = Modifier.testTag("nav_${item.name.lowercase()}"),
+                    icon = { Icon(item.icon, contentDescription = label) },
+                    label = { Text(label) },
+                )
+            }
+        }
+    }
 }
 
 /**

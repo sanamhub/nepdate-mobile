@@ -3,7 +3,9 @@ package np.nepdate.ui.common
 import io.github.sanamhub.nepdate.Lang
 import io.github.sanamhub.nepdate.NepaliDate
 import io.github.sanamhub.nepdate.Weekday
+import io.github.sanamhub.nepdate.toLocalDate
 import np.nepdate.data.Digits
+import java.time.LocalDate
 import java.util.Locale
 
 /** The library language for an Android locale; Nepali is the only translated language in v1. */
@@ -55,10 +57,17 @@ internal fun adDate(
     date: NepaliDate,
     monthNames: List<String>,
     digits: Digits,
+): String = adDate(date.toLocalDate(), monthNames, digits)
+
+/** The AD date in [lang]'s month names, with the chosen digits, for example `11 October 2026`. */
+internal fun adDate(
+    date: LocalDate,
+    monthNames: List<String>,
+    digits: Digits,
 ): String {
-    val day = date.gregorianDay.toString().inDigits(digits)
-    val year = date.gregorianYear.toString().inDigits(digits)
-    return "$day ${monthNames[date.gregorianMonth - 1]} $year"
+    val day = date.dayOfMonth.toString().inDigits(digits)
+    val year = date.year.toString().inDigits(digits)
+    return "$day ${monthNames[date.monthValue - 1]} $year"
 }
 
 /** The two AD months a BS month spans, already formatted for the header. */
