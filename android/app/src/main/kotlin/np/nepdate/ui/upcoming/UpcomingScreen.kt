@@ -36,6 +36,7 @@ import np.nepdate.ui.common.adDate
 import np.nepdate.ui.common.bsLong
 import np.nepdate.ui.common.languageFor
 import np.nepdate.ui.common.monthTitle
+import np.nepdate.ui.common.resolve
 import np.nepdate.ui.day.DayDetailSheet
 import np.nepdate.ui.month.HolidayUnderline
 import np.nepdate.ui.theme.LocalNepdateColors
@@ -49,6 +50,7 @@ fun UpcomingScreen(
     onSettings: (() -> Unit)? = null,
 ) {
     val lang = languageFor(LocalConfiguration.current.locales[0])
+    val displaySettings = settings.copy(digits = settings.digits.resolve(lang))
     val list = remember(today, settings) { upcoming(today) }
     val bsMonthNames = stringArrayResource(R.array.bs_month_long).toList()
     val adMonthNames = stringArrayResource(R.array.ad_month_long).toList()
@@ -58,7 +60,7 @@ fun UpcomingScreen(
     UpcomingListContent(
         list = list,
         title = title,
-        settings = settings,
+        settings = displaySettings,
         lang = lang,
         bsMonthNames = bsMonthNames,
         adMonthNames = adMonthNames,
@@ -70,7 +72,7 @@ fun UpcomingScreen(
     selected?.let { date ->
         DayDetailSheet(
             date = date,
-            settings = settings,
+            settings = displaySettings,
             onDismiss = { selected = null },
         )
     }

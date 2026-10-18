@@ -15,6 +15,7 @@ internal data class DiagnosticLabels(
     val off: String,
     val device: String,
     val nepal: String,
+    val followLanguage: String,
     val nepaliDigits: String,
     val englishDigits: String,
 )
@@ -38,7 +39,11 @@ internal fun diagnosticText(
         )
         appendLine(
             "${labels.digits}: " +
-                if (settings.digits == Digits.NEPALI) labels.nepaliDigits else labels.englishDigits,
+                when (settings.digits) {
+                    Digits.FOLLOW_LANGUAGE -> labels.followLanguage
+                    Digits.NEPALI -> labels.nepaliDigits
+                    Digits.ENGLISH -> labels.englishDigits
+                },
         )
         append("${labels.tithi}: ${if (settings.showTithi) labels.on else labels.off}")
     }

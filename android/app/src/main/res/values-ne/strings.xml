@@ -38,6 +38,7 @@
     <string name="settings_language_english">English</string>
     <string name="settings_language_nepali">नेपाली</string>
     <string name="settings_digits">अङ्क</string>
+    <string name="settings_digits_follow">भाषाअनुसार</string>
     <string name="settings_digits_nepali">नेपाली (०१२)</string>
     <string name="settings_digits_english">अंग्रेजी (012)</string>
     <string name="settings_date_follows">मिति कुन समयअनुसार</string>

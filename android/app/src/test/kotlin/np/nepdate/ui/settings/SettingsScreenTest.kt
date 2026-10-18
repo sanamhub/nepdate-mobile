@@ -43,6 +43,9 @@ class SettingsScreenTest {
 
         composeRule.onNodeWithText("Show tithi in the month grid").performClick()
         assertEquals(true, settings.showTithi)
+
+        composeRule.onNodeWithText("Follow language").performClick()
+        assertEquals(Digits.FOLLOW_LANGUAGE, settings.digits)
     }
 
     @Test

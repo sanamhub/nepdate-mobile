@@ -42,6 +42,7 @@ import np.nepdate.ui.common.ScreenHeader
 import np.nepdate.ui.common.adDate
 import np.nepdate.ui.common.bsLong
 import np.nepdate.ui.common.languageFor
+import np.nepdate.ui.common.resolve
 import np.nepdate.ui.common.weekdayName
 import np.nepdate.ui.theme.LocalNepdateColors
 import java.time.LocalDate
@@ -58,6 +59,7 @@ internal fun ConverterScreen(
     onSettings: (() -> Unit)? = null,
 ) {
     val lang = languageFor(LocalConfiguration.current.locales[0])
+    val displaySettings = settings.copy(digits = settings.digits.resolve(lang))
     val bsMonthNames = stringArrayResource(R.array.bs_month_long).toList()
     val adMonthNames = stringArrayResource(R.array.ad_month_long).toList()
     var bsInput by remember { mutableStateOf(initialBs) }
@@ -89,7 +91,7 @@ internal fun ConverterScreen(
             state.result?.let { result ->
                 ResultBlock(
                     result = result,
-                    settings = settings,
+                    settings = displaySettings,
                     lang = lang,
                     monthNames = adMonthNames,
                     bsMonthNames = bsMonthNames,
@@ -100,7 +102,7 @@ internal fun ConverterScreen(
                 onCompareInput = { compareInput = it },
                 onCompare = { state = state.compareWithBs(compareInput) },
                 state = state,
-                settings = settings,
+                settings = displaySettings,
                 bsMonthNames = bsMonthNames,
             )
         }

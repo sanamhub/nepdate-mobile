@@ -19,6 +19,7 @@ class DiagnosticTest {
             off = "off",
             device = "This device",
             nepal = "Nepal time",
+            followLanguage = "Follow language",
             nepaliDigits = "Nepali",
             englishDigits = "English",
         )
@@ -49,14 +50,14 @@ class DiagnosticTest {
     }
 
     @Test
-    fun defaultsAreTheDeviceAndTithiOff() {
+    fun defaultsAreFollowLanguageAndTithiOff() {
         val text = diagnosticText("0.0.1 (1)", "14", Settings(), labels)
 
         assertEquals(
             "App: 0.0.1 (1)\n" +
                 "Android: 14\n" +
                 "Date follows: This device\n" +
-                "Digits: Nepali\n" +
+                "Digits: Follow language\n" +
                 "Show tithi: off",
             text,
         )

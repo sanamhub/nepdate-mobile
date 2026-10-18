@@ -88,10 +88,10 @@ widget there has its own ACs (W-xx). Common ACs:
 
 ## MR-07 Settings
 
-- AC1: Language: System, English, नेपाली. Digits follow the language, with no separate setting:
-  नेपाली shows Devanagari digits (०१२) for both the BS and the AD numbers, English shows ASCII
-  (012), and System uses whichever of the two the app is shown in. Date follows (MR-06). Show tithi
-  in month grid. Theme follows the system (no in-app theme switch).
+- AC1: Language: System, English, नेपाली. Digits: Follow language (default), Nepali (०१२), English (012).
+  Follow language means Nepali digits when the app language resolves to नेपाली and English digits
+  otherwise; with Language set to System it follows the resolved system locale. Date follows (MR-06).
+  Show tithi in month grid. Theme follows the system (no in-app theme switch).
 - AC2: "About": app version, library version, holiday data coverage (first and last date), data
   source (C# NepDate via the hub, MIT), the official sources it follows (Ministry of Home Affairs
   holiday notice, Nepal Panchanga Nirnayak Samiti), a link to the hub's "Known data questions" list

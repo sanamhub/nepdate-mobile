@@ -22,7 +22,7 @@ class SettingsRepositoryTest {
             val settings = SettingsRepository(FakePreferencesDataStore()).settings.first()
 
             assertEquals(DateFollows.DEVICE, settings.dateFollows)
-            assertEquals(Digits.NEPALI, settings.digits)
+            assertEquals(Digits.FOLLOW_LANGUAGE, settings.digits)
             assertFalse(settings.showTithi)
             assertFalse(settings.dateFollowsSuggestionHandled)
         }
@@ -57,7 +57,7 @@ class SettingsRepositoryTest {
 
             val settings = SettingsRepository(store).settings.first()
             assertEquals(DateFollows.DEVICE, settings.dateFollows)
-            assertEquals(Digits.NEPALI, settings.digits)
+            assertEquals(Digits.FOLLOW_LANGUAGE, settings.digits)
         }
 }
 

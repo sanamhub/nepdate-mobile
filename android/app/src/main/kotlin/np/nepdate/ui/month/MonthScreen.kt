@@ -54,6 +54,7 @@ import np.nepdate.ui.common.AdSpan
 import np.nepdate.ui.common.adSpan
 import np.nepdate.ui.common.languageFor
 import np.nepdate.ui.common.monthTitle
+import np.nepdate.ui.common.resolve
 import np.nepdate.ui.common.weekdayHeaders
 import np.nepdate.ui.day.DayDetailSheet
 import np.nepdate.ui.theme.LocalNepdateColors
@@ -86,11 +87,12 @@ fun MonthScreen(
     onFirstGridDrawn: () -> Unit = {},
 ) {
     val lang = languageFor(LocalConfiguration.current.locales[0])
+    val displaySettings = settings.copy(digits = settings.digits.resolve(lang))
     val pagerState = rememberPagerState(initialPage = monthPage(initialYear, initialMonth)) { MONTH_PAGE_COUNT }
     val currentPage = pagerState.settledPage
     val currentLayout =
-        remember(currentPage, settings, today) {
-            monthLayout(yearForPage(currentPage), monthForPage(currentPage), settings, today)
+        remember(currentPage, displaySettings, today) {
+            monthLayout(yearForPage(currentPage), monthForPage(currentPage), displaySettings, today)
         }
     val todayPage = monthPage(today.year, today.monthValue)
     val scope = rememberCoroutineScope()
@@ -108,7 +110,7 @@ fun MonthScreen(
     ) {
         MonthHeader(
             layout = currentLayout,
-            digits = settings.digits,
+            digits = displaySettings.digits,
             nepalTime = nepalTime,
             onSettings = onSettings,
             showToday = currentPage != todayPage,
@@ -123,7 +125,7 @@ fun MonthScreen(
         MonthPager(
             pagerState = pagerState,
             selectedDate = selectedDate,
-            settings = settings,
+            settings = displaySettings,
             today = today,
             lang = lang,
             onDayClick = { selectedDate = it },
@@ -134,7 +136,7 @@ fun MonthScreen(
 
     MonthOverlays(
         selectedDate = selectedDate,
-        settings = settings,
+        settings = displaySettings,
         showPicker = showPicker,
         currentLayout = currentLayout,
         onSheetDismiss = { selectedDate = null },

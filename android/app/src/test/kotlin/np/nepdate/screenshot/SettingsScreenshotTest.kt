@@ -4,7 +4,6 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onRoot
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.takahirom.roborazzi.captureRoboImage
-import np.nepdate.data.Digits
 import np.nepdate.data.Settings
 import np.nepdate.ui.settings.SettingsScreen
 import np.nepdate.ui.theme.NepdateTheme
@@ -40,7 +39,7 @@ class SettingsScreenshotTest {
             NepdateTheme(darkTheme = darkTheme, dynamicColor = false) {
                 ScreenshotFrame {
                     SettingsScreen(
-                        settings = Settings(digits = Digits.ENGLISH),
+                        settings = Settings(),
                         appVersion = "0.0.1 (1)",
                         libraryVersion = "0.1.0",
                         osVersion = "14",

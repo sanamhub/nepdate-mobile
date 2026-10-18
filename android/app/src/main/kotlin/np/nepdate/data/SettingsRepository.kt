@@ -58,7 +58,7 @@ class SettingsRepository(
     private fun Preferences.toSettings(): Settings =
         Settings(
             dateFollows = enumValue(DATE_FOLLOWS, DateFollows.DEVICE),
-            digits = enumValue(DIGITS, Digits.NEPALI),
+            digits = enumValue(DIGITS, Digits.FOLLOW_LANGUAGE),
             showTithi = this[SHOW_TITHI] ?: false,
             dateFollowsSuggestionHandled = this[SUGGESTION_HANDLED] ?: false,
         )

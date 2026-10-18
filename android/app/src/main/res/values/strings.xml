@@ -38,6 +38,7 @@
     <string name="settings_language_english">English</string>
     <string name="settings_language_nepali">नेपाली</string>
     <string name="settings_digits">Digits</string>
+    <string name="settings_digits_follow">Follow language</string>
     <string name="settings_digits_nepali">Nepali (०१२)</string>
     <string name="settings_digits_english">English (012)</string>
     <string name="settings_date_follows">Date follows</string>

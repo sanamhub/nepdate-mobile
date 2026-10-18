@@ -21,6 +21,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -38,6 +39,8 @@ import np.nepdate.data.TodayProvider
 import np.nepdate.di.AppContainer
 import np.nepdate.ui.NepdateDestination
 import np.nepdate.ui.common.inDigits
+import np.nepdate.ui.common.languageFor
+import np.nepdate.ui.common.resolve
 import np.nepdate.ui.converter.ConverterScreen
 import np.nepdate.ui.month.MonthScreen
 import np.nepdate.ui.settings.NepalTimeSuggestion
@@ -113,6 +116,7 @@ internal fun rememberNepalTime(
     settings: Settings,
 ): String? {
     if (settings.dateFollows != DateFollows.NEPAL || ZoneId.systemDefault() == KATHMANDU) return null
+    val lang = languageFor(LocalConfiguration.current.locales[0])
     var now by remember { mutableStateOf(todayProvider.now(DateFollows.NEPAL)) }
     LaunchedEffect(todayProvider) {
         while (true) {
@@ -121,7 +125,7 @@ internal fun rememberNepalTime(
             delay(Duration.between(now, nextMinute).toMillis().coerceAtLeast(1))
         }
     }
-    return now.format(TIME_OF_DAY).inDigits(settings.digits)
+    return now.format(TIME_OF_DAY).inDigits(settings.digits.resolve(lang))
 }
 
 /** The three tabs, without the settings store, so tests and previews can supply their own values. */

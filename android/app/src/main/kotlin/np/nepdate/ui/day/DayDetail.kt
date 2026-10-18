@@ -50,6 +50,7 @@ import np.nepdate.ui.common.adDate
 import np.nepdate.ui.common.bsLong
 import np.nepdate.ui.common.bsLongNepali
 import np.nepdate.ui.common.languageFor
+import np.nepdate.ui.common.resolve
 import np.nepdate.ui.common.weekdayName
 import np.nepdate.ui.theme.LocalNepdateColors
 import np.nepdate.ui.theme.holidayFillOn
@@ -80,6 +81,7 @@ fun DayDetailContent(
     onClose: () -> Unit,
 ) {
     val lang = languageFor(LocalConfiguration.current.locales[0])
+    val displaySettings = settings.copy(digits = settings.digits.resolve(lang))
     val bsMonthNames = stringArrayResource(R.array.bs_month_long).toList()
     val adMonthNames = stringArrayResource(R.array.ad_month_long).toList()
     val info = if (date in Patro.coverage) Patro.info(date) else null
@@ -93,13 +95,19 @@ fun DayDetailContent(
                 .padding(horizontal = 24.dp, vertical = 8.dp)
                 .testTag("day_detail"),
     ) {
-        DayDetailHeader(date = date, lang = lang, settings = settings, bsMonthNames = bsMonthNames, onClose = onClose)
+        DayDetailHeader(
+            date = date,
+            lang = lang,
+            settings = displaySettings,
+            bsMonthNames = bsMonthNames,
+            onClose = onClose,
+        )
         Text(
             text =
                 stringResource(
                     R.string.day_weekday_ad,
                     weekdayName(date, lang),
-                    adDate(date, adMonthNames, settings.digits),
+                    adDate(date, adMonthNames, displaySettings.digits),
                 ),
             color = LocalNepdateColors.current.dimmed,
             style = MaterialTheme.typography.bodyLarge,
@@ -118,7 +126,7 @@ fun DayDetailContent(
             date = date,
             info = info,
             lang = lang,
-            settings = settings,
+            settings = displaySettings,
             bsMonthNames = bsMonthNames,
         )
     }

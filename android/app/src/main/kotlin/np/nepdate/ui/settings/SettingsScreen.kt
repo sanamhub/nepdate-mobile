@@ -38,6 +38,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringArrayResource
@@ -52,6 +53,8 @@ import np.nepdate.data.DateFollows
 import np.nepdate.data.Digits
 import np.nepdate.data.Settings
 import np.nepdate.ui.common.bsLong
+import np.nepdate.ui.common.languageFor
+import np.nepdate.ui.common.resolve
 import np.nepdate.ui.theme.LocalNepdateColors
 
 /** Settings and About (MR-06, MR-07, MR-11, MR-12). */
@@ -67,6 +70,8 @@ internal fun SettingsScreen(
     onShowTithi: (Boolean) -> Unit,
 ) {
     BackHandler { onClose() }
+    val lang = languageFor(LocalConfiguration.current.locales[0])
+    val digits = settings.digits.resolve(lang)
     Column(
         modifier =
             Modifier
@@ -85,7 +90,7 @@ internal fun SettingsScreen(
             }
             SettingsChoices(settings, onDateFollows, onDigits, onShowTithi)
             HorizontalDivider(Modifier.padding(vertical = 8.dp))
-            AboutSection(settings, appVersion, libraryVersion, osVersion)
+            AboutSection(settings, digits, appVersion, libraryVersion, osVersion)
         }
     }
 }
@@ -98,6 +103,11 @@ private fun SettingsChoices(
     onShowTithi: (Boolean) -> Unit,
 ) {
     SettingsSection(stringResource(R.string.settings_digits))
+    ChoiceRow(
+        label = stringResource(R.string.settings_digits_follow),
+        selected = settings.digits == Digits.FOLLOW_LANGUAGE,
+        onClick = { onDigits(Digits.FOLLOW_LANGUAGE) },
+    )
     ChoiceRow(
         label = stringResource(R.string.settings_digits_nepali),
         selected = settings.digits == Digits.NEPALI,
@@ -143,6 +153,7 @@ private fun SettingsChoices(
 @Composable
 private fun AboutSection(
     settings: Settings,
+    digits: Digits,
     appVersion: String,
     libraryVersion: String,
     osVersion: String,
@@ -162,11 +173,11 @@ private fun AboutSection(
         value =
             stringResource(
                 R.string.settings_coverage_value,
-                bsLong(Patro.coverage.start, bsMonthNames[0], settings.digits),
+                bsLong(Patro.coverage.start, bsMonthNames[0], digits),
                 bsLong(
                     Patro.coverage.endInclusive,
                     bsMonthNames[Patro.coverage.endInclusive.monthValue - 1],
-                    settings.digits,
+                    digits,
                 ),
             ),
     )
@@ -207,6 +218,7 @@ private fun CopyDiagnostic(
             off = stringResource(R.string.diagnostic_off),
             device = stringResource(R.string.diagnostic_device),
             nepal = stringResource(R.string.diagnostic_nepal),
+            followLanguage = stringResource(R.string.settings_digits_follow),
             nepaliDigits = stringResource(R.string.diagnostic_digits_nepali),
             englishDigits = stringResource(R.string.diagnostic_digits_english),
         )

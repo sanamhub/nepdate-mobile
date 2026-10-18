@@ -11,11 +11,19 @@ import java.util.Locale
 /** The library language for an Android locale; Nepali is the only translated language in v1. */
 internal fun languageFor(locale: Locale): Lang = if (locale.language == "ne") Lang.NEPALI else Lang.ENGLISH
 
+/** The digits to draw for this setting in the current app language (MR-07 AC1). */
+internal fun Digits.resolve(lang: Lang): Digits =
+    when (this) {
+        Digits.FOLLOW_LANGUAGE -> if (lang == Lang.NEPALI) Digits.NEPALI else Digits.ENGLISH
+        else -> this
+    }
+
 /** Rewrites the ASCII or Devanagari digits in [this] to the chosen setting. */
 internal fun String.inDigits(digits: Digits): String =
     when (digits) {
         Digits.ENGLISH -> map { if (it in '०'..'९') '0' + (it - '०') else it }.joinToString("")
         Digits.NEPALI -> map { if (it in '0'..'9') '०' + (it - '0') else it }.joinToString("")
+        Digits.FOLLOW_LANGUAGE -> error("Digits must be resolved with resolve() first")
     }
 
 /**

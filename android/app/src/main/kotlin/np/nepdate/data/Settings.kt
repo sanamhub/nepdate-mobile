@@ -11,6 +11,9 @@ enum class DateFollows {
 
 /** The numerals the app shows (MR-07). */
 enum class Digits {
+    /** Follow the resolved app language: Nepali for `ne`, English for everything else. */
+    FOLLOW_LANGUAGE,
+
     /** 0123456789. */
     ENGLISH,
 
@@ -24,7 +27,7 @@ enum class Digits {
  */
 data class Settings(
     val dateFollows: DateFollows = DateFollows.DEVICE,
-    val digits: Digits = Digits.NEPALI,
+    val digits: Digits = Digits.FOLLOW_LANGUAGE,
     val showTithi: Boolean = false,
     val dateFollowsSuggestionHandled: Boolean = false,
 )
