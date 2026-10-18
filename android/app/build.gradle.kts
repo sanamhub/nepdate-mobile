@@ -22,7 +22,7 @@ android {
         minSdk = 26
         targetSdk = 37
         versionCode = 1
-        versionName = "0.0.1"
+        versionName = "0.0.1-${System.currentTimeMillis()}"
         buildConfigField("String", "NEPDATE_VERSION", "\"${libs.versions.nepdate.get()}\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -288,3 +288,4 @@ detekt {
     buildUponDefaultConfig = true
     config.setFrom(rootProject.file("config/detekt/detekt.yml"))
 }
+
