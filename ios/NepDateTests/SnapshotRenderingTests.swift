@@ -77,11 +77,13 @@ struct SnapshotRenderingTests {
     scheme: ColorScheme,
     locale: Locale
   ) throws {
-    let content = view
-      .environment(\.colorScheme, scheme)
-      .environment(\.locale, locale)
-      .frame(width: size.width, height: size.height)
-      .background(Color(uiColor: .systemBackground))
+    let content = AnyView(
+      view
+        .environment(\.colorScheme, scheme)
+        .environment(\.locale, locale)
+        .frame(width: size.width, height: size.height)
+        .background(Color(uiColor: .systemBackground))
+    )
     let renderer = ImageRenderer(content: content)
     renderer.scale = 2
     guard let image = renderer.uiImage, let data = image.pngData() else {

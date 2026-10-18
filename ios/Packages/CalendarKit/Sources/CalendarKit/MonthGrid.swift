@@ -27,13 +27,13 @@ public struct MonthGrid: Sendable, Hashable {
 
   /// Creates the grid for a Bikram Sambat month.
   ///
-  /// The grid always ends with a complete week: `cells.count` is a multiple of seven.
+  /// The grid always ends with a complete week: `cells.count` is a multiple of seven. The
+  /// initialiser fails when the year or month is outside the library's range.
   /// - Parameters:
   ///   - year: The Bikram Sambat year, 1901 to 2199.
   ///   - month: The month, 1 to 12.
   ///   - language: The language of names and digits.
   ///   - today: The date to ring, or `nil` to ring nothing.
-  /// - Returns: `nil` when the year or month is outside the library's range.
   public init?(
     year: Int,
     month: Int,

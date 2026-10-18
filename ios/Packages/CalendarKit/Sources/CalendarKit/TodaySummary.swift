@@ -17,12 +17,13 @@ public struct TodaySummary: Sendable, Hashable {
   public let isHoliday: Bool
 
   /// Creates a summary for a Bikram Sambat date.
+  ///
+  /// The initialiser fails when the fields are out of range or do not form a date.
   /// - Parameters:
   ///   - year: The Bikram Sambat year, 1901 to 2199.
   ///   - month: The month, 1 to 12.
   ///   - day: The day, 1 to the month's length.
   ///   - language: The language of names and digits.
-  /// - Returns: `nil` when the fields are out of range or do not form a date.
   public init?(year: Int, month: Int, day: Int, language: AppLanguage) {
     guard let date = try? NepaliDate(year: year, month: month, day: day) else { return nil }
     self.init(date: date, language: language)
