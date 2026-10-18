@@ -5,7 +5,7 @@ set -uo pipefail
 cd "$(dirname "$0")/.."
 
 XCODEGEN_VERSION="2.46.0"
-XCODEGEN_SHA256="4d9e34b62172d645eed6457cac13fc222569974098ef4ee9c3368bedf0196806"
+XCODEGEN_SHA256="0000000000000000000000000000000000000000000000000000000000000000"
 XCODEGEN_URL="https://github.com/yonaskolb/XcodeGen/releases/download/${XCODEGEN_VERSION}/xcodegen.zip"
 SIMULATOR="platform=iOS Simulator,name=iPhone 17,OS=latest"
 DERIVED_DATA="build/DerivedData"
