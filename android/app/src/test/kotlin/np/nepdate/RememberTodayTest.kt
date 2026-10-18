@@ -86,8 +86,7 @@ class RememberTodayTest {
 
                 override fun withZone(zone: ZoneId?): Clock = this
 
-                override fun instant(): Instant =
-                    start.plusMillis((System.nanoTime() - startedAt) / 1_000_000)
+                override fun instant(): Instant = start.plusMillis((System.nanoTime() - startedAt) / 1_000_000)
             }
         val provider = TodayProvider(clock, ZoneId.of("America/New_York"))
         setToday(provider)

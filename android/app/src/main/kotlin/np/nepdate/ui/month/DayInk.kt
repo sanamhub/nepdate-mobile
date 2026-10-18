@@ -159,7 +159,11 @@ private fun DayNumeral(
 /** The numeric slot is at least the today ring and always as tall as the numeral's line box. */
 @Composable
 private fun numeralSlot(): Dp {
-    val lineHeight = with(LocalDensity.current) { MaterialTheme.typography.titleLarge.lineHeight.toDp() }
+    val lineHeight =
+        with(LocalDensity.current) {
+            MaterialTheme.typography.titleLarge.lineHeight
+                .toDp()
+        }
     return maxOf(NUMERAL_BOX, lineHeight)
 }
 
