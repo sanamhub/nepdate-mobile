@@ -60,7 +60,9 @@ gate_build() {
     return 1
   fi
   echo "size: NepDate.app $(du -sk "$app" | awk '{ print $1 }') KB"
+  echo "size: NepDate executable $(stat -f%z "$app/NepDate") bytes"
   echo "size: NepDateWidgets.appex $(du -sk "$appex" | awk '{ print $1 }') KB"
+  echo "size: NepDateWidgets executable $(stat -f%z "$appex/NepDateWidgets") bytes"
 }
 
 gate_test() {
