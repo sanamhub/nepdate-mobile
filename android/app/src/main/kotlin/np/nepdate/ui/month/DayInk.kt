@@ -140,7 +140,7 @@ private fun DayNumeral(
     Box(
         modifier =
             Modifier
-                .size(NUMERAL_BOX)
+                .size(numeralSlot())
                 .then(if (cell.isToday) Modifier.border(2.dp, today, CircleShape) else Modifier),
         contentAlignment = Alignment.Center,
     ) {
@@ -154,6 +154,13 @@ private fun DayNumeral(
             HolidayUnderline(modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 3.dp))
         }
     }
+}
+
+/** The numeric slot is at least the today ring and always as tall as the numeral's line box. */
+@Composable
+private fun numeralSlot(): Dp {
+    val lineHeight = with(LocalDensity.current) { MaterialTheme.typography.titleLarge.lineHeight.toDp() }
+    return maxOf(NUMERAL_BOX, lineHeight)
 }
 
 @Composable

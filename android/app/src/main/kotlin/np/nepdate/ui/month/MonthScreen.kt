@@ -57,8 +57,12 @@ import np.nepdate.ui.common.weekdayHeaders
 import np.nepdate.ui.day.DayDetailSheet
 import np.nepdate.ui.theme.LocalNepdateColors
 
-/** Above this font scale seven columns no longer fit, so the grid becomes a list (MR-10 AC2). */
-internal const val LIST_FONT_SCALE = 1.5f
+/**
+ * The font scale at which the month switches from the grid to the list. At 360x640 dp with a
+ * six-row month and tithi on, 1.15 fits the grid; 1.3 clips the second tithi line, so the list
+ * starts there (MR-10 AC2).
+ */
+internal const val LIST_FONT_SCALE = 1.3f
 
 /**
  * The month view (MR-01): a swipeable grid with a month picker, previous/next buttons and a Today
