@@ -17,7 +17,7 @@ events from the library's patro package (`NepDatePatro`, `nepdate-patro`; hub AD
 
 A full-width 7-column month grid, Sunday first (the Nepali week), for one BS month.
 - AC1: each cell shows the BS day large and the AD day small in the top-right corner; digits follow
-  the Digits setting (MR-07).
+  the app language (MR-07).
 - AC2: the header shows the BS month and year in the app language, and the AD month span
   (e.g. "Sep – Oct 2026").
 - AC3: the Saturday column and public holidays use the holiday colour **and** a mark (rule H1);
@@ -88,8 +88,10 @@ widget there has its own ACs (W-xx). Common ACs:
 
 ## MR-07 Settings
 
-- AC1: Language: System, English, नेपाली. Digits: Nepali (०१२), English (012). Date follows (MR-06).
-  Show tithi in month grid. Theme follows the system (no in-app theme switch).
+- AC1: Language: System, English, नेपाली. Digits follow the language, with no separate setting:
+  नेपाली shows Devanagari digits (०१२) for both the BS and the AD numbers, English shows ASCII
+  (012), and System uses whichever of the two the app is shown in. Date follows (MR-06). Show tithi
+  in month grid. Theme follows the system (no in-app theme switch).
 - AC2: "About": app version, library version, holiday data coverage (first and last date), data
   source (C# NepDate via the hub, MIT), the official sources it follows (Ministry of Home Affairs
   holiday notice, Nepal Panchanga Nirnayak Samiti), a link to the hub's "Known data questions" list
