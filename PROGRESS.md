@@ -24,10 +24,17 @@ started.
       blocked by issue #11.
 - [x] A CI job builds the unsigned release APK twice on clean runners and compares SHA-256; the job
       fails on a difference.
-- [ ] Negative control: a throwaway draft PR with a non-deterministic build change makes the check
-      fail once, then the PR is closed and its branch deleted.
-- [x] AC locally: `D094892C14CE1F777213E8E89CE74F699AB5048606F6F22D7EC402F69FB46DBC` from two
-      `clean :app:assembleRelease` builds, both 2,392,322 bytes.
+- [x] Negative control: a throwaway draft PR with a non-deterministic build change makes the check
+      fail once, then the PR is closed and its branch deleted. Run
+      [39150451614](https://github.com/sanamhub/nepdate-mobile/actions/runs/39150451614) failed with
+      APK A `7935ec87bce30823ce492a10bab0ec3c399089af18a6587ec92e20d1404b259c` and APK B
+      `fdf2b58ba8883d95d7e030f77335accf3a3fe3dcf1b90ae32779883b6498ddec`. PR #19 is closed and
+      the branch is deleted.
+- [x] AC: GitHub CI run
+      [39150421202](https://github.com/sanamhub/nepdate-mobile/actions/runs/39150421202) built the
+      APK twice and both were
+      `d094892c14ce1f777213e8e89ce74f699ab5048606f6f22d7ec402f69fb46dbc`, 2,392,322 bytes. Local
+      `clean :app:assembleRelease` builds gave the same checksum.
 
 ## A3-02 Release workflow (`android-release.yml`)
 
@@ -64,17 +71,14 @@ started.
 
 ## Local checks
 
-- `./gradlew ci`: `BUILD SUCCESSFUL in 54s`, 192 tests, 0 failures, 1 skipped (the release-only
+- `./gradlew ci`: `BUILD SUCCESSFUL in 3m 31s`, 192 tests, 0 failures, 1 skipped (the release-only
   freshness test when `RELEASE_DATE` is absent).
+- GitHub Android CI: run
+  [39150421202](https://github.com/sanamhub/nepdate-mobile/actions/runs/39150421202) green. `Gradle
+  ci` took 3m 48s, the two APK jobs took 3m 16s and 2m 32s, and the checksum compare took 6s.
 - `python tools/check_android_release_workflow.py`: positive check and five negative fixtures pass.
 - `actionlint 1.7.12`: clean on `android.yml` and `android-release.yml`.
 - Store screenshots generated twice with identical SHA-256 values.
-
-## Pending before the checkpoint report
-
-- GitHub Android CI run URL.
-- The reproducibility negative-control draft PR.
-- The two CI APK checksums.
 
 ## Out of scope
 
