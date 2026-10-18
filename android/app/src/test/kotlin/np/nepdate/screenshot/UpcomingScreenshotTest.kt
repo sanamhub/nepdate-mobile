@@ -44,6 +44,7 @@ class UpcomingScreenshotTest {
                     UpcomingScreen(
                         today = NepaliDate.of(2083, 6, 20),
                         settings = Settings(digits = digits),
+                        onSettings = {},
                     )
                 }
             }

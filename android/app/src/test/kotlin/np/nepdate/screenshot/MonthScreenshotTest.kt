@@ -8,6 +8,7 @@ import androidx.compose.ui.unit.Density
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.takahirom.roborazzi.captureRoboImage
 import io.github.sanamhub.nepdate.NepaliDate
+import np.nepdate.data.DateFollows
 import np.nepdate.data.Digits
 import np.nepdate.data.Settings
 import np.nepdate.ui.month.MonthScreen
@@ -83,6 +84,16 @@ class MonthScreenshotTest {
         )
     }
 
+    @Test
+    fun nepalTimeAndSettingsIcon() {
+        capture(
+            name = "a1-month-nepal-time",
+            settings = Settings(dateFollows = DateFollows.NEPAL, digits = Digits.ENGLISH),
+            nepalTime = "10:17",
+            onSettings = {},
+        )
+    }
+
     private fun capture(
         name: String,
         settings: Settings,
@@ -91,6 +102,8 @@ class MonthScreenshotTest {
         year: Int = 2083,
         month: Int = 6,
         today: NepaliDate = NepaliDate.of(2083, 6, 20),
+        nepalTime: String? = null,
+        onSettings: (() -> Unit)? = {},
     ) {
         composeRule.setContent {
             val density = LocalDensity.current
@@ -104,6 +117,8 @@ class MonthScreenshotTest {
                             initialMonth = month,
                             today = today,
                             settings = settings,
+                            nepalTime = nepalTime,
+                            onSettings = onSettings,
                         )
                     }
                 }

@@ -20,6 +20,7 @@ android {
         targetSdk = 37
         versionCode = 1
         versionName = "0.0.1"
+        buildConfigField("String", "NEPDATE_VERSION", "\"${libs.versions.nepdate.get()}\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true

@@ -46,6 +46,7 @@ fun UpcomingScreen(
     today: NepaliDate,
     settings: Settings,
     modifier: Modifier = Modifier,
+    onSettings: (() -> Unit)? = null,
 ) {
     val lang = languageFor(LocalConfiguration.current.locales[0])
     val list = remember(today, settings) { upcoming(today) }
@@ -62,6 +63,7 @@ fun UpcomingScreen(
         bsMonthNames = bsMonthNames,
         adMonthNames = adMonthNames,
         onSelect = { selected = it },
+        onSettings = onSettings,
         modifier = modifier,
     )
 
@@ -83,6 +85,7 @@ private fun UpcomingListContent(
     bsMonthNames: List<String>,
     adMonthNames: List<String>,
     onSelect: (NepaliDate) -> Unit,
+    onSettings: (() -> Unit)?,
     modifier: Modifier = Modifier,
 ) {
     LazyColumn(
@@ -92,7 +95,7 @@ private fun UpcomingListContent(
                 .testTag("upcoming_list"),
         contentPadding = PaddingValues(bottom = 16.dp),
     ) {
-        item(key = "header") { ScreenHeader(title = title) }
+        item(key = "header") { ScreenHeader(title = title, onSettings = onSettings) }
         if (list.entries.isEmpty()) {
             item(key = "empty") { UpcomingEmpty() }
         }

@@ -19,6 +19,7 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -80,6 +81,8 @@ fun MonthScreen(
     today: NepaliDate,
     settings: Settings,
     modifier: Modifier = Modifier,
+    nepalTime: String? = null,
+    onSettings: (() -> Unit)? = null,
 ) {
     val lang = languageFor(LocalConfiguration.current.locales[0])
     val pagerState = rememberPagerState(initialPage = monthPage(initialYear, initialMonth)) { MONTH_PAGE_COUNT }
@@ -90,6 +93,7 @@ fun MonthScreen(
         }
     val todayPage = monthPage(today.year, today.monthValue)
     val scope = rememberCoroutineScope()
+    val goTo: (Int) -> Unit = { page -> scope.launch { pagerState.animateScrollToPage(page) } }
     var showPicker by remember { mutableStateOf(false) }
     var selectedDate by remember { mutableStateOf<NepaliDate?>(null) }
     Column(
@@ -104,19 +108,15 @@ fun MonthScreen(
         MonthHeader(
             layout = currentLayout,
             digits = settings.digits,
+            nepalTime = nepalTime,
+            onSettings = onSettings,
             showToday = currentPage != todayPage,
             canGoPrevious = currentPage > 0,
             canGoNext = currentPage < MONTH_PAGE_COUNT - 1,
             onChoose = { showPicker = true },
-            onPrevious = {
-                scope.launch { pagerState.animateScrollToPage(currentPage - 1) }
-            },
-            onNext = {
-                scope.launch { pagerState.animateScrollToPage(currentPage + 1) }
-            },
-            onToday = {
-                scope.launch { pagerState.animateScrollToPage(todayPage) }
-            },
+            onPrevious = { goTo(currentPage - 1) },
+            onNext = { goTo(currentPage + 1) },
+            onToday = { goTo(todayPage) },
         )
         WeekdayHeader(lang = lang)
         MonthPager(
@@ -139,7 +139,7 @@ fun MonthScreen(
         onPickerDismiss = { showPicker = false },
         onPickerConfirm = { year, month ->
             showPicker = false
-            scope.launch { pagerState.animateScrollToPage(monthPage(year, month)) }
+            goTo(monthPage(year, month))
         },
     )
 }
@@ -228,6 +228,8 @@ private fun MonthPager(
 private fun MonthHeader(
     layout: MonthLayout,
     digits: Digits,
+    nepalTime: String?,
+    onSettings: (() -> Unit)?,
     showToday: Boolean,
     canGoPrevious: Boolean,
     canGoNext: Boolean,
@@ -236,12 +238,8 @@ private fun MonthHeader(
     onNext: () -> Unit,
     onToday: () -> Unit,
 ) {
-    val colors = LocalNepdateColors.current
-    val monthShortNames = stringArrayResource(R.array.ad_month_short).toList()
-    val bsMonthNames = stringArrayResource(R.array.bs_month_long).toList()
     val chooseLabel = stringResource(R.string.month_choose)
-    val span = adSpan(layout.firstDay, layout.lastDay, monthShortNames, digits)
-    val spanText = adSpanText(span)
+    val settingsLabel = stringResource(R.string.settings_title)
 
     Row(
         modifier =
@@ -251,31 +249,14 @@ private fun MonthHeader(
                 .padding(start = 16.dp, end = 8.dp, top = 8.dp, bottom = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Column(
-            modifier =
-                Modifier
-                    .weight(1f)
-                    .heightIn(min = 48.dp)
-                    .clickable(onClick = onChoose)
-                    .semantics { contentDescription = chooseLabel }
-                    .padding(vertical = 4.dp),
-            verticalArrangement = Arrangement.Center,
-        ) {
-            Text(
-                text = monthTitle(bsMonthNames[layout.month.value - 1], layout.year, digits),
-                color = MaterialTheme.colorScheme.onBackground,
-                style = MaterialTheme.typography.headlineMedium,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-            Text(
-                text = spanText,
-                color = colors.dimmed,
-                style = MaterialTheme.typography.bodyMedium,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-            )
-        }
+        MonthTitle(
+            layout = layout,
+            digits = digits,
+            nepalTime = nepalTime,
+            chooseLabel = chooseLabel,
+            onChoose = onChoose,
+            modifier = Modifier.weight(1f),
+        )
         MonthNavigation(
             showToday = showToday,
             canGoPrevious = canGoPrevious,
@@ -284,6 +265,75 @@ private fun MonthHeader(
             onNext = onNext,
             onToday = onToday,
         )
+        if (onSettings != null) {
+            IconButton(
+                onClick = onSettings,
+                modifier =
+                    Modifier
+                        .size(48.dp)
+                        .semantics { contentDescription = settingsLabel },
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Settings,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurface,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun MonthTitle(
+    layout: MonthLayout,
+    digits: Digits,
+    nepalTime: String?,
+    chooseLabel: String,
+    onChoose: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val colors = LocalNepdateColors.current
+    val bsMonthNames = stringArrayResource(R.array.bs_month_long).toList()
+    val spanText =
+        adSpanText(
+            adSpan(
+                layout.firstDay,
+                layout.lastDay,
+                stringArrayResource(R.array.ad_month_short).toList(),
+                digits,
+            ),
+        )
+    Column(
+        modifier =
+            modifier
+                .heightIn(min = 48.dp)
+                .clickable(onClick = onChoose)
+                .semantics { contentDescription = chooseLabel }
+                .padding(vertical = 4.dp),
+        verticalArrangement = Arrangement.Center,
+    ) {
+        Text(
+            text = monthTitle(bsMonthNames[layout.month.value - 1], layout.year, digits),
+            color = MaterialTheme.colorScheme.onBackground,
+            style = MaterialTheme.typography.headlineMedium,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
+        Text(
+            text = spanText,
+            color = colors.dimmed,
+            style = MaterialTheme.typography.bodyMedium,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
+        )
+        if (nepalTime != null) {
+            Text(
+                text = stringResource(R.string.month_nepal_time, nepalTime),
+                color = colors.today,
+                style = MaterialTheme.typography.labelMedium,
+                maxLines = 1,
+            )
+        }
     }
 }
 

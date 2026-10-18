@@ -20,4 +20,10 @@ All notable changes to the Android app. The format follows
   picker, weekday and days from today, a second date's year/month/day difference, and inline
   parse errors that keep the last result.
 - Bottom navigation with Month, Upcoming and Converter (design-system §4).
+- Settings and About (MR-06, MR-07, MR-12): language on Android 13+, digits, the date-follows
+  choice, the tithi switch, version and coverage details, the official sources, the known-data,
+  wrong-date, licence, privacy and source links, and "Copy diagnostic info". The holiday
+  subscription row stays hidden until the hub publishes its `.ics` file.
+- The first-launch "Nepal time" suggestion, and the current Nepal time in the month header when
+  the zones differ. Settings opens from the top app bar on every tab.
 

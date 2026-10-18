@@ -55,6 +55,7 @@ class ConverterScreenshotTest {
                         initialBs = "2083-06-20",
                         initialCompare = "2082-01-01",
                         initialState = state,
+                        onSettings = {},
                     )
                 }
             }

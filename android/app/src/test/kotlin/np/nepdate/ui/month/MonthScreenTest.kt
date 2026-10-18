@@ -188,6 +188,23 @@ class MonthScreenTest {
     }
 
     @Test
+    fun mr06Ac2NepalTimeAppearsInTheHeaderWhenTheZonesDiffer() {
+        setMonthScreen(nepalTime = "10:17")
+
+        composeRule.onNodeWithText("Nepal time · 10:17").assertExists()
+    }
+
+    @Test
+    fun settingsIconOpensTheSettingsScreen() {
+        var opened = false
+        setMonthScreen(onSettings = { opened = true })
+
+        composeRule.onNodeWithContentDescription("Settings").performClick()
+
+        assertTrue(opened)
+    }
+
+    @Test
     fun mr10Ac2GridAtNormalFontScale() {
         setMonthScreen()
 
@@ -236,6 +253,8 @@ class MonthScreenTest {
     private fun setMonthScreen(
         settings: Settings = english,
         fontScale: Float = 1f,
+        nepalTime: String? = null,
+        onSettings: (() -> Unit)? = null,
     ) {
         composeRule.setContent {
             val density = LocalDensity.current
@@ -248,6 +267,8 @@ class MonthScreenTest {
                         initialMonth = 6,
                         today = today,
                         settings = settings,
+                        nepalTime = nepalTime,
+                        onSettings = onSettings,
                     )
                 }
             }

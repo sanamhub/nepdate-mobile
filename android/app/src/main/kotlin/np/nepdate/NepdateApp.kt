@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.os.Build
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,6 +17,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -26,16 +28,25 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import io.github.sanamhub.nepdate.KATHMANDU
 import io.github.sanamhub.nepdate.NepaliDate
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import np.nepdate.data.DateFollows
 import np.nepdate.data.Settings
 import np.nepdate.data.TodayProvider
 import np.nepdate.di.AppContainer
 import np.nepdate.ui.NepdateDestination
+import np.nepdate.ui.common.inDigits
 import np.nepdate.ui.converter.ConverterScreen
 import np.nepdate.ui.month.MonthScreen
+import np.nepdate.ui.settings.NepalTimeSuggestion
+import np.nepdate.ui.settings.SettingsScreen
+import np.nepdate.ui.settings.shouldSuggestNepalTime
 import np.nepdate.ui.upcoming.UpcomingScreen
+import java.time.Duration
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 /**
  * The app shell: the three tabs and the shared today value. The settings screen and the first-launch
@@ -48,7 +59,67 @@ fun NepdateApp(
 ) {
     val settings by container.settingsRepository.settings.collectAsStateWithLifecycle(initialValue = Settings())
     val today = rememberToday(container.todayProvider, settings.dateFollows)
-    NepdateContent(settings = settings, today = today, modifier = modifier)
+    val nepalTime = rememberNepalTime(container.todayProvider, settings)
+    val scope = rememberCoroutineScope()
+    var settingsOpen by rememberSaveable { mutableStateOf(false) }
+
+    if (settingsOpen) {
+        SettingsScreen(
+            settings = settings,
+            appVersion = "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})",
+            libraryVersion = BuildConfig.NEPDATE_VERSION,
+            osVersion = Build.VERSION.RELEASE,
+            onClose = { settingsOpen = false },
+            onDateFollows = { scope.launch { container.settingsRepository.setDateFollows(it) } },
+            onDigits = { scope.launch { container.settingsRepository.setDigits(it) } },
+            onShowTithi = { scope.launch { container.settingsRepository.setShowTithi(it) } },
+        )
+        return
+    }
+
+    Column(modifier = modifier.fillMaxSize()) {
+        if (shouldSuggestNepalTime(settings, ZoneId.systemDefault())) {
+            NepalTimeSuggestion(
+                onAccept = {
+                    scope.launch {
+                        container.settingsRepository.setDateFollows(DateFollows.NEPAL)
+                        container.settingsRepository.setDateFollowsSuggestionHandled(true)
+                    }
+                },
+                onDismiss = {
+                    scope.launch { container.settingsRepository.setDateFollowsSuggestionHandled(true) }
+                },
+            )
+        }
+        NepdateContent(
+            settings = settings,
+            today = today,
+            nepalTime = nepalTime,
+            onSettings = { settingsOpen = true },
+            modifier = Modifier.weight(1f),
+        )
+    }
+}
+
+/**
+ * The current Nepal time shown in the month header when the setting follows Nepal and the device is
+ * somewhere else (MR-06 AC2). Null when the two zones agree.
+ */
+@Composable
+internal fun rememberNepalTime(
+    todayProvider: TodayProvider,
+    settings: Settings,
+): String? {
+    if (settings.dateFollows != DateFollows.NEPAL || ZoneId.systemDefault() == KATHMANDU) return null
+    var now by remember { mutableStateOf(todayProvider.now(DateFollows.NEPAL)) }
+    LaunchedEffect(todayProvider) {
+        while (true) {
+            now = todayProvider.now(DateFollows.NEPAL)
+            val nextMinute = now.plusMinutes(1).withSecond(0).withNano(0)
+            delay(Duration.between(now, nextMinute).toMillis().coerceAtLeast(1))
+        }
+    }
+    return now.format(TIME_OF_DAY).inDigits(settings.digits)
 }
 
 /** The three tabs, without the settings store, so tests and previews can supply their own values. */
@@ -57,6 +128,8 @@ internal fun NepdateContent(
     settings: Settings,
     today: NepaliDate,
     modifier: Modifier = Modifier,
+    nepalTime: String? = null,
+    onSettings: (() -> Unit)? = null,
 ) {
     var destination by rememberSaveable { mutableStateOf(NepdateDestination.MONTH) }
 
@@ -69,16 +142,20 @@ internal fun NepdateContent(
                         initialMonth = today.monthValue,
                         today = today,
                         settings = settings,
+                        nepalTime = nepalTime,
+                        onSettings = onSettings,
                     )
                 NepdateDestination.UPCOMING ->
                     UpcomingScreen(
                         today = today,
                         settings = settings,
+                        onSettings = onSettings,
                     )
                 NepdateDestination.CONVERTER ->
                     ConverterScreen(
                         today = today,
                         settings = settings,
+                        onSettings = onSettings,
                     )
             }
         }
@@ -141,3 +218,5 @@ internal fun rememberToday(
     }
     return today
 }
+
+private val TIME_OF_DAY: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")

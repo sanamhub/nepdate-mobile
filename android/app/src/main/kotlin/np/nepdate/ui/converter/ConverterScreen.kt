@@ -55,6 +55,7 @@ internal fun ConverterScreen(
     initialBs: String = "",
     initialCompare: String = "",
     initialState: ConverterState = ConverterState(),
+    onSettings: (() -> Unit)? = null,
 ) {
     val lang = languageFor(LocalConfiguration.current.locales[0])
     val bsMonthNames = stringArrayResource(R.array.bs_month_long).toList()
@@ -71,7 +72,7 @@ internal fun ConverterScreen(
                 .padding(bottom = 24.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        ScreenHeader(title = stringResource(R.string.converter_title))
+        ScreenHeader(title = stringResource(R.string.converter_title), onSettings = onSettings)
         Column(
             modifier = Modifier.padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
