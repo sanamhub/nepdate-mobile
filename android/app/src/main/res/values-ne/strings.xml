@@ -18,6 +18,17 @@
     <string name="public_holiday">सार्वजनिक बिदा</string>
     <string name="public_holiday_label">सार्वजनिक बिदा</string>
 
+    <string name="day_tithi">तिथि</string>
+    <string name="day_events">कार्यक्रमहरू</string>
+    <string name="day_add_to_calendar">पात्रोमा थप्नुहोस्</string>
+    <string name="day_copy_date">मिति प्रतिलिपि गर्नुहोस्</string>
+    <string name="day_copied">मिति प्रतिलिपि गरियो</string>
+    <string name="day_copy_label">नेपाली मिति</string>
+    <string name="day_no_data">यो मितिको बिदा वा तिथिको जानकारी अझै छैन</string>
+    <string name="day_calendar_unavailable">पात्रो एप भेटिएन</string>
+    <string name="day_close">बन्द गर्नुहोस्</string>
+    <string name="day_weekday_ad">%1$s, %2$s</string>
+
     <string-array name="bs_month_long">
         <item>बैशाख</item>
         <item>जेठ</item>

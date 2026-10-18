@@ -53,6 +53,7 @@ import np.nepdate.ui.common.adSpan
 import np.nepdate.ui.common.languageFor
 import np.nepdate.ui.common.monthTitle
 import np.nepdate.ui.common.weekdayHeaders
+import np.nepdate.ui.day.DayDetailSheet
 import np.nepdate.ui.theme.LocalNepdateColors
 
 /** Above this font scale seven columns no longer fit, so the grid becomes a list (MR-10 AC2). */
@@ -86,8 +87,6 @@ fun MonthScreen(
     val scope = rememberCoroutineScope()
     var showPicker by remember { mutableStateOf(false) }
     var selectedDate by remember { mutableStateOf<NepaliDate?>(null) }
-    BackHandler(enabled = showPicker) { showPicker = false }
-
     Column(
         modifier =
             modifier
@@ -123,16 +122,47 @@ fun MonthScreen(
         )
     }
 
+    MonthOverlays(
+        selectedDate = selectedDate,
+        settings = settings,
+        showPicker = showPicker,
+        currentLayout = currentLayout,
+        lang = lang,
+        onSheetDismiss = { selectedDate = null },
+        onPickerDismiss = { showPicker = false },
+        onPickerConfirm = { year, month ->
+            showPicker = false
+            scope.launch { pagerState.animateScrollToPage(monthPage(year, month)) }
+        },
+    )
+}
+
+@Composable
+private fun MonthOverlays(
+    selectedDate: NepaliDate?,
+    settings: Settings,
+    showPicker: Boolean,
+    currentLayout: MonthLayout,
+    lang: Lang,
+    onSheetDismiss: () -> Unit,
+    onPickerDismiss: () -> Unit,
+    onPickerConfirm: (year: Int, month: Int) -> Unit,
+) {
+    BackHandler(enabled = showPicker) { onPickerDismiss() }
+    selectedDate?.let { date ->
+        DayDetailSheet(
+            date = date,
+            settings = settings,
+            onDismiss = onSheetDismiss,
+        )
+    }
     if (showPicker) {
         MonthYearPicker(
             initialYear = currentLayout.year,
             initialMonth = currentLayout.month.value,
             lang = lang,
-            onDismiss = { showPicker = false },
-            onConfirm = { year, month ->
-                showPicker = false
-                scope.launch { pagerState.animateScrollToPage(monthPage(year, month)) }
-            },
+            onDismiss = onPickerDismiss,
+            onConfirm = onPickerConfirm,
         )
     }
 }

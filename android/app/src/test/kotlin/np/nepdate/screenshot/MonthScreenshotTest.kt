@@ -1,28 +1,16 @@
 package np.nepdate.screenshot
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.takahirom.roborazzi.captureRoboImage
 import io.github.sanamhub.nepdate.NepaliDate
 import np.nepdate.data.Digits
 import np.nepdate.data.Settings
 import np.nepdate.ui.month.MonthScreen
-import np.nepdate.ui.theme.LocalNepdateColors
 import np.nepdate.ui.theme.NepdateTheme
 import org.junit.Rule
 import org.junit.Test
@@ -122,28 +110,5 @@ class MonthScreenshotTest {
             }
         }
         composeRule.onRoot().captureRoboImage("$name.png")
-    }
-}
-
-@Composable
-private fun ScreenshotFrame(content: @Composable () -> Unit) {
-    Column(
-        modifier =
-            Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background),
-    ) {
-        Text(
-            text = "Not verified on a device",
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 8.dp, vertical = 4.dp),
-            color = LocalNepdateColors.current.holiday,
-            style = MaterialTheme.typography.labelSmall,
-        )
-        Box(Modifier.weight(1f)) {
-            content()
-        }
     }
 }

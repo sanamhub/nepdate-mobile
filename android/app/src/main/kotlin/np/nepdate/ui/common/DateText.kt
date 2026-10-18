@@ -33,6 +33,15 @@ internal fun bsLong(
     return "$monthName $day, $year"
 }
 
+/** The long BS date in Devanagari, for the second line when the app language is English. */
+internal fun bsLongNepali(
+    date: NepaliDate,
+    digits: Digits,
+): String =
+    date
+        .toLongString(weekday = false, year = true, pad = false, lang = Lang.NEPALI)
+        .inDigits(digits)
+
 /** The BS month and year with the chosen digits, for example `Asoj 2083`. */
 internal fun monthTitle(
     monthName: String,

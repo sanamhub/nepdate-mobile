@@ -18,6 +18,17 @@
     <string name="public_holiday">Public holiday</string>
     <string name="public_holiday_label">public holiday</string>
 
+    <string name="day_tithi">Tithi</string>
+    <string name="day_events">Events</string>
+    <string name="day_add_to_calendar">Add to calendar</string>
+    <string name="day_copy_date">Copy date</string>
+    <string name="day_copied">Date copied</string>
+    <string name="day_copy_label">BS date</string>
+    <string name="day_no_data">No holiday or tithi data for this date yet</string>
+    <string name="day_calendar_unavailable">No calendar app found</string>
+    <string name="day_close">Close</string>
+    <string name="day_weekday_ad">%1$s, %2$s</string>
+
     <string-array name="bs_month_long">
         <item>Baisakh</item>
         <item>Jestha</item>
