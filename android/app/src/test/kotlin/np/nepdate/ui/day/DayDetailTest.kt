@@ -33,7 +33,7 @@ class DayDetailTest {
         setDayDetail(NepaliDate.of(2083, 6, 9))
 
         composeRule.onNodeWithText("Asoj 9, 2083").assertExists()
-        composeRule.onNodeWithText("असोज 9, 2083").assertExists()
+        composeRule.onNodeWithText("असोज ९, २०८३").assertExists()
         composeRule.onNodeWithText("Friday, 25 September 2026").assertExists()
         composeRule.onNodeWithText("Tithi").assertExists()
         composeRule.onNodeWithText("Chaturdashi").assertExists()

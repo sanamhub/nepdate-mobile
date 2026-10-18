@@ -62,6 +62,11 @@ class DateTextTest {
     }
 
     @Test
+    fun theDevanagariLineKeepsDevanagariDigits() {
+        assertEquals("असोज ९, २०८३", bsLongNepali(NepaliDate.of(2083, 6, 9)))
+    }
+
+    @Test
     fun adDatesAndMonthTitlesUseTheChosenDigits() {
         val date = NepaliDate.of(2083, 6, 25)
 

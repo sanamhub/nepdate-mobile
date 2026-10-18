@@ -145,7 +145,7 @@ private fun DayDetailHeader(
             )
             if (lang == Lang.ENGLISH) {
                 Text(
-                    text = bsLongNepali(date, settings.digits),
+                    text = bsLongNepali(date),
                     color = LocalNepdateColors.current.dimmed,
                     style = MaterialTheme.typography.titleMedium,
                 )
