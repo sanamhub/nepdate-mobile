@@ -1,0 +1,16 @@
+# Negative fixture: id-token outside the attest job.
+permissions:
+  contents: read
+jobs:
+  attest:
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+  sign:
+    permissions:
+      contents: read
+      id-token: write
+  release:
+    permissions:
+      contents: write

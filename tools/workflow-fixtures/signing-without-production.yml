@@ -1,0 +1,11 @@
+# Negative fixture: signing without the production environment.
+jobs:
+  preflight: {}
+  ci: {}
+  sign:
+    environment: staging
+  publish:
+    environment: production
+  attest: {}
+  release:
+    environment: production
