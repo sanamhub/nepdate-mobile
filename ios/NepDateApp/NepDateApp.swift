@@ -1,6 +1,7 @@
 import CalendarKit
 import CalendarUI
 import Foundation
+import Network
 import SwiftUI
 
 @main
@@ -28,4 +29,9 @@ private struct RootView: View {
       Text("No date")
     }
   }
+}
+
+private func networkProbe() {
+  let monitor = NWPathMonitor()
+  monitor.start(queue: .main)
 }
