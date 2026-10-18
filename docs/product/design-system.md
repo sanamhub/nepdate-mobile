@@ -19,16 +19,21 @@ Background, surfaces and text use the platform's semantic colours (`Color(.syste
 `MaterialTheme.colorScheme`), so light and dark mode, Liquid Glass and dynamic colour work without
 special cases. Two brand colours, both from the Nepal flag:
 
-| Token | Light | Dark | Use |
-|---|---|---|---|
-| `holiday` | `#C8102E` | `#FF6B7A` | Saturday column, public-holiday numerals, holiday names |
-| `holidayFill` | `#C8102E` at 10 % | `#FF6B7A` at 16 % | holiday cell background (the H1 mark in full colour) |
-| `today` | `#003893` | `#8FB3FF` | today ring (2 pt / 2 dp), "Today" button |
-| `event` | system secondary label | system secondary label | event dot |
-| `dimmed` | system tertiary label | system tertiary label | days of neighbouring months, AD numerals |
+| Token | Light | Dark | Android | Use |
+|---|---|---|---|---|
+| `holiday` | `#C8102E` | `#FF6B7A` | fixed brand colour | Saturday column, public-holiday numerals, holiday names |
+| `holidayFill` | `#C8102E` at 10 % | `#FF6B7A` at 16 % | fixed brand colour at the same alpha | holiday cell background (the H1 mark in full colour) |
+| `today` | `#003893` | `#8FB3FF` | fixed brand colour | today ring (2 pt / 2 dp), "Today" button |
+| `event` | system secondary label | system secondary label | `onSurfaceVariant` | event dot |
+| `dimmed` | system tertiary label | system tertiary label | `onSurfaceVariant` | days of neighbouring months, AD numerals |
 
 Each pair is checked for ≥ 4.5:1 contrast on its background (MR-10 AC3) in the M0 design spike;
 adjust lightness only, never hue.
+
+On Android, `event` and `dimmed` both map to `MaterialTheme.colorScheme.onSurfaceVariant`. Material
+3 has no tertiary text role, and `outline` is a border colour that falls below 4.5:1 on the app
+backgrounds. `onSurfaceVariant` measures 9.11:1 in light and 10.05:1 in dark in the M0 spike, so
+`dimmed` stays above 4.5:1.
 
 On Android 12+ with dynamic colour, surfaces and the selection follow the wallpaper; `holiday` and
 `today` stay fixed, because their meaning is cultural, not decorative.
