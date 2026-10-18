@@ -10,6 +10,7 @@ XCODEGEN_URL="https://github.com/yonaskolb/XcodeGen/releases/download/${XCODEGEN
 SIMULATOR="platform=iOS Simulator,name=iPhone 17,OS=latest"
 DERIVED_DATA="build/DerivedData"
 PROJECT="NepDate.xcodeproj"
+SNAPSHOT_COUNT=6
 
 run() {
   echo "+ $*"
@@ -66,14 +67,22 @@ gate_build() {
 }
 
 gate_test() {
-  rm -rf "build/TestResults.xcresult"
+  rm -rf "build/TestResults.xcresult" "build/snapshots"
   run xcodebuild test \
     -project "$PROJECT" \
     -scheme NepDate \
     -destination "$SIMULATOR" \
     -derivedDataPath "$DERIVED_DATA" \
     -resultBundlePath "build/TestResults.xcresult" \
-    CODE_SIGNING_ALLOWED=NO
+    CODE_SIGNING_ALLOWED=NO || return 1
+
+  local count
+  count="$(find build/snapshots -name '*.png' 2>/dev/null | wc -l | tr -d ' ')"
+  echo "test: ${count} screenshots in build/snapshots"
+  if [ "$count" -ne "$SNAPSHOT_COUNT" ]; then
+    echo "test: expected ${SNAPSHOT_COUNT} screenshots, found ${count}"
+    return 1
+  fi
 }
 
 gate_network() {

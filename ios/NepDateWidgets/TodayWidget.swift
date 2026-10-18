@@ -40,6 +40,6 @@ struct TodayProvider: TimelineProvider {
   }
 
   private var current: TodaySummary {
-    TodaySummary.make(language: AppLanguage.preferred(from: Locale.preferredLanguages))
+    TodaySummary.make(language: AppLanguage.current)
   }
 }

@@ -16,7 +16,7 @@ struct DayCell: View {
       .frame(maxWidth: .infinity, minHeight: 44)
       .background(day.isHoliday ? BrandColor.holidayFill : Color.clear)
       .overlay(alignment: .topTrailing) {
-        Text(String(day.adDay))
+        Text(day.adNumber(language))
           .font(.caption2)
           .foregroundStyle(.tertiary)
           .padding(.top, 2)

@@ -13,7 +13,7 @@ struct NepDateApp: App {
 }
 
 private struct RootView: View {
-  private let language = AppLanguage.preferred(from: Locale.preferredLanguages)
+  private let language = AppLanguage.current
 
   var body: some View {
     let today = CalendarDates.today()

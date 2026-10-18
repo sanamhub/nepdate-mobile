@@ -29,6 +29,19 @@ jobs:
       - name: Check out the app
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
+      # The image's default Xcode changes without notice; select one by path so a build can be
+      # repeated. See ios/README.md for why this is 26.6 and not 27.x.
+      - name: Select Xcode
+        env:
+          XCODE_APP: /Applications/Xcode_26.6.app
+        run: |
+          ls -d /Applications/Xcode*.app
+          if [ ! -d "$XCODE_APP" ]; then
+            echo "xcode: $XCODE_APP is not on this runner image"
+            exit 1
+          fi
+          echo "DEVELOPER_DIR=$XCODE_APP/Contents/Developer" >> "$GITHUB_ENV"
+
       - name: Show the Xcode version
         run: xcodebuild -version
 
@@ -42,4 +55,4 @@ jobs:
         with:
           name: ios-screenshots
           path: ios/build/snapshots
-          if-no-files-found: ignore
+          if-no-files-found: error

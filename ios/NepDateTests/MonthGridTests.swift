@@ -1,4 +1,5 @@
 import CalendarKit
+import Foundation
 import Testing
 
 @Suite("Month grid")
@@ -56,6 +57,23 @@ struct MonthGridTests {
     #expect(AppLanguage.preferred(from: ["ne-NP", "en"]) == .nepali)
     #expect(AppLanguage.preferred(from: ["en-US"]) == .english)
     #expect(AppLanguage.preferred(from: []) == .english)
+  }
+
+  @Test("M0-03: both day numbers follow the language's digits")
+  func cellDigits() throws {
+    // Ashoj 2083 starts on 17 September 2026.
+    let nepali = try #require(MonthGrid(year: 2083, month: 6, language: .nepali))
+    let first = try #require(nepali.cells.compactMap { $0 }.first)
+    #expect(first.number(.nepali) == "१")
+    #expect(first.adNumber(.nepali) == "१७")
+    #expect(first.number(.english) == "1")
+    #expect(first.adNumber(.english) == "17")
+  }
+
+  @Test("M0-03: the app ships Nepali strings and reads its language from the bundle")
+  func bundleLanguage() {
+    #expect(Bundle.main.localizations.contains("ne"))
+    #expect(AppLanguage.current == AppLanguage.preferred(from: Bundle.main.preferredLocalizations))
   }
 
   @Test("M0-03: today's summary uses the library's names and digits")

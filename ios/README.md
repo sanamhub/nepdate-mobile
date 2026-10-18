@@ -40,3 +40,21 @@ available (ADR-0003 §1).
 
 When `nepdate-swift` 0.1.0 is released, replace the revision with `.exact("0.1.0")`, update the
 Dependabot entry for the two local packages, and check the app still passes `./scripts/ci.sh`.
+
+## Xcode version
+
+ADR-0004 and ADR-0008 ask for the latest stable Xcode, which ADR-0004 records as 27.x. On
+2026-10-18 the `macos-26` image has Xcode 26.6 as its default and Xcode 27 only as a preview, so
+`ios.yml` selects `/Applications/Xcode_26.6.app` by path through `DEVELOPER_DIR` and fails if that
+path is missing. The workflow lists the Xcode versions on the image in its log. Move the path to
+Xcode 27.x once the image ships a non-preview 27, and before the first App Store upload (I3), since
+uploads need the current SDK.
+
+## Executable sizes
+
+The build gate prints the sizes and gates none of them. The widget executable is a little larger
+than the app executable because both link `nepdate-swift` (including the `NepDatePatro` tables)
+statically through `CalendarKit`, and the extension also carries its WidgetKit timeline code, while
+the app is still a single screen. This is the expected cost of static SwiftPM products and was not
+measured with a link map. If the tables become a real share of the download, I2 can ship
+`CalendarKit` as one dynamic framework in the app bundle that both executables load.

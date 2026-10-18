@@ -46,4 +46,11 @@ public struct MonthDay: Sendable, Hashable, Identifiable {
   public func number(_ language: AppLanguage) -> String {
     language == .nepali ? nepaliDigits(day) : String(day)
   }
+
+  /// The Gregorian day number in the given language's digits.
+  /// - Parameter language: The language to show.
+  /// - Returns: Devanagari digits for Nepali, ASCII digits for English.
+  public func adNumber(_ language: AppLanguage) -> String {
+    language == .nepali ? nepaliDigits(adDay) : String(adDay)
+  }
 }

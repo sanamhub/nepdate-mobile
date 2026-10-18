@@ -10,7 +10,10 @@ sources=(
   Packages/CalendarKit/Sources
   Packages/CalendarUI/Sources
 )
-pattern='URLSession|URLRequest|NSURLConnection|WKWebView|SFSafariViewController|import Network|import WebKit|import CFNetwork'
+apis='URLSession|URLRequest|NSURLConnection|NWConnection|NWPathMonitor|WKWebView|SFSafariViewController'
+# Also matches `@preconcurrency import Network` and `import class Network.NWConnection`.
+imports='import +((class|struct|enum|protocol|func|var|let|typealias) +)?(Network|WebKit|CFNetwork|SafariServices)([^A-Za-z0-9_]|$)'
+pattern="$apis|$imports"
 
 if grep -RInE "$pattern" --include='*.swift' "${sources[@]}"; then
   echo "network: a network API is used in the sources above (ADR-0007)"
@@ -22,7 +25,9 @@ binaries=(
   "build/DerivedData/Build/Products/Release-iphoneos/NepDate.app/PlugIns/NepDateWidgets.appex/NepDateWidgets"
 )
 frameworks='/(Network|CFNetwork|WebKit|SafariServices)\.framework/'
-classes='_OBJC_CLASS_\$_(NSURLSession|NSURLConnection|WKWebView)'
+# URLSession is NSURLSession under its Swift name, so Swift code references the Objective-C class;
+# URLRequest is a Swift struct of the Foundation overlay and shows up mangled.
+classes='_OBJC_CLASS_\$_(NSURLSession|NSURLConnection|WKWebView)|10Foundation10URLRequestV'
 
 for binary in "${binaries[@]}"; do
   if [ ! -f "$binary" ]; then
