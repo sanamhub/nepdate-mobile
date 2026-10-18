@@ -21,6 +21,19 @@ packages:
     path: Packages/CalendarKit
   CalendarUI:
     path: Packages/CalendarUI
+  # The app and the widget get nepdate-swift through CalendarKit. The test bundle imports NepDate
+  # and NepDatePatro directly to compare the layout with the library, so Xcode must link the two
+  # products into the bundle; that needs the package at the project level too. ci.sh fails when
+  # this revision and the one in Packages/CalendarKit/Package.swift differ.
+  NepDate:
+    url: https://github.com/sanamhub/nepdate-swift.git
+    revision: "708cd3626ecb22abbb90a3f1d1adc05e778db6d5"
+  # Test-only (ADR-0004), for the I1-03 comparison snapshots. Pinned now and linked in I1-03:
+  # linking it into NepDateTests on Xcode 26.6 fails because its SwiftUI snapshotting autolinks
+  # SwiftUICore and UIUtilities, which the linker rejects for this product (run 39102808714).
+  SnapshotTesting:
+    url: https://github.com/pointfreeco/swift-snapshot-testing.git
+    exactVersion: 1.19.6
 
 targets:
   NepDateApp:
@@ -74,6 +87,10 @@ targets:
       - target: NepDateApp
       - package: CalendarKit
       - package: CalendarUI
+      - package: NepDate
+        product: NepDate
+      - package: NepDate
+        product: NepDatePatro
 
 schemes:
   NepDate:

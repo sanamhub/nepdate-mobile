@@ -11,6 +11,7 @@ SIMULATOR="platform=iOS Simulator,name=iPhone 17,OS=latest"
 DERIVED_DATA="build/DerivedData"
 PROJECT="NepDate.xcodeproj"
 SNAPSHOT_COUNT=6
+COVERAGE_MIN=80
 
 run() {
   echo "+ $*"
@@ -41,7 +42,17 @@ gate_format() {
     NepDateWidgets \
     NepDateTests \
     Packages/CalendarKit/Sources \
-    Packages/CalendarUI/Sources
+    Packages/CalendarUI/Sources || return 1
+
+  local package_revision project_revision
+  package_revision="$(sed -n 's/.*revision: "\([0-9a-f]*\)".*/\1/p' \
+    Packages/CalendarKit/Package.swift)"
+  project_revision="$(sed -n 's/.*revision: "\([0-9a-f]*\)".*/\1/p' project.yml)"
+  if [ -z "$project_revision" ] || [ "$package_revision" != "$project_revision" ]; then
+    echo "revision: project.yml (${project_revision}) and CalendarKit/Package.swift (${package_revision}) disagree"
+    return 1
+  fi
+  echo "revision: nepdate-swift ${project_revision}"
 }
 
 gate_build() {
@@ -74,6 +85,7 @@ gate_test() {
     -destination "$SIMULATOR" \
     -derivedDataPath "$DERIVED_DATA" \
     -resultBundlePath "build/TestResults.xcresult" \
+    -enableCodeCoverage YES \
     CODE_SIGNING_ALLOWED=NO || return 1
 
   local count
@@ -85,14 +97,58 @@ gate_test() {
   fi
 }
 
+gate_coverage() {
+  local bundle="build/TestResults.xcresult"
+  local report="build/coverage.json"
+  if [ ! -d "$bundle" ]; then
+    echo "coverage: $bundle is missing; run the test gate first"
+    return 1
+  fi
+  echo "+ xcrun xccov view --report --json $bundle > $report"
+  xcrun xccov view --report --json "$bundle" > "$report" || return 1
+  local fraction percent
+  fraction="$(jq -r \
+    '[.targets[] | select(.name == "CalendarKit") | .lineCoverage] | max // empty' "$report")"
+  if [ -n "$fraction" ] && awk -v f="$fraction" 'BEGIN { exit !(f > 0) }'; then
+    percent="$(awk -v f="$fraction" 'BEGIN { printf "%.1f", f * 100 }')"
+  else
+    # xccov does not see the SwiftPM package framework on this Xcode; its coverage map and the
+    # test run's profile are both on disk, so read those.
+    echo "coverage: xccov has no CalendarKit lines; reading the profile with llvm-cov"
+    percent="$(calendar_kit_llvm_coverage)" || return 1
+  fi
+  echo "coverage: CalendarKit ${percent}% (floor ${COVERAGE_MIN}%)"
+  if ! awk -v p="$percent" -v m="$COVERAGE_MIN" 'BEGIN { exit !(p >= m) }'; then
+    echo "coverage: CalendarKit is below the ${COVERAGE_MIN}% floor"
+    return 1
+  fi
+}
+
+# Line coverage of the CalendarKit framework from the profile the test run wrote.
+calendar_kit_llvm_coverage() {
+  local framework profraw
+  framework="$(find "$DERIVED_DATA/Build/Products/Debug-iphonesimulator/PackageFrameworks" \
+    -name 'CalendarKit_*' -type f 2>/dev/null | head -1)"
+  profraw="$(find "$DERIVED_DATA" -name '*.profraw' 2>/dev/null | xargs ls -t 2>/dev/null | head -1)"
+  if [ -z "$framework" ] || [ -z "$profraw" ]; then
+    echo "coverage: no CalendarKit framework or profile data to read"
+    return 1
+  fi
+  rm -f build/coverage.profdata
+  echo "+ xcrun llvm-profdata merge -sparse $profraw -o build/coverage.profdata" >&2
+  xcrun llvm-profdata merge -sparse "$profraw" -o build/coverage.profdata || return 1
+  xcrun llvm-cov export -instr-profile build/coverage.profdata -summary-only "$framework" \
+    | jq -r '.data[0].totals.lines.percent' | awk '{ printf "%.1f", $1 }'
+}
+
 gate_network() {
   run bash scripts/check-network.sh
 }
 
 echo "xcodebuild: $(xcodebuild -version | tr '\n' ' ')"
 
-gates=(xcodegen format build test network)
-names=(xcodegen format build test network)
+gates=(xcodegen format build test coverage network)
+names=(xcodegen format build test coverage network)
 
 for i in "${!gates[@]}"; do
   n=$((i + 1))
