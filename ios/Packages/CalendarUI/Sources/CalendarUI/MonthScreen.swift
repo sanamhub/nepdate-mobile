@@ -400,8 +400,10 @@ private struct DayCell: View {
       Text(cell.bsNumber(digits))
         .font(.title2)
         .fontWeight(.semibold)
+        .monospacedDigit()
         .foregroundStyle(numeralColor)
         .lineLimit(1)
+        .minimumScaleFactor(0.7)
         .frame(minWidth: 34, minHeight: 34)
         .overlay {
           if cell.isToday {
@@ -409,6 +411,7 @@ private struct DayCell: View {
               .stroke(BrandColor.today, lineWidth: 2)
           }
         }
+        .accessibilityHidden(true)
       if isSelected && cell.isHoliday {
         Rectangle()
           .fill(BrandColor.holiday)
@@ -421,11 +424,13 @@ private struct DayCell: View {
           .foregroundStyle(BrandColor.secondaryText)
           .lineLimit(1)
           .minimumScaleFactor(0.6)
+          .accessibilityHidden(true)
       }
       if cell.hasEvents {
         Circle()
           .fill(cell.isHoliday || cell.isSaturday ? BrandColor.holiday : BrandColor.secondaryText)
           .frame(width: 4, height: 4)
+          .accessibilityHidden(true)
       }
     }
     .padding(2)
@@ -441,6 +446,7 @@ private struct DayCell: View {
         .foregroundStyle(BrandColor.secondaryText)
         .padding(.top, 2)
         .padding(.trailing, 4)
+        .accessibilityHidden(true)
     }
     .contentShape(Rectangle())
   }
