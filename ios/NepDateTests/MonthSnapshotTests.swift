@@ -1,5 +1,5 @@
 import CalendarKit
-import CalendarUI
+import CalendarScreens
 import SnapshotTesting
 import SwiftUI
 import Testing

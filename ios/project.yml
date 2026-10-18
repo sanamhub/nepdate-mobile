@@ -49,6 +49,8 @@ targets:
     dependencies:
       - package: CalendarKit
       - package: CalendarUI
+      - package: CalendarUI
+        product: CalendarScreens
       - target: NepDateWidgets
         embed: true
 
@@ -86,6 +88,8 @@ targets:
       - target: NepDateApp
       - package: CalendarKit
       - package: CalendarUI
+      - package: CalendarUI
+        product: CalendarScreens
       - package: NepDate
         product: NepDate
       - package: NepDate
