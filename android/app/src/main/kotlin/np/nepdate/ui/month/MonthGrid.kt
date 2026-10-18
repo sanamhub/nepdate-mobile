@@ -75,6 +75,7 @@ internal fun MonthGrid(
                         isSelected = cell.date != null && cell.date == selectedDate,
                         digits = settings.digits,
                         lang = lang,
+                        showTithi = settings.showTithi,
                         description =
                             dayDescription(
                                 cell,
@@ -108,6 +109,7 @@ private fun DayCell(
     isSelected: Boolean,
     digits: Digits,
     lang: Lang,
+    showTithi: Boolean,
     description: String,
     onCellClick: (() -> Unit)?,
     modifier: Modifier = Modifier,
@@ -123,7 +125,7 @@ private fun DayCell(
         modifier = base.padding(2.dp),
     ) {
         if (cell.date != null) {
-            DayCellContent(cell, isSelected, digits, lang, ink)
+            DayCellContent(cell, isSelected, digits, lang, showTithi, ink)
         }
     }
 }
