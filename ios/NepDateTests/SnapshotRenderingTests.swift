@@ -1,4 +1,5 @@
 import CalendarKit
+import CalendarScreens
 import CalendarUI
 import Foundation
 import SwiftUI
@@ -6,44 +7,54 @@ import Testing
 import UIKit
 
 /// Renders the screens and the widget to PNG files for review on the workflow artefact. The
-/// comparison snapshots come with I1-03, when the month screen has its variants.
+/// comparison snapshots are in `MonthSnapshotTests`; this suite is the human-readable artefact.
 @MainActor
 @Suite("Screenshots", .serialized)
 struct SnapshotRenderingTests {
-  @Test("I1-02: the month screen renders in English and Nepali, light and dark")
+  @Test("I1-03: the month screen renders in English and Nepali, light and dark")
   func monthScreen() throws {
-    let today = MonthDate(year: 2083, month: 6, day: 18)
+    let today = MonthDate(year: 2083, month: 6, day: 20)
     let english = try #require(
-      MonthLayout(year: 2083, month: 6, showTithi: false, today: today)
+      MonthViewModel(
+        today: today,
+        language: .english,
+        digits: .english,
+        showTithi: false
+      )
     )
     let nepali = try #require(
-      MonthLayout(year: 2083, month: 6, showTithi: true, today: today)
+      MonthViewModel(
+        today: today,
+        language: .nepali,
+        digits: .nepali,
+        showTithi: true
+      )
     )
-    let size = CGSize(width: 390, height: 520)
+    let size = CGSize(width: 390, height: 780)
 
     try render(
-      MonthScreen(layout: english, language: .english, digits: .english),
+      MonthScreenContent(model: english),
       name: "month-en-light",
       size: size,
       scheme: .light,
       locale: Locale(identifier: "en")
     )
     try render(
-      MonthScreen(layout: english, language: .english, digits: .english),
+      MonthScreenContent(model: english),
       name: "month-en-dark",
       size: size,
       scheme: .dark,
       locale: Locale(identifier: "en")
     )
     try render(
-      MonthScreen(layout: nepali, language: .nepali, digits: .nepali),
+      MonthScreenContent(model: nepali),
       name: "month-ne-light",
       size: size,
       scheme: .light,
       locale: Locale(identifier: "ne")
     )
     try render(
-      MonthScreen(layout: nepali, language: .nepali, digits: .nepali),
+      MonthScreenContent(model: nepali),
       name: "month-ne-dark",
       size: size,
       scheme: .dark,

@@ -203,8 +203,8 @@ struct MonthLayoutTests {
     #expect(MonthLayout.weekdayNames(.nepali).first == "आइत")
     #expect(MonthLayout.weekdayNames(.nepali).last == "शनि")
 
-    #expect(nepali.title(.english, digits: .english) == "Ashoj 2083")
-    #expect(nepali.title(.english, digits: .nepali) == "Ashoj २०८३")
+    #expect(nepali.title(.english, digits: .english) == "Asoj 2083")
+    #expect(nepali.title(.english, digits: .nepali) == "Asoj २०८३")
     #expect(MonthLayout.weekdayNames(.english).first == "Sun")
   }
 

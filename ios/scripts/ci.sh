@@ -11,6 +11,8 @@ SIMULATOR="platform=iOS Simulator,name=iPhone 17,OS=latest"
 DERIVED_DATA="build/DerivedData"
 PROJECT="NepDate.xcodeproj"
 SNAPSHOT_COUNT=6
+SNAPSHOT_REFERENCE_COUNT=6
+SNAPSHOT_RECORD="${SNAPSHOT_TESTING_RECORD:-never}"
 COVERAGE_MIN=80
 
 run() {
@@ -41,6 +43,7 @@ gate_format() {
     NepDateApp \
     NepDateWidgets \
     NepDateTests \
+    NepDateUITests \
     Packages/CalendarKit/Sources \
     Packages/CalendarUI/Sources || return 1
 
@@ -79,6 +82,11 @@ gate_build() {
 
 gate_test() {
   rm -rf "build/TestResults.xcresult" "build/snapshots"
+  echo "test: snapshot record mode ${SNAPSHOT_RECORD}"
+  # xcodebuild passes a variable into the test process on the simulator only with the
+  # TEST_RUNNER_ prefix, which it strips; without it the library falls back to recording
+  # missing references silently.
+  export TEST_RUNNER_SNAPSHOT_TESTING_RECORD="$SNAPSHOT_RECORD"
   run xcodebuild test \
     -project "$PROJECT" \
     -scheme NepDate \
@@ -93,6 +101,14 @@ gate_test() {
   echo "test: ${count} screenshots in build/snapshots"
   if [ "$count" -ne "$SNAPSHOT_COUNT" ]; then
     echo "test: expected ${SNAPSHOT_COUNT} screenshots, found ${count}"
+    return 1
+  fi
+
+  local references
+  references="$(find NepDateTests/__Snapshots__ -name '*.png' 2>/dev/null | wc -l | tr -d ' ')"
+  echo "test: ${references} reference snapshots in NepDateTests/__Snapshots__"
+  if [ "$references" -ne "$SNAPSHOT_REFERENCE_COUNT" ]; then
+    echo "test: expected ${SNAPSHOT_REFERENCE_COUNT} reference snapshots, found ${references}"
     return 1
   fi
 }

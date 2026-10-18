@@ -11,6 +11,12 @@ on:
     paths:
       - "ios/**"
       - ".github/workflows/ios.yml"
+  workflow_dispatch:
+    inputs:
+      record_snapshots:
+        description: Record the reference snapshots instead of comparing them.
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -24,6 +30,8 @@ jobs:
     name: Xcode ci
     runs-on: macos-26
     timeout-minutes: 45
+    env:
+      SNAPSHOT_TESTING_RECORD: ${{ inputs.record_snapshots && 'all' || 'never' }}
 
     steps:
       - name: Check out the app
@@ -56,6 +64,14 @@ jobs:
           name: ios-screenshots
           path: ios/build/snapshots
           if-no-files-found: error
+
+      - name: Upload the snapshot references
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: ios-snapshot-references
+          path: ios/NepDateTests/__Snapshots__
+          if-no-files-found: ignore
 
       - name: Upload the coverage report
         if: always()
