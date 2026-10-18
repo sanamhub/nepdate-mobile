@@ -8,6 +8,7 @@ local.properties
 captures/
 # iOS (the Xcode project is generated from ios/project.yml, ADR-0010)
 *.xcodeproj/
+*.pbxproj
 .build/
 .swiftpm/
 ios/build/
