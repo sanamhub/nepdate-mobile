@@ -62,3 +62,37 @@ Automated criteria are complete. Device-only rows are blocked by
 - [x] No bitmaps; log the RemoteViews parcel size in a debug build.
 - [x] A CI check fails if `Bitmap` or `ImageProvider(` with a bitmap appears under `widget/`.
 - [x] The logged parcel size of W-03 at 5×5 is recorded in `docs/benchmarks.md` (MR-09 AC4).
+
+## A2 review
+
+Reviewed on the branch before merge. Fixes:
+
+- Settings changes inside a running Glance session were not drawn. Glance runs `provideGlance`
+  once per session and keeps the session for up to 45 s; `updateAll` inside that window only
+  re-reads the widget state, so the environment read before `provideContent` stayed old. Opening
+  the app starts a session, so changing Digits within 45 s of opening it left the widgets on the
+  old digits (MR-07 AC3). The updater now writes a new `refresh` key into each widget's state, and
+  `rememberWidgetEnvironment` reloads the environment when the key changes. Test with a negative
+  control in `WidgetReviewTest`.
+- The midnight alarm was armed only by opening the app, a settings change or a system broadcast. A
+  widget placed before the app was ever opened had none. Every process start now arms it
+  (`WidgetRefresh.rearm` from `NepdateApplication.onCreate`).
+- `WidgetConfigActivity` is exported and accepted any widget id. It now configures only ids bound
+  to this app's providers, and declares the `APPWIDGET_CONFIGURE` filter. Test with a negative
+  control.
+- The deep-link extra on the exported `MainActivity` went through `parseLenient`. It now accepts
+  only the strict ISO form the widgets write (`parseOrNull`).
+- WorkManager: accepted only as Glance's dependency in ADR-0011. `checkNoWorkManagerUse` joins
+  `ci`; a file importing `androidx.work` fails it (negative control run once). The merged release
+  manifest is what `checkPermissions` reads. With `minSdk = 26`, WorkManager 2.7.1 uses
+  `SystemJobService`; its wake locks are only on the pre-23 alarm path and the foreground path,
+  which Glance never takes.
+
+Checked and kept: `setWindow(RTC, next midnight, 10 min)` with one fixed immutable `PendingIntent`
+and re-arm after each fire; the system-change receiver is not exported and still receives the
+protected system broadcasts; every widget number goes through the resolved Digits (BS and AD day
+numerals, counts, the data-end footer); Kathmandu +05:45 and DST tests; no bitmaps; screenshots
+total 5.2 MB for 147 new PNGs (178 in the folder), acceptable.
+
+Left for later: generated previews are republished on every app open and the system rate-limits
+them, so a language change shows in the picker preview only after a later open.
