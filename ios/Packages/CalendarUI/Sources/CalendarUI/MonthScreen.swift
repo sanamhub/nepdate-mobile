@@ -400,10 +400,8 @@ private struct DayCell: View {
       Text(cell.bsNumber(digits))
         .font(.title2)
         .fontWeight(.semibold)
-        .monospacedDigit()
         .foregroundStyle(numeralColor)
         .lineLimit(1)
-        .minimumScaleFactor(0.7)
         .frame(minWidth: 34, minHeight: 34)
         .overlay {
           if cell.isToday {

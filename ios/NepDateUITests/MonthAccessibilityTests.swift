@@ -52,6 +52,7 @@ final class MonthAccessibilityTests: XCTestCase {
       try app.performAccessibilityAudit(for: audit) { issue in
         print(
           "AUDIT \(audit) element=\(issue.element?.label ?? "nil") "
+            + "frame=\(String(describing: issue.element?.frame)) "
             + "\(issue.compactDescription) \(issue.detailedDescription)"
         )
         return false
