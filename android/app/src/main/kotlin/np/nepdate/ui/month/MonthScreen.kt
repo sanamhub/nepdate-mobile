@@ -83,6 +83,8 @@ fun MonthScreen(
     settings: Settings,
     modifier: Modifier = Modifier,
     nepalTime: String? = null,
+    openDate: NepaliDate? = null,
+    openDateKey: Int = 0,
     onSettings: (() -> Unit)? = null,
     onFirstGridDrawn: () -> Unit = {},
 ) {
@@ -99,6 +101,7 @@ fun MonthScreen(
     val goTo: (Int) -> Unit = { page -> scope.launch { pagerState.animateScrollToPage(page) } }
     var showPicker by remember { mutableStateOf(false) }
     var selectedDate by remember { mutableStateOf<NepaliDate?>(null) }
+    OpenDateEffect(openDate, openDateKey, pagerState) { selectedDate = it }
     Column(
         modifier =
             modifier

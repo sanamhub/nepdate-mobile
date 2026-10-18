@@ -7,6 +7,10 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStoreFile
 import np.nepdate.data.SettingsRepository
 import np.nepdate.data.TodayProvider
+import np.nepdate.schedule.AndroidMidnightAlarm
+import np.nepdate.schedule.GlanceWidgetUpdater
+import np.nepdate.schedule.MidnightScheduler
+import np.nepdate.schedule.WidgetRefresh
 import java.time.Clock
 import java.time.ZoneId
 
@@ -28,6 +32,14 @@ class AppContainer(
 
     /** Today's BS date from the chosen zone. */
     val todayProvider: TodayProvider = TodayProvider(clock, deviceZone)
+
+    /** Updates all widgets and re-arms the one midnight alarm. */
+    internal val widgetRefresh: WidgetRefresh by lazy {
+        WidgetRefresh(
+            updater = GlanceWidgetUpdater(context.applicationContext),
+            scheduler = MidnightScheduler(todayProvider, AndroidMidnightAlarm(context)),
+        )
+    }
 
     private companion object {
         const val SETTINGS_FILE = "settings"

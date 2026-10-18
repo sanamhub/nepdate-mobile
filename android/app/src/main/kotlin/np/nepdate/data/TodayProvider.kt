@@ -32,11 +32,14 @@ class TodayProvider(
      * Milliseconds until local midnight in the chosen zone. The foreground ticker uses it to refresh
      * the today ring while the app stays open (MR-06 AC2).
      */
-    fun millisUntilNextMidnight(dateFollows: DateFollows): Long {
+    fun nextMidnight(dateFollows: DateFollows): ZonedDateTime {
         val now = now(dateFollows)
-        val nextMidnight = now.toLocalDate().plusDays(1).atStartOfDay(now.zone)
-        return Duration.between(now, nextMidnight).toMillis().coerceAtLeast(1)
+        return now.toLocalDate().plusDays(1).atStartOfDay(now.zone)
     }
+
+    /** Milliseconds until local midnight in the chosen zone, for the foreground today ticker. */
+    fun millisUntilNextMidnight(dateFollows: DateFollows): Long =
+        Duration.between(now(dateFollows), nextMidnight(dateFollows)).toMillis().coerceAtLeast(1)
 
     private fun zone(dateFollows: DateFollows): ZoneId =
         if (dateFollows == DateFollows.NEPAL) KATHMANDU else deviceZone ?: ZoneId.systemDefault()

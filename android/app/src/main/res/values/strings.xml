@@ -69,6 +69,25 @@
 
     <string name="month_nepal_time">Nepal time · %1$s</string>
 
+    <string name="widget_today_name">Today</string>
+    <string name="widget_today_description">The Bikram Sambat date, weekday and next holiday.</string>
+    <string name="widget_upcoming_name">Today and upcoming</string>
+    <string name="widget_upcoming_description">Today\'s date and the next three holidays or events.</string>
+    <string name="widget_month_name">Month</string>
+    <string name="widget_month_description">A Bikram Sambat month with holidays, events and today.</string>
+    <string name="widget_nepal">Nepal</string>
+    <string name="widget_configuration_title">Widget background</string>
+    <string name="widget_opacity_solid">Solid</string>
+    <string name="widget_opacity_seventy">70%</string>
+    <string name="widget_opacity_transparent">Transparent</string>
+    <string name="widget_save">Save</string>
+    <string name="widget_cancel">Cancel</string>
+    <string name="widget_preview_date">Asoj 25, 2083</string>
+    <string name="widget_preview_holiday">Ghatasthapana Brata</string>
+    <string name="widget_preview_month">Asoj 2083</string>
+    <string name="widget_preview_upcoming">Navaratri Start · in 1 day</string>
+    <string name="widget_preview_grid">Sun Mon Tue Wed Thu Fri Sat\n1  2  3  4  5  6  7\n8  9 10 11 12 13 14\n15 16 17 18 19 20 21\n22 23 24 25 26 27 28\n29 30</string>
+
     <string name="diagnostic_app">App</string>
     <string name="diagnostic_android">Android</string>
     <string name="diagnostic_date_follows">Date follows</string>

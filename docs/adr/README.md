@@ -15,3 +15,4 @@ port are in the hub (`sanamhub/nepdate`).
 | [0008](0008-testing-and-quality-gates.md) | Testing and quality gates | Accepted |
 | [0009](0009-distribution-and-releases.md) | Distribution and releases | Accepted |
 | [0010](0010-ios-without-a-mac.md) | Build, sign and ship the iOS app without a Mac | Accepted |
+| [0011](0011-workmanager-only-through-glance.md) | WorkManager only as Glance's dependency | Accepted |

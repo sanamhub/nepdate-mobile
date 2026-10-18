@@ -1,10 +1,28 @@
 package np.nepdate
 
 import android.app.Application
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import np.nepdate.di.AppContainer
+import np.nepdate.schedule.SettingsWidgetSync
 
 /** Owns the manual dependency graph for the process (ADR-0005). */
 class NepdateApplication : Application() {
     /** The app's singletons, created on first use. */
     val container: AppContainer by lazy { AppContainer(this) }
+
+    private val appScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+
+    override fun onCreate() {
+        super.onCreate()
+        appScope.launch {
+            container.widgetRefresh.rearm(container.settingsRepository.settings.first())
+        }
+        SettingsWidgetSync(container.settingsRepository.settings) { settings ->
+            container.widgetRefresh.refresh(settings, resetMonth = false)
+        }.start(appScope)
+    }
 }

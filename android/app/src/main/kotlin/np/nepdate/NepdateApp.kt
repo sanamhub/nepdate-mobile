@@ -59,6 +59,8 @@ import java.time.format.DateTimeFormatter
 fun NepdateApp(
     container: AppContainer,
     modifier: Modifier = Modifier,
+    initialDate: NepaliDate? = null,
+    initialDateKey: Int = 0,
     onFirstGridDrawn: () -> Unit = {},
 ) {
     val settings by container.settingsRepository.settings.collectAsStateWithLifecycle(initialValue = Settings())
@@ -66,6 +68,10 @@ fun NepdateApp(
     val nepalTime = rememberNepalTime(container.todayProvider, settings)
     val scope = rememberCoroutineScope()
     var settingsOpen by rememberSaveable { mutableStateOf(false) }
+
+    LaunchedEffect(initialDateKey) {
+        if (initialDate != null) settingsOpen = false
+    }
 
     if (settingsOpen) {
         SettingsScreen(
@@ -99,6 +105,8 @@ fun NepdateApp(
             settings = settings,
             today = today,
             nepalTime = nepalTime,
+            initialDate = initialDate,
+            initialDateKey = initialDateKey,
             onSettings = { settingsOpen = true },
             onFirstGridDrawn = onFirstGridDrawn,
             modifier = Modifier.weight(1f),
@@ -135,6 +143,8 @@ internal fun NepdateContent(
     today: NepaliDate,
     modifier: Modifier = Modifier,
     nepalTime: String? = null,
+    initialDate: NepaliDate? = null,
+    initialDateKey: Int = 0,
     onSettings: (() -> Unit)? = null,
     onFirstGridDrawn: () -> Unit = {},
 ) {
@@ -150,6 +160,8 @@ internal fun NepdateContent(
                         today = today,
                         settings = settings,
                         nepalTime = nepalTime,
+                        openDate = initialDate,
+                        openDateKey = initialDateKey,
                         onSettings = onSettings,
                         onFirstGridDrawn = onFirstGridDrawn,
                     )
