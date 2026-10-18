@@ -16,7 +16,7 @@ import java.time.ZoneId
 class AppContainer(
     context: Context,
     clock: Clock = Clock.systemDefaultZone(),
-    deviceZone: ZoneId = ZoneId.systemDefault(),
+    deviceZone: ZoneId? = null,
 ) {
     private val dataStore: DataStore<Preferences> =
         PreferenceDataStoreFactory.create(

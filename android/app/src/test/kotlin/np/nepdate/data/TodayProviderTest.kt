@@ -7,6 +7,7 @@ import java.time.Clock
 import java.time.Instant
 import java.time.ZoneId
 import java.time.ZoneOffset
+import java.util.TimeZone
 
 /** A1-01 and MR-06 AC1: today in Nepal time or the device zone. */
 class TodayProviderTest {
@@ -34,5 +35,28 @@ class TodayProviderTest {
 
         assertEquals(DateFollows.DEVICE, freshSettings.dateFollows)
         assertEquals(NepaliDate.of(2081, 4, 15), provider.today(freshSettings.dateFollows))
+    }
+
+    @Test
+    fun millisUntilMidnightUsesTheChosenZone() {
+        val beforeMidnight = Clock.fixed(Instant.parse("2024-07-31T03:59:59Z"), ZoneOffset.UTC)
+        val provider = TodayProvider(beforeMidnight, newYork)
+
+        assertEquals(1_000L, provider.millisUntilNextMidnight(DateFollows.DEVICE))
+    }
+
+    @Test
+    fun theDeviceZoneIsReadAgainAfterATimeZoneChange() {
+        val original = TimeZone.getDefault()
+        try {
+            TimeZone.setDefault(TimeZone.getTimeZone("UTC"))
+            val provider = TodayProvider(clock)
+            assertEquals(NepaliDate.of(2081, 4, 15), provider.today(DateFollows.DEVICE))
+
+            TimeZone.setDefault(TimeZone.getTimeZone("Asia/Kathmandu"))
+            assertEquals(NepaliDate.of(2081, 4, 16), provider.today(DateFollows.DEVICE))
+        } finally {
+            TimeZone.setDefault(original)
+        }
     }
 }

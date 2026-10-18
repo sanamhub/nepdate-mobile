@@ -1,14 +1,23 @@
 package np.nepdate
 
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LifecycleResumeEffect
+import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.sanamhub.nepdate.NepaliDate
+import kotlinx.coroutines.delay
 import np.nepdate.data.DateFollows
 import np.nepdate.data.Settings
 import np.nepdate.data.TodayProvider
@@ -37,8 +46,8 @@ fun NepdateApp(
 }
 
 /**
- * Today's BS date, read again every time the app comes back to the foreground, so an app left open
- * overnight does not keep yesterday's today ring (MR-06 AC2).
+ * Today's BS date. It is read again when the app comes back to the foreground, at local midnight
+ * while it stays in the foreground, and when the system reports a clock or time-zone change.
  */
 @Composable
 internal fun rememberToday(
@@ -49,6 +58,34 @@ internal fun rememberToday(
     LifecycleResumeEffect(todayProvider, dateFollows) {
         today = todayProvider.today(dateFollows)
         onPauseOrDispose {}
+    }
+    LaunchedEffect(todayProvider, dateFollows) {
+        while (true) {
+            delay(todayProvider.millisUntilNextMidnight(dateFollows))
+            today = todayProvider.today(dateFollows)
+        }
+    }
+    val context = LocalContext.current
+    LifecycleStartEffect(context, todayProvider, dateFollows) {
+        val receiver =
+            object : BroadcastReceiver() {
+                override fun onReceive(
+                    context: Context?,
+                    intent: Intent?,
+                ) {
+                    today = todayProvider.today(dateFollows)
+                }
+            }
+        ContextCompat.registerReceiver(
+            context,
+            receiver,
+            IntentFilter().apply {
+                addAction(Intent.ACTION_TIME_CHANGED)
+                addAction(Intent.ACTION_TIMEZONE_CHANGED)
+            },
+            ContextCompat.RECEIVER_NOT_EXPORTED,
+        )
+        onStopOrDispose { context.unregisterReceiver(receiver) }
     }
     return today
 }
