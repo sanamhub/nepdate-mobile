@@ -8,6 +8,7 @@ import UIKit
 public struct MonthScreen: View {
   @State private var model: MonthViewModel
   @State private var scrolledMonth: MonthKey?
+  @State private var window: [MonthKey]
   @State private var showsPicker = false
 
   /// Creates the screen.
@@ -15,6 +16,7 @@ public struct MonthScreen: View {
   public init(model: MonthViewModel) {
     _model = State(initialValue: model)
     _scrolledMonth = State(initialValue: model.month)
+    _window = State(initialValue: Self.window(around: model.month))
   }
 
   /// The screen's content.
@@ -29,7 +31,7 @@ public struct MonthScreen: View {
       )
       ScrollView(.horizontal) {
         LazyHStack(spacing: 0) {
-          ForEach(MonthKey.all) { key in
+          ForEach(window) { key in
             MonthPageView(
               key: key,
               today: model.today,
@@ -42,6 +44,7 @@ public struct MonthScreen: View {
                 model.select(date)
               }
             )
+            .accessibilityHidden(key != (scrolledMonth ?? model.month))
             .containerRelativeFrame([.horizontal, .vertical])
             .id(key)
           }
@@ -54,6 +57,11 @@ public struct MonthScreen: View {
       .onChange(of: scrolledMonth) { _, newValue in
         guard let newValue, newValue != model.month else { return }
         model.go(to: newValue)
+        if let index = window.firstIndex(of: newValue),
+          index < 5 || index >= window.count - 5
+        {
+          window = Self.window(around: newValue)
+        }
       }
     }
     .background(Color(uiColor: .systemBackground))
@@ -83,9 +91,29 @@ public struct MonthScreen: View {
   private func go(to key: MonthKey?) {
     guard let key, key != model.month else { return }
     model.go(to: key)
+    if !window.contains(key) {
+      window = Self.window(around: key)
+    }
     withAnimation(.snappy) {
       scrolledMonth = key
     }
+  }
+
+  /// The pages the pager holds. A window around the shown month keeps the number of views small;
+  /// the picker can still reach every month and `go(to:)` recentres the window first.
+  private static func window(around key: MonthKey) -> [MonthKey] {
+    let radius = 24
+    var start = key.id - radius
+    var end = key.id + radius
+    if start < 0 {
+      end = min(MonthKey.count - 1, radius * 2)
+      start = 0
+    }
+    if end >= MonthKey.count {
+      start = max(0, MonthKey.count - 1 - radius * 2)
+      end = MonthKey.count - 1
+    }
+    return (start...end).compactMap { MonthKey(id: $0) }
   }
 }
 
@@ -150,6 +178,7 @@ private struct MonthHeader: View {
         }
       }
     }
+    .frame(maxWidth: .infinity, alignment: .leading)
     .padding(.horizontal, 16)
     .padding(.top, 8)
     .padding(.bottom, 4)
@@ -370,6 +399,13 @@ private struct DayCell: View {
         .foregroundStyle(numeralColor)
         .lineLimit(1)
         .minimumScaleFactor(0.7)
+        .frame(minWidth: 34, minHeight: 34)
+        .overlay {
+          if cell.isToday {
+            Circle()
+              .stroke(BrandColor.today, lineWidth: 2)
+          }
+        }
       if isSelected && cell.isHoliday {
         Rectangle()
           .fill(BrandColor.holiday)
@@ -380,9 +416,8 @@ private struct DayCell: View {
           .font(.caption2)
           .multilineTextAlignment(.center)
           .foregroundStyle(BrandColor.secondaryText)
-          .lineLimit(2)
-          .minimumScaleFactor(0.8)
-          .fixedSize(horizontal: false, vertical: true)
+          .lineLimit(1)
+          .minimumScaleFactor(0.6)
       }
       if cell.hasEvents {
         Circle()
@@ -403,13 +438,6 @@ private struct DayCell: View {
         .foregroundStyle(BrandColor.secondaryText)
         .padding(.top, 2)
         .padding(.trailing, 4)
-    }
-    .overlay {
-      if cell.isToday {
-        RoundedRectangle(cornerRadius: 8, style: .continuous)
-          .stroke(BrandColor.today, lineWidth: 2)
-          .padding(2)
-      }
     }
     .contentShape(Rectangle())
   }
