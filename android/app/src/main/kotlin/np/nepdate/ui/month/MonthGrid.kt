@@ -29,6 +29,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.unit.dp
 import io.github.sanamhub.nepdate.Lang
@@ -53,6 +54,8 @@ internal fun MonthGrid(
     onDayClick: (NepaliDate) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val publicHoliday = stringResource(R.string.public_holiday_label)
+    val todayDescription = stringResource(R.string.month_today)
     Column(
         modifier =
             modifier
@@ -76,6 +79,7 @@ internal fun MonthGrid(
                         digits = settings.digits,
                         lang = lang,
                         showTithi = settings.showTithi,
+                        todayDescription = todayDescription,
                         description =
                             dayDescription(
                                 cell,
@@ -110,6 +114,7 @@ private fun DayCell(
     digits: Digits,
     lang: Lang,
     showTithi: Boolean,
+    todayDescription: String,
     description: String,
     onCellClick: (() -> Unit)?,
     modifier: Modifier = Modifier,
@@ -120,7 +125,7 @@ private fun DayCell(
             .clip(RoundedCornerShape(8.dp))
             .background(ink.fill)
             .then(if (onCellClick != null) Modifier.clickable(onClick = onCellClick) else Modifier)
-            .dayCellSemantics(cell, description, isSelected, onCellClick)
+            .dayCellSemantics(cell, description, isSelected, onCellClick, todayDescription)
     Box(
         modifier = base.padding(2.dp),
     ) {
@@ -135,10 +140,14 @@ private fun Modifier.dayCellSemantics(
     description: String,
     isSelected: Boolean,
     onCellClick: (() -> Unit)?,
+    todayDescription: String,
 ): Modifier {
     val date = cell.date ?: return this
     return clearAndSetSemantics {
         contentDescription = description
+        if (cell.isToday) {
+            stateDescription = todayDescription
+        }
         testTag = "month_cell_${if (cell.isInMonth) "in" else "out"}_${date.toIsoString()}"
         if (onCellClick != null) {
             role = Role.Button
@@ -164,6 +173,7 @@ internal fun MonthList(
     onDayClick: (NepaliDate) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val todayDescription = stringResource(R.string.month_today)
     LazyColumn(
         modifier =
             modifier
@@ -186,6 +196,7 @@ internal fun MonthList(
                 bsMonthNames = bsMonthNames,
                 monthNames = monthNames,
                 publicHoliday = publicHoliday,
+                todayDescription = todayDescription,
                 onDayClick = onDayClick,
             )
         }
@@ -202,6 +213,7 @@ private fun DayListRow(
     bsMonthNames: List<String>,
     monthNames: List<String>,
     publicHoliday: String,
+    todayDescription: String,
     onDayClick: (NepaliDate) -> Unit,
 ) {
     val ink = dayInk(cell, isSelected)
@@ -216,6 +228,9 @@ private fun DayListRow(
                 .clickable { onDayClick(date) }
                 .clearAndSetSemantics {
                     contentDescription = description
+                    if (cell.isToday) {
+                        stateDescription = todayDescription
+                    }
                     testTag = "month_list_row_${date.toIsoString()}"
                     role = Role.Button
                     selected = isSelected

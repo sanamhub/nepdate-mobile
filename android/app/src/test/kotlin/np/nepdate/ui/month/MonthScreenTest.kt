@@ -30,6 +30,8 @@ import io.github.sanamhub.nepdate.NepaliDate
 import np.nepdate.data.Digits
 import np.nepdate.data.Settings
 import np.nepdate.ui.theme.NepdateTheme
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -146,6 +148,43 @@ class MonthScreenTest {
             .onNodeWithContentDescription(
                 "Asoj 25, 2083, Sunday, 11 October 2026, public holiday, Ghatasthapana Brata",
             ).assertExists()
+    }
+
+    @Test
+    fun mr10Ac1TodayHasAStateDescriptionWithoutChangingTheSpokenLabel() {
+        setMonthScreen()
+        val today =
+            composeRule
+                .onNodeWithTag("month_cell_in_2083-06-20")
+                .fetchSemanticsNode()
+                .config
+
+        assertEquals("Today", today[SemanticsProperties.StateDescription])
+        assertFalse(
+            "the state description stays out of the spoken label",
+            today[SemanticsProperties.ContentDescription].joinToString(", ").contains("Today"),
+        )
+        assertFalse(
+            composeRule
+                .onNodeWithTag("month_cell_in_2083-06-21")
+                .fetchSemanticsNode()
+                .config
+                .contains(SemanticsProperties.StateDescription),
+        )
+    }
+
+    @Test
+    @Config(qualifiers = "ne-w360dp-h640dp-xhdpi")
+    fun mr10Ac1TodayStateDescriptionUsesTheNepaliCopy() {
+        setMonthScreen()
+
+        assertEquals(
+            "आज",
+            composeRule
+                .onNodeWithTag("month_cell_in_2083-06-20")
+                .fetchSemanticsNode()
+                .config[SemanticsProperties.StateDescription],
+        )
     }
 
     @Test
