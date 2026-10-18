@@ -26,8 +26,23 @@ phone and a low-end phone is open. iOS is not started (M0-03).
 
 ## Devanagari
 
-The strings are the 11 lines of the Rust plan's
-[Devanagari test strings](https://github.com/sanamhub/nepdate-rust/blob/main/docs/plan/devanagari-test-strings.md).
+The screenshot test uses these 11 strings. They are copied here so the result does not depend on
+another repository:
+
+```text
+1. ० १ २ ३ ४ ५ ६ ७ ८ ९
+2. बैशाख जेठ असार साउन भदौ असोज
+3. कार्तिक मंसिर पुष माघ फागुन चैत
+4. आइतवार सोमवार मङ्गलवार बुधवार बिहिवार शुक्रवार शनिवार
+5. कि की कु कू के कै को कौ कं कः
+6. क्ष ज्ञ श्र त्र द्ध द्व ह्म ट्ट
+7. धर्म कर्म पूर्णिमा चतुर्दशी
+8. पञ्चमी षष्ठी अष्टमी प्रतिपदा द्वितीया
+9. नयाँ वर्ष · गणतन्त्र दिवस · बिस्का जात्रा
+10. २०८३ असोज ८ गते, बिहिवार
+11. Ashoj 8, 2083 · 2026-09-24 · 2:05 PM
+```
+
 The cell screenshot shows each line at 14 sp and 22 sp. The hero screenshot shows each line at
 56 sp.
 
