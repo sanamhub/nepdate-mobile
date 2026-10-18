@@ -198,6 +198,7 @@ private struct MonthHeader: View {
       }
       .frame(minHeight: 44, alignment: .leading)
       .contentShape(Rectangle())
+      .accessibilityHidden(true)
     }
     .buttonStyle(.plain)
     .accessibilityLabel(Text("Choose month and year"))
@@ -375,6 +376,7 @@ private struct DayCell: View {
         onSelect(date)
       } label: {
         content
+          .accessibilityHidden(true)
       }
       .buttonStyle(.plain)
       .accessibilityElement(children: .ignore)
@@ -545,6 +547,7 @@ private struct MonthListRow: View {
       .padding(.vertical, 10)
       .background(background, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
       .contentShape(Rectangle())
+      .accessibilityHidden(true)
     }
     .buttonStyle(.plain)
     .accessibilityElement(children: .ignore)

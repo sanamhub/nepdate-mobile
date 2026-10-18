@@ -49,7 +49,13 @@ final class MonthAccessibilityTests: XCTestCase {
       .textClipped,
     ]
     for audit in audits {
-      try app.performAccessibilityAudit(for: audit)
+      try app.performAccessibilityAudit(for: audit) { issue in
+        print(
+          "AUDIT \(audit) element=\(issue.element?.label ?? "nil") "
+            + "\(issue.compactDescription) \(issue.detailedDescription)"
+        )
+        return false
+      }
     }
   }
 }
