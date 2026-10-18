@@ -19,6 +19,7 @@ struct SettingsStoreTests {
     let settings = store.load()
 
     #expect(settings.language == .system)
+    #expect(settings.digits == .followLanguage)
     #expect(settings.dateFollows == .device)
     #expect(settings.showTithi == false)
     #expect(settings.dateFollowsSuggestionHandled == false)
@@ -30,12 +31,14 @@ struct SettingsStoreTests {
     defer { Self.remove(store) }
 
     store.setLanguage(.nepali)
+    store.setDigits(.english)
     store.setDateFollows(.nepal)
     store.setShowTithi(true)
     store.setDateFollowsSuggestionHandled(true)
 
     let settings = store.load()
     #expect(settings.language == .nepali)
+    #expect(settings.digits == .english)
     #expect(settings.dateFollows == .nepal)
     #expect(settings.showTithi)
     #expect(settings.dateFollowsSuggestionHandled)
@@ -48,10 +51,12 @@ struct SettingsStoreTests {
     let defaults = try #require(UserDefaults(suiteName: store.suiteName))
     defaults.set("MARS", forKey: "date_follows")
     defaults.set("ROMAN", forKey: "language")
+    defaults.set("ROMAN", forKey: "digits")
 
     let settings = store.load()
     #expect(settings.dateFollows == .device)
     #expect(settings.language == .system)
+    #expect(settings.digits == .followLanguage)
   }
 
   @Test("I1-01: the default store is the App Group")

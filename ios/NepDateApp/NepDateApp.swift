@@ -22,7 +22,11 @@ private struct RootView: View {
       showTithi: settings.showTithi,
       today: today
     ) {
-      MonthScreen(layout: layout, language: language)
+      MonthScreen(
+        layout: layout,
+        language: language,
+        digits: settings.digits.resolved(for: language)
+      )
     } else {
       Text("No date")
     }

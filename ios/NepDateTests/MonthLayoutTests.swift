@@ -1,4 +1,5 @@
 import CalendarKit
+import Foundation
 import NepDate
 import NepDatePatro
 import Testing
@@ -98,6 +99,15 @@ struct MonthLayoutTests {
     #expect(on.cells.first { $0.isInMonth }?.tithi != nil)
   }
 
+  // Sunday = 0 for an AD date, from Foundation's Gregorian calendar rather than the library.
+  private static func foundationWeekday(_ ad: (year: Int, month: Int, day: Int)) -> Int {
+    var calendar = Calendar(identifier: .gregorian)
+    calendar.timeZone = TimeZone(identifier: "UTC") ?? .gmt
+    let components = DateComponents(year: ad.year, month: ad.month, day: ad.day)
+    guard let date = calendar.date(from: components) else { return -1 }
+    return calendar.component(.weekday, from: date) - 1
+  }
+
   @Test(
     "I1-02: every month in the patro coverage matches the library",
     arguments: MonthLayoutTests.coverageMonths
@@ -112,6 +122,7 @@ struct MonthLayoutTests {
     let expectedCells = leading + last.day <= 35 ? 35 : 42
 
     #expect(layout.leadingDays == leading, "\(start) leading days")
+    #expect(leading == Self.foundationWeekday(first.gregorian), "\(start) weekday vs Foundation")
     #expect(layout.cells.count == expectedCells, "\(start) cell count")
     #expect(layout.firstDay == MonthDate(year: first.year, month: first.month, day: first.day))
     #expect(layout.lastDay == MonthDate(year: last.year, month: last.month, day: last.day))
@@ -169,7 +180,7 @@ struct MonthLayoutTests {
     #expect(MonthLayout(year: 1800, month: 1, showTithi: false, today: Self.today) == nil)
   }
 
-  @Test("I1-01: BS and AD digits follow the app language")
+  @Test("I1-01: BS and AD numbers use the resolved digits")
   func digits() throws {
     let layout = try #require(
       MonthLayout(year: 2083, month: 6, showTithi: false, today: Self.today)
@@ -187,13 +198,13 @@ struct MonthLayoutTests {
     let nepali = try #require(
       MonthLayout(year: 2083, month: 6, showTithi: false, today: Self.today)
     )
-    #expect(nepali.title(.nepali).contains("असोज"))
-    #expect(nepali.title(.nepali).contains("२०८३"))
+    #expect(nepali.title(.nepali, digits: .nepali) == "असोज २०८३")
+    #expect(nepali.title(.nepali, digits: .english) == "असोज 2083")
     #expect(MonthLayout.weekdayNames(.nepali).first == "आइत")
     #expect(MonthLayout.weekdayNames(.nepali).last == "शनि")
 
-    #expect(nepali.title(.english).contains("Ashoj"))
-    #expect(nepali.title(.english).contains("2083"))
+    #expect(nepali.title(.english, digits: .english) == "Ashoj 2083")
+    #expect(nepali.title(.english, digits: .nepali) == "Ashoj २०८३")
     #expect(MonthLayout.weekdayNames(.english).first == "Sun")
   }
 

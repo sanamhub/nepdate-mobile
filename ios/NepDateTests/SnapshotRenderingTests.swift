@@ -22,28 +22,28 @@ struct SnapshotRenderingTests {
     let size = CGSize(width: 390, height: 520)
 
     try render(
-      MonthScreen(layout: english, language: .english),
+      MonthScreen(layout: english, language: .english, digits: .english),
       name: "month-en-light",
       size: size,
       scheme: .light,
       locale: Locale(identifier: "en")
     )
     try render(
-      MonthScreen(layout: english, language: .english),
+      MonthScreen(layout: english, language: .english, digits: .english),
       name: "month-en-dark",
       size: size,
       scheme: .dark,
       locale: Locale(identifier: "en")
     )
     try render(
-      MonthScreen(layout: nepali, language: .nepali),
+      MonthScreen(layout: nepali, language: .nepali, digits: .nepali),
       name: "month-ne-light",
       size: size,
       scheme: .light,
       locale: Locale(identifier: "ne")
     )
     try render(
-      MonthScreen(layout: nepali, language: .nepali),
+      MonthScreen(layout: nepali, language: .nepali, digits: .nepali),
       name: "month-ne-dark",
       size: size,
       scheme: .dark,
@@ -53,7 +53,9 @@ struct SnapshotRenderingTests {
 
   @Test("M0-03: the Today widget renders for the small and medium families")
   func widget() throws {
-    let summary = try #require(TodaySummary(year: 2081, month: 1, day: 1, language: .nepali))
+    let summary = try #require(
+      TodaySummary(year: 2081, month: 1, day: 1, language: .nepali, digits: .nepali)
+    )
     try render(
       TodayWidgetView(summary: summary),
       name: "widget-small-ne",

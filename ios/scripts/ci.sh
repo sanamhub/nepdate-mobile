@@ -138,8 +138,18 @@ calendar_kit_llvm_coverage() {
   echo "+ xcrun llvm-profdata merge -sparse <profraws> -o build/coverage.profdata" >&2
   # The profile paths have no spaces: the runner checkout path and DerivedData are fixed.
   xcrun llvm-profdata merge -sparse $profraws -o build/coverage.profdata || return 1
-  xcrun llvm-cov export -instr-profile build/coverage.profdata -summary-only "$framework" \
-    | jq -r '.data[0].totals.lines.percent' | awk '{ printf "%.1f", $1 }'
+  # Only CalendarKit's own sources count: the framework may also carry code from its
+  # dependencies, and a filter that matches nothing must fail the gate, not pass it.
+  local summary lines
+  summary="$(xcrun llvm-cov export -instr-profile build/coverage.profdata -summary-only \
+    "$framework" "$PWD/Packages/CalendarKit/Sources")" || return 1
+  lines="$(jq -r '.data[0].totals.lines.count // 0' <<<"$summary")"
+  if ! [ "$lines" -gt 0 ] 2>/dev/null; then
+    echo "coverage: llvm-cov found no CalendarKit source lines" >&2
+    return 1
+  fi
+  echo "coverage: llvm-cov counted ${lines} lines in Packages/CalendarKit/Sources" >&2
+  jq -r '.data[0].totals.lines.percent' <<<"$summary" | awk '{ printf "%.1f", $1 }'
 }
 
 gate_network() {

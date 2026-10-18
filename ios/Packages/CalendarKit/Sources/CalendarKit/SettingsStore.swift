@@ -23,6 +23,8 @@ public struct SettingsStore: Sendable {
     let defaults = AppGroup.defaults(suiteName: suiteName)
     return Settings(
       language: LanguageSetting(rawValue: defaults?.string(forKey: Key.language) ?? "") ?? .system,
+      digits: DigitsSetting(rawValue: defaults?.string(forKey: Key.digits) ?? "")
+        ?? .followLanguage,
       dateFollows: DateFollows(rawValue: defaults?.string(forKey: Key.dateFollows) ?? "")
         ?? .device,
       showTithi: defaults?.bool(forKey: Key.showTithi) ?? false,
@@ -34,6 +36,12 @@ public struct SettingsStore: Sendable {
   /// - Parameter value: The setting.
   public func setLanguage(_ value: LanguageSetting) {
     AppGroup.defaults(suiteName: suiteName)?.set(value.rawValue, forKey: Key.language)
+  }
+
+  /// Stores the Digits choice (MR-07 AC1).
+  /// - Parameter value: The setting.
+  public func setDigits(_ value: DigitsSetting) {
+    AppGroup.defaults(suiteName: suiteName)?.set(value.rawValue, forKey: Key.digits)
   }
 
   /// Stores the "Date follows" choice (MR-06 AC1).
@@ -56,6 +64,7 @@ public struct SettingsStore: Sendable {
 
   private enum Key {
     static let language = "language"
+    static let digits = "digits"
     static let dateFollows = "date_follows"
     static let showTithi = "show_tithi"
     static let suggestion = "date_follows_suggestion_handled"

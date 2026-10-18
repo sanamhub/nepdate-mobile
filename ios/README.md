@@ -31,13 +31,20 @@ renders the month screen and the widget to `build/snapshots`; `ios.yml` uploads 
 The coverage gate reads the test result bundle with `xcrun xccov` and fails below 80 % line
 coverage of `CalendarKit` (ADR-0008). On Xcode 26.6 `xccov` reports the local package target with no
 source lines (run 39103877148), so when that happens the gate reads the run's profile with
-`llvm-cov` against the `CalendarKit` framework instead. The percentage printed is the same line
-coverage either way.
+`llvm-cov` against the `CalendarKit` framework instead, filtered to `Packages/CalendarKit/Sources`
+so code the framework carries from nepdate-swift does not count. The gate prints how many lines
+`llvm-cov` counted and fails when that is zero, so a filter or path that matches nothing cannot
+pass.
 
-`swift-snapshot-testing` 1.19.6 is pinned in `project.yml` for the I1-03 comparison snapshots. It is
-not linked into `NepDateTests` yet: on Xcode 26.6 its SwiftUI snapshotting autolinks `SwiftUICore` and
-`UIUtilities`, and the linker rejects both for this product (run 39102808714). I1-03 attaches it once
-that is solved; the screenshot renderer stays until then.
+`swift-snapshot-testing` is not in the project yet. Linking 1.19.6 into `NepDateTests` on Xcode 26.6
+failed: its SwiftUI snapshotting autolinks `SwiftUICore` and `UIUtilities`, and the linker rejects
+both for this product (run 39102808714). An unused pin would still be resolved and fetched on every
+build, so I1-03 adds the package together with the first comparison snapshot, once the link works;
+the screenshot renderer stays until then.
+
+Digits have their own setting, as on Android (MR-07 AC1): Follow language (the fresh-install
+default), Nepali and English. `DigitsSetting.resolved(for:)` turns it into the digits to draw at
+render time, so changing the language changes the digits without writing the setting.
 
 The App Group is `group.np.nepdate`; the bundle identifier is `np.nepdate` for the app and
 `np.nepdate.widgets` for the extension.

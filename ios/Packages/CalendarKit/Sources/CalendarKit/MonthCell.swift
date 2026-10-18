@@ -62,17 +62,17 @@ public struct MonthCell: Sendable, Hashable {
     self.events = info.map { $0.events.map(NamedText.init) } ?? []
   }
 
-  /// The BS day number in the given language's digits.
-  /// - Parameter language: The language to show.
-  /// - Returns: Devanagari digits for Nepali, ASCII digits for English.
-  public func bsNumber(_ language: AppLanguage) -> String {
-    language == .nepali ? nepaliDigits(bsDay) : String(bsDay)
+  /// The BS day number.
+  /// - Parameter digits: The resolved Digits setting.
+  /// - Returns: The day in those digits.
+  public func bsNumber(_ digits: Digits) -> String {
+    digits.format(bsDay)
   }
 
-  /// The AD day number in the given language's digits.
-  /// - Parameter language: The language to show.
-  /// - Returns: Devanagari digits for Nepali, ASCII digits for English.
-  public func adNumber(_ language: AppLanguage) -> String {
-    language == .nepali ? nepaliDigits(adDay) : String(adDay)
+  /// The AD day number.
+  /// - Parameter digits: The resolved Digits setting.
+  /// - Returns: The day in those digits.
+  public func adNumber(_ digits: Digits) -> String {
+    digits.format(adDay)
   }
 }

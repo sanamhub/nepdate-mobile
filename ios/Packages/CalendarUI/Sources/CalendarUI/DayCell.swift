@@ -6,10 +6,11 @@ import SwiftUI
 struct DayCell: View {
   let cell: MonthCell
   let language: AppLanguage
+  let digits: Digits
 
   var body: some View {
     VStack(spacing: 1) {
-      Text(cell.bsNumber(language))
+      Text(cell.bsNumber(digits))
         .font(.title2)
         .fontWeight(.semibold)
         .monospacedDigit()
@@ -30,7 +31,7 @@ struct DayCell: View {
     .opacity(cell.isInMonth ? 1 : 0.35)
     .background(cell.isHoliday ? BrandColor.holidayFill : Color.clear)
     .overlay(alignment: .topTrailing) {
-      Text(cell.adNumber(language))
+      Text(cell.adNumber(digits))
         .font(.caption2)
         .foregroundStyle(.tertiary)
         .padding(.top, 2)

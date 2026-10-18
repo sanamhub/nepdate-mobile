@@ -28,12 +28,6 @@ packages:
   NepDate:
     url: https://github.com/sanamhub/nepdate-swift.git
     revision: "708cd3626ecb22abbb90a3f1d1adc05e778db6d5"
-  # Test-only (ADR-0004), for the I1-03 comparison snapshots. Pinned now and linked in I1-03:
-  # linking it into NepDateTests on Xcode 26.6 fails because its SwiftUI snapshotting autolinks
-  # SwiftUICore and UIUtilities, which the linker rejects for this product (run 39102808714).
-  SnapshotTesting:
-    url: https://github.com/pointfreeco/swift-snapshot-testing.git
-    exactVersion: 1.19.6
 
 targets:
   NepDateApp:

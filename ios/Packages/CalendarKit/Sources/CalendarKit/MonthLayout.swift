@@ -86,12 +86,14 @@ public struct MonthLayout: Sendable, Hashable {
     cells.filter { $0.isInMonth && $0.isHoliday }.map(\.bsDay)
   }
 
-  /// The month title in the given language, for example `असोज २०८३`.
-  /// - Parameter language: The language of the name and the digits.
+  /// The month title, for example `असोज २०८३`.
+  /// - Parameters:
+  ///   - language: The language of the month name.
+  ///   - digits: The resolved Digits setting, for the year.
   /// - Returns: The month name and year.
-  public func title(_ language: AppLanguage) -> String {
+  public func title(_ language: AppLanguage, digits: Digits) -> String {
     let name = language == .nepali ? nepaliName : englishName
-    return language == .nepali ? "\(name) \(nepaliDigits(year))" : "\(name) \(year)"
+    return "\(name) \(digits.format(year))"
   }
 
   /// The weekday column headings, Sunday first.

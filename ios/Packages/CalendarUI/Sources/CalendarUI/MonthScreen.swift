@@ -6,14 +6,17 @@ import UIKit
 public struct MonthScreen: View {
   private let layout: MonthLayout
   private let language: AppLanguage
+  private let digits: Digits
 
   /// Creates the screen.
   /// - Parameters:
   ///   - layout: The month to draw.
-  ///   - language: The language of names and digits.
-  public init(layout: MonthLayout, language: AppLanguage) {
+  ///   - language: The language of the names.
+  ///   - digits: The resolved Digits setting.
+  public init(layout: MonthLayout, language: AppLanguage, digits: Digits) {
     self.layout = layout
     self.language = language
+    self.digits = digits
   }
 
   /// The screen's content.
@@ -21,7 +24,7 @@ public struct MonthScreen: View {
     let weekdays = MonthLayout.weekdayNames(language)
     return VStack(alignment: .leading, spacing: 12) {
       HStack(alignment: .firstTextBaseline) {
-        Text(layout.title(language))
+        Text(layout.title(language, digits: digits))
           .font(.largeTitle)
           .fontWeight(.bold)
         Spacer(minLength: 8)
@@ -44,7 +47,7 @@ public struct MonthScreen: View {
             Color.clear
               .frame(height: 44)
           } else {
-            DayCell(cell: cell, language: language)
+            DayCell(cell: cell, language: language, digits: digits)
           }
         }
       }
