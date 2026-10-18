@@ -375,20 +375,32 @@ private struct DayCell: View {
       Button {
         onSelect(date)
       } label: {
-        content
-          .accessibilityHidden(true)
+        Color.clear
+          .frame(maxWidth: .infinity, maxHeight: .infinity)
+          .contentShape(Rectangle())
       }
       .buttonStyle(.plain)
+      .overlay {
+        content
+          .allowsHitTesting(false)
+          .accessibilityHidden(true)
+      }
       .accessibilityElement(children: .ignore)
       .accessibilityLabel(Text(label))
       .accessibilityValue(cell.isToday ? Text(todayLabel) : Text(""))
       .accessibilityAddTraits(.isButton)
       .accessibilityAddTraits(isSelected ? .isSelected : [])
     } else {
-      content
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel(Text(label))
-        .accessibilityValue(cell.isToday ? Text(todayLabel) : Text(""))
+      ZStack {
+        content
+          .allowsHitTesting(false)
+          .accessibilityHidden(true)
+        Color.clear
+          .contentShape(Rectangle())
+          .accessibilityElement(children: .ignore)
+          .accessibilityLabel(Text(label))
+          .accessibilityValue(cell.isToday ? Text(todayLabel) : Text(""))
+      }
     }
   }
 
