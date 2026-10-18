@@ -39,12 +39,20 @@ class HolidayCellContrastTest {
     ) {
         val colors = nepdateColorsFor(darkTheme, scheme)
         val background = scheme.background
+        val selection = scheme.surfaceContainerHigh
         val pairs =
             mapOf(
                 "holiday on the cell fill" to contrastRatio(colors.holiday, colors.holidayFillOn(background)),
                 "holiday on the background" to contrastRatio(colors.holiday, background),
+                "holiday on the selection" to contrastRatio(colors.holiday, selection),
+                "onSurface on the background" to contrastRatio(scheme.onSurface, background),
+                "onSurface on the selection" to contrastRatio(scheme.onSurface, selection),
                 "today on the background" to contrastRatio(colors.today, background),
+                "today on the selection" to contrastRatio(colors.today, selection),
                 "dimmed on the background" to contrastRatio(colors.dimmed, background),
+                "dimmed on the selection" to contrastRatio(colors.dimmed, selection),
+                "event on the background" to contrastRatio(colors.event, background),
+                "event on the selection" to contrastRatio(colors.event, selection),
             )
         for ((pair, ratio) in pairs) {
             assertTrue("$pair is $ratio:1, below 4.5:1", ratio >= MIN_CONTRAST)

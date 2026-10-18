@@ -10,9 +10,10 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+        val container = (application as NepdateApplication).container
         setContent {
             NepdateTheme {
-                NepdateApp()
+                NepdateApp(container = container, onFirstGridDrawn = { reportFullyDrawn() })
             }
         }
     }

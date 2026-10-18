@@ -1,3 +1,184 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">नेपडेट</string>
+
+    <string name="month_previous">अघिल्लो महिना</string>
+    <string name="month_next">अर्को महिना</string>
+    <string name="month_today">आज</string>
+    <string name="month_choose">महिना र वर्ष छान्नुहोस्</string>
+    <string name="month_picker_title">महिना र वर्ष छान्नुहोस्</string>
+    <string name="month_picker_month">महिना</string>
+    <string name="month_picker_year">वर्ष</string>
+    <string name="month_picker_go">जानुहोस्</string>
+    <string name="month_picker_cancel">रद्द गर्नुहोस्</string>
+    <string name="month_picker_year_error">१९०१ देखि २१९९ सम्मको वर्ष लेख्नुहोस्</string>
+    <string name="month_ad_span_same_month">%1$s %2$s</string>
+    <string name="month_ad_span_same_year">%1$s – %2$s %3$s</string>
+    <string name="month_ad_span_cross_year">%1$s %2$s – %3$s %4$s</string>
+    <string name="month_list_weekday_ad">%1$s · %2$s</string>
+    <string name="public_holiday">सार्वजनिक बिदा</string>
+    <string name="public_holiday_label">सार्वजनिक बिदा</string>
+
+    <string name="day_tithi">तिथि</string>
+    <string name="day_events">कार्यक्रमहरू</string>
+    <string name="day_add_to_calendar">पात्रोमा थप्नुहोस्</string>
+    <string name="day_copy_date">मिति प्रतिलिपि गर्नुहोस्</string>
+    <string name="day_copied">मिति प्रतिलिपि गरियो</string>
+    <string name="day_copy_label">नेपाली मिति</string>
+    <string name="day_no_data">यो मितिको बिदा वा तिथिको जानकारी अझै छैन</string>
+    <string name="day_calendar_unavailable">पात्रो एप भेटिएन</string>
+    <string name="day_close">बन्द गर्नुहोस्</string>
+    <string name="day_weekday_ad">%1$s, %2$s</string>
+
+    <string name="nav_month">महिना</string>
+    <string name="nav_upcoming">आउँदो</string>
+    <string name="nav_converter">परिवर्तक</string>
+    <string name="settings_title">सेटिङ</string>
+    <string name="settings_language">भाषा</string>
+    <string name="settings_language_system">प्रणाली</string>
+    <string name="settings_language_english">English</string>
+    <string name="settings_language_nepali">नेपाली</string>
+    <string name="settings_digits">अङ्क</string>
+    <string name="settings_digits_follow">भाषाअनुसार</string>
+    <string name="settings_digits_nepali">नेपाली (०१२)</string>
+    <string name="settings_digits_english">अंग्रेजी (012)</string>
+    <string name="settings_date_follows">मिति कुन समयअनुसार</string>
+    <string name="settings_date_device">यो यन्त्र</string>
+    <string name="settings_date_nepal">नेपालको समय</string>
+    <string name="settings_show_tithi">महिनाको ग्रिडमा तिथि देखाउने</string>
+    <string name="settings_about">बारेमा</string>
+    <string name="settings_app_version">एप संस्करण</string>
+    <string name="settings_library_version">लाइब्रेरी संस्करण</string>
+    <string name="settings_coverage">बिदाको जानकारी</string>
+    <string name="settings_coverage_value">%1$s – %2$s</string>
+    <string name="settings_data_source">जानकारीको स्रोत</string>
+    <string name="settings_data_source_value">हबमार्फत C# NepDate (MIT)</string>
+    <string name="settings_official_sources">आधिकारिक स्रोत</string>
+    <string name="settings_official_sources_value">गृह मन्त्रालयको बिदा सूचना; नेपाल पञ्चाङ्ग निर्णायक समिति</string>
+    <string name="settings_known_data">जानकारीका ज्ञात प्रश्नहरू</string>
+    <string name="settings_report_date">गलत मिति रिपोर्ट गर्नुहोस्</string>
+    <string name="settings_licences">इजाजतपत्रहरू</string>
+    <string name="settings_privacy">गोपनीयता</string>
+    <string name="settings_source_code">स्रोत कोड</string>
+    <string name="settings_subscribe">नेपालका बिदाहरू सदस्यता लिनुहोस्</string>
+    <string name="settings_copy_diagnostic">डायग्नोस्टिक जानकारी प्रतिलिपि गर्नुहोस्</string>
+    <string name="settings_copied">प्रतिलिपि भयो</string>
+    <string name="settings_nepal_time_title">नेपालको समय प्रयोग गर्ने?</string>
+    <string name="settings_nepal_time_body">तपाईंको यन्त्र अर्को समय क्षेत्रमा छ। महिनाको दृश्यले नेपालको समय पछ्याउन सक्छ।</string>
+    <string name="settings_nepal_time_accept">नेपालको समय प्रयोग गर्ने</string>
+    <string name="settings_nepal_time_not_now">अहिले होइन</string>
+
+    <string name="month_nepal_time">नेपाल समय · %1$s</string>
+
+    <string name="diagnostic_app">एप</string>
+    <string name="diagnostic_android">एन्ड्रोइड</string>
+    <string name="diagnostic_date_follows">मिति</string>
+    <string name="diagnostic_digits">अङ्क</string>
+    <string name="diagnostic_tithi">तिथि देखाउने</string>
+    <string name="diagnostic_on">खुला</string>
+    <string name="diagnostic_off">बन्द</string>
+    <string name="diagnostic_device">यो यन्त्र</string>
+    <string name="diagnostic_nepal">नेपालको समय</string>
+    <string name="diagnostic_digits_nepali">नेपाली</string>
+    <string name="diagnostic_digits_english">अंग्रेजी</string>
+
+    <string name="upcoming_title">आउँदो</string>
+    <string name="upcoming_empty">अझै आउँदो बिदा वा कार्यक्रम छैन</string>
+    <string name="upcoming_data_ends">बिदा र कार्यक्रमको जानकारी %1$s मा सकिन्छ</string>
+    <string name="upcoming_tomorrow">भोलि</string>
+    <string name="upcoming_date">%1$s · %2$s</string>
+
+    <plurals name="upcoming_in_days">
+        <item quantity="one">%1$d दिनमा</item>
+        <item quantity="other">%1$d दिनमा</item>
+    </plurals>
+
+    <string name="converter_title">मिति परिवर्तक</string>
+    <string name="converter_bs_label">नेपाली मिति</string>
+    <string name="converter_bs_hint" tools:ignore="TypographyDashes">२०८३-०६-२० वा २०८३ असोज २०</string>
+    <string name="converter_convert">बदल्नुहोस्</string>
+    <string name="converter_choose_ad">ईस्वी मिति छान्नुहोस्</string>
+    <string name="converter_ad_picker_title">ईस्वी मिति छान्नुहोस्</string>
+    <string name="converter_result">नतिजा</string>
+    <string name="converter_compare_label">यससँग तुलना गर्नुहोस्</string>
+    <string name="converter_compare_hint" tools:ignore="TypographyDashes">२०८२-०१-०१</string>
+    <string name="converter_compare">तुलना गर्नुहोस्</string>
+    <string name="converter_compare_range">%1$s देखि %2$s</string>
+    <string name="converter_weekday_ad">%1$s, %2$s</string>
+    <string name="converter_today">आज</string>
+    <string name="converter_tomorrow">भोलि</string>
+    <string name="converter_error_invalid_month">महिना १ देखि १२ सम्म हुनुपर्छ</string>
+    <string name="converter_error_out_of_range">यो मिति नेपाली मितिको दायराबाहिर छ</string>
+    <string name="converter_error_unreadable" tools:ignore="TypographyDashes">२०८३-०६-२० जस्तो नेपाली मिति लेख्नुहोस्</string>
+    <string name="converter_error_no_first_date">पहिले मिति बदल्नुहोस्</string>
+
+    <plurals name="converter_error_invalid_day">
+        <item quantity="one">%1$s %3$d मा %2$d दिन छ</item>
+        <item quantity="other">%1$s %3$d मा %2$d दिन छ</item>
+    </plurals>
+
+    <plurals name="converter_days_from_today">
+        <item quantity="one">%1$d दिन पछि</item>
+        <item quantity="other">%1$d दिन पछि</item>
+    </plurals>
+    <plurals name="converter_days_before_today">
+        <item quantity="one">%1$d दिन अघि</item>
+        <item quantity="other">%1$d दिन अघि</item>
+    </plurals>
+    <plurals name="converter_years">
+        <item quantity="one">%1$d वर्ष</item>
+        <item quantity="other">%1$d वर्ष</item>
+    </plurals>
+    <plurals name="converter_months">
+        <item quantity="one">%1$d महिना</item>
+        <item quantity="other">%1$d महिना</item>
+    </plurals>
+    <plurals name="converter_days">
+        <item quantity="one">%1$d दिन</item>
+        <item quantity="other">%1$d दिन</item>
+    </plurals>
+
+    <string-array name="bs_month_long">
+        <item>बैशाख</item>
+        <item>जेठ</item>
+        <item>असार</item>
+        <item>साउन</item>
+        <item>भदौ</item>
+        <item>असोज</item>
+        <item>कार्तिक</item>
+        <item>मंसिर</item>
+        <item>पुष</item>
+        <item>माघ</item>
+        <item>फागुन</item>
+        <item>चैत</item>
+    </string-array>
+
+    <string-array name="ad_month_short">
+        <item>जनवरी</item>
+        <item>फेब्रुअरी</item>
+        <item>मार्च</item>
+        <item>अप्रिल</item>
+        <item>मे</item>
+        <item>जुन</item>
+        <item>जुलाई</item>
+        <item>अगस्ट</item>
+        <item>सेप्टेम्बर</item>
+        <item>अक्टोबर</item>
+        <item>नोभेम्बर</item>
+        <item>डिसेम्बर</item>
+    </string-array>
+
+    <string-array name="ad_month_long">
+        <item>जनवरी</item>
+        <item>फेब्रुअरी</item>
+        <item>मार्च</item>
+        <item>अप्रिल</item>
+        <item>मे</item>
+        <item>जुन</item>
+        <item>जुलाई</item>
+        <item>अगस्ट</item>
+        <item>सेप्टेम्बर</item>
+        <item>अक्टोबर</item>
+        <item>नोभेम्बर</item>
+        <item>डिसेम्बर</item>
+    </string-array>
 </resources>

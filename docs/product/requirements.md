@@ -17,7 +17,7 @@ events from the library's patro package (`NepDatePatro`, `nepdate-patro`; hub AD
 
 A full-width 7-column month grid, Sunday first (the Nepali week), for one BS month.
 - AC1: each cell shows the BS day large and the AD day small in the top-right corner; digits follow
-  the app language (MR-07).
+  the Digits setting (MR-07).
 - AC2: the header shows the BS month and year in the app language, and the AD month span
   (e.g. "Sep – Oct 2026").
 - AC3: the Saturday column and public holidays use the holiday colour **and** a mark (rule H1);
@@ -34,7 +34,9 @@ A full-width 7-column month grid, Sunday first (the Nepali week), for one BS mon
 
 Tapping a day opens a sheet (iOS) or bottom sheet (Android).
 - AC1: shows the BS date in long form (both scripts when the app language is English), the AD date,
-  the weekday, the tithi, "Public holiday" when it is one, and every event in file order.
+  the weekday, the tithi, "Public holiday" when it is one, and every event in file order. The
+  Devanagari line shown with English keeps Devanagari digits whatever the Digits setting is, since
+  it exists to show the Nepali script.
 - AC2: "Add to calendar" opens the system event editor pre-filled with the holiday or event, all
   day. It needs no permission (iOS `EKEventEditViewController`, Android `Intent.ACTION_INSERT`).
 - AC3: "Copy date" copies the BS date as text in the app language.
@@ -88,10 +90,11 @@ widget there has its own ACs (W-xx). Common ACs:
 
 ## MR-07 Settings
 
-- AC1: Language: System, English, नेपाली. Digits follow the language, with no separate setting:
-  नेपाली shows Devanagari digits (०१२) for both the BS and the AD numbers, English shows ASCII
-  (012), and System uses whichever of the two the app is shown in. Date follows (MR-06). Show tithi
-  in month grid. Theme follows the system (no in-app theme switch).
+- AC1: Language: System, English, नेपाली. Digits: Follow language (default), Nepali (०१२), English
+  (012). Follow language gives Nepali digits when the app language resolves to नेपाली and English
+  digits otherwise; with Language set to System it follows the resolved system locale. The setting
+  applies to every BS and AD number and every count ("in 5 days", "1 year"), except the MR-02 AC1
+  Devanagari line. Date follows (MR-06). Show tithi in month grid. Theme follows the system (no in-app theme switch).
 - AC2: "About": app version, library version, holiday data coverage (first and last date), data
   source (C# NepDate via the hub, MIT), the official sources it follows (Ministry of Home Affairs
   holiday notice, Nepal Panchanga Nirnayak Samiti), a link to the hub's "Known data questions" list
