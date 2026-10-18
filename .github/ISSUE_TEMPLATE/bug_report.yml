@@ -1,0 +1,58 @@
+name: Bug report
+description: Report a crash, a layout problem or another app bug.
+title: "[bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Do not use this form for a wrong date, holiday or tithi. Use **Wrong date or holiday**.
+        Do not report a security problem here. Follow [SECURITY.md](https://github.com/sanamhub/nepdate-mobile/blob/main/SECURITY.md).
+  - type: input
+    id: device
+    attributes:
+      label: Device
+      description: The phone or tablet model.
+      placeholder: Samsung Galaxy A15
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: OS version
+      description: Android or iOS version.
+      placeholder: Android 14
+    validations:
+      required: true
+  - type: input
+    id: app-version
+    attributes:
+      label: App version
+      description: The version in Settings, About.
+      placeholder: 1.0.0 (1)
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: What did you tap, and in what order?
+      placeholder: |
+        1. Open the app.
+        2. Tap ...
+        3. See ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect?
+    validations:
+      required: true
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshot
+      description: Drag an image here. A screen recording helps for a crash or a flicker.
+    validations:
+      required: false

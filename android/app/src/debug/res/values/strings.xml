@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="design_spike_title">Design spike</string>
+    <string name="design_spike_tab_cell">Cell</string>
+    <string name="design_spike_tab_hero">Hero</string>
+    <string name="design_spike_tab_colour">Colour</string>
+    <string name="design_spike_not_verified">Not verified on a device</string>
+    <string name="design_spike_cell">Devanagari, cell 22 sp</string>
+    <string name="design_spike_small">Devanagari, small 14 sp</string>
+    <string name="design_spike_hero">Devanagari, hero 56 sp</string>
+    <string name="design_spike_colour">Colour tokens</string>
+    <string name="design_spike_measured">Measured contrast</string>
+    <string name="design_spike_pending">Device and font checks pending</string>
+    <string name="design_spike_holiday">holiday</string>
+    <string name="design_spike_fill">holidayFill</string>
+    <string name="design_spike_today">today</string>
+    <string name="design_spike_event">event</string>
+    <string name="design_spike_dimmed">dimmed</string>
+    <string name="design_spike_holiday_cell">Holiday cell (fill and colour)</string>
+    <string name="design_spike_holiday_name">Constitution Day</string>
+    <string name="design_spike_public_holiday">Public holiday</string>
+    <string name="design_spike_on_background">on background</string>
+    <string name="design_spike_on_fill">on fill</string>
+</resources>

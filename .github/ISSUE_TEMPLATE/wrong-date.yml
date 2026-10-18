@@ -1,0 +1,59 @@
+name: Wrong date or holiday
+description: Report a Bikram Sambat date, tithi or holiday that looks wrong.
+title: "[wrong date] "
+labels: ["bug", "data"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Calendar data comes from [sanamhub/nepdate](https://github.com/sanamhub/nepdate). If the
+        data is wrong, a maintainer moves this issue to that repository. The app does not calculate
+        dates itself.
+  - type: input
+    id: bs-date
+    attributes:
+      label: BS date
+      description: The Bikram Sambat date, in Nepali or English digits.
+      placeholder: 2083-06-08
+    validations:
+      required: true
+  - type: textarea
+    id: wrong
+    attributes:
+      label: What is wrong?
+      description: The date, tithi or holiday the app shows, and why it is wrong.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What should it show?
+      description: The correct value, if you know it.
+    validations:
+      required: false
+  - type: input
+    id: source
+    attributes:
+      label: Official source link
+      description: A link to the notice, panchanga or official calendar that supports the correction.
+      placeholder: https://...
+    validations:
+      required: true
+  - type: dropdown
+    id: data-problem
+    attributes:
+      label: Is the problem in the data?
+      description: Choose the closest answer. A data problem moves to the hub.
+      options:
+        - Not sure
+        - Yes, the date, tithi or holiday data is wrong
+        - No, the app shows the data incorrectly
+    validations:
+      required: true
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshot
+      description: Drag an image of the app here, if it helps.
+    validations:
+      required: false
