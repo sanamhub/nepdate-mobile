@@ -1,6 +1,7 @@
 package np.nepdate.widget
 
 import android.content.Context
+import androidx.compose.runtime.remember
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.datastore.preferences.core.Preferences
@@ -30,18 +31,20 @@ class TodayGlanceWidget : GlanceAppWidget() {
         context: Context,
         id: GlanceId,
     ) {
-        val environment = widgetEnvironment(context)
-        val model =
-            todayWidgetModel(
-                date = environment.today,
-                lang = environment.lang,
-                digits = environment.digits,
-                copy = environment.copy,
-                showNepal = environment.showNepal,
-            )
+        val initial = widgetEnvironment(context)
         provideContent {
-            val preferences = currentState<Preferences>()
-            val opacity = WidgetOpacity.fromKey(preferences[WIDGET_OPACITY_KEY])
+            val environment = rememberWidgetEnvironment(initial) { widgetEnvironment(context) }
+            val model =
+                remember(environment) {
+                    todayWidgetModel(
+                        date = environment.today,
+                        lang = environment.lang,
+                        digits = environment.digits,
+                        copy = environment.copy,
+                        showNepal = environment.showNepal,
+                    )
+                }
+            val opacity = WidgetOpacity.fromKey(currentState<Preferences>()[WIDGET_OPACITY_KEY])
             GlanceTheme {
                 TodayWidgetContent(model, opacity)
             }
@@ -78,18 +81,20 @@ class UpcomingGlanceWidget : GlanceAppWidget() {
         context: Context,
         id: GlanceId,
     ) {
-        val environment = widgetEnvironment(context)
-        val model =
-            upcomingWidgetModel(
-                date = environment.today,
-                lang = environment.lang,
-                digits = environment.digits,
-                copy = environment.copy,
-                showNepal = environment.showNepal,
-            )
+        val initial = widgetEnvironment(context)
         provideContent {
-            val preferences = currentState<Preferences>()
-            val opacity = WidgetOpacity.fromKey(preferences[WIDGET_OPACITY_KEY])
+            val environment = rememberWidgetEnvironment(initial) { widgetEnvironment(context) }
+            val model =
+                remember(environment) {
+                    upcomingWidgetModel(
+                        date = environment.today,
+                        lang = environment.lang,
+                        digits = environment.digits,
+                        copy = environment.copy,
+                        showNepal = environment.showNepal,
+                    )
+                }
+            val opacity = WidgetOpacity.fromKey(currentState<Preferences>()[WIDGET_OPACITY_KEY])
             GlanceTheme {
                 UpcomingWidgetContent(model, opacity)
             }
@@ -126,8 +131,9 @@ class MonthGlanceWidget : GlanceAppWidget() {
         context: Context,
         id: GlanceId,
     ) {
-        val environment = widgetEnvironment(context)
+        val initial = widgetEnvironment(context)
         provideContent {
+            val environment = rememberWidgetEnvironment(initial) { widgetEnvironment(context) }
             val preferences = currentState<Preferences>()
             val shown = shownMonth(preferences, environment.today)
             val model =

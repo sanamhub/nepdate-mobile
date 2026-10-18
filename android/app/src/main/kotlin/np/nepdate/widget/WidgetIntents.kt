@@ -18,8 +18,11 @@ internal fun widgetIntent(
         if (date != null) putExtra(EXTRA_BS_DATE, date.toIsoString())
     }
 
-/** The BS date carried by [intent], or null for the default today view. */
+/**
+ * The BS date carried by [intent], or null for the default today view. MainActivity is exported, so
+ * the extra is untrusted: only the strict ISO form [widgetIntent] writes is accepted.
+ */
 internal fun dateFromIntent(intent: Intent?): NepaliDate? {
     val iso = intent?.getStringExtra(EXTRA_BS_DATE) ?: return null
-    return runCatching { NepaliDate.parseLenient(iso) }.getOrNull()
+    return NepaliDate.parseOrNull(iso)
 }

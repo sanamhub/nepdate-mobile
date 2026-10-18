@@ -75,8 +75,6 @@ android {
     }
 }
 
-// ADR-0007: the merged release manifest must not request network access, and no permission may
-// appear beyond the allow-list. Registered for the release variant because that is what ships.
 // A2-05: widgets must not carry bitmaps. Colours, numerals and marks are all text or shapes.
 tasks.register("checkWidgetBitmaps") {
     group = "verification"
@@ -97,6 +95,24 @@ tasks.register("checkWidgetBitmaps") {
     }
 }
 
+// ADR-0011: WorkManager is present only because Glance depends on it. App code must not use it.
+tasks.register("checkNoWorkManagerUse") {
+    group = "verification"
+    description = "Fails when app source imports androidx.work (ADR-0011)."
+    inputs.files(fileTree("src") { include("**/*.kt") })
+    doLast {
+        val offending = inputs.files.files.filter { file -> "import androidx.work" in file.readText() }
+        if (offending.isNotEmpty()) {
+            throw GradleException(
+                "checkNoWorkManagerUse: androidx.work imported in " +
+                    offending.joinToString(", ") { it.name },
+            )
+        }
+    }
+}
+
+// ADR-0007: the merged release manifest must not request network access, and no permission may
+// appear beyond the allow-list. Registered for the release variant because that is what ships.
 androidComponents {
     onVariants(selector().withBuildType("release")) { variant ->
         val mergedManifest = variant.artifacts.get(SingleArtifact.MERGED_MANIFEST)

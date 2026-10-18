@@ -4,6 +4,8 @@ import android.app.Application
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import np.nepdate.di.AppContainer
 import np.nepdate.schedule.SettingsWidgetSync
 
@@ -16,6 +18,9 @@ class NepdateApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        appScope.launch {
+            container.widgetRefresh.rearm(container.settingsRepository.settings.first())
+        }
         SettingsWidgetSync(container.settingsRepository.settings) { settings ->
             container.widgetRefresh.refresh(settings, resetMonth = false)
         }.start(appScope)

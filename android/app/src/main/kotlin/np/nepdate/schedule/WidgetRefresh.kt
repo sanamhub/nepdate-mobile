@@ -1,11 +1,14 @@
 package np.nepdate.schedule
 
 import android.util.Log
-import androidx.glance.appwidget.updateAll
+import androidx.glance.appwidget.GlanceAppWidgetManager
+import androidx.glance.appwidget.state.updateAppWidgetState
 import np.nepdate.data.Settings
 import np.nepdate.widget.MonthGlanceWidget
 import np.nepdate.widget.TodayGlanceWidget
 import np.nepdate.widget.UpcomingGlanceWidget
+import np.nepdate.widget.WIDGET_REFRESH_KEY
+import java.util.concurrent.atomic.AtomicLong
 
 /** The widget work a receiver, the settings observer or the app open triggers. */
 internal interface WidgetUpdater {
@@ -19,10 +22,21 @@ internal interface WidgetUpdater {
 internal class GlanceWidgetUpdater(
     private val context: android.content.Context,
 ) : WidgetUpdater {
+    /**
+     * Writes a new [WIDGET_REFRESH_KEY] into each placed widget's state before updating it, so a
+     * Glance session that is still running reloads its environment instead of redrawing the old one.
+     */
     override suspend fun updateAll() {
-        TodayGlanceWidget().updateAll(context)
-        UpcomingGlanceWidget().updateAll(context)
-        MonthGlanceWidget().updateAll(context)
+        val token = nextRefreshToken()
+        val manager = GlanceAppWidgetManager(context)
+        listOf(TodayGlanceWidget(), UpcomingGlanceWidget(), MonthGlanceWidget()).forEach { widget ->
+            manager.getGlanceIds(widget.javaClass).forEach { glanceId ->
+                updateAppWidgetState(context, glanceId) { preferences ->
+                    preferences[WIDGET_REFRESH_KEY] = token
+                }
+                widget.update(context, glanceId)
+            }
+        }
         Log.d(TAG, "Widgets updated")
     }
 
@@ -32,6 +46,10 @@ internal class GlanceWidgetUpdater(
 
     private companion object {
         const val TAG = "NepdateWidgets"
+        val lastToken = AtomicLong()
+
+        /** A value no earlier refresh in this process used, and later than any earlier process's. */
+        fun nextRefreshToken(): Long = lastToken.updateAndGet { maxOf(it + 1, System.currentTimeMillis()) }
     }
 }
 
@@ -46,6 +64,14 @@ internal class WidgetRefresh(
     ) {
         if (resetMonth) updater.clearShownMonth()
         updater.updateAll()
+        scheduler.schedule(settings)
+    }
+
+    /**
+     * Arms the midnight alarm without drawing. Called at every process start, so a widget placed
+     * before the app was ever opened, or a process restarted after a force stop, still gets it.
+     */
+    fun rearm(settings: Settings) {
         scheduler.schedule(settings)
     }
 }

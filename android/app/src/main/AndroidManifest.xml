@@ -40,7 +40,11 @@
             android:name=".widget.WidgetConfigActivity"
             android:excludeFromRecents="true"
             android:exported="true"
-            android:theme="@style/Theme.Nepdate" />
+            android:theme="@style/Theme.Nepdate">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
+            </intent-filter>
+        </activity>
 
         <receiver
             android:name=".widget.TodayGlanceWidgetReceiver"

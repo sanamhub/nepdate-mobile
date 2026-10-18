@@ -56,7 +56,7 @@ class WidgetConfigActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        if (appWidgetId == AppWidgetManager.INVALID_APPWIDGET_ID) {
+        if (!isOwnWidget(appWidgetId)) {
             finish()
             return
         }
@@ -92,6 +92,16 @@ class WidgetConfigActivity : ComponentActivity() {
                 finish()
             }
         }
+    }
+
+    /**
+     * The activity is exported so launchers can start it, so any app could pass an id. Only an id
+     * bound to one of this app's providers is configured.
+     */
+    private fun isOwnWidget(id: Int): Boolean {
+        if (id == AppWidgetManager.INVALID_APPWIDGET_ID) return false
+        val provider = AppWidgetManager.getInstance(this).getAppWidgetInfo(id)?.provider
+        return provider?.packageName == packageName
     }
 
     private fun resultIntent(): Intent = Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)

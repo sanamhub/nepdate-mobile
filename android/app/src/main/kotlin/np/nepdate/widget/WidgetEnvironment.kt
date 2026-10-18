@@ -1,6 +1,12 @@
 package np.nepdate.widget
 
 import android.content.Context
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.produceState
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.longPreferencesKey
+import androidx.glance.currentState
 import io.github.sanamhub.nepdate.KATHMANDU
 import io.github.sanamhub.nepdate.Lang
 import io.github.sanamhub.nepdate.NepaliDate
@@ -40,6 +46,29 @@ internal suspend fun widgetEnvironment(context: Context): WidgetEnvironment {
         copy = widgetCopy(context),
         showNepal = settings.dateFollows == DateFollows.NEPAL && ZoneId.systemDefault() != KATHMANDU,
     )
+}
+
+/**
+ * Written to every placed widget's state on each refresh. Glance runs `provideGlance` once per
+ * session and keeps a session for up to 45 s; an update inside that window only re-reads the widget
+ * state, so without this key a settings, clock or locale change would redraw the old environment.
+ */
+internal val WIDGET_REFRESH_KEY = longPreferencesKey("refresh")
+
+/**
+ * The environment to draw. [initial] is the snapshot `provideGlance` read when the session started;
+ * each new [WIDGET_REFRESH_KEY] value in the widget state reloads it through [load].
+ */
+@Composable
+internal fun rememberWidgetEnvironment(
+    initial: WidgetEnvironment,
+    load: suspend () -> WidgetEnvironment,
+): WidgetEnvironment {
+    val token = currentState<Preferences>()[WIDGET_REFRESH_KEY]
+    val environment by produceState(initial, token) {
+        if (token != null) value = load()
+    }
+    return environment
 }
 
 /** The app's container, or one for a test context that did not start [NepdateApplication]. */
