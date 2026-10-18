@@ -33,6 +33,7 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: np.nepdate
         PRODUCT_NAME: NepDate
+        PRODUCT_MODULE_NAME: NepDateApp
         INFOPLIST_FILE: Config/NepDateApp-Info.plist
         CODE_SIGN_ENTITLEMENTS: Config/NepDateApp.entitlements
     dependencies:
