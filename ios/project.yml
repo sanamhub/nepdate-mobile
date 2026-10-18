@@ -1,0 +1,90 @@
+name: NepDate
+
+options:
+  deploymentTarget:
+    iOS: "18.0"
+  developmentLanguage: en
+  createIntermediateGroups: true
+
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    SWIFT_STRICT_CONCURRENCY: complete
+    ENABLE_USER_SCRIPT_SANDBOXING: YES
+    MARKETING_VERSION: "0.1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    CODE_SIGN_STYLE: Automatic
+    TARGETED_DEVICE_FAMILY: "1,2"
+
+packages:
+  CalendarKit:
+    path: Packages/CalendarKit
+  CalendarUI:
+    path: Packages/CalendarUI
+
+targets:
+  NepDateApp:
+    type: application
+    platform: iOS
+    sources:
+      - path: NepDateApp
+      - path: Resources
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: np.nepdate
+        PRODUCT_NAME: NepDate
+        INFOPLIST_FILE: Config/NepDateApp-Info.plist
+        CODE_SIGN_ENTITLEMENTS: Config/NepDateApp.entitlements
+    dependencies:
+      - package: CalendarKit
+      - package: CalendarUI
+      - target: NepDateWidgets
+        embed: true
+
+  NepDateWidgets:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: NepDateWidgets
+      - path: Resources
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: np.nepdate.widgets
+        PRODUCT_NAME: NepDateWidgets
+        INFOPLIST_FILE: Config/NepDateWidgets-Info.plist
+        CODE_SIGN_ENTITLEMENTS: Config/NepDateWidgets.entitlements
+        SKIP_INSTALL: YES
+    dependencies:
+      - package: CalendarKit
+      - package: CalendarUI
+
+  NepDateTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: NepDateTests
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: np.nepdate.tests
+        GENERATE_INFOPLIST_FILE: YES
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/NepDate.app/NepDate"
+        BUNDLE_LOADER: "$(TEST_HOST)"
+    dependencies:
+      - target: NepDateApp
+      - package: CalendarKit
+      - package: CalendarUI
+
+schemes:
+  NepDate:
+    build:
+      targets:
+        NepDateApp: all
+    run:
+      config: Debug
+    test:
+      config: Debug
+      gatherCoverageData: false
+      targets:
+        - NepDateTests
+    archive:
+      config: Release
