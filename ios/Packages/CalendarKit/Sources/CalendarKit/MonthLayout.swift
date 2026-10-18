@@ -24,8 +24,17 @@ public struct MonthLayout: Sendable, Hashable {
   /// The cells of the grid: 35 or 42, Sunday first.
   public let cells: [MonthCell]
 
-  private let englishName: String
-  private let nepaliName: String
+  /// The Gregorian year of the first day.
+  public let adStartYear: Int
+
+  /// The Gregorian month of the first day, 1 to 12.
+  public let adStartMonth: Int
+
+  /// The Gregorian year of the last day.
+  public let adEndYear: Int
+
+  /// The Gregorian month of the last day, 1 to 12.
+  public let adEndMonth: Int
 
   /// Lays out a month from the library's calendar and patro data.
   /// - Parameters:
@@ -67,8 +76,10 @@ public struct MonthLayout: Sendable, Hashable {
     self.lastDay = MonthDate(year: last.year, month: last.month, day: last.day)
     self.leadingDays = leading
     self.cells = gridCells
-    self.englishName = first.bsMonth.name(.english)
-    self.nepaliName = first.bsMonth.name(.nepali)
+    self.adStartYear = first.gregorian.year
+    self.adStartMonth = first.gregorian.month
+    self.adEndYear = last.gregorian.year
+    self.adEndMonth = last.gregorian.month
   }
 
   /// The number of week rows: 5 or 6.
@@ -86,14 +97,73 @@ public struct MonthLayout: Sendable, Hashable {
     cells.filter { $0.isInMonth && $0.isHoliday }.map(\.bsDay)
   }
 
-  /// The month title, for example `असोज २०८३`.
+  /// The month name in the given language.
+  /// - Parameter language: The language of the name.
+  /// - Returns: For example `Asoj` or `असोज`.
+  public func name(_ language: AppLanguage) -> String {
+    MonthNames.bs(month, language)
+  }
+
+  /// The month title, for example `Asoj 2083` or `असोज २०८३`.
   /// - Parameters:
   ///   - language: The language of the month name.
   ///   - digits: The resolved Digits setting, for the year.
   /// - Returns: The month name and year.
   public func title(_ language: AppLanguage, digits: Digits) -> String {
-    let name = language == .nepali ? nepaliName : englishName
-    return "\(name) \(digits.format(year))"
+    "\(name(language)) \(digits.format(year))"
+  }
+
+  /// The Gregorian span the month covers, for example `Sep – Oct 2026` (MR-01 AC2).
+  /// - Parameters:
+  ///   - language: The language of the Gregorian month names.
+  ///   - digits: The resolved Digits setting, for the years.
+  /// - Returns: One month and year, or the two months and their years.
+  public func adSpan(_ language: AppLanguage, digits: Digits) -> String {
+    let start = MonthNames.ad(adStartMonth, language, short: true)
+    let end = MonthNames.ad(adEndMonth, language, short: true)
+    if adStartYear == adEndYear && adStartMonth == adEndMonth {
+      return "\(start) \(digits.format(adStartYear))"
+    }
+    if adStartYear == adEndYear {
+      return "\(start) – \(end) \(digits.format(adStartYear))"
+    }
+    let startYear = digits.format(adStartYear)
+    let endYear = digits.format(adEndYear)
+    return "\(start) \(startYear) – \(end) \(endYear)"
+  }
+
+  /// The spoken label of one cell (MR-10 AC1), for example
+  /// `Asoj 25, 2083, Sunday, 11 October 2026, public holiday, Ghatasthapana Brata`.
+  ///
+  /// A neighbouring month's cell has no holiday or event part, because those marks belong to the
+  /// month that owns the day. Only the first event is spoken; the day sheet lists them all.
+  /// - Parameters:
+  ///   - cell: The cell to describe.
+  ///   - language: The language of the names.
+  ///   - digits: The resolved Digits setting.
+  ///   - publicHoliday: The localised words for a public holiday, without a trailing comma.
+  /// - Returns: The label, or an empty string for a blank cell.
+  public func accessibilityLabel(
+    for cell: MonthCell,
+    language: AppLanguage,
+    digits: Digits,
+    publicHoliday: String
+  ) -> String {
+    guard let date = cell.date, let weekday = cell.weekday else { return "" }
+    let bs =
+      "\(MonthNames.bs(date.month, language)) \(digits.format(date.day)), "
+      + "\(digits.format(date.year))"
+    let ad =
+      "\(digits.format(cell.adDay)) \(MonthNames.ad(cell.adMonth, language)) "
+      + "\(digits.format(cell.adYear))"
+    var parts = [bs, weekday.name(language.lang), ad]
+    if cell.isHoliday {
+      parts.append(publicHoliday)
+    }
+    if let event = cell.events.first {
+      parts.append(digits.applying(to: event.name(language)))
+    }
+    return parts.joined(separator: ", ")
   }
 
   /// The weekday column headings, Sunday first.

@@ -25,7 +25,7 @@ special cases. Two brand colours, both from the Nepal flag:
 | `holidayFill` | `#C8102E` at 10 % | `#FF6B7A` at 16 % | fixed brand colour at the same alpha | holiday cell background (the H1 mark in full colour) |
 | `today` | `#003893` | `#8FB3FF` | fixed brand colour | today ring (2 pt / 2 dp), "Today" button |
 | `event` | system secondary label | system secondary label | `onSurfaceVariant` | event dot |
-| `dimmed` | system tertiary label | system tertiary label | `onSurfaceVariant` | days of neighbouring months, AD numerals |
+| `dimmed` | secondary text, white 0.33 | secondary text, white 0.78 | `onSurfaceVariant` | days of neighbouring months, AD numerals |
 
 Each pair is checked for ≥ 4.5:1 contrast on its background (MR-10 AC3) in the M0 design spike;
 adjust lightness only, never hue.
@@ -34,6 +34,10 @@ On Android, `event` and `dimmed` both map to `MaterialTheme.colorScheme.onSurfac
 3 has no tertiary text role, and `outline` is a border colour that falls below 4.5:1 on the app
 backgrounds. `onSurfaceVariant` measures 9.11:1 in light and 10.05:1 in dark in the M0 spike, so
 `dimmed` stays above 4.5:1.
+
+On iOS the system tertiary label falls below 4.5:1, so `dimmed` uses the app's secondary text
+colour (`BrandColor`): 7.55:1 on the light background and 12.41:1 on the dark one, measured in the
+I1-03 review (see `ios/README.md`).
 
 On Android 12+ with dynamic colour, surfaces and the selection follow the wallpaper; `holiday` and
 `today` stay fixed, because their meaning is cultural, not decorative.

@@ -96,3 +96,39 @@ The A2 review is kept here for the release work:
 - Checked and kept: one fixed inexact `setWindow` alarm, the system-change receiver, all widget
   numbers through the resolved Digits, and no widget bitmaps.
 - Device-only checks remain blocked by issue #11.
+Left for later: generated previews are republished on every app open and the system rate-limits
+them, so a language change shows in the picker preview only after a later open.
+
+## I1-03 review (iOS month screen, PR #14)
+
+Reviewed at `4e25a1c`; fixes on the branch, CI run 39147652594 green before the merge of `main`.
+
+- Pager recentre: swapping the 49-month window kept the scroll offset, not the page, so 21 swipes
+  from Asoj 2083 landed on Asoj 2093. The screen now ignores paging updates until it scrolls back
+  to the month; a UI test swipes across the recentre and lands on Asar 2085.
+- Snapshot record mode never reached the simulator test process (`xcodebuild` forwards only
+  `TEST_RUNNER_` variables), so `record_snapshots` compared instead of recording and the gate's
+  `never` mode did nothing. `ci.sh` exports `TEST_RUNNER_SNAPSHOT_TESTING_RECORD`; run 39146539348
+  recorded with it, and `month.dark.png` came back byte-identical.
+- Accessibility audit: the blanket filter on digit labels is gone. UI tests pin today to
+  2083-06-20 (Debug-only `NEPDATE_UI_TEST_TODAY`) and compare the findings on hidden text nodes
+  with an exact table per category and kind, on the grid and on the list at the accessibility L
+  size: grid 63 Dynamic Type and 2 contrast on numerals, list 10 Dynamic Type, 10 clipped and
+  1 contrast on text, each with its evidence in the test and `ios/README.md`. Element detection
+  and trait audits were added. The two grid contrast findings stayed at the same frames when
+  the colour went from 5.74:1 to 7.55:1.
+- Light secondary text 0.40 to 0.33 white: 7.55:1 on the background, at least 6.25:1 on the
+  fills. References re-recorded.
+- Widget size: the month screen moved to a `CalendarScreens` product linked only by the app; the
+  widget executable went from 1,172,184 to 640,528 bytes.
+- Picker: a UI test picks Chaitra 2199 and Baisakh 1901 and checks the page and the disabled
+  next and previous buttons.
+
+Checked and kept: run 39102808714 failed on undefined `NepDatePatro` symbols, and the
+`SwiftUICore` and `UIUtilities` lines were warnings, as the agent reported; Digits resolve every
+number on the grid, list, header and picker; the MR-10 AC1 label test matches the requirement
+string exactly; dimmed days are not selectable.
+
+Left for later: VoiceOver, Switch Control and the largest text size on a device (manual
+checklist); the audit's list Dynamic Type and clipping predictions are tolerated on the snapshot
+evidence, not a device.
