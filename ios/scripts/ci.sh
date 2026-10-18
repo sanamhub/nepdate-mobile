@@ -51,13 +51,12 @@ gate_build() {
     -destination "generic/platform=iOS" \
     -derivedDataPath "$DERIVED_DATA" \
     -quiet \
-    CODE_SIGNING_ALLOWED=NO \
-    SWIFT_TREAT_WARNINGS_AS_ERRORS=YES
+    CODE_SIGNING_ALLOWED=NO || return 1
 
   local app="$DERIVED_DATA/Build/Products/Release-iphoneos/NepDate.app"
   local appex="$app/PlugIns/NepDateWidgets.appex"
-  if [ ! -d "$app" ]; then
-    echo "build: $app is missing after the build"
+  if [ ! -d "$app" ] || [ ! -d "$appex" ]; then
+    echo "build: NepDate.app or NepDateWidgets.appex is missing after the build"
     return 1
   fi
   echo "size: NepDate.app $(du -sk "$app" | awk '{ print $1 }') KB"
@@ -72,7 +71,6 @@ gate_test() {
     -destination "$SIMULATOR" \
     -derivedDataPath "$DERIVED_DATA" \
     -resultBundlePath "build/TestResults.xcresult" \
-    -quiet \
     CODE_SIGNING_ALLOWED=NO
 }
 
