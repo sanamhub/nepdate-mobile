@@ -80,6 +80,7 @@ androidComponents {
     onVariants(selector().withBuildType("release")) { variant ->
         val mergedManifest = variant.artifacts.get(SingleArtifact.MERGED_MANIFEST)
         val manifestFile = mergedManifest.map { it.asFile }
+        val applicationId = variant.applicationId.get()
 
         tasks.register("checkNoInternet") {
             group = "verification"
@@ -112,6 +113,7 @@ androidComponents {
             description = "Fails when the merged release manifest requests a permission outside the allow-list."
             dependsOn(mergedManifest)
             inputs.file(manifestFile)
+            inputs.property("applicationId", applicationId)
             doLast {
                 val factory =
                     javax.xml.parsers.DocumentBuilderFactory
@@ -119,24 +121,24 @@ androidComponents {
                 factory.isNamespaceAware = true
                 val document = factory.newDocumentBuilder().parse(manifestFile.get())
 
-                val requestedNodes = document.getElementsByTagName("uses-permission")
                 val requested =
-                    (0 until requestedNodes.length)
-                        .map { index ->
-                            (requestedNodes.item(index) as Element).getAttribute("android:name")
+                    listOf("uses-permission", "uses-permission-sdk-23")
+                        .flatMap { tag ->
+                            val nodes = document.getElementsByTagName(tag)
+                            (0 until nodes.length).map { index ->
+                                (nodes.item(index) as Element).getAttribute("android:name")
+                            }
                         }.toSet()
 
-                // The app declares a signature permission for AndroidX dynamic receivers. It is not
-                // requested from the user, so it does not belong in the allow-list comparison.
-                val declaredNodes = document.getElementsByTagName("permission")
-                val declared =
-                    (0 until declaredNodes.length)
-                        .map { index ->
-                            (declaredNodes.item(index) as Element).getAttribute("android:name")
-                        }.toSet()
-
-                val allowed = setOf("android.permission.RECEIVE_BOOT_COMPLETED")
-                val extra = (requested - declared) - allowed
+                // Exactly two entries are allowed: the boot receiver for the widget alarm, and the
+                // app's own AndroidX signature permission for dynamic receivers. A declared
+                // permission gets no exemption; if it is also requested, it fails.
+                val allowed =
+                    setOf(
+                        "android.permission.RECEIVE_BOOT_COMPLETED",
+                        "$applicationId.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION",
+                    )
+                val extra = requested - allowed
                 if (extra.isNotEmpty()) {
                     throw GradleException(
                         "checkPermissions: permissions outside the allow-list: " +
