@@ -95,4 +95,11 @@ public struct MonthCell: Sendable, Hashable {
   public func adNumber(_ digits: Digits) -> String {
     digits.format(adDay)
   }
+
+  /// The weekday name.
+  /// - Parameter language: The language of the name.
+  /// - Returns: For example `Sunday` or `आइतवार`, or an empty string for a blank cell.
+  public func weekdayName(_ language: AppLanguage) -> String {
+    weekday?.name(language.lang) ?? ""
+  }
 }

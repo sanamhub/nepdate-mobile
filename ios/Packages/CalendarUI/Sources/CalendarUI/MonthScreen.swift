@@ -537,11 +537,10 @@ private struct MonthListRow: View {
   }
 
   private var adLine: String {
-    guard let weekday = cell.weekday else { return "" }
     let day = digits.format(cell.adDay)
     let month = MonthNames.ad(cell.adMonth, language)
     let year = digits.format(cell.adYear)
-    return "\(weekday.name(language.lang)) · \(day) \(month) \(year)"
+    return "\(cell.weekdayName(language)) · \(day) \(month) \(year)"
   }
 }
 
