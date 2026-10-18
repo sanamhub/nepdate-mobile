@@ -1,98 +1,77 @@
-# A2 progress
+# A3 progress
 
-Branch `feat/A2-android-widgets`, from `main` at `15137e1`. Acceptance criteria copied from
-`docs/plan/A2-android-widgets.md` before implementation.
+Branch `feat/A3-android-release-ready`, from `main` at `c9935fd`. Acceptance criteria copied from
+`docs/plan/A3-android-release.md` before implementation. A3-04 and A3-05 are human-gated and are not
+started.
 
-Automated criteria are complete. Device-only rows are blocked by
-[issue #11](https://github.com/sanamhub/nepdate-mobile/issues/11) and are not ticked.
+## A3-00 About links
 
-## A2-01 Widget model and midnight scheduler (`schedule/`)
+- [ ] A unit test lists every URL in `AboutLinks.kt` by reflection and fails when the host or
+      repository is outside the public allow-list (`sanamhub/nepdate-mobile` today).
+- [ ] The data-questions link opens a copy of the hub's known-questions section inside this
+      repository, with a header naming the hub commit it was copied from.
+- [ ] `docs/product/requirements.md` MR-07 AC2 points at the copy, not at the unpublished hub.
+- [ ] Negative control: putting the hub URL back fails the link test.
 
-- [x] `WidgetModel` builders for W-01–W-03 are pure functions and unit-tested.
-- [x] `MidnightScheduler` computes the next local midnight in the chosen zone, arms
-      `AlarmManager.setWindow(RTC, t, 10 min)`, and on fire calls `GlanceAppWidgetManager.updateAll`
-      and re-arms.
-- [x] `SystemChangeReceiver` handles `TIME_SET`, `TIMEZONE_CHANGED`, `LOCALE_CHANGED`,
-      `BOOT_COMPLETED`.
-- [x] A settings change calls `updateAll` (MR-07 AC3); the observer test completes within 1 s.
-- [x] Unit tests for next midnight in Asia/Kathmandu (+05:45), America/New_York across a DST change,
-      and Australia/Sydney.
-- [x] Unit tests that each `WidgetModel` for BS 2083-06-20 and 2083-06-25 has the expected strings
-      and holiday flag.
-- [ ] Manual: `adb shell dumpsys alarm` lists exactly one alarm for `np.nepdate`, and it is not exact
-      (MR-09 AC5).
-- [ ] Manual: move the device clock across midnight, widgets update within the alarm window; change
-      the time zone, widgets update within 1 minute (MR-05 AC1); change a setting, widgets update
-      within 1 second (MR-07 AC3).
+## A3-01 Reproducible release build
 
-## A2-02 W-01 Today and W-02 Today and upcoming
+- [ ] CI uses a fixed JDK 17.
+- [ ] Release `vcsInfo { include = false }` and no build timestamps.
+- [ ] PNG crunching is off in the release build type.
+- [ ] A Baseline Profile is checked in.
+- [ ] A CI job builds the unsigned release APK twice on clean runners and compares SHA-256; the job
+      fails on a difference.
+- [ ] Negative control: a throwaway draft PR with a non-deterministic build change makes the check
+      fail once, then the PR is closed and its branch deleted.
+- [ ] AC: the two clean builds give byte-identical unsigned APKs.
 
-- [x] `SizeMode.Responsive` with 2×2, 4×1 and 4×2 breakpoints.
-- [x] `GlanceTheme` with dynamic colour.
-- [x] Holiday mark H1.
-- [x] Tap actions per `widgets.md`.
-- [x] W-01 AC1–AC3 and W-02 AC1–AC2 as Roborazzi (Glance) screenshots at every breakpoint, light,
-      dark, Nepali, each opacity, on a holiday (2083-06-25) and a normal day (MR-05 AC2).
-- [x] A unit test that the tap action of each area carries the right deep-link extra (MR-05 AC3).
+## A3-02 Release workflow (`android-release.yml`)
 
-## A2-03 W-03 Month
+- [ ] The workflow triggers on `android-v*` tags and `workflow_dispatch`; `dry_run` is a boolean
+      defaulting to `true`. It does not run in this phase.
+- [ ] Preflight checks that the tag equals `versionName`, that `android/CHANGELOG.md` has the
+      version's section, and that the bundled public holidays reach 183 days after the UTC release
+      date. Tithi and events below the threshold warn and do not fail.
+- [ ] A fixed-date JVM test fails at AD 2027-06-04 and passes at AD 2027-06-03, matching the Go,
+      Python and Rust gates.
+- [ ] CI, then signing, Play upload and the draft GitHub Release with the APK, `SHA256SUMS` and a
+      build-provenance attestation.
+- [ ] Signing and Play upload run only in GitHub environment `production`; no Play promotion.
+- [ ] Every action is pinned to a full commit SHA. Top-level `permissions` is `contents: read`;
+      only the attest job gets `id-token` and `attestations`, and only the release job gets
+      `contents: write`.
+- [ ] A static workflow test parses the YAML (no regex) and checks triggers, pins, permissions,
+      environment, `dry_run` default and the production gates, with one negative fixture per rule.
+- [ ] `actionlint` passes on the workflow.
 
-- [x] Grid in Glance `Column`/`Row` (no bitmaps).
-- [x] Previous, next and today via `actionRunCallback` and Glance state.
-- [x] Day tap opens `MainActivity` with a deep-link extra.
-- [x] Resets to the current month at midnight.
-- [x] W-03 AC1, AC2 and AC4 at 4×3, 4×4 and 5×5: screenshots of Jestha 2083 (6 weeks) without
-      clipping.
-- [x] A unit test that the callbacks move the shown month by one and "Today" restores it.
-- [x] A unit test that the midnight update clears the shown month.
+## A3-03 Store listings
 
-## A2-04 Lock screen eligibility, configuration and previews
+- [ ] `fastlane/metadata/android/en-US` and `ne-NP` have title, short description, full description,
+      and a changelog for `versionCode` 1.
+- [ ] Screenshots come from the Roborazzi set. Phone frames are produced only by a checked-in script.
+- [ ] Data safety answers are a checked-in markdown draft: no data collected, no data shared.
+- [ ] Content-rating answers are a checked-in markdown draft.
+- [ ] The listing states the privacy policy URL and matches `docs/product`; it claims nothing the app
+      does not do and mentions no network, analytics or permission beyond the app.
+- [ ] The listing is English and Nepali.
 
-- [x] `widgetCategory="home_screen|keyguard"` on W-01 and W-02.
-- [x] Configuration activity with the opacity setting.
-- [x] `providePreview` generated previews (Android 15+) with a holiday sample.
-- [x] Static `previewLayout` fallback.
-- [x] Descriptive names and descriptions in English and Nepali.
-- [ ] Tier 1 checklist in `docs/runbooks/manual-test.md` ticked. Blocked by issue #11.
-- [ ] W-04 on the lock screen of an Android 16 QPR1+ device opens the app only after unlock.
-      Blocked by issue #11.
+## Out of scope
 
-## A2-05 Widget size and memory check
+- A3-04 (closed test, production rollout, IzzyOnDroid, F-Droid) is human-gated and not started.
+- A3-05 (Play account, signing key, service account, environment secrets) is human-gated and not
+  started. No tag, release, signing key, secret or repository setting is created in this phase.
 
-- [x] No bitmaps; log the RemoteViews parcel size in a debug build.
-- [x] A CI check fails if `Bitmap` or `ImageProvider(` with a bitmap appears under `widget/`.
-- [x] The logged parcel size of W-03 at 5×5 is recorded in `docs/benchmarks.md` (MR-09 AC4).
+## A2 review (merged in #15)
 
-## A2 review
+The A2 review is kept here for the release work:
 
-Reviewed on the branch before merge. Fixes:
-
-- Settings changes inside a running Glance session were not drawn. Glance runs `provideGlance`
-  once per session and keeps the session for up to 45 s; `updateAll` inside that window only
-  re-reads the widget state, so the environment read before `provideContent` stayed old. Opening
-  the app starts a session, so changing Digits within 45 s of opening it left the widgets on the
-  old digits (MR-07 AC3). The updater now writes a new `refresh` key into each widget's state, and
-  `rememberWidgetEnvironment` reloads the environment when the key changes. Test with a negative
-  control in `WidgetReviewTest`.
-- The midnight alarm was armed only by opening the app, a settings change or a system broadcast. A
-  widget placed before the app was ever opened had none. Every process start now arms it
-  (`WidgetRefresh.rearm` from `NepdateApplication.onCreate`).
-- `WidgetConfigActivity` is exported and accepted any widget id. It now configures only ids bound
-  to this app's providers, and declares the `APPWIDGET_CONFIGURE` filter. Test with a negative
-  control.
-- The deep-link extra on the exported `MainActivity` went through `parseLenient`. It now accepts
-  only the strict ISO form the widgets write (`parseOrNull`).
-- WorkManager: accepted only as Glance's dependency in ADR-0011. `checkNoWorkManagerUse` joins
-  `ci`; a file importing `androidx.work` fails it (negative control run once). The merged release
-  manifest is what `checkPermissions` reads. With `minSdk = 26`, WorkManager 2.7.1 uses
-  `SystemJobService`; its wake locks are only on the pre-23 alarm path and the foreground path,
-  which Glance never takes.
-
-Checked and kept: `setWindow(RTC, next midnight, 10 min)` with one fixed immutable `PendingIntent`
-and re-arm after each fire; the system-change receiver is not exported and still receives the
-protected system broadcasts; every widget number goes through the resolved Digits (BS and AD day
-numerals, counts, the data-end footer); Kathmandu +05:45 and DST tests; no bitmaps; screenshots
-total 5.2 MB for 147 new PNGs (178 in the folder), acceptable.
-
-Left for later: generated previews are republished on every app open and the system rate-limits
-them, so a language change shows in the picker preview only after a later open.
+- Settings changes inside a running Glance session now write a `refresh` key so the session redraws;
+  tested with a negative control.
+- The midnight alarm is armed from `NepdateApplication.onCreate`, not only when the app opens.
+- `WidgetConfigActivity` accepts only widget ids bound to this app's providers and declares the
+  `APPWIDGET_CONFIGURE` filter.
+- The exported `MainActivity` accepts only strict ISO date extras from widgets.
+- WorkManager is accepted only as Glance's dependency (ADR-0011), with a CI check.
+- Checked and kept: one fixed inexact `setWindow` alarm, the system-change receiver, all widget
+  numbers through the resolved Digits, and no widget bitmaps.
+- Device-only checks remain blocked by issue #11.
