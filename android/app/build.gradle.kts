@@ -77,6 +77,26 @@ android {
 
 // ADR-0007: the merged release manifest must not request network access, and no permission may
 // appear beyond the allow-list. Registered for the release variant because that is what ships.
+// A2-05: widgets must not carry bitmaps. Colours, numerals and marks are all text or shapes.
+tasks.register("checkWidgetBitmaps") {
+    group = "verification"
+    description = "Fails when a widget source uses Bitmap or a bitmap ImageProvider."
+    inputs.files(fileTree("src/main/kotlin/np/nepdate/widget") { include("**/*.kt") })
+    doLast {
+        val offending =
+            inputs.files.files.filter { file ->
+                val source = file.readText()
+                "Bitmap" in source || "ImageProvider(" in source
+            }
+        if (offending.isNotEmpty()) {
+            throw GradleException(
+                "checkWidgetBitmaps: bitmap use under widget/: " +
+                    offending.joinToString(", ") { it.name },
+            )
+        }
+    }
+}
+
 androidComponents {
     onVariants(selector().withBuildType("release")) { variant ->
         val mergedManifest = variant.artifacts.get(SingleArtifact.MERGED_MANIFEST)
@@ -154,10 +174,13 @@ androidComponents {
 dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.androidx.profileinstaller)
+    implementation(libs.androidx.glance.appwidget)
+    implementation(libs.androidx.glance.material3)
 
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)
@@ -179,6 +202,7 @@ dependencies {
     testImplementation(libs.androidx.compose.ui.test.junit4)
     testImplementation(libs.roborazzi)
     testImplementation(libs.roborazzi.compose)
+    testImplementation(libs.androidx.glance.appwidget.testing)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 
     "baselineProfile"(project(":baselineprofile"))

@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="nepdate_background">#1C1B1F</color>
+    <color name="widget_preview_text">#E6E1E5</color>
+    <color name="widget_preview_holiday">#FF6B7A</color>
 </resources>

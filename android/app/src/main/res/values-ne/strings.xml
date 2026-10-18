@@ -69,6 +69,25 @@
 
     <string name="month_nepal_time">नेपाल समय · %1$s</string>
 
+    <string name="widget_today_name">आज</string>
+    <string name="widget_today_description">आजको बिक्रम सम्बत मिति, बार र अर्को बिदा।</string>
+    <string name="widget_upcoming_name">आज र आउँदो</string>
+    <string name="widget_upcoming_description">आजको मिति र अर्को तीन बिदा वा कार्यक्रम।</string>
+    <string name="widget_month_name">महिना</string>
+    <string name="widget_month_description">बिदा, कार्यक्रम र आजसहितको बिक्रम सम्बत महिना।</string>
+    <string name="widget_nepal">नेपाल</string>
+    <string name="widget_configuration_title">विजेटको पृष्ठभूमि</string>
+    <string name="widget_opacity_solid">ठोस</string>
+    <string name="widget_opacity_seventy">७०%</string>
+    <string name="widget_opacity_transparent">पारदर्शी</string>
+    <string name="widget_save">सुरक्षित गर्नुहोस्</string>
+    <string name="widget_cancel">रद्द गर्नुहोस्</string>
+    <string name="widget_preview_date">असोज २५, २०८३</string>
+    <string name="widget_preview_holiday">घटस्थापना व्रता</string>
+    <string name="widget_preview_month">असोज २०८३</string>
+    <string name="widget_preview_upcoming">नवरात्रि सुरु · १ दिनमा</string>
+    <string name="widget_preview_grid">आइत सोम मङ्गल बुध बिही शुक्र शनि\n१  २  ३  ४  ५  ६  ७\n८  ९ १० ११ १२ १३ १४\n१५ १६ १७ १८ १९ २० २१\n२२ २३ २४ २५ २६ २७ २८\n२९ ३०</string>
+
     <string name="diagnostic_app">एप</string>
     <string name="diagnostic_android">एन्ड्रोइड</string>
     <string name="diagnostic_date_follows">मिति</string>
