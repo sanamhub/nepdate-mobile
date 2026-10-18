@@ -11,6 +11,7 @@ public struct MonthScreen: View {
   @State private var scrolledMonth: MonthKey?
   @State private var window: [MonthKey]
   @State private var showsPicker = false
+  @State private var isRecentring = false
 
   /// Creates the screen.
   /// - Parameter model: The month to open on and the settings to draw it with.
@@ -30,38 +31,40 @@ public struct MonthScreen: View {
         onToday: { go(to: todayMonth) },
         onChoose: { showsPicker = true }
       )
-      ScrollView(.horizontal) {
-        LazyHStack(spacing: 0) {
-          ForEach(window) { key in
-            MonthPageView(
-              key: key,
-              today: model.today,
-              showTithi: model.showTithi,
-              language: model.language,
-              digits: model.digits,
-              selected: model.selected,
-              onSelect: { date in
-                guard key == model.month else { return }
-                model.select(date)
-              }
-            )
-            .accessibilityHidden(key != (scrolledMonth ?? model.month))
-            .containerRelativeFrame([.horizontal, .vertical])
-            .id(key)
+      ScrollViewReader { proxy in
+        ScrollView(.horizontal) {
+          LazyHStack(spacing: 0) {
+            ForEach(window) { key in
+              MonthPageView(
+                key: key,
+                today: model.today,
+                showTithi: model.showTithi,
+                language: model.language,
+                digits: model.digits,
+                selected: model.selected,
+                onSelect: { date in
+                  guard key == model.month else { return }
+                  model.select(date)
+                }
+              )
+              .accessibilityHidden(key != (scrolledMonth ?? model.month))
+              .containerRelativeFrame([.horizontal, .vertical])
+              .id(key)
+            }
           }
+          .scrollTargetLayout()
         }
-        .scrollTargetLayout()
-      }
-      .scrollTargetBehavior(.paging)
-      .scrollPosition(id: $scrolledMonth)
-      .scrollIndicators(.hidden)
-      .onChange(of: scrolledMonth) { _, newValue in
-        guard let newValue, newValue != model.month else { return }
-        model.go(to: newValue)
-        if let index = window.firstIndex(of: newValue),
-          index < 5 || index >= window.count - 5
-        {
-          window = Self.window(around: newValue)
+        .scrollTargetBehavior(.paging)
+        .scrollPosition(id: $scrolledMonth)
+        .scrollIndicators(.hidden)
+        .onChange(of: scrolledMonth) { _, newValue in
+          guard !isRecentring, let newValue, newValue != model.month else { return }
+          model.go(to: newValue)
+          if let index = window.firstIndex(of: newValue),
+            index < 5 || index >= window.count - 5
+          {
+            recentre(on: newValue, proxy: proxy)
+          }
         }
       }
     }
@@ -97,6 +100,20 @@ public struct MonthScreen: View {
     }
     withAnimation(.snappy) {
       scrolledMonth = key
+    }
+  }
+
+  /// Replaces the window around a month the user swiped to near its edge. Swapping the pages
+  /// keeps the scroll offset, not the page, so the offset would then show another month; the
+  /// scroll position is reported back while that happens. Paging changes are ignored until the
+  /// pager is put back on the month.
+  private func recentre(on key: MonthKey, proxy: ScrollViewProxy) {
+    isRecentring = true
+    window = Self.window(around: key)
+    Task { @MainActor in
+      proxy.scrollTo(key, anchor: .leading)
+      scrolledMonth = key
+      isRecentring = false
     }
   }
 

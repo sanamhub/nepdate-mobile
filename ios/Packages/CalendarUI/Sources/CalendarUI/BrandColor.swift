@@ -22,13 +22,16 @@ public enum BrandColor {
     }
   )
 
-  /// Secondary text that keeps at least 4.5:1 on the system backgrounds (MR-10 AC3). The system
-  /// secondary label is lighter than that in light mode, so the month screen uses this pair.
+  /// Secondary text (AD numerals, dimmed days, tithi and event lines). The system secondary label
+  /// is below 4.5:1 in light mode, so the month screen uses this pair. Measured (WCAG relative
+  /// luminance): light 7.55:1 on the background, 6.36:1 on `holidayFill`, 6.25:1 on `selection`;
+  /// dark 12.41:1, 10.48:1 and 8.87:1. Light was 0.40 white (5.74:1, 4.83:1 and 4.75:1), which the
+  /// system audit flagged on two caption-sized AD numerals.
   public static let secondaryText = Color(
     uiColor: UIColor { traits in
       traits.userInterfaceStyle == .dark
         ? UIColor(white: 0.78, alpha: 1.0)
-        : UIColor(white: 0.40, alpha: 1.0)
+        : UIColor(white: 0.33, alpha: 1.0)
     }
   )
 
