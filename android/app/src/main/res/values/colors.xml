@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="nepdate_background">#FFFBFE</color>
+    <color name="widget_preview_text">#1C1B1F</color>
+    <color name="widget_preview_holiday">#C8102E</color>
     <color name="ic_launcher_background">#C8102E</color>
 </resources>

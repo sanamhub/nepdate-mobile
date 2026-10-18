@@ -29,4 +29,8 @@ All notable changes to the Android app. The format follows
   the zones differ. Settings opens from the top app bar on every tab.
 - `reportFullyDrawn()` after the first month grid is drawn, a Baseline Profile generator for
   start-up and month swipes, and Macrobenchmarks for cold start and month swipe frame timing.
+- Glance widgets (MR-05, A2): Today, Today and upcoming, and Month, with responsive sizes, the
+  same Digits, Date follows and Show tithi settings as the app, holiday marks, month navigation,
+  today and day-detail deep links, generated and static previews, a background-opacity setting in
+  each widget's configuration, and one inexact midnight alarm that survives doze.
 

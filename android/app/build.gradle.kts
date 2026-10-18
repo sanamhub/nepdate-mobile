@@ -75,6 +75,42 @@ android {
     }
 }
 
+// A2-05: widgets must not carry bitmaps. Colours, numerals and marks are all text or shapes.
+tasks.register("checkWidgetBitmaps") {
+    group = "verification"
+    description = "Fails when a widget source uses Bitmap or a bitmap ImageProvider."
+    inputs.files(fileTree("src/main/kotlin/np/nepdate/widget") { include("**/*.kt") })
+    doLast {
+        val offending =
+            inputs.files.files.filter { file ->
+                val source = file.readText()
+                "Bitmap" in source || "ImageProvider(" in source
+            }
+        if (offending.isNotEmpty()) {
+            throw GradleException(
+                "checkWidgetBitmaps: bitmap use under widget/: " +
+                    offending.joinToString(", ") { it.name },
+            )
+        }
+    }
+}
+
+// ADR-0011: WorkManager is present only because Glance depends on it. App code must not use it.
+tasks.register("checkNoWorkManagerUse") {
+    group = "verification"
+    description = "Fails when app source imports androidx.work (ADR-0011)."
+    inputs.files(fileTree("src") { include("**/*.kt") })
+    doLast {
+        val offending = inputs.files.files.filter { file -> "import androidx.work" in file.readText() }
+        if (offending.isNotEmpty()) {
+            throw GradleException(
+                "checkNoWorkManagerUse: androidx.work imported in " +
+                    offending.joinToString(", ") { it.name },
+            )
+        }
+    }
+}
+
 // ADR-0007: the merged release manifest must not request network access, and no permission may
 // appear beyond the allow-list. Registered for the release variant because that is what ships.
 androidComponents {
@@ -158,6 +194,8 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.androidx.profileinstaller)
+    implementation(libs.androidx.glance.appwidget)
+    implementation(libs.androidx.glance.material3)
 
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)
@@ -179,6 +217,7 @@ dependencies {
     testImplementation(libs.androidx.compose.ui.test.junit4)
     testImplementation(libs.roborazzi)
     testImplementation(libs.roborazzi.compose)
+    testImplementation(libs.androidx.glance.appwidget.testing)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 
     "baselineProfile"(project(":baselineprofile"))

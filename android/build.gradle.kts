@@ -23,6 +23,8 @@ tasks.register("ci") {
         ":app:verifyRoborazziDebug",
         ":app:checkNoInternet",
         ":app:checkPermissions",
+        ":app:checkWidgetBitmaps",
+        ":app:checkNoWorkManagerUse",
         ":baselineprofile:ktlintCheck",
         ":baselineprofile:detekt",
         ":baselineprofile:assemble",

@@ -109,6 +109,23 @@ layout, view models, scheduling and settings; this file covers the rest.
 |---|---|---|---|
 | AC2: "Subscribe to Nepal holidays" opens the share sheet and a calendar app accepts the `holidays.ics` link. The app itself makes no request. | Not run |  |  |
 
+## A2 widget Tier 1 (Android)
+
+The A2-04 checklist. These rows need a device or emulator; issue
+[#11](https://github.com/sanamhub/nepdate-mobile/issues/11) tracks the missing hardware.
+
+| Check | iPhone | Android A15 class | Android low-end |
+|---|---|---|---|
+| W-01, W-02 and W-03 appear in the picker with their English and Nepali names and descriptions. | Not run | Blocked, issue #11 | Blocked, issue #11 |
+| Each widget fills its four edges, uses the system corner radius, and resizes through its breakpoints. | Not run | Blocked, issue #11 | Blocked, issue #11 |
+| Generated previews appear on Android 15+; the static `previewLayout` appears on older launchers. | Not run | Blocked, issue #11 | Blocked, issue #11 |
+| Dynamic colour follows the wallpaper; the holiday and today marks keep their fixed meaning. | Not run | Blocked, issue #11 | Blocked, issue #11 |
+| The configuration activity changes the background to solid, 70 % and transparent, and updates the placed widget. | Not run | Blocked, issue #11 | Blocked, issue #11 |
+| W-01 and W-02 are offered on the lock screen; opening either asks for unlock first. | Not run | Blocked, issue #11 | Blocked, issue #11 |
+| `adb shell dumpsys alarm` shows one inexact `np.nepdate` alarm, not an exact alarm. | Not run | Blocked, issue #11 | Blocked, issue #11 |
+| Without `WAKE_LOCK`, `ACCESS_NETWORK_STATE` and `FOREGROUND_SERVICE` (ADR-0011), placing a widget, changing Digits and passing midnight all update it, and logcat shows no `SecurityException`. | Not run | Blocked, issue #11 | Blocked, issue #11 |
+| A widget placed before the app is ever opened gets the midnight alarm (`dumpsys alarm` after placing it). | Not run | Blocked, issue #11 | Blocked, issue #11 |
+
 ## W-01 Today
 
 | Check | iPhone | Android A15 class | Android low-end |
