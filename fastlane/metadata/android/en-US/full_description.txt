@@ -1,0 +1,24 @@
+NepDate is a Bikram Sambat calendar for Nepal and Nepalis abroad. It shows the month, the BS and AD dates, public holidays, events and the day's tithi, with no ads, no account and no network access.
+
+Month view
+A swipeable grid for one BS month. Each day shows the BS numeral, the AD day, an event dot, and a holiday mark that is both colour and shape. Today has a ring, Saturdays and public holidays are marked, and a grid or list layout follows the font size. A tithi line is optional.
+
+Day detail
+Tap a day for the long BS date, the AD date, the weekday, the tithi, every event in order, and a public-holiday label. Add the day to your calendar through the system editor, or copy the date as text.
+
+Upcoming
+The next public holidays and events, grouped by BS month, with Today, Tomorrow or in N days. Tap an entry to open its day.
+
+Converter
+Convert BS to AD and AD to BS. See the weekday, the days from today, and the difference between two dates in years, months and days.
+
+Widgets
+Today, Today and upcoming, and Month widgets for the home screen. Today and Today and upcoming also work on the lock screen on supported Android versions. Widgets use the same language, digits and date-follows setting as the app.
+
+Settings
+Choose the app language on Android 13 and later, Nepali or English digits or follow the language, use this device's date or Nepal time, and show or hide tithi in the month grid. About shows the app and library versions, data coverage, official sources, licences, privacy and source code.
+
+Data and privacy
+NepDate has no internet permission, no analytics, no crash reporting and no tracking. Your settings stay on your device and are shared only with the app's widgets. The bundled data covers public holidays and events from BS 2077 to 2084 and tithi from BS 2078 to 2083. Outside that range the app says that no data is available for the date.
+
+NepDate is not affiliated with the Government of Nepal. Holiday data is informational.

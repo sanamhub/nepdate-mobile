@@ -1,98 +1,137 @@
-# A2 progress
+# Progress
 
-Branch `feat/A2-android-widgets`, from `main` at `15137e1`. Acceptance criteria copied from
-`docs/plan/A2-android-widgets.md` before implementation.
+Current phase: A3, Android release readiness. Reviews of merged phases follow it.
 
-Automated criteria are complete. Device-only rows are blocked by
-[issue #11](https://github.com/sanamhub/nepdate-mobile/issues/11) and are not ticked.
+## A3 Android release readiness
 
-## A2-01 Widget model and midnight scheduler (`schedule/`)
+Branch `feat/A3-android-release-ready`, from `main` at `c9935fd`. Acceptance criteria copied from
+`docs/plan/A3-android-release.md` before implementation. A3-04 and A3-05 are human-gated and are not
+started.
 
-- [x] `WidgetModel` builders for W-01–W-03 are pure functions and unit-tested.
-- [x] `MidnightScheduler` computes the next local midnight in the chosen zone, arms
-      `AlarmManager.setWindow(RTC, t, 10 min)`, and on fire calls `GlanceAppWidgetManager.updateAll`
-      and re-arms.
-- [x] `SystemChangeReceiver` handles `TIME_SET`, `TIMEZONE_CHANGED`, `LOCALE_CHANGED`,
-      `BOOT_COMPLETED`.
-- [x] A settings change calls `updateAll` (MR-07 AC3); the observer test completes within 1 s.
-- [x] Unit tests for next midnight in Asia/Kathmandu (+05:45), America/New_York across a DST change,
-      and Australia/Sydney.
-- [x] Unit tests that each `WidgetModel` for BS 2083-06-20 and 2083-06-25 has the expected strings
-      and holiday flag.
-- [ ] Manual: `adb shell dumpsys alarm` lists exactly one alarm for `np.nepdate`, and it is not exact
-      (MR-09 AC5).
-- [ ] Manual: move the device clock across midnight, widgets update within the alarm window; change
-      the time zone, widgets update within 1 minute (MR-05 AC1); change a setting, widgets update
-      within 1 second (MR-07 AC3).
+## A3-00 About links
 
-## A2-02 W-01 Today and W-02 Today and upcoming
+- [x] A unit test lists every URL in `AboutLinks.kt` by reflection and fails when the host or
+      repository is outside the public allow-list (`sanamhub/nepdate-mobile` today).
+- [x] The data-questions link opens a copy of the hub's known-questions section inside this
+      repository, with a header naming the hub commit it was copied from.
+- [x] `docs/product/requirements.md` MR-07 AC2 points at the copy, not at the unpublished hub.
+- [x] Negative control: putting the hub URL back fails the link test (`AboutLinksTest`, two failures
+      with the old URL, then reverted).
 
-- [x] `SizeMode.Responsive` with 2×2, 4×1 and 4×2 breakpoints.
-- [x] `GlanceTheme` with dynamic colour.
-- [x] Holiday mark H1.
-- [x] Tap actions per `widgets.md`.
-- [x] W-01 AC1–AC3 and W-02 AC1–AC2 as Roborazzi (Glance) screenshots at every breakpoint, light,
-      dark, Nepali, each opacity, on a holiday (2083-06-25) and a normal day (MR-05 AC2).
-- [x] A unit test that the tap action of each area carries the right deep-link extra (MR-05 AC3).
+## A3-01 Reproducible release build
 
-## A2-03 W-03 Month
+- [x] CI uses a fixed JDK 17.
+- [x] Release `vcsInfo { include = false }` and no build timestamps.
+- [x] PNG crunching is off in the release build type.
+- [ ] A Baseline Profile is checked in. Blocked by issue #11: `:baselineprofile` needs a device to
+      generate the app's rules. AGP already merges the AndroidX and kotlinx library profiles from
+      their AARs, so a checked-in copy of those rules adds nothing and is not used as a stand-in.
+- [x] A CI job builds the unsigned release APK twice on clean runners and compares SHA-256; the job
+      fails on a difference.
+- [x] Negative control: a throwaway draft PR with a non-deterministic build change makes the check
+      fail once, then the PR is closed and its branch deleted. Run
+      [39150451614](https://github.com/sanamhub/nepdate-mobile/actions/runs/39150451614) failed with
+      APK A `7935ec87bce30823ce492a10bab0ec3c399089af18a6587ec92e20d1404b259c` and APK B
+      `fdf2b58ba8883d95d7e030f77335accf3a3fe3dcf1b90ae32779883b6498ddec`. PR #19 is closed and
+      the branch is deleted.
+- [x] AC: GitHub CI run
+      [39150421202](https://github.com/sanamhub/nepdate-mobile/actions/runs/39150421202) built the
+      APK twice and both were
+      `d094892c14ce1f777213e8e89ce74f699ab5048606f6f22d7ec402f69fb46dbc`, 2,392,322 bytes. Local
+      `clean :app:assembleRelease` builds gave the same checksum.
 
-- [x] Grid in Glance `Column`/`Row` (no bitmaps).
-- [x] Previous, next and today via `actionRunCallback` and Glance state.
-- [x] Day tap opens `MainActivity` with a deep-link extra.
-- [x] Resets to the current month at midnight.
-- [x] W-03 AC1, AC2 and AC4 at 4×3, 4×4 and 5×5: screenshots of Jestha 2083 (6 weeks) without
-      clipping.
-- [x] A unit test that the callbacks move the shown month by one and "Today" restores it.
-- [x] A unit test that the midnight update clears the shown month.
+## A3-02 Release workflow (`android-release.yml`)
 
-## A2-04 Lock screen eligibility, configuration and previews
+- [x] The workflow triggers on `android-v*` tags and `workflow_dispatch`; `dry_run` is a boolean
+      defaulting to `true`. It does not run in this phase.
+- [x] Preflight checks that the tag equals the `versionName` read from `build.gradle.kts`, that `android/CHANGELOG.md` has the
+      version's section, and that the bundled public holidays reach 183 days after the UTC release
+      date. Tithi and events below the threshold warn and do not fail.
+- [x] A fixed-date JVM test fails at AD 2027-06-04 and passes at AD 2027-06-03, matching the Go,
+      Python and Rust gates. Local reports: 183 days with a tithi warning, then 182 days and a
+      failure.
+- [x] CI, then signing, Play upload and the draft GitHub Release with the APK, `SHA256SUMS` and a
+      build-provenance attestation.
+- [x] Signing and Play upload run only in GitHub environment `production`; no Play promotion.
+- [x] Every action is pinned to a full commit SHA. Top-level `permissions` is `contents: read`;
+      only the attest job gets `id-token` and `attestations`, and only the release job gets
+      `contents: write`.
+- [x] A static workflow test parses the YAML (no regex) and checks triggers, pins, permissions,
+      environment, `dry_run` default and the production gates, with one negative fixture per rule and six controls that edit the real workflow in memory.
+- [x] `actionlint` 1.7.12 passes on both workflows.
 
-- [x] `widgetCategory="home_screen|keyguard"` on W-01 and W-02.
-- [x] Configuration activity with the opacity setting.
-- [x] `providePreview` generated previews (Android 15+) with a holiday sample.
-- [x] Static `previewLayout` fallback.
-- [x] Descriptive names and descriptions in English and Nepali.
-- [ ] Tier 1 checklist in `docs/runbooks/manual-test.md` ticked. Blocked by issue #11.
-- [ ] W-04 on the lock screen of an Android 16 QPR1+ device opens the app only after unlock.
-      Blocked by issue #11.
+## A3-03 Store listings
 
-## A2-05 Widget size and memory check
+- [x] `fastlane/metadata/android/en-US` and `ne-NP` have title, short description, full description,
+      and a changelog for `versionCode` 1.
+- [x] Screenshots come from the Roborazzi set. Phone frames are produced only by
+      `tools/frame_store_screenshots.py`; the red test label is cropped. Six English and four Nepali
+      images, all 1080x1920.
+- [x] Data safety answers are a checked-in markdown draft: no data collected, no data shared.
+- [x] Content-rating answers are a checked-in markdown draft.
+- [x] The listing states the privacy policy URL and matches `docs/product`; it claims nothing the
+      app does not do and mentions no network, analytics or permission beyond the app.
+- [x] The listing is English and Nepali.
 
-- [x] No bitmaps; log the RemoteViews parcel size in a debug build.
-- [x] A CI check fails if `Bitmap` or `ImageProvider(` with a bitmap appears under `widget/`.
-- [x] The logged parcel size of W-03 at 5×5 is recorded in `docs/benchmarks.md` (MR-09 AC4).
+## Local checks
 
-## A2 review
+- `./gradlew ci`: `BUILD SUCCESSFUL in 3m 31s`, 192 tests, 0 failures, 1 skipped (the release-only
+  freshness test when `RELEASE_DATE` is absent).
+- GitHub Android CI: run
+  [39150421202](https://github.com/sanamhub/nepdate-mobile/actions/runs/39150421202) green. `Gradle
+  ci` took 3m 48s, the two APK jobs took 3m 16s and 2m 32s, and the checksum compare took 6s.
+- `python tools/check_android_release_workflow.py`: positive check, five negative fixtures and six
+  in-memory controls pass.
+- `actionlint 1.7.12`: clean on `android.yml` and `android-release.yml`.
+- Store screenshots generated twice with identical SHA-256 values.
 
-Reviewed on the branch before merge. Fixes:
+## Out of scope
 
-- Settings changes inside a running Glance session were not drawn. Glance runs `provideGlance`
-  once per session and keeps the session for up to 45 s; `updateAll` inside that window only
-  re-reads the widget state, so the environment read before `provideContent` stayed old. Opening
-  the app starts a session, so changing Digits within 45 s of opening it left the widgets on the
-  old digits (MR-07 AC3). The updater now writes a new `refresh` key into each widget's state, and
-  `rememberWidgetEnvironment` reloads the environment when the key changes. Test with a negative
-  control in `WidgetReviewTest`.
-- The midnight alarm was armed only by opening the app, a settings change or a system broadcast. A
-  widget placed before the app was ever opened had none. Every process start now arms it
-  (`WidgetRefresh.rearm` from `NepdateApplication.onCreate`).
-- `WidgetConfigActivity` is exported and accepted any widget id. It now configures only ids bound
-  to this app's providers, and declares the `APPWIDGET_CONFIGURE` filter. Test with a negative
-  control.
-- The deep-link extra on the exported `MainActivity` went through `parseLenient`. It now accepts
-  only the strict ISO form the widgets write (`parseOrNull`).
-- WorkManager: accepted only as Glance's dependency in ADR-0011. `checkNoWorkManagerUse` joins
-  `ci`; a file importing `androidx.work` fails it (negative control run once). The merged release
-  manifest is what `checkPermissions` reads. With `minSdk = 26`, WorkManager 2.7.1 uses
-  `SystemJobService`; its wake locks are only on the pre-23 alarm path and the foreground path,
-  which Glance never takes.
+- A3-04 (closed test, production rollout, IzzyOnDroid, F-Droid) is human-gated and not started.
+- A3-05 (Play account, signing key, service account, environment secrets) is human-gated and not
+  started. No tag, release, signing key, secret or repository setting is created in this phase.
 
-Checked and kept: `setWindow(RTC, next midnight, 10 min)` with one fixed immutable `PendingIntent`
-and re-arm after each fire; the system-change receiver is not exported and still receives the
-protected system broadcasts; every widget number goes through the resolved Digits (BS and AD day
-numerals, counts, the data-end footer); Kathmandu +05:45 and DST tests; no bitmaps; screenshots
-total 5.2 MB for 147 new PNGs (178 in the folder), acceptable.
+## A3 review (part 1, PR #18)
+
+Reviewed at `ded63ff`; fixes on the branch.
+
+- The tag check compared the tag with itself: preflight took the version from the tag, then checked
+  the tag against it. A tag `android-v0.1.0` with a `[0.1.0]` changelog section would have passed
+  while `versionName` stayed `0.0.1`. The version now always comes from `build.gradle.kts`.
+- The Play upload job ran Gradle without checking out `nepdate-kotlin`, which `settings.gradle.kts`
+  includes, so it would have failed to configure on the first real release.
+- The Play upload and the draft release used the downloaded artifacts without checking them. Both
+  now run `sha256sum --check --strict SHA256SUMS` first, and the release attaches the AAB so every
+  line of `SHA256SUMS` can be checked.
+- The signing job now removes the decoded keystore in an `always()` step.
+- The reproducible-build jobs restored the shared Gradle cache with `org.gradle.caching=true`, so
+  both APKs could reuse the same cached task outputs and match without being built. Both jobs now
+  run with `cache-disabled: true` and `--no-build-cache`.
+- `android/app/src/main/baseline-prof.txt` was a copy of the library profiles AGP merges anyway; it
+  and `checkBaselineProfile` are removed and the AC stays open on issue #11.
+- The static check also requires: only the release job has `contents: write`, the exact `needs` of
+  each job, `nepdate-kotlin` in every job that runs Gradle, and the checksum and keystore steps,
+  each with an in-memory negative control.
+
+Checked and kept: the known-data copy matches the hub section at `6965896` apart from line wrapping;
+the About test reads every static string in `AboutLinks.kt`; the freshness gate uses the UTC date,
+fails holidays below 183 days and only warns for tithi and events; listing lengths are within Play
+limits.
+
+## A2 review (merged in #15)
+
+The A2 review is kept here for the release work:
+
+- Settings changes inside a running Glance session now write a `refresh` key so the session redraws;
+  tested with a negative control.
+- The midnight alarm is armed from `NepdateApplication.onCreate`, not only when the app opens.
+- `WidgetConfigActivity` accepts only widget ids bound to this app's providers and declares the
+  `APPWIDGET_CONFIGURE` filter.
+- The exported `MainActivity` accepts only strict ISO date extras from widgets.
+- WorkManager is accepted only as Glance's dependency (ADR-0011), with a CI check.
+- Checked and kept: one fixed inexact `setWindow` alarm, the system-change receiver, all widget
+  numbers through the resolved Digits, and no widget bitmaps.
+- Device-only checks remain blocked by issue #11.
 
 Left for later: generated previews are republished on every app open and the system rate-limits
 them, so a language change shows in the picker preview only after a later open.

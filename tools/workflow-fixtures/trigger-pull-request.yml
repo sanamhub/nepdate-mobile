@@ -1,0 +1,10 @@
+# Negative fixture: a pull_request trigger would run the release workflow before a tag.
+on:
+  push:
+    tags: ["android-v*"]
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        type: boolean
+        default: true
