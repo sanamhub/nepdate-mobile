@@ -17,14 +17,18 @@ public enum DayEvent {
   ///   - model: The day's values.
   ///   - publicHoliday: The localised words for a public holiday.
   ///   - store: The event store the editor uses.
-  ///   - calendar: The calendar that gives the local midnight.
+  ///   - timeZone: The time zone of the local midnight.
   /// - Returns: The event, or `nil` when the AD date cannot be made.
   public static func event(
     for model: DayDetailViewModel,
     publicHoliday: String,
     store: EKEventStore,
-    calendar: Calendar = .current
+    timeZone: TimeZone = .current
   ) -> EKEvent? {
+    // The AD year, month and day are Gregorian. Calendar.current follows the user's calendar
+    // setting (Buddhist, Japanese and so on), which would read 2026 as a different era's year.
+    var calendar = Calendar(identifier: .gregorian)
+    calendar.timeZone = timeZone
     let gregorian = model.gregorianDate
     var components = DateComponents()
     components.calendar = calendar
@@ -39,7 +43,8 @@ public enum DayEvent {
     event.title = model.calendarTitle(publicHoliday: publicHoliday)
     event.isAllDay = true
     event.startDate = start
-    event.endDate = calendar.date(byAdding: .day, value: 1, to: start) ?? start
+    // A one-day all-day event ends on the day it starts; the next midnight can show as two days.
+    event.endDate = start
     event.alarms = nil
     return event
   }

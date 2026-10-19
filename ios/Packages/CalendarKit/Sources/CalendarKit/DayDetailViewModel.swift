@@ -114,6 +114,28 @@ public struct DayDetailViewModel: Sendable, Hashable {
   /// - Parameter publicHoliday: The localised words for a public holiday.
   /// - Returns: The event title.
   public func calendarTitle(publicHoliday: String) -> String {
+    Self.calendarTitle(
+      events: events,
+      isPublicHoliday: isPublicHoliday,
+      bsDate: bsDate,
+      publicHoliday: publicHoliday
+    )
+  }
+
+  /// The title rule behind ``calendarTitle(publicHoliday:)``, kept separate so every branch is
+  /// tested: no public holiday in the current data lacks an event.
+  /// - Parameters:
+  ///   - events: The day's event names in file order.
+  ///   - isPublicHoliday: Whether the day is a public holiday.
+  ///   - bsDate: The long BS date in the app language.
+  ///   - publicHoliday: The localised words for a public holiday.
+  /// - Returns: The first event, else the holiday words on a holiday, else the BS date.
+  public static func calendarTitle(
+    events: [String],
+    isPublicHoliday: Bool,
+    bsDate: String,
+    publicHoliday: String
+  ) -> String {
     if let event = events.first { return event }
     if isPublicHoliday { return publicHoliday }
     return bsDate

@@ -9,6 +9,12 @@ import Testing
 @MainActor
 @Suite("Day event")
 struct DayEventTests {
+  private static let gregorian: Calendar = {
+    var calendar = Calendar(identifier: .gregorian)
+    calendar.timeZone = .current
+    return calendar
+  }()
+
   @Test("MR-02 AC2: Asoj 9 is an all-day holiday event at AD midnight with no alarm")
   func asoj9() throws {
     let model = try #require(
@@ -18,13 +24,13 @@ struct DayEventTests {
         digits: .english
       )
     )
-    let calendar = Calendar.current
+    let calendar = Self.gregorian
     let event = try #require(
       DayEvent.event(
         for: model,
         publicHoliday: "Public holiday",
         store: EKEventStore(),
-        calendar: calendar
+        timeZone: calendar.timeZone
       )
     )
 
@@ -40,6 +46,42 @@ struct DayEventTests {
     #expect(parts.day == 25)
     #expect(parts.hour == 0)
     #expect(parts.minute == 0)
+    #expect(event.endDate == start)
+  }
+
+  @Test("MR-02 AC2: the event starts on the AD date in any time zone and user calendar")
+  func gregorianInEveryZone() throws {
+    let model = try #require(
+      DayDetailViewModel(
+        date: MonthDate(year: 2083, month: 6, day: 9),
+        language: .english,
+        digits: .english
+      )
+    )
+    for identifier in ["Asia/Kathmandu", "Pacific/Kiritimati", "America/Los_Angeles"] {
+      let zone = try #require(TimeZone(identifier: identifier))
+      let event = try #require(
+        DayEvent.event(
+          for: model,
+          publicHoliday: "Public holiday",
+          store: EKEventStore(),
+          timeZone: zone
+        )
+      )
+      var calendar = Calendar(identifier: .gregorian)
+      calendar.timeZone = zone
+      let start = try #require(event.startDate)
+      let parts = calendar.dateComponents([.year, .month, .day, .hour], from: start)
+      #expect(parts.year == 2026, "\(identifier)")
+      #expect(parts.month == 9, "\(identifier)")
+      #expect(parts.day == 25, "\(identifier)")
+      #expect(parts.hour == 0, "\(identifier)")
+
+      // A Buddhist-calendar user would get BE 2569 here; the event is still 25 September 2026.
+      var buddhist = Calendar(identifier: .buddhist)
+      buddhist.timeZone = zone
+      #expect(buddhist.component(.year, from: start) == 2569, "\(identifier)")
+    }
   }
 
   @Test("MR-02 AC6: Baisakh 1 2084 uses its event and starts on 14 April 2027")
@@ -51,17 +93,19 @@ struct DayEventTests {
         digits: .english
       )
     )
-    let calendar = Calendar.current
+    let calendar = Self.gregorian
     let event = try #require(
       DayEvent.event(
         for: model,
         publicHoliday: "Public holiday",
         store: EKEventStore(),
-        calendar: calendar
+        timeZone: calendar.timeZone
       )
     )
 
     #expect(event.isAllDay)
+    // The hub data names 2084's new year "New Year 2083" (hub known-questions.json,
+    // new-year-name); this fails, as it should, once the corrected data is synced.
     #expect(event.title == "New Year 2083")
     #expect((event.alarms ?? []).isEmpty)
     let start = try #require(event.startDate)

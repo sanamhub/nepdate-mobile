@@ -26,7 +26,7 @@ layout, view models, scheduling and settings; this file covers the rest.
 
 | Check | iPhone | Android A15 class | Android low-end |
 |---|---|---|---|
-| AC2: "Add to calendar" opens the system event editor, pre-filled all day, and asks for no permission. | Not run |  |  |
+| AC2: "Add to calendar" opens the system event editor, pre-filled all day on that single AD date (not spanning two days), and asks for no permission. Check once with the device calendar set to Buddhist or Japanese. | Not run |  |  |
 | AC3: "Copy date" puts the BS long date in the app language on the clipboard. | Not run |  |  |
 | AC5: open a holiday with a scope, for example Indra Jatra or Jitiya. The scope text is shown exactly as the data names it. | Not run |  |  |
 | AC6: open BS 2084-01-01. No tithi row appears; the holiday flag and events still do. | Not run |  |  |

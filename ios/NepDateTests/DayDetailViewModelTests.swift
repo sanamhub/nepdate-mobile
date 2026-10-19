@@ -124,7 +124,7 @@ struct DayDetailViewModelTests {
 
   @Test("MR-02 AC2: the event title falls back to the holiday and then the date")
   func calendarTitleFallbacks() throws {
-    let holidayOnly = try #require(
+    let holidayWithEvent = try #require(
       DayDetailViewModel(
         date: MonthDate(year: 2083, month: 6, day: 9),
         language: .english,
@@ -132,8 +132,35 @@ struct DayDetailViewModelTests {
       )
     )
     #expect(
-      holidayOnly.calendarTitle(publicHoliday: "सार्वजनिक बिदा")
+      holidayWithEvent.calendarTitle(publicHoliday: "सार्वजनिक बिदा")
         == "Indra Jatra (Kathmandu Valley Holiday)"
+    )
+
+    // No public holiday in the current data lacks an event, so the holiday branch needs synthetic
+    // input.
+    #expect(
+      DayDetailViewModel.calendarTitle(
+        events: [],
+        isPublicHoliday: true,
+        bsDate: "Asoj 9, 2083",
+        publicHoliday: "Public holiday"
+      ) == "Public holiday"
+    )
+    #expect(
+      DayDetailViewModel.calendarTitle(
+        events: [],
+        isPublicHoliday: false,
+        bsDate: "Asoj 9, 2083",
+        publicHoliday: "Public holiday"
+      ) == "Asoj 9, 2083"
+    )
+    #expect(
+      DayDetailViewModel.calendarTitle(
+        events: ["Indra Jatra", "World Pharmacist Day"],
+        isPublicHoliday: false,
+        bsDate: "Asoj 9, 2083",
+        publicHoliday: "Public holiday"
+      ) == "Indra Jatra"
     )
 
     let outside = try Self.model(MonthDate(year: 2090, month: 1, day: 1))
