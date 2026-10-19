@@ -212,7 +212,8 @@ private struct EventEditorView: UIViewControllerRepresentable {
 
   func updateUIViewController(_ controller: EKEventEditViewController, context: Context) {}
 
-  @MainActor
+  /// EventKit calls the delegate on the main thread. The class stays nonisolated because
+  /// `EKEventEditViewDelegate` is not annotated with the main actor.
   final class Coordinator: NSObject, EKEventEditViewDelegate {
     private let isPresented: Binding<Bool>
 

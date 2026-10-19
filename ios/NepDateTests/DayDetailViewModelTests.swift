@@ -97,10 +97,17 @@ struct DayDetailViewModelTests {
   func copyTextForDigits() throws {
     let date = MonthDate(year: 2083, month: 6, day: 9)
 
-    #expect(try Self.model(date, language: .english, digits: .english).copyText == "Asoj 9, 2083")
-    #expect(try Self.model(date, language: .english, digits: .nepali).copyText == "Asoj ९, २०८३")
-    #expect(try Self.model(date, language: .nepali, digits: .english).copyText == "असोज 9, 2083")
-    #expect(try Self.model(date, language: .nepali, digits: .nepali).copyText == "असोज ९, २०८३")
+    let englishEnglish = try Self.model(date, language: .english, digits: .english)
+    #expect(englishEnglish.copyText == "Asoj 9, 2083")
+
+    let englishNepali = try Self.model(date, language: .english, digits: .nepali)
+    #expect(englishNepali.copyText == "Asoj ९, २०८३")
+
+    let nepaliEnglish = try Self.model(date, language: .nepali, digits: .english)
+    #expect(nepaliEnglish.copyText == "असोज 9, 2083")
+
+    let nepaliNepali = try Self.model(date, language: .nepali, digits: .nepali)
+    #expect(nepaliNepali.copyText == "असोज ९, २०८३")
   }
 
   @Test("MR-02 AC1: an event name's digits follow the setting, the scope stays whole")
