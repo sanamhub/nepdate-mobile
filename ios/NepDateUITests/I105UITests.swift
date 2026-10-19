@@ -50,7 +50,9 @@ final class I105UITests: XCTestCase {
     XCTAssertTrue(app.buttons["Report a wrong date"].exists)
     XCTAssertTrue(app.buttons["Licences"].exists)
     XCTAssertTrue(app.buttons["Privacy"].exists)
+    app.swipeUp()
     XCTAssertTrue(app.buttons["Source code"].exists)
+    app.swipeUp()
     XCTAssertFalse(app.buttons["Subscribe to Nepal holidays"].exists)
 
     app.buttons["Copy diagnostic info"].tap()

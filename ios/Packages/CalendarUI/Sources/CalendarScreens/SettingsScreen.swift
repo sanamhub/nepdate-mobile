@@ -42,8 +42,11 @@ public struct SettingsScreen: View {
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
         ToolbarItem(placement: .confirmationAction) {
-          Button("Close") {
+          Button {
             dismiss()
+          } label: {
+            Text("Close")
+              .font(.body)
           }
         }
       }
@@ -100,6 +103,7 @@ public struct SettingsContent: View {
       }
 
       Section {
+        sectionHeader("Digits")
         choice("Follow language", selected: model.settings.digits == .followLanguage) {
           model.setDigits(.followLanguage)
           onChanged(model.settings)
@@ -112,11 +116,10 @@ public struct SettingsContent: View {
           model.setDigits(.english)
           onChanged(model.settings)
         }
-      } header: {
-        sectionHeader("Digits")
       }
 
       Section {
+        sectionHeader("Date follows")
         choice("This device", selected: model.settings.dateFollows == .device) {
           model.setDateFollows(.device)
           onChanged(model.settings)
@@ -125,8 +128,6 @@ public struct SettingsContent: View {
           model.setDateFollows(.nepal)
           onChanged(model.settings)
         }
-      } header: {
-        sectionHeader("Date follows")
       }
 
       Section {
@@ -202,9 +203,9 @@ public struct SettingsContent: View {
 
   private func sectionHeader(_ title: LocalizedStringKey) -> some View {
     Text(title)
-      .font(.subheadline.weight(.semibold))
+      .font(.headline)
       .foregroundStyle(.primary)
-      .textCase(nil)
+      .frame(minHeight: 44)
   }
 
   private func openAppSettings() {
@@ -266,6 +267,7 @@ public struct AboutContent: View {
   public var body: some View {
     List {
       Section {
+        sectionHeader("About")
         infoRow("App version", info.appVersion)
         infoRow("Library version", info.libraryVersion)
         infoRow("Holiday data", info.coverageText(language: language, digits: digits))
@@ -274,8 +276,6 @@ public struct AboutContent: View {
           "Official sources",
           "Ministry of Home Affairs holiday notice; Nepal Panchanga Nirnayak Samiti"
         )
-      } header: {
-        sectionHeader("About")
       }
 
       Section {
@@ -341,9 +341,9 @@ public struct AboutContent: View {
 
   private func sectionHeader(_ title: LocalizedStringKey) -> some View {
     Text(title)
-      .font(.subheadline.weight(.semibold))
+      .font(.headline)
       .foregroundStyle(.primary)
-      .textCase(nil)
+      .frame(minHeight: 44)
   }
 
   private func openSubscription() {

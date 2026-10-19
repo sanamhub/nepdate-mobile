@@ -51,9 +51,6 @@ public struct UpcomingScreen: View {
                     .accessibilityHidden(true)
                 }
                 .buttonStyle(.plain)
-                .accessibilityElement(children: .ignore)
-                .accessibilityLabel(Text(label(for: entry)))
-                .accessibilityAddTraits(.isButton)
               }
             } header: {
               Text(verbatim: group.title)
@@ -99,14 +96,6 @@ public struct UpcomingScreen: View {
         if !isPresented { selected = nil }
       }
     )
-  }
-
-  private func label(for entry: UpcomingEntry) -> String {
-    var parts = [entry.name, entry.dateLine, entry.relativeText]
-    if entry.isHoliday {
-      parts.append(AppText.string("public holiday", language))
-    }
-    return parts.joined(separator: ", ")
   }
 }
 

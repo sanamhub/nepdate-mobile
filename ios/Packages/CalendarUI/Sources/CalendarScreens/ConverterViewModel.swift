@@ -199,22 +199,22 @@ public struct ConverterViewModel: Sendable {
     guard let comparison else { return nil }
     let years = Self.unitText(
       comparison.years,
-      one: "%@ year",
-      many: "%@ years",
+      one: "year",
+      many: "years",
       language: language,
       digits: digits
     )
     let months = Self.unitText(
       comparison.months,
-      one: "%@ month",
-      many: "%@ months",
+      one: "month",
+      many: "months",
       language: language,
       digits: digits
     )
     let days = Self.unitText(
       comparison.days,
-      one: "%@ day",
-      many: "%@ days",
+      one: "day",
+      many: "days",
       language: language,
       digits: digits
     )
@@ -247,12 +247,9 @@ public struct ConverterViewModel: Sendable {
     switch error {
     case .invalidDay(let year, let month, let monthLength):
       let monthName = MonthNames.bs(month, language)
-      let format = AppText.string("%@ has %@ days in %@", language)
-      return String(
-        format: format,
-        monthName,
-        digits.format(monthLength),
-        digits.format(year)
+      return AppText.string(
+        "\(monthName) has \(digits.format(monthLength)) days in \(digits.format(year))",
+        language
       )
     case .invalidMonth:
       return AppText.string("Month must be 1 to 12", language)
@@ -305,14 +302,11 @@ public struct ConverterViewModel: Sendable {
     case 1:
       return AppText.string("Tomorrow", language)
     case 2...:
-      let format = AppText.string("%@ days from today", language)
-      return String(format: format, digits.format(days))
+      return AppText.string("\(digits.format(days)) days from today", language)
     case -1:
-      let format = AppText.string("%@ day before today", language)
-      return String(format: format, digits.format(1))
+      return AppText.string("\(digits.format(1)) day before today", language)
     default:
-      let format = AppText.string("%@ days before today", language)
-      return String(format: format, digits.format(-days))
+      return AppText.string("\(digits.format(-days)) days before today", language)
     }
   }
 
@@ -323,7 +317,7 @@ public struct ConverterViewModel: Sendable {
     language: AppLanguage,
     digits: Digits
   ) -> String {
-    let format = AppText.string(count == 1 ? one : many, language)
-    return String(format: format, digits.format(count))
+    let word = AppText.string(count == 1 ? one : many, language)
+    return "\(digits.format(count)) \(word)"
   }
 }
