@@ -186,8 +186,14 @@ struct SettingsAboutTests {
     #expect(defaults.contains("Show tithi: off"))
   }
 
-  @Test("MR-07: the language row uses the system app settings URL")
-  func languageURL() {
-    #expect(URL(string: UIApplication.openSettingsURLString) != nil)
+  @Test("MR-07: the language row opens the app settings URL")
+  @MainActor
+  func languageRowOpensAppSettings() {
+    var opened: URL?
+    let opener = SettingsURLOpener { opened = $0 }
+
+    opener.openAppSettings()
+
+    #expect(opened?.absoluteString == UIApplication.openSettingsURLString)
   }
 }

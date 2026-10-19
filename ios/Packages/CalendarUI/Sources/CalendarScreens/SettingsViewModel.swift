@@ -40,11 +40,11 @@ public struct SettingsViewModel: Sendable {
 
   /// Whether the first-launch "Nepal time" suggestion should show (MR-06 AC1).
   /// - Parameter deviceZone: The device's zone.
-  /// - Returns: True only for an unhandled install, This device, outside Kathmandu.
+  /// - Returns: True only for an unhandled install, This device and a zone outside Nepal time.
   public func shouldSuggestNepalTime(deviceZone: TimeZone = .current) -> Bool {
     !settings.dateFollowsSuggestionHandled
       && settings.dateFollows == .device
-      && deviceZone.identifier != CalendarDates.nepal.identifier
+      && deviceZone.secondsFromGMT() != CalendarDates.nepal.secondsFromGMT()
   }
 
   /// Accepts the Nepal time suggestion and records that it was shown.

@@ -96,6 +96,24 @@ final class ScreenUITests: XCTestCase {
   }
 
   @MainActor
+  func testLanguageRowOpensTheAppSettingsURL() throws {
+    let app = XCUIApplication()
+    app.launchEnvironment["NEPDATE_UI_TEST_TODAY"] = "2083-06-20"
+    app.launchEnvironment["NEPDATE_UI_TEST_SCREEN"] = "settings"
+    app.launchEnvironment["NEPDATE_UI_TEST_CAPTURE_SETTINGS_URL"] = "1"
+    app.launchArguments += ["-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
+    app.launch()
+
+    let row = app.buttons["language_row"]
+    XCTAssertTrue(row.waitForExistence(timeout: 10))
+    row.tap()
+
+    let opened = app.staticTexts["settings_opened_url"]
+    XCTAssertTrue(opened.waitForExistence(timeout: 5))
+    XCTAssertEqual(opened.label, UIApplication.openSettingsURLString)
+  }
+
+  @MainActor
   func testUpcomingHasOnlyTheToleratedAuditFindings() throws {
     let app = Self.launch(screen: "upcoming")
     XCTAssertEqual(try audit(app, tolerating: [:]), [:])

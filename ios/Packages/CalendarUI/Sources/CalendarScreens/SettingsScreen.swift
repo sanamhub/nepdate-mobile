@@ -9,6 +9,7 @@ public struct SettingsScreen: View {
   private let info: AboutInfo
   private let links: AboutLinksState
   private let onChanged: (Settings) -> Void
+  private let opener: SettingsURLOpener
   @Environment(\.dismiss) private var dismiss
   @Environment(\.colorScheme) private var colorScheme
 
@@ -18,16 +19,20 @@ public struct SettingsScreen: View {
   ///   - info: The About values.
   ///   - links: The injected subscription state.
   ///   - onChanged: Called after every setting change.
+  ///   - opener: Opens the app settings URL.
+  @MainActor
   public init(
     model: SettingsViewModel,
     info: AboutInfo,
     links: AboutLinksState = AboutLinksState(),
-    onChanged: @escaping (Settings) -> Void = { _ in }
+    onChanged: @escaping (Settings) -> Void = { _ in },
+    opener: SettingsURLOpener = SettingsURLOpener()
   ) {
     _model = State(initialValue: model)
     self.info = info
     self.links = links
     self.onChanged = onChanged
+    self.opener = opener
   }
 
   /// The screen's content.
@@ -37,7 +42,8 @@ public struct SettingsScreen: View {
         model: $model,
         info: info,
         links: links,
-        onChanged: onChanged
+        onChanged: onChanged,
+        opener: opener
       )
       .navigationTitle("Settings")
       .navigationBarTitleDisplayMode(.inline)
@@ -70,7 +76,7 @@ public struct SettingsContent: View {
   private let info: AboutInfo
   private let links: AboutLinksState
   private let onChanged: (Settings) -> Void
-  @Environment(\.openURL) private var openURL
+  private let opener: SettingsURLOpener
 
   /// Creates the content.
   /// - Parameters:
@@ -78,23 +84,29 @@ public struct SettingsContent: View {
   ///   - info: The About values.
   ///   - links: The injected subscription state.
   ///   - onChanged: Called after every setting change.
+  ///   - opener: Opens the app settings URL.
+  @MainActor
   public init(
     model: Binding<SettingsViewModel>,
     info: AboutInfo,
     links: AboutLinksState = AboutLinksState(),
-    onChanged: @escaping (Settings) -> Void = { _ in }
+    onChanged: @escaping (Settings) -> Void = { _ in },
+    opener: SettingsURLOpener = SettingsURLOpener()
   ) {
     _model = model
     self.info = info
     self.links = links
     self.onChanged = onChanged
+    self.opener = opener
   }
 
   /// The content.
   public var body: some View {
     List {
       Section {
-        Button(action: openAppSettings) {
+        Button {
+          opener.openAppSettings()
+        } label: {
           HStack {
             Text("Language")
             Spacer(minLength: 8)
@@ -107,6 +119,7 @@ public struct SettingsContent: View {
         }
         .accessibilityLabel(Text("Language"))
         .accessibilityValue(Text(verbatim: languageName))
+        .accessibilityIdentifier("language_row")
         .buttonStyle(.plain)
         .foregroundStyle(.primary)
       }
@@ -215,11 +228,7 @@ public struct SettingsContent: View {
       .font(.headline)
       .foregroundStyle(.primary)
       .frame(minHeight: 44)
-  }
-
-  private func openAppSettings() {
-    guard let url = URL(string: UIApplication.openSettingsURLString) else { return }
-    openURL(url)
+      .accessibilityAddTraits(.isHeader)
   }
 }
 
@@ -260,6 +269,7 @@ public struct AboutContent: View {
   private let settings: Settings
   private let links: AboutLinksState
   @State private var copied = false
+  @State private var copiedTask: Task<Void, Never>?
   @Environment(\.openURL) private var openURL
 
   /// Creates the content.
@@ -364,6 +374,7 @@ public struct AboutContent: View {
       .font(.headline)
       .foregroundStyle(.primary)
       .frame(minHeight: 44)
+      .accessibilityAddTraits(.isHeader)
   }
 
   private func openSubscription() {
@@ -394,5 +405,12 @@ public struct AboutContent: View {
     )
     DayClipboard.write(text)
     copied = true
+    CopyConfirmation.announce(AppText.string("Copied", language))
+    copiedTask?.cancel()
+    copiedTask = Task { @MainActor in
+      try? await Task.sleep(for: CopyConfirmation.duration)
+      guard !Task.isCancelled else { return }
+      copied = false
+    }
   }
 }

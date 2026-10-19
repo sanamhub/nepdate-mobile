@@ -265,8 +265,8 @@ public struct ConverterViewModel: Sendable {
   private static func converterError(_ error: NepDateError, text: String?) -> ConverterError {
     switch error.kind {
     case .invalidDay(let monthLength):
-      guard let text, let fields = numericFields(text) else { return .unreadable }
-      return .invalidDay(year: fields.year, month: fields.month, monthLength: monthLength)
+      guard let text, let date = invalidDayDate(in: text) else { return .unreadable }
+      return .invalidDay(year: date.year, month: date.month, monthLength: monthLength)
     case .invalidMonth:
       return .invalidMonth
     case .outOfRange:
@@ -276,19 +276,21 @@ public struct ConverterViewModel: Sendable {
     }
   }
 
-  private static func numericFields(_ text: String) -> (year: Int, month: Int)? {
+  /// Finds the year and month of a date whose day failed validation. A month name gives no month
+  /// number, so each number is replaced by a valid day in turn and the parser reads the fields.
+  private static func invalidDayDate(in text: String) -> NepaliDate? {
     let normalized = Digits.english.applying(to: text)
-    let pattern = #"(\d{4})\D+(\d{1,2})\D+\d{1,2}"#
-    guard let regex = try? NSRegularExpression(pattern: pattern) else { return nil }
+    guard let regex = try? NSRegularExpression(pattern: #"\d+"#) else { return nil }
     let range = NSRange(normalized.startIndex..<normalized.endIndex, in: normalized)
-    guard let match = regex.firstMatch(in: normalized, range: range) else { return nil }
-    guard
-      let yearRange = Range(match.range(at: 1), in: normalized),
-      let monthRange = Range(match.range(at: 2), in: normalized),
-      let year = Int(normalized[yearRange]),
-      let month = Int(normalized[monthRange])
-    else { return nil }
-    return (year, month)
+    for match in regex.matches(in: normalized, range: range) {
+      guard let numberRange = Range(match.range, in: normalized) else { continue }
+      var candidate = normalized
+      candidate.replaceSubrange(numberRange, with: "1")
+      if let date = try? NepaliDate.parseLenient(candidate) {
+        return date
+      }
+    }
+    return nil
   }
 
   private static func distanceText(

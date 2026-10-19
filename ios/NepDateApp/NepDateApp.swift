@@ -179,6 +179,7 @@ private struct RootTabView: View {
     let settings: Settings
     let today: MonthDate
     let info: AboutInfo
+    @State private var openedSettingsURL: String? = nil
 
     var body: some View {
       let language = settings.language.resolved
@@ -196,8 +197,24 @@ private struct RootTabView: View {
         case "settings":
           SettingsScreen(
             model: SettingsViewModel(settings: settings),
-            info: info
+            info: info,
+            opener: SettingsURLOpener { url in
+              if capturesSettingsURL {
+                openedSettingsURL = url.absoluteString
+              } else {
+                UIApplication.shared.open(url)
+              }
+            }
           )
+          .overlay(alignment: .top) {
+            if let openedSettingsURL {
+              Text(verbatim: openedSettingsURL)
+                .font(.caption)
+                .padding(8)
+                .background(Color(uiColor: .secondarySystemBackground))
+                .accessibilityIdentifier("settings_opened_url")
+            }
+          }
         case "about":
           NavigationStack {
             AboutScreen(
@@ -214,6 +231,10 @@ private struct RootTabView: View {
         }
       }
       .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    private var capturesSettingsURL: Bool {
+      ProcessInfo.processInfo.environment["NEPDATE_UI_TEST_CAPTURE_SETTINGS_URL"] != nil
     }
   }
 #endif

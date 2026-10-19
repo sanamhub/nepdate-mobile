@@ -206,12 +206,9 @@ public struct DayDetailContent: View {
     DayClipboard.write(model.copyText)
     copiedText = model.copyText
     showsCopied = true
-    UIAccessibility.post(
-      notification: .announcement,
-      argument: AppText.string("Date copied", model.language)
-    )
+    CopyConfirmation.announce(AppText.string("Date copied", model.language))
     Task { @MainActor in
-      try? await Task.sleep(for: .seconds(2))
+      try? await Task.sleep(for: CopyConfirmation.duration)
       showsCopied = false
     }
   }
