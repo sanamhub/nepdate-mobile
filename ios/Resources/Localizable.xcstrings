@@ -1,6 +1,108 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "%@ day": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ day"
+          }
+        },
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ दिन"
+          }
+        }
+      }
+    },
+    "%@ day before today": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ day before today"
+          }
+        },
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ दिन अघि"
+          }
+        }
+      }
+    },
+    "%@ days": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ days"
+          }
+        },
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ दिन"
+          }
+        }
+      }
+    },
+    "%@ days before today": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ days before today"
+          }
+        },
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ दिन अघि"
+          }
+        }
+      }
+    },
+    "%@ days from today": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ days from today"
+          }
+        },
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ दिन पछि"
+          }
+        }
+      }
+    },
+    "%@ has %@ days in %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ has %@ days in %@"
+          }
+        },
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ %3$@ मा %2$@ दिन छ"
+          }
+        }
+      }
+    },
     "%@ has %d days in %d": {
       "extractionState": "manual",
       "localizations": {
@@ -18,6 +120,40 @@
         }
       }
     },
+    "%@ month": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ month"
+          }
+        },
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ महिना"
+          }
+        }
+      }
+    },
+    "%@ months": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ months"
+          }
+        },
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ महिना"
+          }
+        }
+      }
+    },
     "%@ to %@": {
       "extractionState": "manual",
       "localizations": {
@@ -31,6 +167,40 @@
           "stringUnit": {
             "state": "translated",
             "value": "%@ देखि %@"
+          }
+        }
+      }
+    },
+    "%@ year": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ year"
+          }
+        },
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ वर्ष"
+          }
+        }
+      }
+    },
+    "%@ years": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ years"
+          }
+        },
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ वर्ष"
           }
         }
       }

@@ -47,6 +47,7 @@ public struct SettingsScreen: View {
           }
         }
       }
+      .tint(BrandColor.today)
     }
   }
 }
@@ -94,9 +95,11 @@ public struct SettingsContent: View {
         }
         .accessibilityLabel(Text("Language"))
         .accessibilityValue(Text(verbatim: languageName))
+        .buttonStyle(.plain)
+        .foregroundStyle(.primary)
       }
 
-      Section("Digits") {
+      Section {
         choice("Follow language", selected: model.settings.digits == .followLanguage) {
           model.setDigits(.followLanguage)
           onChanged(model.settings)
@@ -109,9 +112,11 @@ public struct SettingsContent: View {
           model.setDigits(.english)
           onChanged(model.settings)
         }
+      } header: {
+        sectionHeader("Digits")
       }
 
-      Section("Date follows") {
+      Section {
         choice("This device", selected: model.settings.dateFollows == .device) {
           model.setDateFollows(.device)
           onChanged(model.settings)
@@ -120,6 +125,8 @@ public struct SettingsContent: View {
           model.setDateFollows(.nepal)
           onChanged(model.settings)
         }
+      } header: {
+        sectionHeader("Date follows")
       }
 
       Section {
@@ -140,10 +147,13 @@ public struct SettingsContent: View {
           )
         } label: {
           Text("About")
+            .foregroundStyle(.primary)
         }
+        .accessibilityIdentifier("about_link")
       }
     }
     .listStyle(.insetGrouped)
+    .tint(BrandColor.today)
   }
 
   private var resolvedDigits: Digits {
@@ -185,7 +195,16 @@ public struct SettingsContent: View {
       .frame(minHeight: 44)
       .contentShape(Rectangle())
     }
+    .buttonStyle(.plain)
+    .foregroundStyle(.primary)
     .accessibilityAddTraits(selected ? .isSelected : [])
+  }
+
+  private func sectionHeader(_ title: LocalizedStringKey) -> some View {
+    Text(title)
+      .font(.subheadline.weight(.semibold))
+      .foregroundStyle(.primary)
+      .textCase(nil)
   }
 
   private func openAppSettings() {
@@ -246,7 +265,7 @@ public struct AboutContent: View {
   /// The content.
   public var body: some View {
     List {
-      Section("About") {
+      Section {
         infoRow("App version", info.appVersion)
         infoRow("Library version", info.libraryVersion)
         infoRow("Holiday data", info.coverageText(language: language, digits: digits))
@@ -255,6 +274,8 @@ public struct AboutContent: View {
           "Official sources",
           "Ministry of Home Affairs holiday notice; Nepal Panchanga Nirnayak Samiti"
         )
+      } header: {
+        sectionHeader("About")
       }
 
       Section {
@@ -288,6 +309,7 @@ public struct AboutContent: View {
       }
     }
     .listStyle(.insetGrouped)
+    .tint(BrandColor.today)
     .navigationTitle("About")
     .navigationBarTitleDisplayMode(.inline)
   }
@@ -296,6 +318,8 @@ public struct AboutContent: View {
     VStack(alignment: .leading, spacing: 2) {
       Text(label)
         .font(.body)
+        .foregroundStyle(.primary)
+        .fixedSize(horizontal: false, vertical: true)
       Text(verbatim: value)
         .font(.subheadline)
         .foregroundStyle(BrandColor.secondaryText)
@@ -307,11 +331,19 @@ public struct AboutContent: View {
     Group {
       if let destination = URL(string: url) {
         Link(label, destination: destination)
+          .foregroundStyle(BrandColor.today)
       } else {
         Text(label)
       }
     }
     .frame(minHeight: 44)
+  }
+
+  private func sectionHeader(_ title: LocalizedStringKey) -> some View {
+    Text(title)
+      .font(.subheadline.weight(.semibold))
+      .foregroundStyle(.primary)
+      .textCase(nil)
   }
 
   private func openSubscription() {

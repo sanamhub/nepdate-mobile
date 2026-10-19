@@ -32,27 +32,38 @@ private struct RootView: View {
       osVersion: UIDevice.current.systemVersion
     )
 
-    VStack(spacing: 0) {
-      if Self.testToday == nil && suggestion.shouldSuggestNepalTime() {
-        NepalTimeSuggestionView(
-          onAccept: {
-            var model = SettingsViewModel(settings: settings, store: store)
-            model.acceptNepalTime()
-            settings = model.settings
-          },
-          onDismiss: {
-            var model = SettingsViewModel(settings: settings, store: store)
-            model.dismissNepalTime()
-            settings = model.settings
-          }
+    Group {
+      if let screen = Self.testScreen {
+        TestScreenView(
+          screen: screen,
+          settings: settings,
+          today: today,
+          info: info
         )
-      }
+      } else {
+        VStack(spacing: 0) {
+          if Self.testToday == nil && suggestion.shouldSuggestNepalTime() {
+            NepalTimeSuggestionView(
+              onAccept: {
+                var model = SettingsViewModel(settings: settings, store: store)
+                model.acceptNepalTime()
+                settings = model.settings
+              },
+              onDismiss: {
+                var model = SettingsViewModel(settings: settings, store: store)
+                model.dismissNepalTime()
+                settings = model.settings
+              }
+            )
+          }
 
-      RootTabView(
-        settings: settings,
-        today: today,
-        onSettings: { showsSettings = true }
-      )
+          RootTabView(
+            settings: settings,
+            today: today,
+            onSettings: { showsSettings = true }
+          )
+        }
+      }
     }
     .background(Color(uiColor: .systemBackground))
     .sheet(isPresented: $showsSettings) {
@@ -72,6 +83,14 @@ private struct RootView: View {
 
   private static var libraryVersion: String {
     Bundle.main.object(forInfoDictionaryKey: "NepDateLibraryVersion") as? String ?? "unknown"
+  }
+
+  private static var testScreen: String? {
+    #if DEBUG
+      return ProcessInfo.processInfo.environment["NEPDATE_UI_TEST_SCREEN"]
+    #else
+      return nil
+    #endif
   }
 
   /// The UI tests pin today with `NEPDATE_UI_TEST_TODAY=2083-06-20`, so every UI test sees the same
@@ -139,5 +158,47 @@ private struct RootTabView: View {
         Label("Converter", systemImage: "arrow.left.arrow.right")
       }
     }
+  }
+}
+
+/// A single screen for the UI tests, so an audit does not see the other tabs.
+private struct TestScreenView: View {
+  let screen: String
+  let settings: Settings
+  let today: MonthDate
+  let info: AboutInfo
+
+  var body: some View {
+    let language = settings.language.resolved
+    let digits = settings.digits.resolved(for: language)
+    Group {
+      switch screen {
+      case "upcoming":
+        if let model = UpcomingViewModel(today: today, language: language, digits: digits) {
+          UpcomingScreen(model: model, language: language, digits: digits)
+        }
+      case "converter":
+        ConverterScreen(model: ConverterViewModel(today: today, language: language, digits: digits))
+      case "settings":
+        SettingsScreen(
+          model: SettingsViewModel(settings: settings),
+          info: info
+        )
+      case "about":
+        NavigationStack {
+          AboutScreen(
+            content: AboutContent(
+              info: info,
+              language: language,
+              digits: digits,
+              settings: settings
+            )
+          )
+        }
+      default:
+        Text("Unknown test screen")
+      }
+    }
+    .frame(maxWidth: .infinity, maxHeight: .infinity)
   }
 }

@@ -74,8 +74,10 @@ public struct UpcomingScreen: View {
         }
         .listStyle(.plain)
         .scrollContentBackground(.hidden)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
       }
     }
+    .frame(maxWidth: .infinity, maxHeight: .infinity)
     .background(Color(uiColor: .systemBackground))
     .sheet(isPresented: showsDetail) {
       if let selected,

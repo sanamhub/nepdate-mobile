@@ -102,7 +102,7 @@ struct ConverterViewModelTests {
     model.fromBs("२०८३-०६-२५")
 
     #expect(model.resultBsDate == "असोज २५, २०८३")
-    #expect(model.resultWeekdayAndDate == "शुक्रवार, ११ अक्टोबर २०२६")
+    #expect(model.resultWeekdayAndDate == "आइतवार, ११ अक्टोबर २०२६")
     #expect(model.daysFromTodayText == "५ दिन पछि")
 
     var invalid = model

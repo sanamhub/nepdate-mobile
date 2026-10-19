@@ -131,7 +131,9 @@ public struct ConverterScreen: View {
         .padding(.horizontal, 16)
         .padding(.bottom, 24)
       }
+      .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
+    .frame(maxWidth: .infinity, maxHeight: .infinity)
     .background(Color(uiColor: .systemBackground))
   }
 

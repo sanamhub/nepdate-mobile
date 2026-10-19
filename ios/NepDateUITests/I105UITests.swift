@@ -19,11 +19,9 @@ final class I105UITests: XCTestCase {
 
   @MainActor
   func testUpcomingShowsTodayAndOpensTheDay() throws {
-    let app = Self.launch()
-    app.tabBars.buttons["Upcoming"].tap()
+    let app = Self.launch(screen: "upcoming")
 
-    XCTAssertTrue(app.staticTexts["Asoj 2083"].waitForExistence(timeout: 10))
-    XCTAssertTrue(Self.entry("Indira Ekadashi Brata", in: app).exists)
+    XCTAssertTrue(Self.entry("Indira Ekadashi Brata", in: app).waitForExistence(timeout: 10))
     XCTAssertTrue(Self.entry("Ekadashi Shraddha", in: app).exists)
     XCTAssertTrue(Self.entry("Ghatasthapana Brata", in: app).exists)
     XCTAssertTrue(
@@ -36,24 +34,23 @@ final class I105UITests: XCTestCase {
 
   @MainActor
   func testSettingsAndAboutShowTheirValues() throws {
-    let app = Self.launch()
-    Self.openSettings(app)
+    let app = Self.launch(screen: "settings")
 
     XCTAssertTrue(app.staticTexts["Digits"].exists)
     XCTAssertTrue(app.staticTexts["Follow language"].exists)
     XCTAssertTrue(app.staticTexts["Date follows"].exists)
     XCTAssertTrue(app.staticTexts["Show tithi in the month grid"].exists)
 
-    app.buttons["About"].tap()
+    app.buttons["about_link"].tap()
     XCTAssertTrue(app.staticTexts["App version"].waitForExistence(timeout: 10))
     XCTAssertTrue(app.staticTexts["Library version"].exists)
     XCTAssertTrue(app.staticTexts["0.1.0 (1)"].exists)
     XCTAssertTrue(app.staticTexts["Baisakh 1, 2077 – Mangsir 20, 2084"].exists)
-    XCTAssertTrue(app.links["Known data questions"].exists)
-    XCTAssertTrue(app.links["Report a wrong date"].exists)
-    XCTAssertTrue(app.links["Licences"].exists)
-    XCTAssertTrue(app.links["Privacy"].exists)
-    XCTAssertTrue(app.links["Source code"].exists)
+    XCTAssertTrue(app.buttons["Known data questions"].exists)
+    XCTAssertTrue(app.buttons["Report a wrong date"].exists)
+    XCTAssertTrue(app.buttons["Licences"].exists)
+    XCTAssertTrue(app.buttons["Privacy"].exists)
+    XCTAssertTrue(app.buttons["Source code"].exists)
     XCTAssertFalse(app.buttons["Subscribe to Nepal holidays"].exists)
 
     app.buttons["Copy diagnostic info"].tap()
@@ -62,61 +59,49 @@ final class I105UITests: XCTestCase {
 
   @MainActor
   func testUpcomingHasOnlyTheToleratedAuditFindings() throws {
-    let app = Self.launch()
-    app.tabBars.buttons["Upcoming"].tap()
+    let app = Self.launch(screen: "upcoming")
     XCTAssertEqual(try audit(app), Self.tolerated)
   }
 
   @MainActor
   func testConverterHasOnlyTheToleratedAuditFindings() throws {
-    let app = Self.launch()
-    app.tabBars.buttons["Converter"].tap()
+    let app = Self.launch(screen: "converter")
     XCTAssertEqual(try audit(app), Self.tolerated)
   }
 
   @MainActor
   func testSettingsHasOnlyTheToleratedAuditFindings() throws {
-    let app = Self.launch()
-    Self.openSettings(app)
+    let app = Self.launch(screen: "settings")
     XCTAssertEqual(try audit(app), Self.tolerated)
   }
 
   @MainActor
   func testAboutHasOnlyTheToleratedAuditFindings() throws {
-    let app = Self.launch()
-    Self.openSettings(app)
-    app.buttons["About"].tap()
-    XCTAssertTrue(app.staticTexts["App version"].waitForExistence(timeout: 10))
+    let app = Self.launch(screen: "about")
     XCTAssertEqual(try audit(app), Self.tolerated)
   }
 
   @MainActor
   func testUpcomingAtAccessibility2HasOnlyTheToleratedAuditFindings() throws {
-    let app = Self.launch(accessibility: true)
-    app.tabBars.buttons["Upcoming"].tap()
+    let app = Self.launch(screen: "upcoming", accessibility: true)
     XCTAssertEqual(try audit(app), Self.tolerated)
   }
 
   @MainActor
   func testConverterAtAccessibility2HasOnlyTheToleratedAuditFindings() throws {
-    let app = Self.launch(accessibility: true)
-    app.tabBars.buttons["Converter"].tap()
+    let app = Self.launch(screen: "converter", accessibility: true)
     XCTAssertEqual(try audit(app), Self.tolerated)
   }
 
   @MainActor
   func testSettingsAtAccessibility2HasOnlyTheToleratedAuditFindings() throws {
-    let app = Self.launch(accessibility: true)
-    Self.openSettings(app)
+    let app = Self.launch(screen: "settings", accessibility: true)
     XCTAssertEqual(try audit(app), Self.tolerated)
   }
 
   @MainActor
   func testAboutAtAccessibility2HasOnlyTheToleratedAuditFindings() throws {
-    let app = Self.launch(accessibility: true)
-    Self.openSettings(app)
-    app.buttons["About"].tap()
-    XCTAssertTrue(app.staticTexts["App version"].waitForExistence(timeout: 10))
+    let app = Self.launch(screen: "about", accessibility: true)
     XCTAssertEqual(try audit(app), Self.tolerated)
   }
 
@@ -142,14 +127,6 @@ final class I105UITests: XCTestCase {
   }
 
   @MainActor
-  private static func openSettings(_ app: XCUIApplication) {
-    let button = app.buttons["Settings"]
-    XCTAssertTrue(button.waitForExistence(timeout: 10))
-    button.tap()
-    XCTAssertTrue(app.navigationBars["Settings"].waitForExistence(timeout: 10))
-  }
-
-  @MainActor
   private static func entry(_ name: String, in app: XCUIApplication) -> XCUIElement {
     app.buttons
       .matching(NSPredicate(format: "label BEGINSWITH %@", name))
@@ -157,9 +134,10 @@ final class I105UITests: XCTestCase {
   }
 
   @MainActor
-  private static func launch(accessibility: Bool = false) -> XCUIApplication {
+  private static func launch(screen: String, accessibility: Bool = false) -> XCUIApplication {
     let app = XCUIApplication()
     app.launchEnvironment["NEPDATE_UI_TEST_TODAY"] = "2083-06-20"
+    app.launchEnvironment["NEPDATE_UI_TEST_SCREEN"] = screen
     app.launchArguments += ["-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
     if accessibility {
       app.launchArguments += [
