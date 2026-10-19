@@ -47,9 +47,64 @@ MR-03, MR-04, MR-06, MR-07, MR-11, MR-12 (`webcal://` link opened with `openURL`
 URL constant is empty), and "Copy diagnostic info" (ADR-0007 §5). The library version shown in About
 is the Info.plist key `NepDateLibraryVersion`, set in `project.yml`; `ci.sh` fails if it differs from
 the `exact:` pin of `nepdate-swift` in `ios/Packages/CalendarKit/Package.swift`.
-AC: the same cases as A1-05 and A1-06, as Swift Testing on the view models plus snapshots, except
-that the language row opens the system per-app language setting; `ci.sh` fails if any key in
-`Localizable.xcstrings` lacks a translated `ne` value (MR-11 AC1).
+
+Acceptance criteria, copied before code (I1-05-00), each mirroring an A1-05 or A1-06 test:
+
+- I1-05-01 Upcoming: with today BS 2083-06-20 the view model returns 20 entries, the first two are
+  "Indira Ekadashi Brata" and "Ekadashi Shraddha" on 2083-06-20 with 0 days, and the list is grouped
+  by BS month in date and file order (A1-05 `firstTwentyEntriesStartWithTodaysEvents`,
+  `entriesAreGroupedByBsMonthInDateOrder`).
+- I1-05-01 Upcoming: the 2083-06-25 entry is "Ghatasthapana Brata", is a holiday and is 5 days away
+  (A1-05 `publicHolidayEntriesCarryTheMark`).
+- I1-05-01 Upcoming: with today BS 2084-08-10 the list has 3 entries, ends with "Holiday data ends on
+  Mangsir 20, 2084", and their holiday flags are false, true, false (A1-05
+  `nearTheEndTheListStopsAtCoverageWithThreeEntries`).
+- I1-05-01 Converter: "२०८३ असोज २०" and "2083-06-20" both give 2026-10-06, Tuesday, 0 days from
+  today; 2026-10-06 gives BS 2083-06-20 (A1-05 `nepaliBsInputConvertsToAd`,
+  `numericBsInputConvertsToAd`, `adInputConvertsToBs`).
+- I1-05-01 Converter: "2083-06-32" shows "Asoj has 31 days in 2083" and keeps the previous result;
+  "2083-13-01" reports an invalid month (A1-05 `invalidDayKeepsThePreviousResult`,
+  `invalidMonthIsReported`, A1-05 screen test `invalidDayShowsTheMessageAndKeepsThePreviousResult`).
+- I1-05-01 Converter: 2081-01-01 compared with 2082-01-01 is 1 year, 0 months, 0 days; comparing
+  without a first date is an error (A1-05 `secondDateGivesYearsMonthsAndDays`,
+  `comparingWithoutAFirstDateIsAnError`).
+- I1-05-01 Digits: counts in Upcoming and Converter use the resolved Digits, including "5 days",
+  "1 year", the invalid-day message and "in N days"; the Devanagari day-detail line still keeps
+  Devanagari digits (A1-05 `PluralDigitsTest`).
+- I1-05-01 screens: Upcoming and Converter each have light, dark, Nepali and `.accessibility2`
+  reference snapshots; tapping an Upcoming entry opens that day's detail (A1-05
+  `UpcomingScreenshotTest`, `ConverterScreenshotTest`, `UpcomingScreenTest.tappingAnEntryOpensItsDayDetail`).
+- I1-05-02 Settings: Language, Digits, Date follows and Show tithi write the `SettingsStore` and
+  survive a reload; Digits has Follow language, Nepali and English values; there is no theme switch
+  (A1-06 `choicesWriteTheSettings`, Store tests).
+- I1-05-02 Settings: the Language row opens the system per-app language setting through
+  `UIApplication.openSettingsURLString` (A1-06 `LanguageSection`, adapted for iOS).
+- I1-05-02 Settings: "Date follows" offers This device and Nepal time; the Nepal time suggestion is
+  shown once per the stored flag (MR-06 AC1; A1-06 `NepalTimeSuggestionTest`).
+- I1-05-03 About: app version, `NepDateLibraryVersion`, holiday coverage Baisakh 1 2077 to Mangsir
+  20 2084, data source, official sources and the five links are shown; `ci.sh` fails when
+  `NepDateLibraryVersion` differs from the nepdate-swift exact pin (A1-06
+  `aboutShowsVersionsCoverageAndLinks`, `BuildConfigTest`, new iOS gate).
+- I1-05-03 About: the link set is exactly the five Android `AboutLinks` URLs, each on
+  `sanamhub/nepdate-mobile` or its issue form; the known-data link is
+  `docs/product/known-data-questions.md`, not the unpublished hub (A1-06 `AboutLinksTest`).
+- I1-05-03 About: "Subscribe to Nepal holidays" is hidden while `HOLIDAYS_ICS_URL` is empty and
+  calls `openURL` with the `webcal://` URL when an injected constant is set (A1-06
+  `HolidayShareTest`, `SettingsScreenTest`).
+- I1-05-03 About: "Copy diagnostic info" copies exactly App, iOS, Date follows, Digits and Show
+  tithi, with no personal data, and shows a visible "Copied" confirmation (A1-06 `DiagnosticTest`,
+  `copyDiagnosticInfoUsesTheBuilder`).
+- I1-05-04 Localisation: `ci.sh` fails if any key in `Localizable.xcstrings` lacks a translated
+  `ne` value; a negative control empties one key (A1-06 MR-11 AC1, new iOS gate).
+- I1-05-05 Copy feedback: tapping Copy date on the day sheet shows a visible, non-blocking "Date
+  copied" line and posts one VoiceOver announcement; a snapshot and UI test cover it (carried from
+  the I1-04 review).
+- Accessibility: Upcoming, Converter, Settings and About each run the seven audit categories with
+  an exact table starting empty, and one pass at `.accessibility2`; any tolerance needs its reason
+  in the test and `ios/README.md` (MR-10 AC4).
+
+The language row opens the system per-app language setting; the other cases are the same as A1-05
+and A1-06, as Swift Testing on the view models plus the snapshots above.
 
 ### I1-06 Start-up and size
 - CI: an `XCTApplicationLaunchMetric` UI test on the simulator, logged per run as a regression signal.

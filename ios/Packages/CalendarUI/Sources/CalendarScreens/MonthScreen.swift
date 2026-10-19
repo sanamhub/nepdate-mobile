@@ -13,13 +13,17 @@ public struct MonthScreen: View {
   @State private var showsPicker = false
   @State private var detail: MonthDate?
   @State private var isRecentring = false
+  private let onSettings: (() -> Void)?
 
   /// Creates the screen.
-  /// - Parameter model: The month to open on and the settings to draw it with.
-  public init(model: MonthViewModel) {
+  /// - Parameters:
+  ///   - model: The month to open on and the settings to draw it with.
+  ///   - onSettings: Opens Settings.
+  public init(model: MonthViewModel, onSettings: (() -> Void)? = nil) {
     _model = State(initialValue: model)
     _scrolledMonth = State(initialValue: model.month)
     _window = State(initialValue: Self.window(around: model.month))
+    self.onSettings = onSettings
   }
 
   /// The screen's content.
@@ -30,7 +34,8 @@ public struct MonthScreen: View {
         onPrevious: { go(to: previousMonth) },
         onNext: { go(to: nextMonth) },
         onToday: { go(to: todayMonth) },
-        onChoose: { showsPicker = true }
+        onChoose: { showsPicker = true },
+        onSettings: onSettings
       )
       ScrollViewReader { proxy in
         ScrollView(.horizontal) {
@@ -183,7 +188,8 @@ public struct MonthScreenContent: View {
         onPrevious: {},
         onNext: {},
         onToday: {},
-        onChoose: {}
+        onChoose: {},
+        onSettings: nil
       )
       MonthPageView(
         key: model.month,
@@ -206,6 +212,7 @@ private struct MonthHeader: View {
   let onNext: () -> Void
   let onToday: () -> Void
   let onChoose: () -> Void
+  let onSettings: (() -> Void)?
 
   @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
@@ -282,6 +289,17 @@ private struct MonthHeader: View {
       }
       .disabled(!model.canGoNext)
       .accessibilityLabel(Text("Next month"))
+
+      if let onSettings {
+        Button(action: onSettings) {
+          Image(systemName: "gearshape")
+            .font(.body.weight(.semibold))
+            .frame(minWidth: 44, minHeight: 44)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(Text("Settings"))
+      }
     }
     .buttonStyle(.plain)
   }

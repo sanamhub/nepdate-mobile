@@ -37,6 +37,14 @@ struct DayDetailSnapshotTests {
       type: .accessibility2,
       locale: "en"
     )
+    snapshot(
+      try Self.model(),
+      named: "copied",
+      scheme: .light,
+      type: .large,
+      locale: "en",
+      showsCopied: true
+    )
   }
 
   private static func model(
@@ -53,12 +61,17 @@ struct DayDetailSnapshotTests {
     named name: String,
     scheme: ColorScheme,
     type: DynamicTypeSize,
-    locale: String
+    locale: String,
+    showsCopied: Bool = false
   ) {
-    let content = DayDetailContent(model: model, onClose: {})
-      .environment(\.colorScheme, scheme)
-      .environment(\.dynamicTypeSize, type)
-      .environment(\.locale, Locale(identifier: locale))
+    let content = DayDetailContent(
+      model: model,
+      onClose: {},
+      showsCopiedInitially: showsCopied
+    )
+    .environment(\.colorScheme, scheme)
+    .environment(\.dynamicTypeSize, type)
+    .environment(\.locale, Locale(identifier: locale))
     let controller = UIHostingController(rootView: content)
     controller.overrideUserInterfaceStyle = scheme == .dark ? .dark : .light
     let traits = UITraitCollection(traitsFrom: [

@@ -30,10 +30,18 @@ All notable changes to the iOS app. The format follows
   the day view model, the all-day EKEvent and the pasteboard.
 - A day sheet XCUITest that taps Asoj 25, checks the spoken fields, taps Copy date and audits the
   sheet with no tolerated findings.
+- Upcoming (MR-03), Converter (MR-04), Settings (MR-06, MR-07) and About (MR-12), with the
+  `DayDetail` day sheet, the system per-app language row, the Nepal time suggestion, the five
+  allow-listed links, the injected webcal row and Copy diagnostic info.
+- Sixteen I1-05 reference snapshots: Upcoming, Converter, Settings and About in light, dark, Nepali
+  and `.accessibility2`, plus `daydetail.copied.png` for the Copy date confirmation.
+- `ci.sh` checks `NepDateLibraryVersion` against the nepdate-swift pin and every catalog key for a
+  translated `ne` value.
 
 ### Changed
 
-- The month screen, its view model and its month keys are in the `CalendarScreens` product, so the
-  widget extension no longer carries them. The widget executable is 615,384 bytes in I1-04
-  (640,528 after the I1-03 split, run 39190060914).
+- The month screen, its view model, its month keys, Upcoming, Converter, Settings and About are in
+  the `CalendarScreens` product. The widget executable is 615,656 bytes in I1-05, 272 bytes above
+  I1-04 from linker layout; no widget source changed.
+- Copy date now shows "Date copied" and announces it once to VoiceOver.
 - Light secondary text is 0.33 white (7.55:1 on the background).

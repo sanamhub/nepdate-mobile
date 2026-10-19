@@ -11,7 +11,7 @@ SIMULATOR="platform=iOS Simulator,name=iPhone 17,OS=latest"
 DERIVED_DATA="build/DerivedData"
 PROJECT="NepDate.xcodeproj"
 SNAPSHOT_COUNT=6
-SNAPSHOT_REFERENCE_COUNT=10
+SNAPSHOT_REFERENCE_COUNT=27
 SNAPSHOT_RECORD="${SNAPSHOT_TESTING_RECORD:-never}"
 COVERAGE_MIN=80
 
@@ -47,15 +47,39 @@ gate_format() {
     Packages/CalendarKit/Sources \
     Packages/CalendarUI/Sources || return 1
 
-  local package_revision project_revision
+  local package_revision project_revision ui_revision library_version
   package_revision="$(sed -n 's/.*revision: "\([0-9a-f]*\)".*/\1/p' \
     Packages/CalendarKit/Package.swift)"
+  ui_revision="$(sed -n 's/.*revision: "\([0-9a-f]*\)".*/\1/p' \
+    Packages/CalendarUI/Package.swift)"
   project_revision="$(sed -n 's/.*revision: "\([0-9a-f]*\)".*/\1/p' project.yml)"
+  library_version="$(sed -n 's/.*NEPDATE_LIBRARY_VERSION: "\([^"]*\)".*/\1/p' project.yml)"
   if [ -z "$project_revision" ] || [ "$package_revision" != "$project_revision" ]; then
     echo "revision: project.yml (${project_revision}) and CalendarKit/Package.swift (${package_revision}) disagree"
     return 1
   fi
+  if [ -z "$ui_revision" ] || [ "$package_revision" != "$ui_revision" ]; then
+    echo "revision: CalendarUI/Package.swift (${ui_revision}) and CalendarKit/Package.swift (${package_revision}) disagree"
+    return 1
+  fi
+  if [ -z "$library_version" ] || [ "$library_version" != "$package_revision" ]; then
+    echo "library: NepDateLibraryVersion (${library_version}) and the pin (${package_revision}) disagree"
+    return 1
+  fi
   echo "revision: nepdate-swift ${project_revision}"
+  echo "library: NepDateLibraryVersion ${library_version}"
+
+  local missing
+  missing="$(jq -r '
+    .strings | to_entries[]
+    | select((.value.localizations.ne.stringUnit.value // "") == "")
+    | .key
+  ' Resources/Localizable.xcstrings)"
+  if [ -n "$missing" ]; then
+    echo "localisation: no translated ne value for: ${missing}"
+    return 1
+  fi
+  echo "localisation: every key has a translated ne value"
 }
 
 gate_build() {
