@@ -29,8 +29,7 @@ struct DayEventTests {
       DayEvent.event(
         for: model,
         publicHoliday: "Public holiday",
-        store: EKEventStore(),
-        timeZone: calendar.timeZone
+        store: EKEventStore()
       )
     )
 
@@ -46,38 +45,27 @@ struct DayEventTests {
     #expect(parts.day == 25)
     #expect(parts.hour == 0)
     #expect(parts.minute == 0)
-    #expect(event.endDate == start)
+    // EventKit ends a one-day all-day event at 23:59:59 of the same day.
+    let end = try #require(event.endDate)
+    #expect(calendar.isDate(end, inSameDayAs: start))
   }
 
-  @Test("MR-02 AC2: the event starts on the AD date in any time zone and user calendar")
+  @Test("MR-02 AC2: the start is Gregorian midnight in any time zone, whatever the user calendar")
   func gregorianInEveryZone() throws {
-    let model = try #require(
-      DayDetailViewModel(
-        date: MonthDate(year: 2083, month: 6, day: 9),
-        language: .english,
-        digits: .english
-      )
-    )
     for identifier in ["Asia/Kathmandu", "Pacific/Kiritimati", "America/Los_Angeles"] {
       let zone = try #require(TimeZone(identifier: identifier))
-      let event = try #require(
-        DayEvent.event(
-          for: model,
-          publicHoliday: "Public holiday",
-          store: EKEventStore(),
-          timeZone: zone
-        )
-      )
+      let start = try #require(DayEvent.startOfDay(year: 2026, month: 9, day: 25, timeZone: zone))
       var calendar = Calendar(identifier: .gregorian)
       calendar.timeZone = zone
-      let start = try #require(event.startDate)
-      let parts = calendar.dateComponents([.year, .month, .day, .hour], from: start)
+      let parts = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: start)
       #expect(parts.year == 2026, "\(identifier)")
       #expect(parts.month == 9, "\(identifier)")
       #expect(parts.day == 25, "\(identifier)")
       #expect(parts.hour == 0, "\(identifier)")
+      #expect(parts.minute == 0, "\(identifier)")
 
-      // A Buddhist-calendar user would get BE 2569 here; the event is still 25 September 2026.
+      // A Buddhist calendar reads the same instant as BE 2569; built with that calendar, 2026
+      // would have been BE 2026, five centuries early.
       var buddhist = Calendar(identifier: .buddhist)
       buddhist.timeZone = zone
       #expect(buddhist.component(.year, from: start) == 2569, "\(identifier)")
@@ -98,8 +86,7 @@ struct DayEventTests {
       DayEvent.event(
         for: model,
         publicHoliday: "Public holiday",
-        store: EKEventStore(),
-        timeZone: calendar.timeZone
+        store: EKEventStore()
       )
     )
 
