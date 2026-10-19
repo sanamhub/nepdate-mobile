@@ -126,7 +126,7 @@ private struct UpcomingRow: View {
         .foregroundStyle(BrandColor.secondaryText)
     }
     .frame(maxWidth: .infinity, alignment: .leading)
-    .padding(.vertical, 6)
+    .padding(.vertical, 5)
     .contentShape(Rectangle())
   }
 }
