@@ -23,7 +23,7 @@ public enum AboutLinks {
   /// The source repository.
   public static let sourceCode = "https://github.com/sanamhub/nepdate-mobile"
 
-  /// Empty until the hub publishes `holidays.ics` (hub task H4; ADR-0003).
+  /// Empty until the hub publishes `holidays.ics` (ADR-0003).
   public static let holidaysICSURL = ""
 
   /// The five links the requirement names, in display order.
