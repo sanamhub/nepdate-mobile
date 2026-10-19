@@ -116,6 +116,8 @@ public struct SettingsContent: View {
               .font(.caption.weight(.semibold))
               .foregroundStyle(BrandColor.secondaryText)
           }
+          .frame(minHeight: 44)
+          .contentShape(Rectangle())
         }
         .accessibilityLabel(Text("Language"))
         .accessibilityValue(Text(verbatim: languageName))
