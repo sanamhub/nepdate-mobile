@@ -8,6 +8,7 @@ runs one negative fixture per rule. It is not a regex over the text.
 
 from __future__ import annotations
 
+import copy
 import sys
 from pathlib import Path
 from typing import Any, Callable
@@ -136,6 +137,23 @@ def check_permissions(doc: dict[str, Any]) -> None:
                 raise WorkflowError("release job permissions must be exactly contents: write")
         elif "id-token" in permissions or "attestations" in permissions:
             raise WorkflowError(f"only the attest job may have id-token or attestations ({name})")
+        elif permissions.get("contents") == "write":
+            raise WorkflowError(f"only the release job may have contents: write ({name})")
+
+
+def check_needs(doc: dict[str, Any]) -> None:
+    expected = {
+        "ci": {"preflight"},
+        "sign": {"preflight", "ci"},
+        "publish": {"sign"},
+        "attest": {"sign"},
+        "release": {"preflight", "sign", "attest"},
+    }
+    for name, needs in expected.items():
+        raw = need_map(jobs(doc).get(name), f"jobs.{name}").get("needs")
+        actual = {raw} if isinstance(raw, str) else set(need_list(raw, f"jobs.{name}.needs"))
+        if actual != needs:
+            raise WorkflowError(f"{name} must need exactly {sorted(needs)}")
 
 
 def check_production_gates(doc: dict[str, Any]) -> None:
@@ -169,6 +187,55 @@ def check_preflight(doc: dict[str, Any]) -> None:
             raise WorkflowError(f"preflight does not use {expected}")
 
 
+def step_named(job: dict[str, Any], name: str, job_name: str) -> tuple[int, dict[str, Any]]:
+    for index, step in enumerate(steps(job, job_name)):
+        if step.get("name") == name:
+            return index, step
+    raise WorkflowError(f"{job_name} has no step named {name!r}")
+
+
+def check_version_source(doc: dict[str, Any]) -> None:
+    preflight = need_map(jobs(doc)["preflight"], "jobs.preflight")
+    resolve = next((step for step in steps(preflight) if step.get("id") == "version"), None)
+    if resolve is None:
+        raise WorkflowError("preflight has no step with id version")
+    run = str(resolve.get("run", ""))
+    # A version taken from the tag would make the tag check compare the tag with itself.
+    uses_tag = "REF_NAME" in run or "github.ref" in str(resolve.get("env", ""))
+    if "build.gradle.kts" not in run or "versionName" not in run or uses_tag:
+        raise WorkflowError("preflight must read the version from build.gradle.kts, not from the tag")
+    _, tag_step = step_named(preflight, "Tag matches versionName", "preflight")
+    tag_run = str(tag_step.get("run", ""))
+    if "REF_NAME" not in tag_run or "$VERSION" not in tag_run:
+        raise WorkflowError("preflight must compare the tag with versionName")
+
+
+def check_library_checkout(doc: dict[str, Any]) -> None:
+    for name, job_value in jobs(doc).items():
+        job = need_map(job_value, f"jobs.{name}")
+        if "./gradlew" not in run_text(job):
+            continue
+        repositories = [
+            need_map(step.get("with", {}), f"{name}.with").get("repository")
+            for step in steps(job, name)
+            if str(step.get("uses", "")).startswith("actions/checkout@")
+        ]
+        if "sanamhub/nepdate-kotlin" not in repositories:
+            raise WorkflowError(f"{name} runs Gradle without checking out nepdate-kotlin")
+
+
+def check_checksums_before_use(doc: dict[str, Any]) -> None:
+    users = (("publish", "Upload the AAB to the internal track"), ("release", "Create the draft release"))
+    for name, user in users:
+        job = need_map(jobs(doc)[name], f"jobs.{name}")
+        check_index, check_step = step_named(job, "Check the signed artifacts against SHA256SUMS", name)
+        if "sha256sum --check" not in str(check_step.get("run", "")):
+            raise WorkflowError(f"{name} does not check the artifacts against SHA256SUMS")
+        user_index, _ = step_named(job, user, name)
+        if check_index > user_index:
+            raise WorkflowError(f"{name} must check SHA256SUMS before {user!r}")
+
+
 def check_signing(doc: dict[str, Any]) -> None:
     sign = need_map(jobs(doc)["sign"], "jobs.sign")
     text = run_text(sign)
@@ -181,6 +248,9 @@ def check_signing(doc: dict[str, Any]) -> None:
         raise WorkflowError("sign job does not verify both signatures")
     if "sha256sum" not in text:
         raise WorkflowError("sign job does not write SHA256SUMS")
+    _, remove = step_named(sign, "Remove the signing key", "sign")
+    if remove.get("if") != "always()" or "release.keystore" not in str(remove.get("run", "")):
+        raise WorkflowError("sign job must always remove the signing key")
 
 
 def check_publish(doc: dict[str, Any]) -> None:
@@ -212,7 +282,7 @@ def check_release(doc: dict[str, Any]) -> None:
             if with_values.get("draft") is not True:
                 raise WorkflowError("release job must create a draft")
             files = str(with_values.get("files", ""))
-            for expected in (".apk", "SHA256SUMS", "attestation.json"):
+            for expected in (".apk", ".aab", "SHA256SUMS", "attestation.json"):
                 if expected not in files:
                     raise WorkflowError(f"draft release does not attach {expected}")
             found = True
@@ -232,8 +302,12 @@ def check(doc: dict[str, Any]) -> None:
     check_triggers(doc)
     check_action_pins(doc)
     check_permissions(doc)
+    check_needs(doc)
     check_production_gates(doc)
     check_preflight(doc)
+    check_version_source(doc)
+    check_library_checkout(doc)
+    check_checksums_before_use(doc)
     check_signing(doc)
     check_publish(doc)
     check_attestation(doc)
@@ -250,6 +324,53 @@ def expect_failure(path: Path, checker: Callable[[dict[str, Any]], None], needle
         print(f"negative control OK: {path.name}: {error}")
         return
     raise AssertionError(f"{path.name}: fixture passed but must fail")
+
+
+def find_step(doc: dict[str, Any], job: str, name: str) -> dict[str, Any]:
+    return step_named(need_map(jobs(doc)[job], f"jobs.{job}"), name, job)[1]
+
+
+def mutate_tag_version(doc: dict[str, Any]) -> None:
+    step = next(step for step in jobs(doc)["preflight"]["steps"] if step.get("id") == "version")
+    step["env"] = {"REF_NAME": "${{ github.ref_name }}"}
+    step["run"] = 'version="${REF_NAME#android-v}"\necho "version=$version" >> "$GITHUB_OUTPUT"'
+
+
+def mutate_publish_without_library(doc: dict[str, Any]) -> None:
+    publish = jobs(doc)["publish"]
+    publish["steps"] = [step for step in publish["steps"] if step.get("name") != "Check out nepdate-kotlin"]
+
+
+def mutate_checksum_after_upload(doc: dict[str, Any]) -> None:
+    publish = jobs(doc)["publish"]
+    check_step = find_step(doc, "publish", "Check the signed artifacts against SHA256SUMS")
+    publish["steps"].remove(check_step)
+    publish["steps"].append(check_step)
+
+
+def mutate_keep_keystore(doc: dict[str, Any]) -> None:
+    del find_step(doc, "sign", "Remove the signing key")["if"]
+
+
+def mutate_contents_write(doc: dict[str, Any]) -> None:
+    jobs(doc)["publish"]["permissions"] = {"contents": "write"}
+
+
+def mutate_release_before_attest(doc: dict[str, Any]) -> None:
+    jobs(doc)["release"]["needs"] = ["preflight", "sign"]
+
+
+def expect_mutation_failure(workflow: dict[str, Any], mutate: Callable[[dict[str, Any]], None], needle: str) -> None:
+    doc = copy.deepcopy(workflow)
+    mutate(doc)
+    try:
+        check(doc)
+    except WorkflowError as error:
+        if needle not in str(error):
+            raise AssertionError(f"{mutate.__name__}: unexpected error: {error}") from error
+        print(f"negative control OK: {mutate.__name__}: {error}")
+        return
+    raise AssertionError(f"{mutate.__name__}: mutated workflow passed but must fail")
 
 
 def main() -> int:
@@ -282,6 +403,13 @@ def main() -> int:
         check_triggers,
         "default to true",
     )
+    # These controls edit the real workflow in memory, so each rule is shown to read the live file.
+    expect_mutation_failure(workflow, mutate_tag_version, "not from the tag")
+    expect_mutation_failure(workflow, mutate_publish_without_library, "without checking out nepdate-kotlin")
+    expect_mutation_failure(workflow, mutate_checksum_after_upload, "must check SHA256SUMS before")
+    expect_mutation_failure(workflow, mutate_keep_keystore, "always remove the signing key")
+    expect_mutation_failure(workflow, mutate_contents_write, "only the release job may have contents: write")
+    expect_mutation_failure(workflow, mutate_release_before_attest, "release must need exactly")
     print("all static workflow checks passed")
     return 0
 

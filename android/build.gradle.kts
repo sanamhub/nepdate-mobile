@@ -26,7 +26,6 @@ tasks.register("ci") {
         ":app:checkPermissions",
         ":app:checkWidgetBitmaps",
         ":app:checkNoWorkManagerUse",
-        ":app:checkBaselineProfile",
         ":baselineprofile:ktlintCheck",
         ":baselineprofile:detekt",
         ":baselineprofile:assemble",

@@ -146,20 +146,6 @@ tasks.register("checkNoWorkManagerUse") {
     }
 }
 
-// A3-01: the Baseline Profile is checked in and merged into every variant.
-tasks.register("checkBaselineProfile") {
-    group = "verification"
-    description = "Fails when app/src/main/baseline-prof.txt is missing or empty."
-    val profile = layout.projectDirectory.file("src/main/baseline-prof.txt")
-    inputs.file(profile)
-    doLast {
-        val file = profile.asFile
-        if (!file.isFile || file.length() < 1024 || !file.readText().contains("HSPL")) {
-            throw GradleException("checkBaselineProfile: ${file.path} is missing or empty.")
-        }
-    }
-}
-
 // ADR-0007: the merged release manifest must not request network access, and no permission may
 // appear beyond the allow-list. Registered for the release variant because that is what ships.
 androidComponents {

@@ -54,16 +54,10 @@ jobs:
 
       - name: Resolve the version and the UTC release date
         id: version
-        env:
-          REF_TYPE: ${{ github.ref_type }}
-          REF_NAME: ${{ github.ref_name }}
         run: |
           set -euo pipefail
-          if [[ "$REF_TYPE" == "tag" ]]; then
-            version="${REF_NAME#android-v}"
-          else
-            version="$(sed -n 's/^[[:space:]]*versionName = "\(.*\)"/\1/p' android/app/build.gradle.kts | head -n1)"
-          fi
+          # Always read the build file, so the tag check below compares two independent sources.
+          version="$(sed -n 's/^[[:space:]]*versionName = "\(.*\)"/\1/p' android/app/build.gradle.kts | head -n1)"
           if [[ -z "$version" ]]; then
             echo "::error::versionName is missing from android/app/build.gradle.kts"
             exit 1
@@ -230,6 +224,10 @@ jobs:
           sha256sum "NepDate-$VERSION.apk" "NepDate-$VERSION.aab" > SHA256SUMS
           cat SHA256SUMS
 
+      - name: Remove the signing key
+        if: always()
+        run: rm -f "$RUNNER_TEMP/release.keystore"
+
       - name: Upload the signed artifacts
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
@@ -252,6 +250,15 @@ jobs:
         with:
           persist-credentials: false
 
+      # settings.gradle.kts includes nepdate-kotlin, so Gradle cannot configure the app without it.
+      - name: Check out nepdate-kotlin
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: sanamhub/nepdate-kotlin
+          ref: 4994a336ac31db6767430c451da61554ee933d1a
+          path: nepdate-kotlin
+          persist-credentials: false
+
       - name: Set up JDK 17
         uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
         with:
@@ -272,6 +279,10 @@ jobs:
         with:
           name: signed
           path: artifacts
+
+      - name: Check the signed artifacts against SHA256SUMS
+        working-directory: artifacts
+        run: sha256sum --check --strict SHA256SUMS
 
       - name: Upload the AAB to the internal track
         env:
@@ -348,6 +359,10 @@ jobs:
           name: attestation
           path: artifacts
 
+      - name: Check the signed artifacts against SHA256SUMS
+        working-directory: artifacts
+        run: sha256sum --check --strict SHA256SUMS
+
       - name: Build the release notes
         env:
           VERSION: ${{ needs.preflight.outputs.version }}
@@ -367,5 +382,6 @@ jobs:
           prerelease: false
           files: |
             artifacts/*.apk
+            artifacts/*.aab
             artifacts/SHA256SUMS
             artifacts/attestation.json

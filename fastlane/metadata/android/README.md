@@ -30,6 +30,12 @@ The checked-in URL is the live GitHub blob. GitHub Pages is not enabled for this
 release-readiness phase, and enabling it is a repository setting change. When Pages is enabled,
 replace `privacy_policy_url.txt` with the Pages URL and keep the same text.
 
+## Not in this directory yet
+
+Play also needs a 512x512 app icon and a 1024x500 feature graphic for the listing. They are not
+generated here and are part of the A3-04 human gate. Gradle Play Publisher in `android-release.yml`
+uploads only the AAB; the listing text and images are entered in Play Console by hand.
+
 ## Data safety and content rating
 
 The answers are drafts in `docs/legal/play-data-safety.md` and
@@ -37,6 +43,7 @@ The answers are drafts in `docs/legal/play-data-safety.md` and
 
 ## Non-Play stores
 
-F-Droid and IzzyOnDroid read the same descriptions and screenshots from this directory. They use the
-APK from the GitHub release. The Play listing is not the source of truth for the app text; the product
+F-Droid and IzzyOnDroid read the same descriptions and screenshots from this directory. IzzyOnDroid
+uses the APK from the GitHub release. F-Droid builds from source and can ship the developer-signed APK
+only when its build matches it, which is what the reproducible build is for. The Play listing is not the source of truth for the app text; the product
 docs are.

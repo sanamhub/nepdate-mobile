@@ -1,4 +1,8 @@
-# A3 progress
+# Progress
+
+Current phase: A3, Android release readiness. Reviews of merged phases follow it.
+
+## A3 Android release readiness
 
 Branch `feat/A3-android-release-ready`, from `main` at `c9935fd`. Acceptance criteria copied from
 `docs/plan/A3-android-release.md` before implementation. A3-04 and A3-05 are human-gated and are not
@@ -19,9 +23,9 @@ started.
 - [x] CI uses a fixed JDK 17.
 - [x] Release `vcsInfo { include = false }` and no build timestamps.
 - [x] PNG crunching is off in the release build type.
-- [x] A Baseline Profile is checked in at `android/app/src/main/baseline-prof.txt`. It contains the
-      merged AndroidX rules. App-specific rules from `:baselineprofile` still need a device and are
-      blocked by issue #11.
+- [ ] A Baseline Profile is checked in. Blocked by issue #11: `:baselineprofile` needs a device to
+      generate the app's rules. AGP already merges the AndroidX and kotlinx library profiles from
+      their AARs, so a checked-in copy of those rules adds nothing and is not used as a stand-in.
 - [x] A CI job builds the unsigned release APK twice on clean runners and compares SHA-256; the job
       fails on a difference.
 - [x] Negative control: a throwaway draft PR with a non-deterministic build change makes the check
@@ -40,7 +44,7 @@ started.
 
 - [x] The workflow triggers on `android-v*` tags and `workflow_dispatch`; `dry_run` is a boolean
       defaulting to `true`. It does not run in this phase.
-- [x] Preflight checks that the tag equals `versionName`, that `android/CHANGELOG.md` has the
+- [x] Preflight checks that the tag equals the `versionName` read from `build.gradle.kts`, that `android/CHANGELOG.md` has the
       version's section, and that the bundled public holidays reach 183 days after the UTC release
       date. Tithi and events below the threshold warn and do not fail.
 - [x] A fixed-date JVM test fails at AD 2027-06-04 and passes at AD 2027-06-03, matching the Go,
@@ -53,7 +57,7 @@ started.
       only the attest job gets `id-token` and `attestations`, and only the release job gets
       `contents: write`.
 - [x] A static workflow test parses the YAML (no regex) and checks triggers, pins, permissions,
-      environment, `dry_run` default and the production gates, with one negative fixture per rule.
+      environment, `dry_run` default and the production gates, with one negative fixture per rule and six controls that edit the real workflow in memory.
 - [x] `actionlint` 1.7.12 passes on both workflows.
 
 ## A3-03 Store listings
@@ -76,7 +80,8 @@ started.
 - GitHub Android CI: run
   [39150421202](https://github.com/sanamhub/nepdate-mobile/actions/runs/39150421202) green. `Gradle
   ci` took 3m 48s, the two APK jobs took 3m 16s and 2m 32s, and the checksum compare took 6s.
-- `python tools/check_android_release_workflow.py`: positive check and five negative fixtures pass.
+- `python tools/check_android_release_workflow.py`: positive check, five negative fixtures and six
+  in-memory controls pass.
 - `actionlint 1.7.12`: clean on `android.yml` and `android-release.yml`.
 - Store screenshots generated twice with identical SHA-256 values.
 
@@ -85,6 +90,33 @@ started.
 - A3-04 (closed test, production rollout, IzzyOnDroid, F-Droid) is human-gated and not started.
 - A3-05 (Play account, signing key, service account, environment secrets) is human-gated and not
   started. No tag, release, signing key, secret or repository setting is created in this phase.
+
+## A3 review (part 1, PR #18)
+
+Reviewed at `ded63ff`; fixes on the branch.
+
+- The tag check compared the tag with itself: preflight took the version from the tag, then checked
+  the tag against it. A tag `android-v0.1.0` with a `[0.1.0]` changelog section would have passed
+  while `versionName` stayed `0.0.1`. The version now always comes from `build.gradle.kts`.
+- The Play upload job ran Gradle without checking out `nepdate-kotlin`, which `settings.gradle.kts`
+  includes, so it would have failed to configure on the first real release.
+- The Play upload and the draft release used the downloaded artifacts without checking them. Both
+  now run `sha256sum --check --strict SHA256SUMS` first, and the release attaches the AAB so every
+  line of `SHA256SUMS` can be checked.
+- The signing job now removes the decoded keystore in an `always()` step.
+- The reproducible-build jobs restored the shared Gradle cache with `org.gradle.caching=true`, so
+  both APKs could reuse the same cached task outputs and match without being built. Both jobs now
+  run with `cache-disabled: true` and `--no-build-cache`.
+- `android/app/src/main/baseline-prof.txt` was a copy of the library profiles AGP merges anyway; it
+  and `checkBaselineProfile` are removed and the AC stays open on issue #11.
+- The static check also requires: only the release job has `contents: write`, the exact `needs` of
+  each job, `nepdate-kotlin` in every job that runs Gradle, and the checksum and keystore steps,
+  each with an in-memory negative control.
+
+Checked and kept: the known-data copy matches the hub section at `6965896` apart from line wrapping;
+the About test reads every static string in `AboutLinks.kt`; the freshness gate uses the UTC date,
+fails holidays below 183 days and only warns for tithi and events; listing lengths are within Play
+limits.
 
 ## A2 review (merged in #15)
 
@@ -100,6 +132,7 @@ The A2 review is kept here for the release work:
 - Checked and kept: one fixed inexact `setWindow` alarm, the system-change receiver, all widget
   numbers through the resolved Digits, and no widget bitmaps.
 - Device-only checks remain blocked by issue #11.
+
 Left for later: generated previews are republished on every app open and the system rate-limits
 them, so a language change shows in the picker preview only after a later open.
 
