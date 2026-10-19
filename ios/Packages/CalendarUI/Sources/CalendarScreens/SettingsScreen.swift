@@ -10,6 +10,7 @@ public struct SettingsScreen: View {
   private let links: AboutLinksState
   private let onChanged: (Settings) -> Void
   @Environment(\.dismiss) private var dismiss
+  @Environment(\.colorScheme) private var colorScheme
 
   /// Creates the screen.
   /// - Parameters:
@@ -51,6 +52,9 @@ public struct SettingsScreen: View {
         }
       }
       .tint(BrandColor.today)
+      .toolbarBackground(Color(uiColor: .systemBackground), for: .navigationBar)
+      .toolbarBackground(.visible, for: .navigationBar)
+      .toolbarColorScheme(colorScheme == .dark ? .dark : .light, for: .navigationBar)
     }
   }
 }
@@ -217,6 +221,7 @@ public struct SettingsContent: View {
 /// The About screen with its navigation title.
 public struct AboutScreen: View {
   private let content: AboutContent
+  @Environment(\.colorScheme) private var colorScheme
 
   /// Creates the screen.
   /// - Parameter content: The About values and links.
@@ -229,6 +234,9 @@ public struct AboutScreen: View {
     content
       .navigationTitle("About")
       .navigationBarTitleDisplayMode(.inline)
+      .toolbarBackground(Color(uiColor: .systemBackground), for: .navigationBar)
+      .toolbarBackground(.visible, for: .navigationBar)
+      .toolbarColorScheme(colorScheme == .dark ? .dark : .light, for: .navigationBar)
   }
 }
 
