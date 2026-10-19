@@ -109,6 +109,8 @@ targets:
     dependencies:
       - target: NepDateApp
       - package: CalendarKit
+      - package: CalendarUI
+        product: CalendarScreens
 
 schemes:
   NepDate:
