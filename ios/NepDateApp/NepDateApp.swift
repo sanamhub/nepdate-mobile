@@ -1,6 +1,7 @@
 import CalendarKit
 import CalendarScreens
 import SwiftUI
+import UIKit
 
 @main
 struct NepDateApp: App {
@@ -12,25 +13,69 @@ struct NepDateApp: App {
 }
 
 private struct RootView: View {
+  @State private var settings: Settings
+  @State private var showsSettings = false
+
+  init() {
+    _settings = State(initialValue: SettingsStore().load())
+  }
+
   var body: some View {
-    let settings = SettingsStore().load()
+    let store = SettingsStore()
     let today = Self.testToday ?? TodayProvider().today(dateFollows: settings.dateFollows)
     let language = settings.language.resolved
     let digits = settings.digits.resolved(for: language)
-    if let model = MonthViewModel(
-      today: today,
-      language: language,
-      digits: digits,
-      showTithi: settings.showTithi
-    ) {
-      RootTabView(model: model)
-    } else {
-      Text("No date")
+    let suggestion = SettingsViewModel(settings: settings, store: store)
+    let info = AboutInfo(
+      appVersion: Self.appVersion,
+      libraryVersion: Self.libraryVersion,
+      osVersion: UIDevice.current.systemVersion
+    )
+
+    VStack(spacing: 0) {
+      if Self.testToday == nil && suggestion.shouldSuggestNepalTime() {
+        NepalTimeSuggestionView(
+          onAccept: {
+            var model = SettingsViewModel(settings: settings, store: store)
+            model.acceptNepalTime()
+            settings = model.settings
+          },
+          onDismiss: {
+            var model = SettingsViewModel(settings: settings, store: store)
+            model.dismissNepalTime()
+            settings = model.settings
+          }
+        )
+      }
+
+      RootTabView(
+        settings: settings,
+        today: today,
+        onSettings: { showsSettings = true }
+      )
+    }
+    .background(Color(uiColor: .systemBackground))
+    .sheet(isPresented: $showsSettings) {
+      SettingsScreen(
+        model: SettingsViewModel(settings: settings, store: store),
+        info: info,
+        onChanged: { settings = $0 }
+      )
     }
   }
 
-  /// The UI tests pin today with `NEPDATE_UI_TEST_TODAY=2083-06-20`, so the audit sees the same
-  /// month on every run. Debug builds only; a release build always uses the clock.
+  private static var appVersion: String {
+    let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String
+    let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String
+    return "\(version ?? "?") (\(build ?? "?"))"
+  }
+
+  private static var libraryVersion: String {
+    Bundle.main.object(forInfoDictionaryKey: "NepDateLibraryVersion") as? String ?? "unknown"
+  }
+
+  /// The UI tests pin today with `NEPDATE_UI_TEST_TODAY=2083-06-20`, so every UI test sees the same
+  /// month. Debug builds only; a release build always uses the clock.
   private static var testToday: MonthDate? {
     #if DEBUG
       guard let value = ProcessInfo.processInfo.environment["NEPDATE_UI_TEST_TODAY"] else {
@@ -46,44 +91,53 @@ private struct RootView: View {
 }
 
 private struct RootTabView: View {
-  let model: MonthViewModel
+  let settings: Settings
+  let today: MonthDate
+  let onSettings: () -> Void
 
   var body: some View {
-    TabView {
-      MonthScreen(model: model)
-        .tabItem {
-          Label("Month", systemImage: "calendar")
-        }
+    let language = settings.language.resolved
+    let digits = settings.digits.resolved(for: language)
 
-      PlaceholderScreen(title: "Upcoming", systemImage: "bell")
+    TabView {
+      if let model = MonthViewModel(
+        today: today,
+        language: language,
+        digits: digits,
+        showTithi: settings.showTithi
+      ) {
+        MonthScreen(model: model, onSettings: onSettings)
+          .id(settings)
+          .tabItem {
+            Label("Month", systemImage: "calendar")
+          }
+      }
+
+      if let upcoming = UpcomingViewModel(
+        today: today,
+        language: language,
+        digits: digits
+      ) {
+        UpcomingScreen(
+          model: upcoming,
+          language: language,
+          digits: digits,
+          onSettings: onSettings
+        )
+        .id(settings)
         .tabItem {
           Label("Upcoming", systemImage: "bell")
         }
-
-      PlaceholderScreen(title: "Converter", systemImage: "arrow.left.arrow.right")
-        .tabItem {
-          Label("Converter", systemImage: "arrow.left.arrow.right")
-        }
-    }
-  }
-}
-
-private struct PlaceholderScreen: View {
-  let title: String
-  let systemImage: String
-
-  var body: some View {
-    NavigationStack {
-      ContentUnavailableView {
-        Label {
-          Text(verbatim: title)
-        } icon: {
-          Image(systemName: systemImage)
-        }
-      } description: {
-        Text("Coming soon")
       }
-      .navigationTitle(Text(title))
+
+      ConverterScreen(
+        model: ConverterViewModel(today: today, language: language, digits: digits),
+        onSettings: onSettings
+      )
+      .id(settings)
+      .tabItem {
+        Label("Converter", systemImage: "arrow.left.arrow.right")
+      }
     }
   }
 }

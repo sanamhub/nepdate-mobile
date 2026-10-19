@@ -39,6 +39,10 @@ final class DayDetailUITests: XCTestCase {
       app.swipeUp()
     }
     copy.tap()
+    XCTAssertTrue(
+      app.staticTexts["Date copied"].waitForExistence(timeout: 2),
+      "the copy confirmation did not show"
+    )
 
     // The app writes the pasteboard and repeats the copied date as the button's accessibility
     // value. The XCUITest runner's own pasteboard read waits on the system paste prompt (runs

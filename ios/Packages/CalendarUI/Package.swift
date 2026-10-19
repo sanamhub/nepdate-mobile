@@ -17,6 +17,10 @@ let package = Package(
   ],
   dependencies: [
     .package(path: "../CalendarKit"),
+    .package(
+      url: "https://github.com/sanamhub/nepdate-swift.git",
+      revision: "708cd3626ecb22abbb90a3f1d1adc05e778db6d5"
+    ),
   ],
   targets: [
     .target(
@@ -30,6 +34,8 @@ let package = Package(
       dependencies: [
         "CalendarUI",
         .product(name: "CalendarKit", package: "CalendarKit"),
+        .product(name: "NepDate", package: "nepdate-swift"),
+        .product(name: "NepDatePatro", package: "nepdate-swift"),
       ]
     ),
   ],
