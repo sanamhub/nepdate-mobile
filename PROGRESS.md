@@ -142,11 +142,13 @@ Reviewed at `a97288d`, with `main` (`1226b35`) merged into the branch.
 
 - Add to calendar used `Calendar.current` to turn the AD year, month and day into a date. With the
   device calendar set to Buddhist or Japanese, 2026 is read as a year of that era, so the event
-  landed centuries away. `DayEvent` now builds the date with a Gregorian calendar in the given time
-  zone; a test checks 25 September 2026 at midnight in Kathmandu, Kiritimati and Los Angeles and
-  that a Buddhist calendar reads the same start as BE 2569.
+  landed centuries away. `DayEvent.startOfDay` now always uses a Gregorian calendar; a test checks
+  25 September 2026 at midnight in Kathmandu, Kiritimati and Los Angeles and that a Buddhist
+  calendar reads the same instant as BE 2569. The event itself uses the current time zone, since
+  EventKit keeps an all-day event's dates there (run 39196207345 showed other zones are rewritten).
 - The all-day event ended at the next midnight, which the system calendar can show as a two-day
-  event. It now ends on the day it starts. The manual checklist row (MR-02 AC2) asks for a
+  event. It now ends on the day it starts, and EventKit stores 23:59:59 of that day (seen in run
+  39196207345); the test checks the end is on the start day. The manual checklist row (MR-02 AC2) asks for a
   single-day event and one run with a Buddhist or Japanese device calendar, since CI has no device.
 - The holiday-only title branch was untested: the test named for it used Asoj 9, which has events.
   The rule is now `DayDetailViewModel.calendarTitle(events:isPublicHoliday:bsDate:publicHoliday:)`,

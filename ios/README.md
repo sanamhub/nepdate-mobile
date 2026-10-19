@@ -124,10 +124,10 @@ long date, the Devanagari line in English, the weekday and AD date, the tithi, P
 every event in file order. `DayDetailViewModel` in `CalendarKit` holds those strings;
 `DayDetailContent` in `CalendarScreens` draws them. "Copy date" calls `DayClipboard`. "Add to
 calendar" builds an all-day `EKEvent` in `DayEvent` and presents `EKEventEditViewController`; the
-app never reads a calendar or requests access. The event uses the Gregorian calendar in the
-current time zone, whatever calendar the user has set, and ends on the day it starts. The EKEvent
-unit test checks all-day, title, local midnight in three zones, the Buddhist-calendar case, the end
-date and no alarm, without a permission request. VoiceOver, Switch Control and the absence of a
+app never reads a calendar or requests access. The event date uses the Gregorian calendar in the
+current time zone, whatever calendar the user has set, and ends on the day it starts. The unit
+tests check all-day, title, local midnight, an end on the same day and no alarm without a
+permission request, and Gregorian midnight in three zones with the Buddhist-calendar case. VoiceOver, Switch Control and the absence of a
 permission prompt are still manual checklist items, because CI has no device.
 
 Digits have their own setting, as on Android (MR-07 AC1): Follow language (the fresh-install
