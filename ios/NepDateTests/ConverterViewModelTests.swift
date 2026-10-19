@@ -63,6 +63,27 @@ struct ConverterViewModelTests {
     #expect(model.errorText == "Asoj has 31 days in 2083")
   }
 
+  @Test("MR-04 AC4: an invalid day after a month name reports the month length")
+  func invalidDayWithMonthName() {
+    var english = Self.model()
+    english.fromBs("2083 Asoj 32")
+
+    #expect(english.error == .invalidDay(year: 2083, month: 6, monthLength: 31))
+    #expect(english.errorText == "Asoj has 31 days in 2083")
+
+    var nepaliName = Self.model()
+    nepaliName.fromBs("२०८३ असोज ३२")
+
+    #expect(nepaliName.error == .invalidDay(year: 2083, month: 6, monthLength: 31))
+    #expect(nepaliName.errorText == "Asoj has 31 days in 2083")
+
+    var nepali = Self.model(language: .nepali, digits: .nepali)
+    nepali.fromBs("२०८३ असोज ३२")
+
+    #expect(nepali.error == .invalidDay(year: 2083, month: 6, monthLength: 31))
+    #expect(nepali.errorText == "असोज २०८३ मा ३१ दिन छ")
+  }
+
   @Test("MR-04 AC4: an invalid month is reported")
   func invalidMonth() {
     var model = Self.model()
@@ -124,6 +145,7 @@ struct ConverterViewModelTests {
     var compared = Self.model(language: .nepali, digits: .nepali)
     compared.fromBs("२०८१-०१-०१")
     compared.compareWithBs("२०८२-०१-०१")
+    #expect(compared.comparisonRange == "बैशाख १, २०८१ देखि बैशाख १, २०८२ सम्म")
     #expect(compared.differenceText == "१ वर्ष, ० महिना, ० दिन")
   }
 
