@@ -51,7 +51,7 @@ public struct DayDetailContent: View {
   /// The sheet's content.
   public var body: some View {
     ScrollView {
-      VStack(alignment: .leading, spacing: 16) {
+      VStack(alignment: .leading, spacing: 14) {
         header
         Text(verbatim: model.weekdayAndDate)
           .font(.subheadline)
