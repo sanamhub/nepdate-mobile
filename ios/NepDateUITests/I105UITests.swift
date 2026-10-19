@@ -21,14 +21,11 @@ final class I105UITests: XCTestCase {
   func testUpcomingShowsTodayAndOpensTheDay() throws {
     let app = Self.launch(screen: "upcoming")
 
-    XCTAssertTrue(Self.entry("Indira Ekadashi Brata", in: app).waitForExistence(timeout: 10))
-    XCTAssertTrue(Self.entry("Ekadashi Shraddha", in: app).exists)
-    XCTAssertTrue(Self.entry("Ghatasthapana Brata", in: app).exists)
-    XCTAssertTrue(
-      app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "in 5 days")).firstMatch.exists
-    )
-
-    Self.entry("Ghatasthapana Brata", in: app).tap()
+    XCTAssertTrue(app.staticTexts["Asoj 2083"].waitForExistence(timeout: 10))
+    XCTAssertTrue(app.staticTexts["Indira Ekadashi Brata"].exists)
+    XCTAssertTrue(app.staticTexts["Ekadashi Shraddha"].exists)
+    XCTAssertTrue(app.staticTexts["in 5 days"].exists)
+    app.staticTexts["Ghatasthapana Brata"].tap()
     XCTAssertTrue(app.staticTexts["Asoj 25, 2083"].waitForExistence(timeout: 10))
   }
 
@@ -41,7 +38,7 @@ final class I105UITests: XCTestCase {
     XCTAssertTrue(app.staticTexts["Date follows"].exists)
     XCTAssertTrue(app.staticTexts["Show tithi in the month grid"].exists)
 
-    app.buttons["about_link"].tap()
+    app.staticTexts["About"].tap()
     XCTAssertTrue(app.staticTexts["App version"].waitForExistence(timeout: 10))
     XCTAssertTrue(app.staticTexts["Library version"].exists)
     XCTAssertTrue(app.staticTexts["0.1.0 (1)"].exists)
@@ -126,13 +123,6 @@ final class I105UITests: XCTestCase {
     }
     print("AUDIT tolerated \(counts.sorted { $0.key < $1.key })")
     return counts
-  }
-
-  @MainActor
-  private static func entry(_ name: String, in app: XCUIApplication) -> XCUIElement {
-    app.buttons
-      .matching(NSPredicate(format: "label BEGINSWITH %@", name))
-      .firstMatch
   }
 
   @MainActor

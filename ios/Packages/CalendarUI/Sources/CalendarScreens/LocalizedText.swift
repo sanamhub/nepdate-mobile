@@ -22,6 +22,12 @@ enum AppText {
   ///   - language: The app language.
   /// - Returns: The localised string.
   static func string(_ value: String.LocalizationValue, _ language: AppLanguage) -> String {
-    String(localized: value, locale: language.locale)
+    guard
+      let path = Bundle.main.path(forResource: language.locale.identifier, ofType: "lproj"),
+      let bundle = Bundle(path: path)
+    else {
+      return String(localized: value, locale: language.locale)
+    }
+    return String(localized: value, bundle: bundle, locale: language.locale)
   }
 }
