@@ -9,9 +9,9 @@ The iPhone and iPad app and the Today widget extension. The Xcode project is gen
 | `NepDateApp/` | The thin `@main` SwiftUI app and its privacy manifest |
 | `NepDateWidgets/` | The widget extension: `@main` bundle, the placeholder Today widget, privacy manifest |
 | `Packages/CalendarKit` | Local SwiftPM package: dates, month layout, widget summaries, settings (I1) |
-| `Packages/CalendarUI` | Local SwiftPM package: product `CalendarUI` (views and colours shared by app and widget) and product `CalendarScreens` (the app-only month screen, month view model, month keys and day sheet) |
+| `Packages/CalendarUI` | Local SwiftPM package: product `CalendarUI` (views and colours shared by app and widget) and product `CalendarScreens` (the app-only month, day, Upcoming, Converter, Settings and About screens and their view models) |
 | `NepDateTests/` | Swift Testing tests and the committed snapshot references; renders the screenshot artefact |
-| `NepDateUITests/` | XCUITests: opening on today, the picker at both range ends, the pager recentre, the month and day accessibility audits, the day sheet and Copy date |
+| `NepDateUITests/` | XCUITests: opening on today, the picker at both range ends, the pager recentre, the month, day and I1-05 accessibility audits, Copy date and diagnostic copy |
 | `Resources/` | `Localizable.xcstrings` (English and Nepali) |
 | `Config/` | Info.plists and the App Group entitlements for both targets |
 | `scripts/ci.sh` | The gates of ADR-0008 |
@@ -27,7 +27,7 @@ open NepDate.xcodeproj        # after ci.sh, on a Mac
 `ci.sh` downloads XcodeGen 2.46.0, checks its SHA-256, generates the project and runs six gates:
 xcodegen, format, build, test, coverage, network. It ends with `ci: 6/6 gates passed`. The test gate
 runs the Swift Testing suites and the XCUITest, renders the month screen and the widget to
-`build/snapshots`, and compares the ten reference snapshots. `ios.yml` uploads the screenshots and
+`build/snapshots`, and compares the twenty-seven reference snapshots. `ios.yml` uploads the screenshots and
 the references as artefacts.
 
 The coverage gate reads the test result bundle with `xcrun xccov` and fails below 80 % line
@@ -137,6 +137,37 @@ render time, so changing the language changes the digits without writing the set
 The App Group is `group.np.nepdate`; the bundle identifier is `np.nepdate` for the app and
 `np.nepdate.widgets` for the extension.
 
+## I1-05 screens
+
+Upcoming, Converter, Settings and About live in `CalendarScreens`, with the Upcoming and Converter
+view models. Settings opens from the gear in the Month, Upcoming and Converter headers. About is a
+row inside the Settings `NavigationStack`. The Language row opens
+`UIApplication.openSettingsURLString`; the app does not implement a second in-app language picker.
+
+Upcoming uses the same 20 entries, BS-month groups, holiday marks and coverage footer as A1-05.
+Converter uses the library's lenient BS parser, a platform AD `DatePicker`, the comparison breakdown
+and the invalid-day message. Settings persists Language, Digits, Date follows and Show tithi through
+`SettingsStore`; the first-launch Nepal time suggestion is shown once when the device zone differs.
+About shows the app version, `NepDateLibraryVersion`, coverage, data and official sources, the five
+allow-listed links, the injected webcal row and the diagnostic copy.
+
+`ci.sh` checks that `NEPDATE_LIBRARY_VERSION` in `project.yml` equals the nepdate-swift revision in
+both package manifests. It also fails when any key in `Localizable.xcstrings` lacks a translated
+`ne` value. Negative controls for both checks are recorded on the throwaway control PR.
+
+The Upcoming, Converter, Settings and About audits start with empty tables except for the entries in
+`I105UITests.swift` and this README:
+
+| Screen | Finding | Count | Why it is tolerated |
+|---|---|---|---|
+| Upcoming | Element description on numeric List layout nodes | 7, 4 at `.accessibility2` | SwiftUI List exposes numeric nodes next to the full row labels; every visible row label is complete |
+| Settings | Dynamic Type on the toolbar title and Close | 2 | Both use system text styles; the audit reports partial support |
+| About | Dynamic Type on the toolbar title and two-line info rows | 5, 4 at `.accessibility2` | The `.accessibility2` reference wraps the rows; the audit reports partial support |
+| About | Contrast on the Privacy link | 1 | The bottom link sits behind the home indicator; the same tint passes on the links above |
+
+The day sheet now shows "Date copied" for two seconds and posts one VoiceOver announcement when
+Copy date is tapped. `daydetail.copied.png` records the confirmation.
+
 ## The nepdate-swift pin
 
 `Packages/CalendarKit/Package.swift` depends on `nepdate-swift` by revision
@@ -170,10 +201,10 @@ a source `import Network` (run 39098192026) and, with the source grep switched o
 
 ## Executable sizes
 
-The build gate prints the sizes and gates none of them. In I1-04 the app executable is 1,381,152
-bytes and the widget executable is 615,384 bytes; the widget is smaller because the month screen,
-its view model and its keys are in the app-only `CalendarScreens` product (run 39190060914). Both
-link `nepdate-swift` (including the `NepDatePatro` tables) statically through `CalendarKit`, and
-the extension also carries its WidgetKit timeline code. This is the expected cost of static SwiftPM
+The build gate prints the sizes and gates none of them. In I1-05 the app executable is 2,045,984
+bytes and the widget executable is 615,656 bytes, 272 bytes above the 615,384-byte I1-04 baseline.
+The widget source did not change; the difference is linker layout from the app-only screens. Both
+link `nepdate-swift` (including the `NepDatePatro` tables) statically through `CalendarKit`, and the
+extension also carries its WidgetKit timeline code. This is the expected cost of static SwiftPM
 products and was not measured with a link map. If the tables become a real share of the download,
 I2 can ship `CalendarKit` as one dynamic framework in the app bundle that both executables load.

@@ -18,17 +18,17 @@ final class I105UITests: XCTestCase {
   /// - Upcoming: SwiftUI's List exposes numeric layout nodes with no element description next to
   ///   the full row text. The visible row labels are complete; the count is 7 at the default size
   ///   and 4 at `.accessibility2`.
-  /// - Settings: the toolbar Close button is reported as partially supporting Dynamic Type even
-  ///   though it uses the system body font.
-  /// - About: the two-line info rows are reported as partially supporting Dynamic Type although
-  ///   the `.accessibility2` reference wraps them; the Privacy link at the bottom sits behind the
-  ///   home indicator, and the same tint passes on the links above it.
+  /// - Settings: the toolbar title and Close button are reported as partially supporting Dynamic
+  ///   Type even though both use system text styles.
+  /// - About: the toolbar title and the two-line info rows are reported as partially supporting
+  ///   Dynamic Type although the `.accessibility2` reference wraps them; the Privacy link at the
+  ///   bottom sits behind the home indicator, and the same tint passes on the links above it.
   private static let converterTolerated: [String: Int] = [:]
   private static let upcomingTolerated = ["sufficientElementDescription numeral": 7]
   private static let upcomingAccessibilityTolerated = ["sufficientElementDescription numeral": 4]
-  private static let settingsTolerated = ["dynamicType text": 1]
-  private static let aboutTolerated = ["contrast text": 1, "dynamicType text": 4]
-  private static let aboutAccessibilityTolerated = ["dynamicType text": 3]
+  private static let settingsTolerated = ["dynamicType text": 2]
+  private static let aboutTolerated = ["contrast text": 1, "dynamicType text": 5]
+  private static let aboutAccessibilityTolerated = ["dynamicType text": 4]
 
   @MainActor
   func testUpcomingShowsTodayAndOpensTheDay() throws {

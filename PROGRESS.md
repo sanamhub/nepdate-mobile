@@ -80,12 +80,12 @@ Branch `feat/I1-05-ios-screens`, from `main` at `f3b3f3b`. Acceptance criteria c
 
 | Task | Status |
 |---|---|
-| I1-05-00 Acceptance criteria | Done before code |
-| I1-05-01 Upcoming and Converter | In progress |
-| I1-05-02 Settings | Pending |
-| I1-05-03 About and version gate | Pending |
-| I1-05-04 Localisation gate | Pending |
-| I1-05-05 Copy confirmation | Pending |
+| I1-05-00 Acceptance criteria | Done before code (commit `3d656b2`) |
+| I1-05-01 Upcoming and Converter | Done: view models, tests and eight references |
+| I1-05-02 Settings | Done: store-backed choices, language row and suggestion |
+| I1-05-03 About and version gate | Done: five links, diagnostic copy and `NepDateLibraryVersion` gate |
+| I1-05-04 Localisation gate | Done: every key has a `ne` value |
+| I1-05-05 Copy confirmation | Done: visible line, announcement and snapshot |
 
 ## Local checks
 
