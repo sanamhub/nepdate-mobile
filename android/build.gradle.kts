@@ -9,6 +9,7 @@ plugins {
     alias(libs.plugins.roborazzi) apply false
     alias(libs.plugins.ktlint) apply false
     alias(libs.plugins.detekt) apply false
+    alias(libs.plugins.play.publisher) apply false
 }
 
 // ADR-0008: the gates that apply before the app has screens or widgets.

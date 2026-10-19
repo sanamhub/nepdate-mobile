@@ -1,0 +1,5 @@
+# Negative fixture: a floating action tag is not pinned to a commit.
+jobs:
+  build:
+    steps:
+      - uses: actions/checkout@v7

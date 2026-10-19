@@ -19,8 +19,22 @@ git tag android-vX.Y.Z
 git push origin android-vX.Y.Z
 ```
 
-`android-release.yml` builds, signs, attests, drafts the GitHub Release with the APK and
-`SHA256SUMS`, and uploads the AAB to the Play internal track after the `production` approval.
+`android-release.yml` runs the preflight, the Android gates, the signed build, the attestation, the
+Play upload and the draft GitHub Release. It can also be started with `workflow_dispatch`; `dry_run`
+defaults to `true`, which stops before signing, Play and the release.
+
+The `production` environment needs these secrets before a tag is pushed:
+
+| Secret | Use |
+|---|---|
+| `ANDROID_KEYSTORE_BASE64` | base64 of the upload keystore |
+| `ANDROID_KEYSTORE_PASSWORD` | keystore password |
+| `ANDROID_KEY_ALIAS` | upload-key alias |
+| `ANDROID_KEY_PASSWORD` | upload-key password |
+| `PLAY_SERVICE_ACCOUNT_JSON` | Play Developer API service-account JSON |
+
+The signing and Play jobs run only after the `production` approval. The workflow uploads the AAB to
+the internal track and does not promote it. The release is a draft; a human publishes it.
 
 Then, by hand:
 1. Install the internal-track build from Play and the GitHub APK on one device each; check today's

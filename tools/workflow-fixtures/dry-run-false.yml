@@ -1,0 +1,9 @@
+# Negative fixture: a manual run would sign and publish by default.
+on:
+  push:
+    tags: ["android-v*"]
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        type: boolean
+        default: false

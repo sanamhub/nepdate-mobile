@@ -1,6 +1,8 @@
 import com.android.build.api.artifact.SingleArtifact
 import org.w3c.dom.Element
 
+val releaseStatusFile = layout.buildDirectory.file("release-data-status.txt")
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
@@ -8,6 +10,7 @@ plugins {
     alias(libs.plugins.roborazzi)
     alias(libs.plugins.ktlint)
     alias(libs.plugins.detekt)
+    alias(libs.plugins.play.publisher)
 }
 
 android {
@@ -26,10 +29,34 @@ android {
         vectorDrawables.useSupportLibrary = true
     }
 
+    // A3-02: the production environment provides these variables. Without them the release build
+    // stays unsigned, which is what the reproducible-build job compares.
+    signingConfigs {
+        val keystore = providers.environmentVariable("ANDROID_KEYSTORE_PATH").orNull
+        val keystorePassword = providers.environmentVariable("ANDROID_KEYSTORE_PASSWORD").orNull
+        val keyAlias = providers.environmentVariable("ANDROID_KEY_ALIAS").orNull
+        val keyPassword = providers.environmentVariable("ANDROID_KEY_PASSWORD").orNull
+        if (keystore != null && keystorePassword != null && keyAlias != null && keyPassword != null) {
+            create("release") {
+                storeFile = file(keystore)
+                storePassword = keystorePassword
+                this.keyAlias = keyAlias
+                this.keyPassword = keyPassword
+            }
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
+            // A3-01: no commit hash or build timestamp in the APK.
+            vcsInfo {
+                include = false
+            }
+            // A3-01: PNG optimisation must not depend on the host or a timestamp.
+            isCrunchPngs = false
+            signingConfigs.findByName("release")?.let { signingConfig = it }
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
@@ -65,6 +92,8 @@ android {
             isIncludeAndroidResources = true
             all {
                 it.systemProperties["robolectric.pixelCopyRenderMode"] = "hardware"
+                it.systemProperty("releaseStatusFile", releaseStatusFile.get().asFile.absolutePath)
+                it.inputs.property("releaseDate", providers.environmentVariable("RELEASE_DATE").orElse(""))
                 it.maxHeapSize = "2g"
             }
         }
@@ -73,6 +102,12 @@ android {
     packaging {
         resources.excludes += "/META-INF/{AL2.0,LGPL2.1}"
     }
+}
+
+// A3-02: a human promotes from the internal track after checking the draft release.
+play {
+    defaultToAppBundles.set(true)
+    track.set("internal")
 }
 
 // A2-05: widgets must not carry bitmaps. Colours, numerals and marks are all text or shapes.
