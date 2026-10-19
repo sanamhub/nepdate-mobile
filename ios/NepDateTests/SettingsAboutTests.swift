@@ -4,11 +4,11 @@ import Foundation
 import Testing
 import UIKit
 
-/// I1-05-02 and I1-05-03: Settings persistence, suggestion, links and diagnostic text.
+/// Settings persistence, suggestion, links and diagnostic text.
 @Suite("Settings and About")
-struct SettingsI105Tests {
+struct SettingsAboutTests {
   private static func store() -> SettingsStore {
-    SettingsStore(suiteName: "np.nepdate.tests.i105.\(UUID().uuidString)")
+    SettingsStore(suiteName: "np.nepdate.tests.settings.\(UUID().uuidString)")
   }
 
   private static func remove(_ store: SettingsStore) {
@@ -170,7 +170,7 @@ struct SettingsI105Tests {
     #expect(defaults.contains("Show tithi: off"))
   }
 
-  @Test("I1-05-02: the language row uses the system app settings URL")
+  @Test("MR-07: the language row uses the system app settings URL")
   func languageURL() {
     #expect(URL(string: UIApplication.openSettingsURLString) != nil)
   }

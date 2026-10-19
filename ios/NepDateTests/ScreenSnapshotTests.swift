@@ -6,10 +6,10 @@ import SwiftUI
 import Testing
 import UIKit
 
-/// I1-05: reference images of Upcoming, Converter, Settings and About.
+/// Reference images of Upcoming, Converter, Settings and About.
 @MainActor
-@Suite("I1-05 screen snapshots", .serialized)
-struct I105SnapshotTests {
+@Suite("Screen snapshots", .serialized)
+struct ScreenSnapshotTests {
   private static let today = MonthDate(year: 2083, month: 6, day: 20)
   private static let size = CGSize(width: 390, height: 844)
   private static let info = AboutInfo(
@@ -18,7 +18,7 @@ struct I105SnapshotTests {
     osVersion: "26.0"
   )
 
-  @Test("I1-05: Upcoming reference images")
+  @Test("Upcoming reference images")
   func upcoming() throws {
     for (name, language, digits, scheme, type, locale) in variants() {
       let model = try #require(
@@ -34,7 +34,7 @@ struct I105SnapshotTests {
     }
   }
 
-  @Test("I1-05: Converter reference images")
+  @Test("Converter reference images")
   func converter() {
     for (name, language, digits, scheme, type, locale) in variants() {
       var model = ConverterViewModel(today: Self.today, language: language, digits: digits)
@@ -54,7 +54,7 @@ struct I105SnapshotTests {
     }
   }
 
-  @Test("I1-05: Settings reference images")
+  @Test("Settings reference images")
   func settings() {
     for (name, language, digits, scheme, type, locale) in variants() {
       let store = SettingsStore(suiteName: "np.nepdate.tests.snapshot.\(UUID().uuidString)")
@@ -70,7 +70,7 @@ struct I105SnapshotTests {
     }
   }
 
-  @Test("I1-05: About reference images")
+  @Test("About reference images")
   func about() {
     for (name, language, digits, scheme, type, locale) in variants() {
       let screen = AboutSnapshot(
@@ -115,7 +115,7 @@ struct I105SnapshotTests {
       of: controller,
       as: .image(size: Self.size, traits: traits),
       named: name,
-      testName: "i105"
+      testName: "screen"
     )
   }
 
