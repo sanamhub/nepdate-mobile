@@ -105,9 +105,9 @@ struct I105SnapshotTests {
   ) {
     let content =
       view
-        .environment(\.colorScheme, scheme)
-        .environment(\.dynamicTypeSize, type)
-        .environment(\.locale, Locale(identifier: locale))
+      .environment(\.colorScheme, scheme)
+      .environment(\.dynamicTypeSize, type)
+      .environment(\.locale, Locale(identifier: locale))
     let controller = UIHostingController(rootView: content)
     controller.overrideUserInterfaceStyle = scheme == .dark ? .dark : .light
     let traits = UITraitCollection(traitsFrom: [
