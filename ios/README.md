@@ -9,9 +9,9 @@ The iPhone and iPad app and the Today widget extension. The Xcode project is gen
 | `NepDateApp/` | The thin `@main` SwiftUI app and its privacy manifest |
 | `NepDateWidgets/` | The widget extension: `@main` bundle, the placeholder Today widget, privacy manifest |
 | `Packages/CalendarKit` | Local SwiftPM package: dates, month layout, widget summaries, settings (I1) |
-| `Packages/CalendarUI` | Local SwiftPM package: product `CalendarUI` (views and colours shared by app and widget) and product `CalendarScreens` (the app-only month screen) |
+| `Packages/CalendarUI` | Local SwiftPM package: product `CalendarUI` (views and colours shared by app and widget) and product `CalendarScreens` (the app-only month screen, month view model, month keys and day sheet) |
 | `NepDateTests/` | Swift Testing tests and the committed snapshot references; renders the screenshot artefact |
-| `NepDateUITests/` | XCUITests: opening on today, the picker at both range ends, the pager recentre, the accessibility audit |
+| `NepDateUITests/` | XCUITests: opening on today, the picker at both range ends, the pager recentre, the month and day accessibility audits, the day sheet and Copy date |
 | `Resources/` | `Localizable.xcstrings` (English and Nepali) |
 | `Config/` | Info.plists and the App Group entitlements for both targets |
 | `scripts/ci.sh` | The gates of ADR-0008 |
@@ -27,7 +27,7 @@ open NepDate.xcodeproj        # after ci.sh, on a Mac
 `ci.sh` downloads XcodeGen 2.46.0, checks its SHA-256, generates the project and runs six gates:
 xcodegen, format, build, test, coverage, network. It ends with `ci: 6/6 gates passed`. The test gate
 runs the Swift Testing suites and the XCUITest, renders the month screen and the widget to
-`build/snapshots`, and compares the six reference snapshots. `ios.yml` uploads the screenshots and
+`build/snapshots`, and compares the ten reference snapshots. `ios.yml` uploads the screenshots and
 the references as artefacts.
 
 The coverage gate reads the test result bundle with `xcrun xccov` and fails below 80 % line
@@ -39,19 +39,22 @@ so code the framework carries from nepdate-swift does not count. The gate prints
 pass.
 
 `swift-snapshot-testing` 1.19.6 is pinned in `project.yml` and linked only to `NepDateTests`. The
-six reference images are in `NepDateTests/__Snapshots__/MonthSnapshotTests`: light with Asoj 25
+six month references are in `NepDateTests/__Snapshots__/MonthSnapshotTests`: light with Asoj 25
 selected, dark, Nepali with the tithi line, tithi in English, `.xxxLarge`, and `.accessibility2`.
-They are 390 by 844 points, rendered on the iPhone 17 simulator by Xcode 26.6. The test gate sets
-`SNAPSHOT_TESTING_RECORD=never`, so a missing image fails instead of being written. `ci.sh` exports
-it as `TEST_RUNNER_SNAPSHOT_TESTING_RECORD`, because `xcodebuild` passes a variable into the test
-process on the simulator only with that prefix; without it the record run of 39144415913 compared
-instead of recording.
+The four day references are in `NepDateTests/__Snapshots__/DayDetailSnapshotTests`: Asoj 9 2083 in
+light, dark, Nepali and `.accessibility2`. They are 390 by 844 points, rendered on the iPhone 17
+simulator by Xcode 26.6. The test gate sets `SNAPSHOT_TESTING_RECORD=never`, so a missing image
+fails instead of being written. `ci.sh` exports it as `TEST_RUNNER_SNAPSHOT_TESTING_RECORD`, because
+`xcodebuild` passes a variable into the test process on the simulator only with that prefix;
+without it the record run of 39144415913 compared instead of recording.
 
 To re-record after an intended visual change, run the iOS workflow by hand on the branch with
 `record_snapshots` checked, download the `ios-snapshot-references` artefact, copy the PNGs into
-`NepDateTests/__Snapshots__/MonthSnapshotTests`, review them, and commit. The recording run fails
-at the test gate by design, because `swift-snapshot-testing` reports every recorded image as an
-issue so that a human reviews it. Use its artefact, then run the workflow normally.
+the matching folder under `NepDateTests/__Snapshots__`, review them, and commit. The recording run
+fails at the test gate by design, because `swift-snapshot-testing` reports every recorded image as
+an issue so that a human reviews it. Use its artefact, then run the workflow normally. A throwaway
+control PR moved the day sheet's vertical spacing by two points; all four day references failed
+(run 39191170937), and the PR was closed and its branch deleted.
 
 1.19.6 is the newest tag (checked 2026-10-18). Its package has one `SnapshotTesting` product, and
 that product always compiles its SwiftUI file, so no product leaves SwiftUI out. The tests call the
@@ -61,11 +64,12 @@ too. Run 39111474141 linked the package and recorded an image. It showed no `Swi
 from the test bundle, fixed in I1-01 by linking the library products directly.
 
 The XCUITests in `NepDateUITests` run inside gate 4, so the gate count is unchanged. Debug builds
-read `NEPDATE_UI_TEST_TODAY` (for example `2083-06-20`) to pin today, so every UI test sees Asoj 2083
-and the audit counts are exact; a release build always uses the clock. The tests check that the
+read `NEPDATE_UI_TEST_TODAY` (for example `2083-06-20`) to pin today, so every UI test sees Asoj
+2083 and the audit counts are exact; a release build always uses the clock. The tests check that the
 pager opens on today, that the picker reaches Chaitra 2199 and Baisakh 1901 with the next and
 previous buttons disabled at those ends, and that 21 swipes cross the window recentre and land on
-Asar 2085.
+Asar 2085. The day sheet test taps Asoj 25, checks every spoken field and event, taps Copy date and
+reads the action's accessibility value, then audits the sheet.
 
 The pager holds 49 months around the shown one, because a 3588-page accessibility tree made the
 audit time out. When a swipe comes within five pages of an edge the window is rebuilt around the
@@ -87,6 +91,18 @@ finding, or a different count, fails. The table and the evidence for each entry 
 | List | Dynamic Type and clipped text on date, weekday and event lines | 10 and 10 | The lines have no line limit and wrap (`month.accessibility2.png`) |
 | List | Contrast on the weekday line of Asoj 4 | 1 | The line is behind the translucent tab bar; the same pair passes on every row above |
 
+The day sheet audit has no tolerated findings. It opens from Asoj 25 and runs the same seven
+categories; the green run prints `AUDIT tolerated []`. The contrast fix was to tint both actions
+with `BrandColor.today`; the default bordered button's blue failed on "Copy date" in run
+39184279428.
+
+The UI test cannot read the system pasteboard directly. In this runner a `UIPasteboard.general`
+read waits on the system paste prompt (runs 39184279428 and 39186125450), so the app repeats the
+copied text as the Copy date button's accessibility value and the UI test reads that. The
+`DayClipboardTests` unit test writes and reads the real pasteboard in the app process, where the
+same write and read pass. The manual checklist still covers the clipboard and the permission
+prompt.
+
 Colour contrast, measured with WCAG relative luminance (`BrandColor`): secondary text is 0.33 white
 in light (7.55:1 on the background, 6.36:1 on `holidayFill`, 6.25:1 on `selection`) and 0.78 white in
 dark (12.41:1, 10.48:1, 8.87:1); `holiday` is 5.88:1, 4.95:1 and 4.87:1 in light and 7.64:1, 6.45:1
@@ -96,10 +112,23 @@ neighbouring days are not selectable (`MonthViewModelTests.dimmedCells`). VoiceO
 Control on a device, and the list at the largest text size, are still manual checklist items
 (MR-10 AC4); there is no device in this repository's CI.
 
-The month screen is in the `CalendarScreens` product, which only the app links. In one module
-with the widget views, Swift type metadata kept every public month view alive in the widget
-binary: the widget executable was 1,172,184 bytes with the month screen and 640,528 bytes after
-the split (Release build sizes from `ci.sh`, runs 39119257382 and 39143033588).
+The month screen and the day sheet are in the `CalendarScreens` product, which only the app links;
+the month view model and the month keys moved there in I1-04 as well. Their types are app-only, and
+keeping them out of `CalendarKit` stops the widget extension carrying them. The widget executable
+was 640,528 bytes after the I1-03 split, grew to 649,072 bytes when `DayDetailViewModel` joined
+`CalendarKit`, and is 615,384 bytes with the month view model and keys moved out (Release build
+sizes from `ci.sh`, runs 39143033588, 39188791325 and 39190060914).
+
+The day sheet opens from a grid cell or a list row with medium and large detents. It shows the BS
+long date, the Devanagari line in English, the weekday and AD date, the tithi, Public holiday and
+every event in file order. `DayDetailViewModel` in `CalendarKit` holds those strings;
+`DayDetailContent` in `CalendarScreens` draws them. "Copy date" calls `DayClipboard`. "Add to
+calendar" builds an all-day `EKEvent` in `DayEvent` and presents `EKEventEditViewController`; the
+app never reads a calendar or requests access. The event date uses the Gregorian calendar in the
+current time zone, whatever calendar the user has set, and ends on the day it starts. The unit
+tests check all-day, title, local midnight, an end on the same day and no alarm without a
+permission request, and Gregorian midnight in three zones with the Buddhist-calendar case. VoiceOver, Switch Control and the absence of a
+permission prompt are still manual checklist items, because CI has no device.
 
 Digits have their own setting, as on Android (MR-07 AC1): Follow language (the fresh-install
 default), Nepali and English. `DigitsSetting.resolved(for:)` turns it into the digits to draw at
@@ -141,9 +170,10 @@ a source `import Network` (run 39098192026) and, with the source grep switched o
 
 ## Executable sizes
 
-The build gate prints the sizes and gates none of them. The widget executable is a little larger
-than the app executable because both link `nepdate-swift` (including the `NepDatePatro` tables)
-statically through `CalendarKit`, and the extension also carries its WidgetKit timeline code, while
-the app is still a single screen. This is the expected cost of static SwiftPM products and was not
-measured with a link map. If the tables become a real share of the download, I2 can ship
-`CalendarKit` as one dynamic framework in the app bundle that both executables load.
+The build gate prints the sizes and gates none of them. In I1-04 the app executable is 1,381,152
+bytes and the widget executable is 615,384 bytes; the widget is smaller because the month screen,
+its view model and its keys are in the app-only `CalendarScreens` product (run 39190060914). Both
+link `nepdate-swift` (including the `NepDatePatro` tables) statically through `CalendarKit`, and
+the extension also carries its WidgetKit timeline code. This is the expected cost of static SwiftPM
+products and was not measured with a link map. If the tables become a real share of the download,
+I2 can ship `CalendarKit` as one dynamic framework in the app bundle that both executables load.

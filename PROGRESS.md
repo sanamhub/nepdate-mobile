@@ -136,6 +136,41 @@ The A2 review is kept here for the release work:
 Left for later: generated previews are republished on every app open and the system rate-limits
 them, so a language change shows in the picker preview only after a later open.
 
+## I1-04 review (iOS day detail, PR #20)
+
+Reviewed at `a97288d`, with `main` (`1226b35`) merged into the branch.
+
+- Add to calendar used `Calendar.current` to turn the AD year, month and day into a date. With the
+  device calendar set to Buddhist or Japanese, 2026 is read as a year of that era, so the event
+  landed centuries away. `DayEvent.startOfDay` now always uses a Gregorian calendar; a test checks
+  25 September 2026 at midnight in Kathmandu, Kiritimati and Los Angeles and that a Buddhist
+  calendar reads the same instant as BE 2569. The event itself uses the current time zone, since
+  EventKit keeps an all-day event's dates there (run 39196207345 showed other zones are rewritten).
+- The all-day event ended at the next midnight, which the system calendar can show as a two-day
+  event. It now ends on the day it starts, and EventKit stores 23:59:59 of that day (seen in run
+  39196207345); the test checks the end is on the start day. The manual checklist row (MR-02 AC2) asks for a
+  single-day event and one run with a Buddhist or Japanese device calendar, since CI has no device.
+- The holiday-only title branch was untested: the test named for it used Asoj 9, which has events.
+  The rule is now `DayDetailViewModel.calendarTitle(events:isPublicHoliday:bsDate:publicHoliday:)`,
+  and a test covers the holiday, plain-date and first-event branches with synthetic input.
+- The Baisakh 1 2084 test expects "New Year 2083", which is the hub data as it stands (hub
+  `known-questions.json`, new-year-name); a comment says the test fails, as it should, once the
+  corrected data is synced.
+
+Checked and kept: Asoj 9 2083 matches the hub (holiday, Chaturdashi, three events in file order,
+scope whole); Baisakh 1 2084 has a holiday and an event and no tithi; BS 2090 shows the no-data
+message; the Devanagari line keeps Devanagari digits; Copy date copies `bsDate`, the line on
+screen, in the app language and resolved Digits; no `requestAccess`, default calendar or
+authorization read anywhere, and the paste read is test-only; on iOS 18 the out-of-process
+`EKEventEditViewController` needs no calendar usage string; the widget target links only
+`CalendarKit`, and moving `MonthViewModel` and `MonthKey` to `CalendarScreens` duplicates nothing.
+W-03 (I2) may move `MonthKey` back into a small shared module; that is acceptable. The record
+mode default stays `never` and `SNAPSHOT_REFERENCE_COUNT` is 10.
+
+Left for later: the Copy date button's accessibility value is the copied date, which VoiceOver
+reads, but there is no visible confirmation; the sheet audit runs at the default text size only,
+with `.accessibility2` covered by its snapshot.
+
 ## I1-03 review (iOS month screen, PR #14)
 
 Reviewed at `4e25a1c`; fixes on the branch, CI run 39147652594 green before the merge of `main`.

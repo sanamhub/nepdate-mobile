@@ -11,6 +11,7 @@ public struct MonthScreen: View {
   @State private var scrolledMonth: MonthKey?
   @State private var window: [MonthKey]
   @State private var showsPicker = false
+  @State private var detail: MonthDate?
   @State private var isRecentring = false
 
   /// Creates the screen.
@@ -44,7 +45,7 @@ public struct MonthScreen: View {
                 selected: model.selected,
                 onSelect: { date in
                   guard key == model.month else { return }
-                  model.select(date)
+                  select(date)
                 }
               )
               .accessibilityHidden(key != (scrolledMonth ?? model.month))
@@ -69,15 +70,42 @@ public struct MonthScreen: View {
       }
     }
     .background(Color(uiColor: .systemBackground))
-    .sheet(isPresented: $showsPicker) {
-      MonthPickerSheet(
-        initial: model.month,
-        language: model.language,
-        digits: model.digits,
-        years: model.pickerYears,
-        onPick: { go(to: $0) }
-      )
+    .sheet(isPresented: presentsSheet) {
+      if showsPicker {
+        MonthPickerSheet(
+          initial: model.month,
+          language: model.language,
+          digits: model.digits,
+          years: model.pickerYears,
+          onPick: { go(to: $0) }
+        )
+      } else if let detail,
+        let detailModel = DayDetailViewModel(
+          date: detail,
+          language: model.language,
+          digits: model.digits
+        )
+      {
+        DayDetailSheet(model: detailModel)
+      }
     }
+  }
+
+  private var presentsSheet: Binding<Bool> {
+    Binding(
+      get: { showsPicker || detail != nil },
+      set: { isPresented in
+        if !isPresented {
+          showsPicker = false
+          detail = nil
+        }
+      }
+    )
+  }
+
+  private func select(_ date: MonthDate) {
+    model.select(date)
+    detail = date
   }
 
   private var previousMonth: MonthKey? {

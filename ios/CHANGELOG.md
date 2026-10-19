@@ -23,9 +23,17 @@ All notable changes to the iOS app. The format follows
 - XCUITests that check the pager opens on today, the picker reaches both ends of BS 1901 to 2199,
   the pager keeps the swiped month across its window recentre, and the accessibility audit has only
   the tolerated findings, counted exactly per category on the grid and the list.
+- The day detail sheet (MR-02): the BS and AD dates, the Devanagari line in English, weekday,
+  tithi, public holiday and every event with its scope; Add to calendar through
+  `EKEventEditViewController`; Copy date; and the no-data message outside coverage.
+- Four day sheet reference snapshots (light, dark, Nepali, `.accessibility2`), and Swift Testing on
+  the day view model, the all-day EKEvent and the pasteboard.
+- A day sheet XCUITest that taps Asoj 25, checks the spoken fields, taps Copy date and audits the
+  sheet with no tolerated findings.
 
 ### Changed
 
-- The month screen moved to the `CalendarScreens` product, so the widget extension no longer
-  carries it (widget executable 1,172,184 to 640,528 bytes).
+- The month screen, its view model and its month keys are in the `CalendarScreens` product, so the
+  widget extension no longer carries them. The widget executable is 615,384 bytes in I1-04
+  (640,528 after the I1-03 split, run 39190060914).
 - Light secondary text is 0.33 white (7.55:1 on the background).
