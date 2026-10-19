@@ -18,14 +18,13 @@ patro package (tithi, holidays, events).
 | Distribution | App Store | Google Play, F-Droid / IzzyOnDroid, GitHub Releases |
 | Permissions | none | none (not even internet) |
 
-**Status:** planning complete, implementation not started (next: phase M0). The libraries it
-needs are planned in their own repositories.
+**Status:** in development, not yet released. The Android app is feature complete for a first
+closed test; the iOS app has the month and day screens.
 
 ## Where to start
 
 | You are | Read |
 |---|---|
-| an AI agent implementing a phase | [AGENTS.md](AGENTS.md) → [docs/plan/00-ROADMAP.md](docs/plan/00-ROADMAP.md) |
 | deciding what the app does | [docs/product/requirements.md](docs/product/requirements.md) |
 | designing screens or widgets | [docs/product/design-system.md](docs/product/design-system.md), [docs/product/widgets.md](docs/product/widgets.md) |
 | comparing with Hamro Patro and others | [docs/competitors.md](docs/competitors.md) |
