@@ -42,6 +42,11 @@ public struct SettingsScreen: View {
       .navigationTitle("Settings")
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
+        ToolbarItem(placement: .principal) {
+          Text("Settings")
+            .font(.headline)
+            .foregroundStyle(.primary)
+        }
         ToolbarItem(placement: .confirmationAction) {
           Button {
             dismiss()
@@ -234,6 +239,13 @@ public struct AboutScreen: View {
     content
       .navigationTitle("About")
       .navigationBarTitleDisplayMode(.inline)
+      .toolbar {
+        ToolbarItem(placement: .principal) {
+          Text("About")
+            .font(.headline)
+            .foregroundStyle(.primary)
+        }
+      }
       .toolbarBackground(Color(uiColor: .systemBackground), for: .navigationBar)
       .toolbarBackground(.visible, for: .navigationBar)
       .toolbarColorScheme(colorScheme == .dark ? .dark : .light, for: .navigationBar)

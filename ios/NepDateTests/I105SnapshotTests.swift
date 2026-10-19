@@ -58,7 +58,7 @@ struct I105SnapshotTests {
   func settings() {
     for (name, language, digits, scheme, type, locale) in variants() {
       let store = SettingsStore(suiteName: "np.nepdate.tests.snapshot.\(UUID().uuidString)")
-      let screen = SettingsScreen(
+      let screen = SettingsSnapshot(
         model: SettingsViewModel(
           settings: Settings(language: language == .nepali ? .nepali : .english),
           store: store
@@ -73,16 +73,12 @@ struct I105SnapshotTests {
   @Test("I1-05: About reference images")
   func about() {
     for (name, language, digits, scheme, type, locale) in variants() {
-      let screen = NavigationStack {
-        AboutScreen(
-          content: AboutContent(
-            info: Self.info,
-            language: language,
-            digits: digits,
-            settings: Settings(language: language == .nepali ? .nepali : .english)
-          )
-        )
-      }
+      let screen = AboutSnapshot(
+        info: Self.info,
+        language: language,
+        digits: digits,
+        settings: Settings(language: language == .nepali ? .nepali : .english)
+      )
       snapshot(screen, named: "about-\(name)", scheme: scheme, type: type, locale: locale)
     }
   }
@@ -138,6 +134,54 @@ struct I105SnapshotTests {
     case .accessibility4: return .accessibilityExtraExtraLarge
     case .accessibility5: return .accessibilityExtraExtraExtraLarge
     default: return .large
+    }
+  }
+}
+
+private struct SettingsSnapshot: View {
+  @State private var model: SettingsViewModel
+  let info: AboutInfo
+
+  init(model: SettingsViewModel, info: AboutInfo) {
+    _model = State(initialValue: model)
+    self.info = info
+  }
+
+  var body: some View {
+    VStack(spacing: 0) {
+      Text("Settings")
+        .font(.largeTitle)
+        .fontWeight(.bold)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, 16)
+        .padding(.top, 12)
+        .padding(.bottom, 4)
+      SettingsContent(model: $model, info: info)
+    }
+  }
+}
+
+private struct AboutSnapshot: View {
+  let info: AboutInfo
+  let language: AppLanguage
+  let digits: Digits
+  let settings: Settings
+
+  var body: some View {
+    VStack(spacing: 0) {
+      Text("About")
+        .font(.largeTitle)
+        .fontWeight(.bold)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, 16)
+        .padding(.top, 12)
+        .padding(.bottom, 4)
+      AboutContent(
+        info: info,
+        language: language,
+        digits: digits,
+        settings: settings
+      )
     }
   }
 }
