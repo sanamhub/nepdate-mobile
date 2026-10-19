@@ -86,20 +86,21 @@ struct SettingsI105Tests {
 
   @Test("MR-07 AC2: AboutLinks has exactly the five allow-listed URLs")
   func links() {
-    #expect(
-      Set(AboutLinks.all) == Set([
-        "https://github.com/sanamhub/nepdate-mobile/blob/main/docs/product/known-data-questions.md",
-        "https://github.com/sanamhub/nepdate-mobile/issues/new?template=wrong-date.yml",
-        "https://github.com/sanamhub/nepdate-mobile/blob/main/docs/legal/README.md",
-        "https://github.com/sanamhub/nepdate-mobile/blob/main/docs/product/privacy-policy.md",
-        "https://github.com/sanamhub/nepdate-mobile",
-      ])
-    )
+    let expected: Set<String> = [
+      "https://github.com/sanamhub/nepdate-mobile/blob/main/docs/product/known-data-questions.md",
+      "https://github.com/sanamhub/nepdate-mobile/issues/new?template=wrong-date.yml",
+      "https://github.com/sanamhub/nepdate-mobile/blob/main/docs/legal/README.md",
+      "https://github.com/sanamhub/nepdate-mobile/blob/main/docs/product/privacy-policy.md",
+      "https://github.com/sanamhub/nepdate-mobile",
+    ]
+    #expect(Set(AboutLinks.all) == expected)
     #expect(AboutLinks.all.allSatisfy { AboutLinks.problem(with: $0) == nil })
     #expect(AboutLinks.problem(with: "https://github.com/sanamhub/nepdate") != nil)
     #expect(AboutLinks.problem(with: "http://github.com/sanamhub/nepdate-mobile") != nil)
     #expect(AboutLinks.problem(with: "https://example.test/sanamhub/nepdate-mobile") != nil)
-    #expect(AboutLinks.problem(with: "https://github.com/sanamhub/nepdate-mobile/../nepdate") != nil)
+    #expect(
+      AboutLinks.problem(with: "https://github.com/sanamhub/nepdate-mobile/../nepdate") != nil
+    )
   }
 
   @Test("MR-12 AC2: the subscription row is hidden for an empty injected URL and shown otherwise")

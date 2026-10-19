@@ -87,9 +87,7 @@ struct I105SnapshotTests {
     }
   }
 
-  private func variants() -> [
-    (String, AppLanguage, Digits, ColorScheme, DynamicTypeSize, String)
-  ] {
+  private func variants() -> [(String, AppLanguage, Digits, ColorScheme, DynamicTypeSize, String)] {
     [
       ("light", .english, .english, .light, .large, "en"),
       ("dark", .english, .english, .dark, .large, "en"),
@@ -105,10 +103,11 @@ struct I105SnapshotTests {
     type: DynamicTypeSize,
     locale: String
   ) {
-    let content = view
-      .environment(\.colorScheme, scheme)
-      .environment(\.dynamicTypeSize, type)
-      .environment(\.locale, Locale(identifier: locale))
+    let content =
+      view
+        .environment(\.colorScheme, scheme)
+        .environment(\.dynamicTypeSize, type)
+        .environment(\.locale, Locale(identifier: locale))
     let controller = UIHostingController(rootView: content)
     controller.overrideUserInterfaceStyle = scheme == .dark ? .dark : .light
     let traits = UITraitCollection(traitsFrom: [

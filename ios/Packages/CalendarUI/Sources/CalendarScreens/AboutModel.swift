@@ -101,9 +101,11 @@ public struct AboutInfo: Sendable, Hashable {
   ///   - digits: The resolved Digits setting.
   /// - Returns: The two long BS dates.
   public func coverageText(language: AppLanguage, digits: Digits) -> String {
-    let start = "\(MonthNames.bs(coverageStart.month, language)) "
+    let start =
+      "\(MonthNames.bs(coverageStart.month, language)) "
       + "\(digits.format(coverageStart.day)), \(digits.format(coverageStart.year))"
-    let end = "\(MonthNames.bs(coverageEnd.month, language)) "
+    let end =
+      "\(MonthNames.bs(coverageEnd.month, language)) "
       + "\(digits.format(coverageEnd.day)), \(digits.format(coverageEnd.year))"
     return AppText.string("\(start) – \(end)", language)
   }

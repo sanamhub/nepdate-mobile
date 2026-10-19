@@ -112,10 +112,12 @@ public struct UpcomingViewModel: Sendable {
     while date <= coverage.upperBound && all.count < limit {
       let info = date.calendarInfo
       let monthDate = MonthDate(year: date.year, month: date.month, day: date.day)
-      let bs = "\(MonthNames.bs(date.month, language)) \(digits.format(date.day)), "
+      let bs =
+        "\(MonthNames.bs(date.month, language)) \(digits.format(date.day)), "
         + "\(digits.format(date.year))"
       let gregorian = date.gregorian
-      let ad = "\(digits.format(gregorian.day)) \(MonthNames.ad(gregorian.month, language)) "
+      let ad =
+        "\(digits.format(gregorian.day)) \(MonthNames.ad(gregorian.month, language)) "
         + "\(digits.format(gregorian.year))"
       let dateLine = AppText.string("\(bs) · \(ad)", language)
       let distance = libraryToday.days(until: date)
@@ -164,7 +166,8 @@ public struct UpcomingViewModel: Sendable {
         day: coverage.upperBound.day
       )
       self.dataEndsOn = end
-      let endText = "\(MonthNames.bs(end.month, language)) \(digits.format(end.day)), "
+      let endText =
+        "\(MonthNames.bs(end.month, language)) \(digits.format(end.day)), "
         + "\(digits.format(end.year))"
       self.dataEndsText = AppText.string("Holiday data ends on \(endText)", language)
     } else {

@@ -191,9 +191,11 @@ public struct ConverterViewModel: Sendable {
   /// The two date ends of the comparison.
   public var comparisonRange: String? {
     guard let comparison else { return nil }
-    let from = "\(MonthNames.bs(comparison.from.month, language)) "
+    let from =
+      "\(MonthNames.bs(comparison.from.month, language)) "
       + "\(digits.format(comparison.from.day)), \(digits.format(comparison.from.year))"
-    let to = "\(MonthNames.bs(comparison.to.month, language)) "
+    let to =
+      "\(MonthNames.bs(comparison.to.month, language)) "
       + "\(digits.format(comparison.to.day)), \(digits.format(comparison.to.year))"
     return AppText.string("\(from) to \(to)", language)
   }
