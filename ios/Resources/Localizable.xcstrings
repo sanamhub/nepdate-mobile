@@ -1,6 +1,23 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "Add to calendar" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add to calendar"
+          }
+        },
+        "ne" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "पात्रोमा थप्नुहोस्"
+          }
+        }
+      }
+    },
     "Cancel" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -35,6 +52,23 @@
         }
       }
     },
+    "Close" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Close"
+          }
+        },
+        "ne" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "बन्द गर्नुहोस्"
+          }
+        }
+      }
+    },
     "Coming soon" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -65,6 +99,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "परिवर्तक"
+          }
+        }
+      }
+    },
+    "Copy date" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copy date"
+          }
+        },
+        "ne" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "मिति प्रतिलिपि गर्नुहोस्"
+          }
+        }
+      }
+    },
+    "Events" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Events"
+          }
+        },
+        "ne" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "कार्यक्रमहरू"
           }
         }
       }
@@ -154,6 +222,23 @@
         }
       }
     },
+    "No holiday or tithi data for this date yet" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No holiday or tithi data for this date yet"
+          }
+        },
+        "ne" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "यो मितिको बिदा वा तिथिको जानकारी अझै छैन"
+          }
+        }
+      }
+    },
     "Previous month" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -184,6 +269,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "सार्वजनिक बिदा"
+          }
+        }
+      }
+    },
+    "Tithi" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tithi"
+          }
+        },
+        "ne" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "तिथि"
           }
         }
       }
