@@ -1,23 +1,6 @@
 {
   "sourceLanguage": "en",
   "strings": {
-    "%@ day": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ day"
-          }
-        },
-        "ne": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ दिन"
-          }
-        }
-      }
-    },
     "%@ day before today": {
       "extractionState": "manual",
       "localizations": {
@@ -31,23 +14,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "%@ दिन अघि"
-          }
-        }
-      }
-    },
-    "%@ days": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ days"
-          }
-        },
-        "ne": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ दिन"
           }
         }
       }
@@ -98,58 +64,7 @@
         "ne": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %3$@ मा %2$@ दिन छ"
-          }
-        }
-      }
-    },
-    "%@ has %d days in %d": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ has %d days in %d"
-          }
-        },
-        "ne": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ %3$d मा %2$d दिन छ"
-          }
-        }
-      }
-    },
-    "%@ month": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ month"
-          }
-        },
-        "ne": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ महिना"
-          }
-        }
-      }
-    },
-    "%@ months": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ months"
-          }
-        },
-        "ne": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ महिना"
+            "value": "%1$@ %3$@ मा %2$@ दिन छ"
           }
         }
       }
@@ -167,40 +82,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "%@ देखि %@"
-          }
-        }
-      }
-    },
-    "%@ year": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ year"
-          }
-        },
-        "ne": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ वर्ष"
-          }
-        }
-      }
-    },
-    "%@ years": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ years"
-          }
-        },
-        "ne": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ वर्ष"
           }
         }
       }
@@ -235,176 +116,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "%@ – %@"
-          }
-        }
-      }
-    },
-    "%d day": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%d day"
-          }
-        },
-        "ne": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%d दिन"
-          }
-        }
-      }
-    },
-    "%d day before today": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%d day before today"
-          }
-        },
-        "ne": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%d दिन अघि"
-          }
-        }
-      }
-    },
-    "%d day from today": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%d day from today"
-          }
-        },
-        "ne": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%d दिन पछि"
-          }
-        }
-      }
-    },
-    "%d days": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%d days"
-          }
-        },
-        "ne": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%d दिन"
-          }
-        }
-      }
-    },
-    "%d days before today": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%d days before today"
-          }
-        },
-        "ne": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%d दिन अघि"
-          }
-        }
-      }
-    },
-    "%d days from today": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%d days from today"
-          }
-        },
-        "ne": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%d दिन पछि"
-          }
-        }
-      }
-    },
-    "%d month": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%d month"
-          }
-        },
-        "ne": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%d महिना"
-          }
-        }
-      }
-    },
-    "%d months": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%d months"
-          }
-        },
-        "ne": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%d महिना"
-          }
-        }
-      }
-    },
-    "%d year": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%d year"
-          }
-        },
-        "ne": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%d वर्ष"
-          }
-        }
-      }
-    },
-    "%d years": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%d years"
-          }
-        },
-        "ne": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%d वर्ष"
           }
         }
       }
