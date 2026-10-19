@@ -73,6 +73,20 @@ started.
       app does not do and mentions no network, analytics or permission beyond the app.
 - [x] The listing is English and Nepali.
 
+## I1-05 iOS screens
+
+Branch `feat/I1-05-ios-screens`, from `main` at `f3b3f3b`. Acceptance criteria copied to
+`docs/plan/I1-ios-app.md` before code (I1-05-00).
+
+| Task | Status |
+|---|---|
+| I1-05-00 Acceptance criteria | Done before code |
+| I1-05-01 Upcoming and Converter | In progress |
+| I1-05-02 Settings | Pending |
+| I1-05-03 About and version gate | Pending |
+| I1-05-04 Localisation gate | Pending |
+| I1-05-05 Copy confirmation | Pending |
+
 ## Local checks
 
 - `./gradlew ci`: `BUILD SUCCESSFUL in 3m 31s`, 192 tests, 0 failures, 1 skipped (the release-only
