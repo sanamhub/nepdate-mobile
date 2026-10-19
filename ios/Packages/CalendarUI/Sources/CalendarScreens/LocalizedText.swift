@@ -1,10 +1,16 @@
 import CalendarKit
 import Foundation
+import NepDate
 
 /// The locale a model uses to resolve its strings in tests and snapshots.
 extension AppLanguage {
   var locale: Locale {
     Locale(identifier: self == .nepali ? "ne" : "en")
+  }
+
+  /// The library's language for the names.
+  var nepDateLang: Lang {
+    self == .nepali ? .nepali : .english
   }
 }
 

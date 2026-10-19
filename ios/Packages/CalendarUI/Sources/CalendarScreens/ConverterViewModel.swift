@@ -97,10 +97,8 @@ public struct ConverterViewModel: Sendable {
       let date = try NepaliDate.parseLenient(text.trimmingCharacters(in: .whitespacesAndNewlines))
       result = conversion(date)
       error = nil
-    } catch let error as NepDateError {
-      self.error = Self.converterError(error, text: text)
     } catch {
-      self.error = .unreadable
+      self.error = Self.converterError(error, text: text)
     }
   }
 
@@ -114,10 +112,8 @@ public struct ConverterViewModel: Sendable {
       let date = try NepaliDate(gregorianYear: year, month: month, day: day)
       result = conversion(date)
       error = nil
-    } catch let error as NepDateError {
-      self.error = Self.converterError(error, text: nil)
     } catch {
-      self.error = .outOfRange
+      self.error = Self.converterError(error, text: nil)
     }
   }
 
@@ -146,10 +142,8 @@ public struct ConverterViewModel: Sendable {
         days: diff.days
       )
       comparisonError = nil
-    } catch let error as NepDateError {
-      comparisonError = Self.converterError(error, text: text)
     } catch {
-      comparisonError = .unreadable
+      comparisonError = Self.converterError(error, text: text)
     }
   }
 
@@ -173,7 +167,7 @@ public struct ConverterViewModel: Sendable {
     let day = digits.format(result.adDay)
     let month = MonthNames.ad(result.adMonth, language)
     let year = digits.format(result.adYear)
-    return "\(date.weekday.name(language.lang)), \(day) \(month) \(year)"
+    return "\(date.weekday.name(language.nepDateLang)), \(day) \(month) \(year)"
   }
 
   /// "Today", "Tomorrow", "5 days from today" or "2 days before today".

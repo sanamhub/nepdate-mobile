@@ -124,7 +124,7 @@ public struct UpcomingViewModel: Sendable {
       let relative = Self.relativeText(distance, language: language, digits: digits)
       for (index, event) in info.events.enumerated() {
         guard all.count < limit else { break }
-        let name = digits.applying(to: event.name(language.lang))
+        let name = digits.applying(to: event.name(language.nepDateLang))
         all.append(
           UpcomingEntry(
             date: monthDate,
