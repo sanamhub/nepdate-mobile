@@ -100,7 +100,8 @@ The UI test cannot read the system pasteboard directly. In this runner a `UIPast
 read waits on the system paste prompt (runs 39184279428 and 39186125450), so the app repeats the
 copied text as the Copy date button's accessibility value and the UI test reads that. The
 `DayClipboardTests` unit test writes and reads the real pasteboard in the app process, where the
-same write and read pass. The manual checklist still covers the human paste into another app.
+same write and read pass. The manual checklist still covers the clipboard and the permission
+prompt.
 
 Colour contrast, measured with WCAG relative luminance (`BrandColor`): secondary text is 0.33 white
 in light (7.55:1 on the background, 6.36:1 on `holidayFill`, 6.25:1 on `selection`) and 0.78 white in
