@@ -155,12 +155,11 @@ allow-listed links, the injected webcal row and the diagnostic copy.
 both package manifests. It also fails when any key in `Localizable.xcstrings` lacks a translated
 `ne` value. Negative controls for both checks are recorded on the throwaway control PR.
 
-The Upcoming, Converter, Settings and About audits start with empty tables except for the entries in
-`I105UITests.swift` and this README:
+The Upcoming and Converter audits tolerate nothing. Settings and About tolerate only the entries in
+`ScreenUITests.swift` and this README:
 
 | Screen | Finding | Count | Why it is tolerated |
 |---|---|---|---|
-| Upcoming | Element description on numeric List layout nodes | 7, 4 at `.accessibility2` | SwiftUI List exposes numeric nodes next to the full row labels; every visible row label is complete |
 | Settings | Dynamic Type on the toolbar title and Close | 2 | Both use system text styles; the audit reports partial support |
 | About | Dynamic Type on the toolbar title and two-line info rows | 5, 4 at `.accessibility2` | The `.accessibility2` reference wraps the rows; the audit reports partial support |
 | About | Contrast on the Privacy link | 1 | The bottom link sits behind the home indicator; the same tint passes on the links above |

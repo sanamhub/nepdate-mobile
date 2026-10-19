@@ -48,9 +48,9 @@ public struct UpcomingScreen: View {
                   selected = entry.date
                 } label: {
                   UpcomingRow(entry: entry)
-                    .accessibilityHidden(true)
                 }
                 .buttonStyle(.plain)
+                .accessibilityLabel(Text(verbatim: accessibilityLabel(for: entry)))
               }
             } header: {
               Text(verbatim: group.title)
@@ -87,6 +87,16 @@ public struct UpcomingScreen: View {
         DayDetailSheet(model: detail)
       }
     }
+  }
+
+  /// One spoken line per row; on screen the holiday mark is only a colour and a bar.
+  private func accessibilityLabel(for entry: UpcomingEntry) -> String {
+    var parts = [entry.name]
+    if entry.isHoliday {
+      parts.append(AppText.string("Public holiday", language))
+    }
+    parts += [entry.bsDate, entry.adDate, entry.relativeText]
+    return parts.joined(separator: ", ")
   }
 
   private var showsDetail: Binding<Bool> {
