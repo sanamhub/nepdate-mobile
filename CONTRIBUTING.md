@@ -1,7 +1,7 @@
 # Contributing
 
-Read [AGENTS.md](AGENTS.md) before you change anything. It lists the sources of truth and the hard
-rules for both apps.
+What the apps do is defined in [docs/product/requirements.md](docs/product/requirements.md), and
+the reasons behind the main choices are in [docs/adr/](docs/adr/README.md).
 
 ## Before you open a pull request
 
