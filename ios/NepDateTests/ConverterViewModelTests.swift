@@ -2,7 +2,7 @@ import CalendarKit
 import CalendarScreens
 import Testing
 
-/// I1-05-01 and MR-04: the Converter view model, same cases as A1-05.
+/// MR-04: the Converter view model, same cases as A1-05.
 @Suite("Converter view model")
 struct ConverterViewModelTests {
   private static let today = MonthDate(year: 2083, month: 6, day: 20)
@@ -85,6 +85,18 @@ struct ConverterViewModelTests {
     #expect(model.comparisonError == nil)
     #expect(model.comparisonRange == "Baisakh 1, 2081 to Baisakh 1, 2082")
     #expect(model.differenceText == "1 year, 0 months, 0 days")
+  }
+
+  @Test("MR-04 AC3: a day earlier in the next month is still a run of days")
+  func comparisonAcrossAMonthEnd() {
+    var model = Self.model()
+    model.fromBs("2083-06-20")
+    model.compareWithBs("2083-07-19")
+
+    #expect(model.comparison?.years == 0)
+    #expect(model.comparison?.months == 0)
+    #expect(model.comparison?.days == 30)
+    #expect(model.differenceText == "0 years, 0 months, 30 days")
   }
 
   @Test("MR-04 AC3: comparing without a first date is an error")

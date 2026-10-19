@@ -2,7 +2,7 @@ import CalendarKit
 import CalendarScreens
 import Testing
 
-/// I1-05-01 and MR-03: the Upcoming view model, same cases as A1-05.
+/// MR-03: the Upcoming view model, same cases as A1-05.
 @Suite("Upcoming view model")
 struct UpcomingViewModelTests {
   private static func model(
@@ -39,6 +39,21 @@ struct UpcomingViewModelTests {
     #expect(list.groups[0].title == "Asoj 2083")
     #expect(list.entries == list.groups.flatMap(\.entries))
     #expect(zip(list.entries, list.entries.dropFirst()).allSatisfy { $0.0.date <= $0.1.date })
+  }
+
+  @Test("MR-03 AC1: a list that crosses a month boundary gets one group per month")
+  func groupsAcrossMonths() throws {
+    let list = try Self.model(today: MonthDate(year: 2083, month: 6, day: 30))
+    let keys = list.groups.map { $0.year * 100 + $0.month }
+
+    #expect(list.groups.count >= 2)
+    #expect(zip(keys, keys.dropFirst()).allSatisfy { $0.0 < $0.1 })
+    #expect(list.groups.map(\.title).contains("Kartik 2083"))
+    for group in list.groups {
+      #expect(
+        group.entries.allSatisfy { $0.date.year == group.year && $0.date.month == group.month }
+      )
+    }
   }
 
   @Test("MR-03 AC1: the public holiday carries the mark")
