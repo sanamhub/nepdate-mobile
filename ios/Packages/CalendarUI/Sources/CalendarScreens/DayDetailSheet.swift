@@ -4,7 +4,6 @@ import EventKit
 import EventKitUI
 import SwiftUI
 import UIKit
-import UniformTypeIdentifiers
 
 /// The day detail sheet (MR-02): the BS and AD dates, the weekday, the tithi, a public holiday,
 /// every event, and the Add to calendar and Copy date actions.
@@ -38,6 +37,7 @@ public struct DayDetailContent: View {
   @State private var eventStore: EKEventStore?
   @State private var eventToEdit: EKEvent?
   @State private var showsCalendarEditor = false
+  @State private var copiedText: String?
 
   /// Creates the content.
   /// - Parameters:
@@ -166,6 +166,7 @@ public struct DayDetailContent: View {
       }
       .buttonStyle(.bordered)
       .tint(BrandColor.today)
+      .accessibilityValue(Text(copiedText ?? ""))
     }
     .padding(.top, 8)
   }
@@ -189,12 +190,8 @@ public struct DayDetailContent: View {
   }
 
   private func copyDate() {
-    // Write one plain-text item. The string setter's implicit pasteboard access made the UI test
-    // wait on the system paste prompt in run 39184279428; setItems is write-only.
-    UIPasteboard.general.setItems(
-      [[UTType.plainText.identifier: model.copyText]],
-      options: [:]
-    )
+    DayClipboard.write(model.copyText)
+    copiedText = model.copyText
   }
 }
 

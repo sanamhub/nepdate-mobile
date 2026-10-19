@@ -1,4 +1,3 @@
-import UIKit
 import XCTest
 
 /// I1-04 and MR-02: the day sheet opens from a day cell, speaks its fields, copies the date and
@@ -41,7 +40,13 @@ final class DayDetailUITests: XCTestCase {
     }
     copy.tap()
 
-    XCTAssertEqual(UIPasteboard.general.string, "Asoj 25, 2083")
+    // The app writes the pasteboard and repeats the copied date as the button's accessibility
+    // value. The XCUITest runner's own pasteboard read waits on the system paste prompt (runs
+    // 39184279428 and 39186125450), so `DayClipboardTests` reads the pasteboard in the app process
+    // instead.
+    let copied = NSPredicate(format: "value == %@", "Asoj 25, 2083")
+    let wait = expectation(for: copied, evaluatedWith: copy)
+    XCTAssertEqual(XCTWaiter.wait(for: [wait], timeout: 5), .completed)
   }
 
   @MainActor
