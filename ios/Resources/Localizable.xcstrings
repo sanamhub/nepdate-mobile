@@ -81,7 +81,7 @@
         "ne": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ देखि %@"
+            "value": "%@ देखि %@ सम्म"
           }
         }
       }

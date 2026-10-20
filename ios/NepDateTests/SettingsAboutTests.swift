@@ -50,6 +50,22 @@ struct SettingsAboutTests {
       !SettingsViewModel(settings: Settings(), store: store)
         .shouldSuggestNepalTime(deviceZone: kathmandu)
     )
+
+    let oldSpelling = try #require(TimeZone(identifier: "Asia/Katmandu"))
+    let india = try #require(TimeZone(secondsFromGMT: 5 * 60 * 60 + 30 * 60))
+    let utc = try #require(TimeZone(secondsFromGMT: 0))
+    #expect(
+      !SettingsViewModel(settings: Settings(), store: store)
+        .shouldSuggestNepalTime(deviceZone: oldSpelling)
+    )
+    #expect(
+      SettingsViewModel(settings: Settings(), store: store)
+        .shouldSuggestNepalTime(deviceZone: india)
+    )
+    #expect(
+      SettingsViewModel(settings: Settings(), store: store)
+        .shouldSuggestNepalTime(deviceZone: utc)
+    )
     #expect(
       !SettingsViewModel(
         settings: Settings(dateFollowsSuggestionHandled: true),
@@ -170,8 +186,14 @@ struct SettingsAboutTests {
     #expect(defaults.contains("Show tithi: off"))
   }
 
-  @Test("MR-07: the language row uses the system app settings URL")
-  func languageURL() {
-    #expect(URL(string: UIApplication.openSettingsURLString) != nil)
+  @Test("MR-07: the language row opens the app settings URL")
+  @MainActor
+  func languageRowOpensAppSettings() {
+    var opened: URL?
+    let opener = SettingsURLOpener { opened = $0 }
+
+    opener.openAppSettings()
+
+    #expect(opened?.absoluteString == UIApplication.openSettingsURLString)
   }
 }
