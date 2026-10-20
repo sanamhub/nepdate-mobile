@@ -38,13 +38,14 @@ public struct DayDetailContent: View {
   @State private var eventToEdit: EKEvent?
   @State private var showsCalendarEditor = false
   @State private var copiedText: String?
-  @State private var showsCopied: Bool
+  @State private var copied = CopyConfirmationTimer()
 
   /// Creates the content.
   /// - Parameters:
   ///   - model: The day's values.
   ///   - onClose: The close button's action.
   ///   - showsCopiedInitially: Whether the copied confirmation starts visible, for snapshots.
+  @MainActor
   public init(
     model: DayDetailViewModel,
     onClose: @escaping () -> Void,
@@ -52,7 +53,7 @@ public struct DayDetailContent: View {
   ) {
     self.model = model
     self.onClose = onClose
-    _showsCopied = State(initialValue: showsCopiedInitially)
+    _copied = State(initialValue: CopyConfirmationTimer(isShowing: showsCopiedInitially))
   }
 
   /// The sheet's content.
@@ -75,7 +76,7 @@ public struct DayDetailContent: View {
         }
 
         actions
-        if showsCopied {
+        if copied.isShowing {
           Text("Date copied")
             .font(.footnote)
             .foregroundStyle(BrandColor.secondaryText)
@@ -205,12 +206,8 @@ public struct DayDetailContent: View {
   private func copyDate() {
     DayClipboard.write(model.copyText)
     copiedText = model.copyText
-    showsCopied = true
     CopyConfirmation.announce(AppText.string("Date copied", model.language))
-    Task { @MainActor in
-      try? await Task.sleep(for: CopyConfirmation.duration)
-      showsCopied = false
-    }
+    copied.show()
   }
 }
 
