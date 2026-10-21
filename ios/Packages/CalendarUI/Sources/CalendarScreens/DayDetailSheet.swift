@@ -38,7 +38,7 @@ public struct DayDetailContent: View {
   @State private var eventToEdit: EKEvent?
   @State private var showsCalendarEditor = false
   @State private var copiedText: String?
-  @State private var copied = CopyConfirmationTimer()
+  @State private var copied: CopyConfirmationTimer
 
   /// Creates the content.
   /// - Parameters:
