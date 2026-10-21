@@ -1,47 +1,84 @@
-# nepdate-mobile
+<p align="center">
+  <img src="https://raw.githubusercontent.com/sanamhub/nepdate-mobile/main/docs/assets/nepdate-mobile-128.png" width="128" alt="NepDate app logo">
+</p>
 
-A Nepali calendar for iPhone and Android that does one job: show the Bikram Sambat date,
-the month, and its holidays and events, on the home screen and in the app. No ads, no
-account, no news, no horoscope, no network.
+<h1 align="center">nepdate-mobile</h1>
 
-Part of the NepDate family. The calendar data and its rules live in the hub
-[`sanamhub/nepdate`](https://github.com/sanamhub/nepdate); the apps use the Swift and Kotlin
-libraries [`nepdate-swift`](https://github.com/sanamhub/nepdate-swift) and
-[`nepdate-kotlin`](https://github.com/sanamhub/nepdate-kotlin), each as two units: the core and the
-patro package (tithi, holidays, events).
+<p align="center">
+  <a href="https://github.com/sanamhub/nepdate-mobile/actions/workflows/android.yml"><img src="https://github.com/sanamhub/nepdate-mobile/actions/workflows/android.yml/badge.svg" alt="Android CI"></a>
+  <a href="https://github.com/sanamhub/nepdate-mobile/actions/workflows/ios.yml"><img src="https://github.com/sanamhub/nepdate-mobile/actions/workflows/ios.yml/badge.svg" alt="iOS CI"></a>
+  <a href="https://github.com/sanamhub/nepdate-mobile/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="License: MIT"></a>
+</p>
 
-| | iOS (`ios/`) | Android (`android/`) |
+A Nepali calendar for Android and iPhone that does one job: show the Bikram Sambat date, the
+month, and its holidays and events, on the home screen and in the app. No ads, no account, no
+news, no horoscope, no network.
+
+| | Android (`android/`) | iOS (`ios/`) |
 |---|---|---|
-| UI | SwiftUI | Jetpack Compose, Material 3 |
-| Widgets | WidgetKit: home, lock screen, StandBy, Control Center | Glance: home, lock screen (Android 16 QPR1+) |
-| Minimum OS | iOS 18 | Android 8.0 (API 26) |
-| Distribution | App Store | Google Play, F-Droid / IzzyOnDroid, GitHub Releases |
-| Permissions | none | none (not even internet) |
+| UI | Jetpack Compose, Material 3 | SwiftUI |
+| Widgets | Glance: home, lock screen (Android 16 QPR1+) | WidgetKit: home, lock screen, StandBy, Control Center |
+| Minimum OS | Android 8.0 (API 26) | iOS 18 |
+| Permissions | none, not even internet | none |
 
-**Status:** in development, not yet released. The Android app is feature complete for a first
-closed test; the iOS app has the month and day screens.
+## Status
 
-## Where to start
+Neither app is released yet.
 
-| You are | Read |
+- **Android:** feature complete for a first closed test. It goes to a Google Play closed test with
+  at least 12 testers for 14 days, the rule for new personal developer accounts
+  ([ADR-0009](https://github.com/sanamhub/nepdate-mobile/blob/main/docs/adr/0009-distribution-and-releases.md)),
+  once the developer account exists. F-Droid, IzzyOnDroid and GitHub Releases follow.
+- **iOS:** built and tested in CI on every change, with snapshot and UI tests, but not
+  distributed. There is no TestFlight or App Store release for now: the Apple Developer Program
+  costs USD 99 a year, and the owner decided on 2026-10-21 not to pay it yet. That may change.
+
+Screens rendered by the Android screenshot tests in CI (Roborazzi), not taken on a device:
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/sanamhub/nepdate-mobile/main/android/app/src/test/screenshots/a1-month-light.png" width="240" alt="Month screen, Asoj 2083, with Saturdays and public holidays marked">
+  <img src="https://raw.githubusercontent.com/sanamhub/nepdate-mobile/main/android/app/src/test/screenshots/a1-day-detail-light.png" width="240" alt="Day detail for Asoj 9, 2083: tithi, public holiday and three events">
+  <img src="https://raw.githubusercontent.com/sanamhub/nepdate-mobile/main/android/app/src/test/screenshots/a1-month-ne.png" width="240" alt="Month screen in Nepali">
+</p>
+
+## Where the calendar comes from
+
+The apps hold no calendar logic of their own. They use the NepDate libraries, each as two units:
+the core (conversion, formatting) and the patro (tithi, holidays, events).
+
+| App | Library | How it is pulled in today |
+|---|---|---|
+| iOS | [nepdate-swift](https://github.com/sanamhub/nepdate-swift) | SwiftPM, pinned to a commit in [`ios/project.yml`](https://github.com/sanamhub/nepdate-mobile/blob/main/ios/project.yml) |
+| Android | [nepdate-kotlin](https://github.com/sanamhub/nepdate-kotlin) | a Gradle included build of a local checkout until its first Maven Central release ([ADR-0003](https://github.com/sanamhub/nepdate-mobile/blob/main/docs/adr/0003-calendar-libraries-and-data.md)) |
+
+The data and its rules live in the hub, [sanamhub/nepdate](https://github.com/sanamhub/nepdate),
+which also lists every package in [all languages](https://github.com/sanamhub/nepdate#packages).
+
+## More
+
+| Topic | Where |
 |---|---|
-| deciding what the app does | [docs/product/requirements.md](docs/product/requirements.md) |
-| designing screens or widgets | [docs/product/design-system.md](docs/product/design-system.md), [docs/product/widgets.md](docs/product/widgets.md) |
-| comparing with Hamro Patro and others | [docs/competitors.md](docs/competitors.md) |
-| wondering "why native, why this way?" | [docs/adr/README.md](docs/adr/README.md) |
-
-## Layout
+| What the app does, requirement by requirement | [docs/product/requirements.md](https://github.com/sanamhub/nepdate-mobile/blob/main/docs/product/requirements.md) |
+| Screens, widgets and the design system | [design-system.md](https://github.com/sanamhub/nepdate-mobile/blob/main/docs/product/design-system.md), [widgets.md](https://github.com/sanamhub/nepdate-mobile/blob/main/docs/product/widgets.md) |
+| Why native, and every other decision | [docs/adr](https://github.com/sanamhub/nepdate-mobile/blob/main/docs/adr/README.md) |
+| Privacy policy and Play data safety | [privacy-policy.md](https://github.com/sanamhub/nepdate-mobile/blob/main/docs/product/privacy-policy.md), [play-data-safety.md](https://github.com/sanamhub/nepdate-mobile/blob/main/docs/legal/play-data-safety.md) |
+| How it compares with Hamro Patro and others | [docs/competitors.md](https://github.com/sanamhub/nepdate-mobile/blob/main/docs/competitors.md) |
+| Building, testing and pull requests | [CONTRIBUTING.md](https://github.com/sanamhub/nepdate-mobile/blob/main/CONTRIBUTING.md) |
+| Reporting a vulnerability | [SECURITY.md](https://github.com/sanamhub/nepdate-mobile/blob/main/SECURITY.md) |
+| A wrong date, holiday or tithi | the hub's [data error form](https://github.com/sanamhub/nepdate/issues/new/choose) |
 
 ```
-ios/            XcodeGen project.yml, app, widget extension, local SwiftPM packages (from M0-03)
-android/        Gradle project: single :app module with Glance widgets          (from M0-02)
+android/        Gradle project: one :app module with Glance widgets
+ios/            XcodeGen project.yml, app, widget extension, local SwiftPM packages
 docs/product/   requirements (MR-xx), design system, widget catalogue, privacy policy
 docs/adr/       decisions for both apps
+docs/legal/     store declarations and open legal questions
 docs/plan/      phases and tasks with acceptance criteria
 docs/runbooks/  release procedures per store
 ```
 
 ## License
 
-MIT ([LICENSE](LICENSE)). Calendar data from NepDate by Raju Prasai and contributors, MIT.
-Holiday data is informational; this app is not affiliated with the Government of Nepal.
+MIT ([LICENSE](https://github.com/sanamhub/nepdate-mobile/blob/main/LICENSE)). Calendar data from
+NepDate by Raju Prasai and contributors, MIT. Holiday data is informational; this app is not
+affiliated with the Government of Nepal.
