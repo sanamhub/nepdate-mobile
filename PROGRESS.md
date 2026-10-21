@@ -8,6 +8,17 @@ Branch `feat/A3-android-release-ready`, from `main` at `c9935fd`. Acceptance cri
 `docs/plan/A3-android-release.md` before implementation. A3-04 and A3-05 are human-gated and are not
 started.
 
+## I2 iOS widgets
+
+The next iOS phase is I2. The plan is `docs/plan/I2-ios-widgets.md`; implementation starts from
+`main` after PR #26 merges.
+
+- `systemExtraLargePortrait` is deferred until the runner has Xcode 27.
+- The widget peak-memory number is a manual device check and will be recorded as **not measured**.
+  There is no `ios-beta.yml` and no rented Mac.
+- The snapshot matrix keeps a reference only for rendering modes whose pixels differ. Each collapsed
+  mode is rendered in a test and compared byte for byte with its kept twin.
+
 ## A3-00 About links
 
 - [x] A unit test lists every URL in `AboutLinks.kt` by reflection and fails when the host or

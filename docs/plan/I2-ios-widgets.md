@@ -17,14 +17,13 @@ checklist cover placement, refresh and rendering modes.
 
 - Deployment target stays iOS 18.0.
 - `systemExtraLargePortrait` is iOS 27.0. The `macos-26` runner has Xcode 26.6, so the extra-large
-  W-03 family cannot compile yet. It is split out below and is not part of the first checkpoint.
+  W-03 family cannot compile yet. It is deferred to a later phase and is not part of I2.
 - The app has no URL scheme or route parser yet. Both are added here because every widget tap and
   every control needs one.
 - No new dependency, permission, background mode or network call. I2-01 adds the
   `UIBackgroundModes` and `BGTaskScheduler` check to `ci.sh`; it does not exist yet.
-- `ios-beta.yml` and the `DESIGN_SPIKE` memory screen referenced by ADR-0010 do not exist in this
-  repository. I2-05 either adds that path or records memory on a rented Mac; this is a checkpoint
-  decision, not an assumption.
+- There is no `ios-beta.yml`, no `DESIGN_SPIKE` memory screen and no rented Mac. The peak-memory
+  number is a manual device check; until it is run, `docs/benchmarks.md` records it as not measured.
 
 ## Tasks
 
@@ -106,8 +105,8 @@ and records no state that survives the next midnight. Each in-month day is a `Li
   used by W-02.
   Test: `WidgetLinkTests.monthDayURL`.
 
-`systemExtraLargePortrait` and its holiday/event list are a separate task, I2-03b. They are blocked
-until the runner has Xcode 27; the code is not written against an SDK that cannot compile it.
+`systemExtraLargePortrait` and its holiday/event list are deferred until the runner has Xcode 27;
+the code is not written against an SDK that cannot compile it. This is recorded in `PROGRESS.md`.
 
 ### I2-04 W-04 Lock screen and W-05 Controls
 
@@ -156,63 +155,45 @@ callback so a test can count it.
   labelled Previous, Next and Today.
   Test: `WidgetAccessibilityTests.labels`; VoiceOver on the device remains manual.
 - AC: a 7-day W-03 timeline builds under an `XCTMemoryMetric` test and the number is printed each
-  run; the device peak is at most 15 MB with W-01, W-02, W-03 and all W-04 families placed and W-03
-  paged ten times.
-  Test: `WidgetTimelinePerformanceTests.memory`; device row in the manual checklist and
-  `docs/benchmarks.md`.
+  run as a regression signal. The device peak with W-01, W-02, W-03 and all W-04 families placed
+  and W-03 paged ten times is a manual check; until it is run, `docs/benchmarks.md` says
+  "not measured".
+  Test: `WidgetTimelinePerformanceTests.memory`; manual row in the checklist.
 - AC: the release build logs the widget executable size and the size is compared with the I1
   baseline; a change is explained in the PR.
   Test: `ci.sh` size lines, reviewed in the PR.
 
-### I2-03b systemExtraLargePortrait (blocked)
-
-Add `systemExtraLargePortrait` behind `#available(iOS 27, *)` once the runner image has Xcode 27.
-It shows the same month plus the month's holidays and events as a list under the grid.
-
-- AC: Jestha 2083 shows the grid and its holiday/event list without clipping.
-  Test: `WidgetSnapshotTests.monthExtraLarge`.
-- AC: the family appears only on iOS 27 and later; iOS 18-26 builds use the same `systemLarge`
-  fallback.
-  Test: `WidgetFamilyTests.availability` (compile-time and a runtime availability check).
-
 ## Snapshot matrix and counts
 
-The planned references are:
+The matrix is sized by distinct pixels, not by an assumed number of modes. Each widget family and
+language keeps its full-colour holiday reference and, for W-01 and W-02, a full-colour normal-day
+reference. An accented or vibrant rendering is kept only when its PNG differs from the full-colour
+twin; otherwise it is collapsed.
 
-| View | Families | Languages | Modes | Days | References |
-|---|---|---|---|---|---|
-| W-01 | small | 2 | 3 | holiday | 6 |
-| W-01 | small | 2 | 1 | normal | 2 |
-| W-02 | medium | 2 | 3 | holiday | 6 |
-| W-02 | medium | 2 | 1 | normal | 2 |
-| W-03 | large | 2 | 3 | Jestha 2083 | 6 |
-| W-04 | inline, circular, rectangular | 2 | 3 | holiday | 18 |
-| W-05 | controls | - | - | - | 0 (manual) |
+`WidgetSnapshotTests.collapsedModesMatch` renders each collapsed mode and compares its PNG data with
+the kept twin byte for byte, so a mode is not dropped by assumption. `SNAPSHOT_REFERENCE_COUNT` and
+`SNAPSHOT_COUNT` are updated from the recording run, and the final reference count is reported in
+the task's PR and at the checkpoint. No fixed count is set in this plan.
 
-That is 40 new references, 67 in total. The extra-large family would add 6 after Xcode 27. The
-numbers and `SNAPSHOT_REFERENCE_COUNT` are updated only after the recording run, and the PR states
-the exact count. `SNAPSHOT_COUNT` for the screenshot artefact moves from 6 to 46.
-
-If a rendering mode produces no pixel difference in the host, the plan is to keep one reference and
-record the equality in the test, rather than commit duplicate images. That decision is listed in
-the checkpoint.
+W-05 controls have no image reference; their routes are unit-tested and the gallery placement is
+manual.
 
 ## Checkpoint
 
 Stop after I2-05 and the first fully green CI run, before any device-only work. The review needs:
 
 1. The commits, the draft PR link, and the CI link with these lines verbatim:
-   `ci: 6/6 gates passed`, the test counts, `test: 27 reference snapshots` (or the new count),
-   `test: 6 screenshots` (or the new count), and both size lines.
-2. The new snapshot contact sheet or artefact, with the matrix above and the reason for every
-   changed or added reference.
+   `ci: 6/6 gates passed`, the test counts, the final reference and screenshot counts, and both size
+   lines.
+2. The new snapshot contact sheet or artefact, the final reference count, the collapsed modes, and
+   the byte-equality evidence for each.
 3. The AC table with one test name per row, and the manual rows that remain open.
-4. A decision on the three open points: the iOS 27 extra-large family, the missing beta workflow and
-   memory screen, and whether duplicate rendering-mode references are needed.
-5. Confirmation that no tag, release, signing key, secret or repository setting was created.
+4. Confirmation that `systemExtraLargePortrait` is still deferred, that the memory number is
+   recorded as not measured, and that no tag, release, signing key, secret or repository setting
+   was created.
 
-Do not merge the draft PR. The reviewer decides whether to keep I2 as one phase or split I2-03b and
-the device work into a follow-up.
+Do not merge the draft PR. The reviewer decides whether the deferred extra-large family needs its
+own phase before I3.
 
 ## Out of scope
 
