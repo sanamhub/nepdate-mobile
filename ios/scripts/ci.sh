@@ -80,6 +80,8 @@ gate_format() {
     return 1
   fi
   echo "localisation: every key has a translated ne value"
+
+  bash scripts/check-background-work.sh || return 1
 }
 
 gate_build() {
