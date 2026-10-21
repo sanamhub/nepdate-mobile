@@ -30,8 +30,7 @@ Neither app is released yet.
   ([ADR-0009](https://github.com/sanamhub/nepdate-mobile/blob/main/docs/adr/0009-distribution-and-releases.md)),
   once the developer account exists. F-Droid, IzzyOnDroid and GitHub Releases follow.
 - **iOS:** built and tested in CI on every change, with snapshot and UI tests, but not
-  distributed. There is no TestFlight or App Store release for now: the Apple Developer Program
-  costs USD 99 a year, and the owner decided on 2026-10-21 not to pay it yet. That may change.
+  distributed. There is no TestFlight or App Store release for now.
 
 Screens rendered by the Android screenshot tests in CI (Roborazzi), not taken on a device:
 
