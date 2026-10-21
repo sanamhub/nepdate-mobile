@@ -269,8 +269,7 @@ public struct AboutContent: View {
   private let digits: Digits
   private let settings: Settings
   private let links: AboutLinksState
-  @State private var copied = false
-  @State private var copiedTask: Task<Void, Never>?
+  @State private var copied: CopyConfirmationTimer
   @Environment(\.openURL) private var openURL
 
   /// Creates the content.
@@ -280,6 +279,7 @@ public struct AboutContent: View {
   ///   - digits: The resolved Digits setting.
   ///   - settings: The settings the diagnostic text describes.
   ///   - links: The injected subscription state.
+  @MainActor
   public init(
     info: AboutInfo,
     language: AppLanguage,
@@ -292,6 +292,7 @@ public struct AboutContent: View {
     self.digits = digits
     self.settings = settings
     self.links = links
+    _copied = State(initialValue: CopyConfirmationTimer())
   }
 
   /// The content.
@@ -331,7 +332,7 @@ public struct AboutContent: View {
           Text("Copy diagnostic info")
             .frame(minHeight: 44)
         }
-        if copied {
+        if copied.isShowing {
           Text("Copied")
             .font(.footnote)
             .foregroundStyle(BrandColor.secondaryText)
@@ -405,13 +406,7 @@ public struct AboutContent: View {
       labels: labels
     )
     DayClipboard.write(text)
-    copied = true
     CopyConfirmation.announce(AppText.string("Copied", language))
-    copiedTask?.cancel()
-    copiedTask = Task { @MainActor in
-      try? await Task.sleep(for: CopyConfirmation.duration)
-      guard !Task.isCancelled else { return }
-      copied = false
-    }
+    copied.show()
   }
 }
