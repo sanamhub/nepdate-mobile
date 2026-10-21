@@ -37,6 +37,10 @@ All notable changes to the iOS app. The format follows
   and `.accessibility2`, plus `daydetail.copied.png` for the Copy date confirmation.
 - `ci.sh` checks `NepDateLibraryVersion` against the nepdate-swift pin and every catalog key for a
   translated `ne` value.
+- The widget timeline: one entry for the build instant and one at each of the next seven local
+  midnights, with the day, the next holiday and the next three events.
+- W-01 Today and W-02 Today and upcoming, with the holiday mark, the Nepal label, the coverage
+  footer and `nepdate://` links. Eight widget reference snapshots, 35 in total.
 
 ### Changed
 

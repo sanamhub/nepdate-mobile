@@ -71,6 +71,15 @@ public struct WidgetEntry: Sendable, Hashable {
 /// Builds the widget timeline: one entry for the build instant and one at each of the next seven
 /// local midnights (ADR-0006).
 public enum WidgetTimeline {
+  /// A fixed holiday entry for the widget's placeholder and gallery preview.
+  /// - Parameter settings: The settings to draw it with; the fresh-install values by default.
+  /// - Returns: Asoj 25, 2083 at noon in Nepal.
+  public static func preview(settings: Settings = .defaults) -> WidgetEntry {
+    // 2026-10-11T12:00:00+05:45, the Asoj 25 holiday.
+    let now = Date(timeIntervalSince1970: 1_791_699_300)
+    return entries(now: now, settings: settings, deviceZone: CalendarDates.nepal).first!
+  }
+
   /// The entries for a timeline.
   /// - Parameters:
   ///   - now: The instant at which the timeline is built.

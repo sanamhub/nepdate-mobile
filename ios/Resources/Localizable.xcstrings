@@ -783,6 +783,23 @@
         }
       }
     },
+    "Nepal": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nepal"
+          }
+        },
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "नेपाल"
+          }
+        }
+      }
+    },
     "Nepal time": {
       "extractionState": "manual",
       "localizations": {
@@ -1170,6 +1187,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "आज"
+          }
+        }
+      }
+    },
+    "Today and the next three holidays or events.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Today and the next three holidays or events."
+          }
+        },
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "आज र अर्को तीन बिदा वा कार्यक्रम।"
           }
         }
       }

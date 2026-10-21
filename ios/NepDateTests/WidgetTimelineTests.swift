@@ -153,6 +153,14 @@ struct WidgetTimelineTests {
     #expect(entry.dataEndsOn == nil)
   }
 
+  @Test("the fixed preview is the Asoj 25 holiday")
+  func preview() {
+    let entry = WidgetTimeline.preview()
+
+    #expect(entry.day.date == MonthDate(year: 2083, month: 6, day: 25))
+    #expect(entry.day.isHoliday)
+  }
+
   @Test("the footer names the last covered date when fewer than three entries remain")
   func dataEnd() throws {
     let zone = try #require(TimeZone(identifier: "Asia/Kathmandu"))
