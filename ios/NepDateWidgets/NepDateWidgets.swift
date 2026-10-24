@@ -5,5 +5,6 @@ import WidgetKit
 struct NepDateWidgets: WidgetBundle {
   var body: some Widget {
     TodayWidget()
+    UpcomingWidget()
   }
 }

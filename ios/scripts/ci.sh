@@ -10,8 +10,8 @@ XCODEGEN_URL="https://github.com/yonaskolb/XcodeGen/releases/download/${XCODEGEN
 SIMULATOR="platform=iOS Simulator,name=iPhone 17,OS=latest"
 DERIVED_DATA="build/DerivedData"
 PROJECT="NepDate.xcodeproj"
-SNAPSHOT_COUNT=6
-SNAPSHOT_REFERENCE_COUNT=27
+SNAPSHOT_COUNT=12
+SNAPSHOT_REFERENCE_COUNT=35
 SNAPSHOT_RECORD="${SNAPSHOT_TESTING_RECORD:-never}"
 COVERAGE_MIN=80
 
@@ -80,6 +80,8 @@ gate_format() {
     return 1
   fi
   echo "localisation: every key has a translated ne value"
+
+  bash scripts/check-background-work.sh || return 1
 }
 
 gate_build() {

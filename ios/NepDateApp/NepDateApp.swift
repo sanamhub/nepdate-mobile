@@ -15,6 +15,8 @@ struct NepDateApp: App {
 private struct RootView: View {
   @State private var settings: Settings
   @State private var showsSettings = false
+  @State private var tab = RootTab.month
+  @State private var route: AppRoute?
 
   init() {
     _settings = State(initialValue: SettingsStore().load())
@@ -49,6 +51,13 @@ private struct RootView: View {
       #endif
     }
     .background(Color(uiColor: .systemBackground))
+    // Widget taps (I2-02). An unknown or malformed URL just opens the app where it was.
+    .onOpenURL { url in
+      guard let opened = AppRoute(url: url) else { return }
+      showsSettings = false
+      tab = .month
+      route = opened
+    }
     .sheet(isPresented: $showsSettings) {
       SettingsScreen(
         model: SettingsViewModel(settings: settings, store: store),
@@ -82,6 +91,9 @@ private struct RootView: View {
       RootTabView(
         settings: settings,
         today: today,
+        tab: $tab,
+        route: route,
+        onRouteHandled: { route = nil },
         onSettings: { showsSettings = true }
       )
     }
@@ -120,27 +132,43 @@ private struct RootView: View {
   }
 }
 
+/// The app's tabs, so a widget tap can switch to the month.
+private enum RootTab: Hashable {
+  case month
+  case upcoming
+  case converter
+}
+
 private struct RootTabView: View {
   let settings: Settings
   let today: MonthDate
+  @Binding var tab: RootTab
+  let route: AppRoute?
+  let onRouteHandled: () -> Void
   let onSettings: () -> Void
 
   var body: some View {
     let language = settings.language.resolved
     let digits = settings.digits.resolved(for: language)
 
-    TabView {
+    TabView(selection: $tab) {
       if let model = MonthViewModel(
         today: today,
         language: language,
         digits: digits,
         showTithi: settings.showTithi
       ) {
-        MonthScreen(model: model, onSettings: onSettings)
-          .id(settings)
-          .tabItem {
-            Label("Month", systemImage: "calendar")
-          }
+        MonthScreen(
+          model: model,
+          onSettings: onSettings,
+          route: route,
+          onRouteHandled: onRouteHandled
+        )
+        .id(settings)
+        .tabItem {
+          Label("Month", systemImage: "calendar")
+        }
+        .tag(RootTab.month)
       }
 
       if let upcoming = UpcomingViewModel(
@@ -158,6 +186,7 @@ private struct RootTabView: View {
         .tabItem {
           Label("Upcoming", systemImage: "bell")
         }
+        .tag(RootTab.upcoming)
       }
 
       ConverterScreen(
@@ -168,6 +197,7 @@ private struct RootTabView: View {
       .tabItem {
         Label("Converter", systemImage: "arrow.left.arrow.right")
       }
+      .tag(RootTab.converter)
     }
   }
 }

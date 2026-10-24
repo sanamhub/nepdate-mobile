@@ -80,7 +80,7 @@ to `nepdate://day/<yyyy-MM-dd>` in ASCII digits. `AppRoute` owns the URL format 
   Test: `UpcomingWidgetModelTests.threeEntries`, `UpcomingWidgetModelTests.coverageFooter`.
 - AC: the tap URLs are `nepdate://today`, `nepdate://day/2083-06-25` and
   `nepdate://day/2084-08-20`; parsing each one back gives the same route.
-  Test: `WidgetLinkTests.todayAndDayURLs`, `AppRouteTests.roundTrip`.
+  Test: `AppRouteTests.todayAndDayURLs`, `AppRouteTests.roundTrip`, `AppRouteTests.rejects`.
 - AC: reference images cover `systemSmall` and `systemMedium`, English and Nepali, full colour,
   accented and vibrant, on holiday 2083-06-25; full colour additionally covers normal day
   2083-06-20 in both languages.
@@ -103,7 +103,7 @@ and records no state that survives the next midnight. Each in-month day is a `Li
   Test: `MonthWidgetTimelineTests.midnightResetsNavigation`.
 - AC: a day link is `nepdate://day/2083-06-25` and opens that day's detail through the same router
   used by W-02.
-  Test: `WidgetLinkTests.monthDayURL`.
+  Test: `AppRouteTests.monthDayURL`.
 
 `systemExtraLargePortrait` and its holiday/event list are deferred until the runner has Xcode 27;
 the code is not written against an SDK that cannot compile it. This is recorded in `PROGRESS.md`.
@@ -173,7 +173,11 @@ twin; otherwise it is collapsed.
 `WidgetSnapshotTests.collapsedModesMatch` renders each collapsed mode and compares its PNG data with
 the kept twin byte for byte, so a mode is not dropped by assumption. `SNAPSHOT_REFERENCE_COUNT` and
 `SNAPSHOT_COUNT` are updated from the recording run, and the final reference count is reported in
-the task's PR and at the checkpoint. No fixed count is set in this plan.
+the task's PR and at the checkpoint.
+
+At the I2-02 checkpoint the recording run added 8 references, 35 in total. The accented and vibrant
+renders of W-01 and W-02 were byte-identical to full colour, so both modes are collapsed. The
+screenshot artefact count is 12. W-03 and W-04 add their references in their own tasks.
 
 W-05 controls have no image reference; their routes are unit-tested and the gallery placement is
 manual.
