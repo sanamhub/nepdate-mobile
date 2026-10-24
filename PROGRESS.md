@@ -16,7 +16,7 @@ Branch `feat/I2-ios-widgets`, from `main` at `302eb0a`. The plan is
 | Task | Status |
 |---|---|
 | I2-01 Timeline | Done: one entry plus seven local midnights, tested across Kathmandu, New York and Sydney DST |
-| I2-02 W-01 and W-02 | Done: Today and upcoming views, URLs, eight references, 35 in total |
+| I2-02 W-01 and W-02 | Done: Today and upcoming views, `AppRoute` builds and parses the URLs and the app opens them, eight references, 35 in total |
 | I2-03 W-03 | Not started |
 | I2-04 W-04 and W-05 | Not started |
 | I2-05 Refresh and memory | Not started |

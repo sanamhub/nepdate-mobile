@@ -153,6 +153,48 @@ struct WidgetTimelineTests {
     #expect(entry.dataEndsOn == nil)
   }
 
+  @Test("a holiday shows its first event in place of the AD line; a normal day shows none")
+  func holidayAndNormalDay() throws {
+    let zone = try #require(TimeZone(identifier: "Asia/Kathmandu"))
+    let holiday = try #require(
+      WidgetTimeline.entries(
+        now: try Self.bsInstant(MonthDate(year: 2083, month: 6, day: 25), zone: zone),
+        settings: Self.settings(),
+        deviceZone: zone
+      ).first
+    )
+    let normal = try #require(
+      WidgetTimeline.entries(
+        now: try Self.bsInstant(MonthDate(year: 2083, month: 6, day: 20), zone: zone),
+        settings: Self.settings(),
+        deviceZone: zone
+      ).first
+    )
+
+    #expect(holiday.day.isHoliday)
+    #expect(holiday.day.holidayName == "Ghatasthapana Brata")
+    #expect(!normal.day.isHoliday)
+    #expect(normal.day.holidayName == nil)
+  }
+
+  @Test("the Nepal label shows only with Nepal time and a device zone at another offset")
+  func nepalLabel() throws {
+    let kathmandu = try #require(TimeZone(identifier: "Asia/Kathmandu"))
+    let kolkata = try #require(TimeZone(identifier: "Asia/Kolkata"))
+    let now = try Self.bsInstant(MonthDate(year: 2083, month: 6, day: 20), zone: kathmandu)
+    func label(_ follows: DateFollows, _ device: TimeZone) -> Bool? {
+      WidgetTimeline.entries(
+        now: now,
+        settings: Self.settings(dateFollows: follows),
+        deviceZone: device
+      ).first?.day.showsNepalLabel
+    }
+
+    #expect(label(.nepal, kolkata) == true)
+    #expect(label(.nepal, kathmandu) == false)
+    #expect(label(.device, kolkata) == false)
+  }
+
   @Test("the fixed preview is the Asoj 25 holiday")
   func preview() {
     let entry = WidgetTimeline.preview()

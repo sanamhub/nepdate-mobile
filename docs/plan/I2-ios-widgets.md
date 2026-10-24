@@ -80,7 +80,7 @@ to `nepdate://day/<yyyy-MM-dd>` in ASCII digits. `AppRoute` owns the URL format 
   Test: `UpcomingWidgetModelTests.threeEntries`, `UpcomingWidgetModelTests.coverageFooter`.
 - AC: the tap URLs are `nepdate://today`, `nepdate://day/2083-06-25` and
   `nepdate://day/2084-08-20`; parsing each one back gives the same route.
-  Test: `WidgetLinkTests.todayAndDayURLs`, `AppRouteTests.roundTrip`.
+  Test: `AppRouteTests.todayAndDayURLs`, `AppRouteTests.roundTrip`, `AppRouteTests.rejects`.
 - AC: reference images cover `systemSmall` and `systemMedium`, English and Nepali, full colour,
   accented and vibrant, on holiday 2083-06-25; full colour additionally covers normal day
   2083-06-20 in both languages.
@@ -103,7 +103,7 @@ and records no state that survives the next midnight. Each in-month day is a `Li
   Test: `MonthWidgetTimelineTests.midnightResetsNavigation`.
 - AC: a day link is `nepdate://day/2083-06-25` and opens that day's detail through the same router
   used by W-02.
-  Test: `WidgetLinkTests.monthDayURL`.
+  Test: `AppRouteTests.monthDayURL`.
 
 `systemExtraLargePortrait` and its holiday/event list are deferred until the runner has Xcode 27;
 the code is not written against an SDK that cannot compile it. This is recorded in `PROGRESS.md`.

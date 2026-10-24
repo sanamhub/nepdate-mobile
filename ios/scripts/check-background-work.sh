@@ -6,8 +6,9 @@ cd "$(dirname "$0")/.."
 
 status=0
 
-if grep -R -n --include='*.plist' 'UIBackgroundModes' Config; then
-  echo "background: UIBackgroundModes appears in an Info.plist"
+# project.yml too: XcodeGen writes its info properties into the plists at generate time.
+if grep -R -n --include='*.plist' 'UIBackgroundModes' Config || grep -n 'UIBackgroundModes' project.yml; then
+  echo "background: UIBackgroundModes appears in an Info.plist or project.yml"
   status=1
 fi
 

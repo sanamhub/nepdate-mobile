@@ -75,7 +75,7 @@ public struct TodayWidgetView: View {
       }
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-    .widgetURL(WidgetLink.today)
+    .widgetURL(AppRoute.today.url)
   }
 
   @ViewBuilder
@@ -120,7 +120,7 @@ public struct UpcomingWidgetView: View {
 
       VStack(alignment: .leading, spacing: 5) {
         ForEach(entry.upcoming, id: \.id) { event in
-          Link(destination: WidgetLink.day(event.date)) {
+          Link(destination: AppRoute.day(event.date).url) {
             VStack(alignment: .leading, spacing: 1) {
               eventName(event)
                 .font(.caption.weight(.semibold))
@@ -146,7 +146,7 @@ public struct UpcomingWidgetView: View {
       .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-    .widgetURL(WidgetLink.today)
+    .widgetURL(AppRoute.today.url)
   }
 
   @ViewBuilder

@@ -41,6 +41,8 @@ All notable changes to the iOS app. The format follows
   midnights, with the day, the next holiday and the next three events.
 - W-01 Today and W-02 Today and upcoming, with the holiday mark, the Nepal label, the coverage
   footer and `nepdate://` links. Eight widget reference snapshots, 35 in total.
+- The app opens `nepdate://today` on today's month and `nepdate://day/<date>` on that day's detail;
+  a malformed or unknown link opens the app where it was.
 
 ### Changed
 

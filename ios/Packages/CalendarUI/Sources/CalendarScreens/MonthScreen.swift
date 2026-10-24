@@ -14,16 +14,27 @@ public struct MonthScreen: View {
   @State private var detail: MonthDate?
   @State private var isRecentring = false
   private let onSettings: (() -> Void)?
+  private let route: AppRoute?
+  private let onRouteHandled: () -> Void
 
   /// Creates the screen.
   /// - Parameters:
   ///   - model: The month to open on and the settings to draw it with.
   ///   - onSettings: Opens Settings.
-  public init(model: MonthViewModel, onSettings: (() -> Void)? = nil) {
+  ///   - route: A place to open, from a widget tap; `nil` when there is none.
+  ///   - onRouteHandled: Called once the screen has opened `route`, so the caller can clear it.
+  public init(
+    model: MonthViewModel,
+    onSettings: (() -> Void)? = nil,
+    route: AppRoute? = nil,
+    onRouteHandled: @escaping () -> Void = {}
+  ) {
     _model = State(initialValue: model)
     _scrolledMonth = State(initialValue: model.month)
     _window = State(initialValue: Self.window(around: model.month))
     self.onSettings = onSettings
+    self.route = route
+    self.onRouteHandled = onRouteHandled
   }
 
   /// The screen's content.
@@ -75,6 +86,8 @@ public struct MonthScreen: View {
       }
     }
     .background(Color(uiColor: .systemBackground))
+    .onAppear { open(route) }
+    .onChange(of: route) { _, newValue in open(newValue) }
     .sheet(isPresented: presentsSheet) {
       if showsPicker {
         MonthPickerSheet(
@@ -111,6 +124,21 @@ public struct MonthScreen: View {
   private func select(_ date: MonthDate) {
     model.select(date)
     detail = date
+  }
+
+  /// Opens a widget's route: today's month, or a day's month with its detail sheet.
+  private func open(_ route: AppRoute?) {
+    guard let route else { return }
+    showsPicker = false
+    switch route {
+    case .today:
+      detail = nil
+      go(to: todayMonth)
+    case .day(let date):
+      go(to: MonthKey(monthOf: date))
+      select(date)
+    }
+    onRouteHandled()
   }
 
   private var previousMonth: MonthKey? {
