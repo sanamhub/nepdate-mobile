@@ -18,7 +18,7 @@ benchmark = "1.5.0"
 uiautomator = "2.4.0"
 ktlint = "14.2.0"
 # ADR-0009: Gradle Play Publisher uploads the signed AAB to the internal track.
-play = "4.1.0"
+play = "4.1.1"
 # No stable detekt release supports Kotlin 2.4; 2.0.0-alpha.6 is the newest published plugin.
 detekt = "2.0.0-alpha.6"
 
