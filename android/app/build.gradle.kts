@@ -84,12 +84,13 @@ android {
         checkReleaseBuilds = false
         // Versions are exact pins (ADR-0003 §1, ADR-0005); Dependabot proposes upgrades.
         // Adaptive icons stay in -v26: AAPT ignores the tag outside a v26 folder even at minSdk 26.
-        disable += setOf(
-            "AndroidGradlePluginVersion",
-            "GradleDependency",
-            "NewerVersionAvailable",
-            "ObsoleteSdkInt",
-        )
+        disable +=
+            setOf(
+                "AndroidGradlePluginVersion",
+                "GradleDependency",
+                "NewerVersionAvailable",
+                "ObsoleteSdkInt",
+            )
     }
 
     testOptions {
