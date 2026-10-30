@@ -62,25 +62,52 @@ struct SnapshotRenderingTests {
     )
   }
 
-  @Test("M0-03: the Today widget renders for the small and medium families")
+  @Test("W-01 and W-02 render on a holiday and a normal day in both languages")
   func widget() throws {
-    let summary = try #require(
-      TodaySummary(year: 2081, month: 1, day: 1, language: .nepali, digits: .nepali)
-    )
-    try render(
-      TodayWidgetView(summary: summary),
-      name: "widget-small-ne",
-      size: CGSize(width: 170, height: 170),
-      scheme: .light,
-      locale: Locale(identifier: "ne")
-    )
-    try render(
-      TodayWidgetView(summary: summary),
-      name: "widget-medium-ne",
-      size: CGSize(width: 329, height: 155),
-      scheme: .light,
-      locale: Locale(identifier: "ne")
-    )
+    let small = CGSize(width: 170, height: 170)
+    let medium = CGSize(width: 329, height: 155)
+
+    for language in [AppLanguage.english, .nepali] {
+      let locale = Locale(identifier: language == .nepali ? "ne" : "en")
+      let suffix = language == .nepali ? "ne" : "en"
+      let holidayEntry = try WidgetTestData.entry(
+        MonthDate(year: 2083, month: 6, day: 25),
+        language: language
+      )
+      let normalEntry = try WidgetTestData.entry(
+        MonthDate(year: 2083, month: 6, day: 20),
+        language: language
+      )
+
+      try render(
+        TodayWidgetView(entry: holidayEntry),
+        name: "widget-today-small-\(suffix)-holiday",
+        size: small,
+        scheme: .light,
+        locale: locale
+      )
+      try render(
+        TodayWidgetView(entry: normalEntry),
+        name: "widget-today-small-\(suffix)-normal",
+        size: small,
+        scheme: .light,
+        locale: locale
+      )
+      try render(
+        UpcomingWidgetView(entry: holidayEntry),
+        name: "widget-upcoming-medium-\(suffix)-holiday",
+        size: medium,
+        scheme: .light,
+        locale: locale
+      )
+      try render(
+        UpcomingWidgetView(entry: normalEntry),
+        name: "widget-upcoming-medium-\(suffix)-normal",
+        size: medium,
+        scheme: .light,
+        locale: locale
+      )
+    }
   }
 
   private func render<V: View>(

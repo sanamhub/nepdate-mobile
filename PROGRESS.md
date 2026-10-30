@@ -10,14 +10,23 @@ started.
 
 ## I2 iOS widgets
 
-The next iOS phase is I2. The plan is `docs/plan/I2-ios-widgets.md`; implementation starts from
-`main` after PR #26 merges.
+Branch `feat/I2-ios-widgets`, from `main` at `302eb0a`. The plan is
+`docs/plan/I2-ios-widgets.md`.
+
+| Task | Status |
+|---|---|
+| I2-01 Timeline | Done: one entry plus seven local midnights, tested across Kathmandu, New York and Sydney DST |
+| I2-02 W-01 and W-02 | Done: Today and upcoming views, `AppRoute` builds and parses the URLs and the app opens them, eight references, 35 in total |
+| I2-03 W-03 | Not started |
+| I2-04 W-04 and W-05 | Not started |
+| I2-05 Refresh and memory | Not started |
 
 - `systemExtraLargePortrait` is deferred until the runner has Xcode 27.
 - The widget peak-memory number is a manual device check and will be recorded as **not measured**.
   There is no `ios-beta.yml` and no rented Mac.
-- The snapshot matrix keeps a reference only for rendering modes whose pixels differ. Each collapsed
-  mode is rendered in a test and compared byte for byte with its kept twin.
+- The snapshot matrix keeps a reference only for rendering modes whose pixels differ. The accented
+  and vibrant renders of W-01 and W-02 are byte-identical to full colour, so both are collapsed; the
+  equality test passed. The screenshot artefact has 12 images.
 
 ## A3-00 About links
 

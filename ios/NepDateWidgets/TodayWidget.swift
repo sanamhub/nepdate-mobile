@@ -4,43 +4,63 @@ import Foundation
 import SwiftUI
 import WidgetKit
 
-/// The Today widget: the Bikram Sambat date at a glance.
+/// The small Today widget (W-01): the Bikram Sambat date at a glance.
 struct TodayWidget: Widget {
   var body: some WidgetConfiguration {
     StaticConfiguration(kind: "TodayWidget", provider: TodayTimeline()) { entry in
-      TodayWidgetView(summary: entry.summary)
+      TodayWidgetView(entry: entry.entry)
         .containerBackground(.background, for: .widget)
     }
     .configurationDisplayName("NepDate")
     .description("Today's Bikram Sambat date.")
-    .supportedFamilies([.systemSmall, .systemMedium])
+    .supportedFamilies([.systemSmall])
   }
 }
 
-/// One entry of the Today widget.
-struct TodayEntry: TimelineEntry {
-  let date: Date
-  let summary: TodaySummary
+/// The medium Today and upcoming widget (W-02): today on the left and the next three events.
+struct UpcomingWidget: Widget {
+  var body: some WidgetConfiguration {
+    StaticConfiguration(kind: "UpcomingWidget", provider: TodayTimeline()) { entry in
+      UpcomingWidgetView(entry: entry.entry)
+        .containerBackground(.background, for: .widget)
+    }
+    .configurationDisplayName("NepDate")
+    .description("Today and the next three holidays or events.")
+    .supportedFamilies([.systemMedium])
+  }
 }
 
-/// Supplies the widget's entries from the shared settings, so the widget shows the same day,
-/// language and digits as the app. It reads the clock once per entry; I2 moves the midnight
-/// scheduling into CalendarKit.
+/// One entry of the Today or upcoming widget.
+struct TodayEntry: TimelineEntry {
+  let date: Date
+  let entry: WidgetEntry
+}
+
+/// Supplies the widget's entries from the shared settings, so the widgets show the same day,
+/// language and digits as the app. The next seven local midnights come from `WidgetTimeline`.
 struct TodayTimeline: TimelineProvider {
   func placeholder(in context: Context) -> TodayEntry {
-    TodayEntry(date: Date(), summary: current)
+    let entry = WidgetTimeline.preview()
+    return TodayEntry(date: entry.date, entry: entry)
   }
 
   func getSnapshot(in context: Context, completion: @escaping (TodayEntry) -> Void) {
-    completion(TodayEntry(date: Date(), summary: current))
+    let entry = WidgetTimeline.preview()
+    completion(TodayEntry(date: entry.date, entry: entry))
   }
 
   func getTimeline(in context: Context, completion: @escaping (Timeline<TodayEntry>) -> Void) {
-    let entry = TodayEntry(date: Date(), summary: current)
-    completion(Timeline(entries: [entry], policy: .atEnd))
+    let settings = SettingsStore().load()
+    let entries = WidgetTimeline.entries(now: Date(), settings: settings)
+    let timelineEntries = entries.map { TodayEntry(date: $0.date, entry: $0) }
+    completion(Timeline(entries: timelineEntries, policy: .atEnd))
   }
 
-  private var current: TodaySummary {
-    TodaySummary.make(settings: SettingsStore().load())
+  private var current: TodayEntry {
+    let settings = SettingsStore().load()
+    let entry =
+      WidgetTimeline.entries(now: Date(), settings: settings).first
+      ?? WidgetTimeline.preview(settings: settings)
+    return TodayEntry(date: entry.date, entry: entry)
   }
 }

@@ -26,8 +26,8 @@ open NepDate.xcodeproj        # after ci.sh, on a Mac
 
 `ci.sh` downloads XcodeGen 2.46.0, checks its SHA-256, generates the project and runs six gates:
 xcodegen, format, build, test, coverage, network. It ends with `ci: 6/6 gates passed`. The test gate
-runs the Swift Testing suites and the XCUITest, renders the month screen and the widget to
-`build/snapshots`, and compares the twenty-seven reference snapshots. `ios.yml` uploads the screenshots and
+runs the Swift Testing suites and the XCUITest, renders the month screen and the widgets to
+`build/snapshots`, and compares the thirty-five reference snapshots. `ios.yml` uploads the screenshots and
 the references as artefacts.
 
 The coverage gate reads the test result bundle with `xcrun xccov` and fails below 80 % line
@@ -42,8 +42,11 @@ pass.
 six month references are in `NepDateTests/__Snapshots__/MonthSnapshotTests`: light with Asoj 25
 selected, dark, Nepali with the tithi line, tithi in English, `.xxxLarge`, and `.accessibility2`.
 The four day references are in `NepDateTests/__Snapshots__/DayDetailSnapshotTests`: Asoj 9 2083 in
-light, dark, Nepali and `.accessibility2`. They are 390 by 844 points, rendered on the iPhone 17
-simulator by Xcode 26.6. The test gate sets `SNAPSHOT_TESTING_RECORD=never`, so a missing image
+light, dark, Nepali and `.accessibility2`. The eight widget references are in
+`NepDateTests/__Snapshots__/WidgetSnapshotTests`: W-01 and W-02 on Asoj 25 2083 and Asoj 20 2083,
+in English and Nepali. Accented and vibrant render byte-identically to full colour, so they are not
+kept; `WidgetSnapshotTests.collapsedModesMatch` proves that. All references are rendered on the
+iPhone 17 simulator by Xcode 26.6. The test gate sets `SNAPSHOT_TESTING_RECORD=never`, so a missing image
 fails instead of being written. `ci.sh` exports it as `TEST_RUNNER_SNAPSHOT_TESTING_RECORD`, because
 `xcodebuild` passes a variable into the test process on the simulator only with that prefix;
 without it the record run of 39144415913 compared instead of recording.
