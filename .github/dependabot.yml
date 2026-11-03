@@ -1,22 +1,31 @@
 version: 2
 
 updates:
+  # The cooldown gives a bad release two weeks to be pulled before a pull request opens.
   - package-ecosystem: github-actions
     directory: "/"
     schedule:
       interval: weekly
+    cooldown:
+      default-days: 14
 
   - package-ecosystem: gradle
     directory: "/android"
     schedule:
       interval: weekly
+    cooldown:
+      default-days: 14
 
   - package-ecosystem: swift
     directory: "/ios/Packages/CalendarKit"
     schedule:
       interval: weekly
+    cooldown:
+      default-days: 14
 
   - package-ecosystem: swift
     directory: "/ios/Packages/CalendarUI"
     schedule:
       interval: weekly
+    cooldown:
+      default-days: 14
