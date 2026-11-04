@@ -21,7 +21,7 @@ news, no horoscope, no network.
 | Minimum OS | Android 8.0 (API 26) | iOS 18 |
 | Permissions | none, not even internet | none |
 
-## Status
+## Coming soon
 
 Neither app is released yet.
 
@@ -79,5 +79,5 @@ docs/runbooks/  release procedures per store
 ## License
 
 MIT ([LICENSE](https://github.com/sanamhub/nepdate-mobile/blob/main/LICENSE)). Calendar data from
-NepDate by Raju Prasai and contributors, MIT. Holiday data is informational; this app is not
+the C# [NepDate](https://github.com/RajuPrasai/NepDate) library, MIT. Holiday data is informational; this app is not
 affiliated with the Government of Nepal.
