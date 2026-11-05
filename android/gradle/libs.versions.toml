@@ -8,7 +8,7 @@ datastore = "1.3.0"
 lifecycle = "2.11.0"
 profileinstaller = "1.4.1"
 glance = "1.2.0"
-nepdate = "0.1.0"
+nepdate = "1.0.0-rc.1"
 junit = "4.13.2"
 androidx-test-junit = "1.3.0"
 robolectric = "4.17"
@@ -45,8 +45,7 @@ androidx-compose-ui-test-manifest = { module = "androidx.compose.ui:ui-test-mani
 
 androidx-profileinstaller = { module = "androidx.profileinstaller:profileinstaller", version.ref = "profileinstaller" }
 
-# The app uses the library from a composite build (ADR-0003 §6) until the first release. The
-# version is the local library's 0.1.0; dependency substitution replaces it with the project.
+# nepdate-kotlin from Maven Central. Both artifacts share one version (ADR-0003 §1).
 nepdate-core = { module = "io.github.sanamhub:nepdate", version.ref = "nepdate" }
 nepdate-patro = { module = "io.github.sanamhub:nepdate-patro", version.ref = "nepdate" }
 

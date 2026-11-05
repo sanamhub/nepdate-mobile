@@ -91,9 +91,7 @@ struct DayEventTests {
     )
 
     #expect(event.isAllDay)
-    // The hub data names 2084's new year "New Year 2083" (hub known-questions.json,
-    // new-year-name); this fails, as it should, once the corrected data is synced.
-    #expect(event.title == "New Year 2083")
+    #expect(event.title == "New Year 2084")
     #expect((event.alarms ?? []).isEmpty)
     let start = try #require(event.startDate)
     let parts = calendar.dateComponents([.year, .month, .day], from: start)

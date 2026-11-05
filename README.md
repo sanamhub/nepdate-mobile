@@ -45,10 +45,10 @@ Screens rendered by the Android screenshot tests in CI (Roborazzi), not taken on
 The apps hold no calendar logic of their own. They use the NepDate libraries, each as two units:
 the core (conversion, formatting) and the patro (tithi, holidays, events).
 
-| App | Library | How it is pulled in today |
+| App | Library | How it is pulled in |
 |---|---|---|
-| iOS | [nepdate-swift](https://github.com/sanamhub/nepdate-swift), released as [0.1.0-beta.1](https://github.com/sanamhub/nepdate-swift/releases/tag/0.1.0-beta.1) | SwiftPM, still pinned to an earlier commit in [`ios/project.yml`](https://github.com/sanamhub/nepdate-mobile/blob/main/ios/project.yml); moving to the tag is a separate change |
-| Android | [nepdate-kotlin](https://github.com/sanamhub/nepdate-kotlin) | a Gradle included build of a local checkout, although nepdate-kotlin is now on Maven Central as `io.github.sanamhub:nepdate:0.1.0-beta.1`; moving to it is a separate change ([ADR-0003](https://github.com/sanamhub/nepdate-mobile/blob/main/docs/adr/0003-calendar-libraries-and-data.md)) |
+| iOS | [nepdate-swift](https://github.com/sanamhub/nepdate-swift) | SwiftPM, pinned to the exact version `1.0.0-rc.1` in [`ios/project.yml`](https://github.com/sanamhub/nepdate-mobile/blob/main/ios/project.yml) and the two local packages |
+| Android | [nepdate-kotlin](https://github.com/sanamhub/nepdate-kotlin) | Maven Central, `io.github.sanamhub:nepdate` and `io.github.sanamhub:nepdate-patro` at `1.0.0-rc.1`, from the [version catalog](https://github.com/sanamhub/nepdate-mobile/blob/main/android/gradle/libs.versions.toml) ([ADR-0003](https://github.com/sanamhub/nepdate-mobile/blob/main/docs/adr/0003-calendar-libraries-and-data.md)) |
 
 The data and its rules live in the hub, [sanamhub/nepdate](https://github.com/sanamhub/nepdate),
 which also lists every package in [all languages](https://github.com/sanamhub/nepdate#packages).

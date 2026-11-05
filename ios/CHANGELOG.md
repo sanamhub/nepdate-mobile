@@ -46,6 +46,8 @@ All notable changes to the iOS app. The format follows
 
 ### Changed
 
+- nepdate-swift is pinned to the release `1.0.0-rc.1` instead of a commit. About shows the same
+  version, and `ci.sh` fails when the pins differ.
 - The month screen, its view model, its month keys, Upcoming, Converter, Settings and About are in
   the `CalendarScreens` product. The widget executable is 615,656 bytes in I1-05, 272 bytes above
   I1-04 from linker layout; no widget source changed.

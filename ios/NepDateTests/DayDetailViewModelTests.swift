@@ -52,9 +52,9 @@ struct DayDetailViewModelTests {
     #expect(model.weekdayAndDate == "Wednesday, 14 April 2027")
     #expect(model.tithi == nil)
     #expect(model.isPublicHoliday)
-    #expect(model.events == ["New Year 2083"])
+    #expect(model.events == ["New Year 2084"])
     #expect(model.copyText == "Baisakh 1, 2084")
-    #expect(model.calendarTitle(publicHoliday: "Public holiday") == "New Year 2083")
+    #expect(model.calendarTitle(publicHoliday: "Public holiday") == "New Year 2084")
   }
 
   @Test("MR-02 AC4: Baisakh 1 2090 is outside coverage and has no fields")
@@ -118,8 +118,8 @@ struct DayDetailViewModelTests {
       digits: .nepali
     )
 
-    #expect(model.events == ["New Year २०८३"])
-    #expect(model.calendarTitle(publicHoliday: "Public holiday") == "New Year २०८३")
+    #expect(model.events == ["New Year २०८४"])
+    #expect(model.calendarTitle(publicHoliday: "Public holiday") == "New Year २०८४")
   }
 
   @Test("MR-02 AC2: the event title falls back to the holiday and then the date")

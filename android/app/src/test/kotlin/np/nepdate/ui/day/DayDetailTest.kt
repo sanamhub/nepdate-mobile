@@ -62,7 +62,7 @@ class DayDetailTest {
         setDayDetail(NepaliDate.of(2084, 1, 1))
 
         composeRule.onNodeWithText("Public holiday").assertExists()
-        composeRule.onNodeWithText("New Year 2083").assertExists()
+        composeRule.onNodeWithText("New Year 2084").assertExists()
         composeRule.onNodeWithText("Tithi").assertDoesNotExist()
     }
 

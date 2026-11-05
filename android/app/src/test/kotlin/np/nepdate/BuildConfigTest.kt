@@ -7,6 +7,6 @@ import org.junit.Test
 class BuildConfigTest {
     @Test
     fun libraryVersionIsTheCatalogPin() {
-        assertEquals("0.1.0", BuildConfig.NEPDATE_VERSION)
+        assertEquals("1.0.0-rc.1", BuildConfig.NEPDATE_VERSION)
     }
 }
