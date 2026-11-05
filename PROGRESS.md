@@ -3,6 +3,22 @@
 Current phase: M1, both apps ready for 1.0.0 beside the libraries. The release itself is the owner's
 decision. Reviews of merged phases follow it.
 
+## M2 Fast, finished, with its own face
+
+| Task | Status |
+|---|---|
+| M2-01 A fast build for testers | PR #45: `tester-apk` (release build, R8, not debuggable, with the Baseline Profile, signed with a throwaway debug-style key), and the profiles generated on a Gradle Managed Device |
+| M2-02 Measure, then make it fast | Not started |
+| M2-03 Material 3 | Not started |
+| M2-04 Icon and logo | Not started |
+| M2-05 Splash | Not started |
+| M2-06 iOS design pass | Not started |
+| M2-07 Owner feedback | Waits for the owner's list from device testing |
+
+- Testers install `tester-apk`, not `debug-apk`. Both use the package name `np.nepdate`, so each
+  replaces the other, and each CI run signs with a new key, so the old build is uninstalled first.
+- The profiles come from an emulator run (API 34, x86_64). Device numbers stay with the owner.
+
 ## M1 Mobile 1.0 readiness
 
 | Task | Status |
