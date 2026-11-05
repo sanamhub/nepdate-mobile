@@ -10,6 +10,17 @@ release pull request.
 | Android A15 class | Samsung Galaxy A15 class, Android 14, 4 GB |
 | Android low-end | Android Go class, Android 11, 2 GB |
 
+## Which Android build to install
+
+Install `tester-apk`, from the Artifacts list of any Android CI run. It is the release build: shrunk
+by R8, not debuggable, with the Baseline Profile, so it starts and scrolls like the store build.
+`debug-apk` is for debugging only and is slower; do not judge speed with it.
+
+Both use the package name `np.nepdate`, so they replace each other and cannot sit side by side.
+Each CI run signs with a new throwaway key, so Android refuses to install a build over one from
+another run, or over a debug build from your own machine: uninstall the old one first
+(`adb uninstall np.nepdate` or long-press the icon). Uninstalling clears the app's settings.
+
 The iPhone column is not run yet; the iOS agent fills it in its M0 work. Automated tests cover month
 layout, view models, scheduling and settings; this file covers the rest.
 

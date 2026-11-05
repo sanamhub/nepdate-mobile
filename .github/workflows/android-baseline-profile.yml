@@ -1,0 +1,86 @@
+name: Android baseline profile
+
+# Generates the Baseline Profile and the startup profile on a Gradle Managed Device and uploads them
+# as the `baseline-profile` artifact. A person checks the files into
+# android/app/src/main/generated/baselineProfiles in a pull request. CI never commits.
+#
+# It runs by hand, and on a pull request that changes this file so the workflow itself is tested.
+# The numbers from an emulator compare one run with another; they are not the owner's phone.
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - ".github/workflows/android-baseline-profile.yml"
+      - "android/baselineprofile/**"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: android-baseline-profile-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  generate:
+    name: Generate the profiles
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Check out the app
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up the Android SDK
+        uses: android-actions/setup-android@be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd # v4.0.4
+
+      - name: Install the compile SDK
+        run: sdkmanager "platforms;android-37.0" "build-tools;37.0.0"
+
+      # The emulator needs KVM, and the runner user needs access to it.
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+          ls -l /dev/kvm
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
+
+      - name: Generate the profiles
+        working-directory: android
+        run: >
+          ./gradlew :app:generateBaselineProfile
+          -Pandroid.testoptions.manageddevices.emulator.gpu=swiftshader_indirect
+          --no-daemon
+
+      - name: Show the profile sizes
+        if: always()
+        run: |
+          find android/app/src/main/generated -type f -exec wc -l {} + || true
+
+      - name: Upload the profiles
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: baseline-profile
+          path: android/app/src/main/generated/baselineProfiles
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload the reports
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: baseline-profile-reports
+          path: |
+            android/baselineprofile/build/reports
+            android/baselineprofile/build/outputs/androidTest-results
+          if-no-files-found: ignore
+          retention-days: 14
