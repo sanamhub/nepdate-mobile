@@ -22,19 +22,13 @@ final class WidgetTimelinePerformanceTests: XCTestCase {
       XCTAssertEqual(entries.count, 8)
     }
     let after = Self.residentBytes()
-    print("MEMORY resident before \(before) bytes, after \(after) bytes, 8 month entries")
+    print("MEMORY peak resident before \(before) bytes, after \(after) bytes, 8 month entries")
   }
 
+  /// The peak resident size of the test process so far, in bytes.
   private static func residentBytes() -> UInt64 {
-    var info = mach_task_basic_info()
-    var count = mach_msg_type_number_t(
-      MemoryLayout<mach_task_basic_info>.size / MemoryLayout<natural_t>.size
-    )
-    let result = withUnsafeMutablePointer(to: &info) { pointer in
-      pointer.withMemoryRebound(to: integer_t.self, capacity: Int(count)) { raw in
-        task_info(mach_task_self(), task_flavor_t(MACH_TASK_BASIC_INFO), raw, &count)
-      }
-    }
-    return result == KERN_SUCCESS ? UInt64(info.resident_size) : 0
+    var usage = rusage()
+    guard getrusage(RUSAGE_SELF, &usage) == 0 else { return 0 }
+    return UInt64(usage.ru_maxrss)
   }
 }
