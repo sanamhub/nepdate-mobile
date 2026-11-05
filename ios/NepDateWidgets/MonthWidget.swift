@@ -4,12 +4,15 @@ import CalendarUI
 import SwiftUI
 import WidgetKit
 
+/// The identifier of the month widget, shared with the intents that reload it.
+enum MonthWidgetKind {
+  static let value = "MonthWidget"
+}
+
 /// The large month widget (W-03) with Previous, Today and Next buttons.
 struct MonthWidget: Widget {
-  static let kind = "MonthWidget"
-
   var body: some WidgetConfiguration {
-    StaticConfiguration(kind: Self.kind, provider: MonthTimelineProvider()) { entry in
+    StaticConfiguration(kind: MonthWidgetKind.value, provider: MonthTimelineProvider()) { entry in
       MonthWidgetView(entry: entry.entry) {
         HStack(spacing: 2) {
           Button(intent: PreviousMonthIntent()) {
@@ -80,7 +83,7 @@ struct PreviousMonthIntent: AppIntent {
 
   func perform() async throws -> some IntentResult {
     MonthNavigation().perform(.previous)
-    WidgetCenter.shared.reloadTimelines(ofKind: MonthWidget.kind)
+    WidgetCenter.shared.reloadTimelines(ofKind: MonthWidgetKind.value)
     return .result()
   }
 }
@@ -91,7 +94,7 @@ struct NextMonthIntent: AppIntent {
 
   func perform() async throws -> some IntentResult {
     MonthNavigation().perform(.next)
-    WidgetCenter.shared.reloadTimelines(ofKind: MonthWidget.kind)
+    WidgetCenter.shared.reloadTimelines(ofKind: MonthWidgetKind.value)
     return .result()
   }
 }
@@ -102,7 +105,7 @@ struct TodayMonthIntent: AppIntent {
 
   func perform() async throws -> some IntentResult {
     MonthNavigation().perform(.today)
-    WidgetCenter.shared.reloadTimelines(ofKind: MonthWidget.kind)
+    WidgetCenter.shared.reloadTimelines(ofKind: MonthWidgetKind.value)
     return .result()
   }
 }
