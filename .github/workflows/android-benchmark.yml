@@ -59,7 +59,7 @@ jobs:
         working-directory: android
         run: >
           ./gradlew :baselineprofile:pixel6Api34BenchmarkReleaseAndroidTest
-          -Pandroid.testInstrumentationRunnerArguments.class=np.nepdate.baselineprofile.StartupBenchmark,np.nepdate.baselineprofile.MonthSwipeBenchmark
+          -Pandroid.testInstrumentationRunnerArguments.class=np.nepdate.baselineprofile.LaunchSmokeTest
           -Pandroid.testoptions.manageddevices.emulator.gpu=swiftshader_indirect
           --no-daemon
 
