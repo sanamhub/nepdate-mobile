@@ -357,6 +357,7 @@ public struct AboutContent: View {
         .foregroundStyle(BrandColor.secondaryText)
         .fixedSize(horizontal: false, vertical: true)
     }
+    .accessibilityElement(children: .combine)
   }
 
   private func link(_ label: LocalizedStringKey, _ url: String) -> some View {
