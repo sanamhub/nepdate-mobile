@@ -6,6 +6,10 @@ All notable changes to the Android app. The format follows
 
 ## [Unreleased]
 
+## [1.0.0] - not yet released
+
+The release date is set when the tag is pushed.
+
 ### Added
 
 - Month view (MR-01): a swipeable 5- or 6-row BS grid with AD days, holiday marks, event
