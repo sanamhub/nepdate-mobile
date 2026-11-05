@@ -23,8 +23,8 @@ final class ScreenUITests: XCTestCase {
   ///   bottom sits behind the home indicator, and the same tint passes on the links above it.
   private static let converterTolerated: [String: Int] = [:]
   private static let settingsTolerated = ["dynamicType text": 2]
-  private static let aboutTolerated = ["contrast text": 1, "dynamicType text": 5]
-  private static let aboutAccessibilityTolerated = ["dynamicType text": 4]
+  private static let aboutTolerated = ["dynamicType text": 3]
+  private static let aboutAccessibilityTolerated = ["dynamicType text": 2]
 
   @MainActor
   func testUpcomingShowsTodayAndOpensTheDay() throws {

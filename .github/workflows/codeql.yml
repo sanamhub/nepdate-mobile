@@ -1,5 +1,5 @@
-# CodeQL for the workflows only. The Android app builds against a pinned nepdate-kotlin checkout
-# with Kotlin 2.4.21, newer than CodeQL supports, and Swift analysis needs a macOS Xcode build.
+# CodeQL for the workflows only. The Android app uses Kotlin 2.4.21, newer than CodeQL supports,
+# and Swift analysis needs a macOS Xcode build.
 name: codeql
 
 on:

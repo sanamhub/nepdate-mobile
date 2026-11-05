@@ -154,7 +154,7 @@ and the invalid-day message. Settings persists Language, Digits, Date follows an
 About shows the app version, `NepDateLibraryVersion`, coverage, data and official sources, the five
 allow-listed links, the injected webcal row and the diagnostic copy.
 
-`ci.sh` checks that `NEPDATE_LIBRARY_VERSION` in `project.yml` equals the nepdate-swift revision in
+`ci.sh` checks that `NEPDATE_LIBRARY_VERSION` in `project.yml` equals the nepdate-swift version in
 both package manifests. It also fails when any key in `Localizable.xcstrings` lacks a translated
 `ne` value. Negative controls for both checks are recorded on the throwaway control PR.
 
@@ -164,26 +164,26 @@ The Upcoming and Converter audits tolerate nothing. Settings and About tolerate 
 | Screen | Finding | Count | Why it is tolerated |
 |---|---|---|---|
 | Settings | Dynamic Type on the toolbar title and Close | 2 | Both use system text styles; the audit reports partial support |
-| About | Dynamic Type on the toolbar title and two-line info rows | 5, 4 at `.accessibility2` | The `.accessibility2` reference wraps the rows; the audit reports partial support |
-| About | Contrast on the Privacy link | 1 | The bottom link sits behind the home indicator; the same tint passes on the links above |
+| About | Dynamic Type on the toolbar title and the combined info rows | 3, 2 at `.accessibility2` | The audit reports partial support for the system text styles |
+
+Each About info row is one accessibility element, so VoiceOver reads "Library version, 1.0.0-rc.1".
+Read on its own, the audit flags a bare version label as not human-readable.
 
 The day sheet now shows "Date copied" for two seconds and posts one VoiceOver announcement when
 Copy date is tapped. `daydetail.copied.png` records the confirmation.
 
 ## The nepdate-swift pin
 
-`Packages/CalendarKit/Package.swift` depends on `nepdate-swift` by revision
-`708cd3626ecb22abbb90a3f1d1adc05e778db6d5`, the `main` commit of 2026-10-18. The library has no
-release tag yet, and this repository does not create tags, so a revision pin is the only exact pin
-available (ADR-0003 §1).
+`Packages/CalendarKit/Package.swift` and `Packages/CalendarUI/Package.swift` depend on
+`nepdate-swift` at the exact version `1.0.0-rc.1`.
 
-The revision appears once more in `project.yml`. Xcode links package products per target, and the
+The version appears once more in `project.yml`. Xcode links package products per target, and the
 test bundle imports `NepDate` and `NepDatePatro` directly to compare the month layout with the
-library, so it needs both products at the project level. `ci.sh` fails when the two revisions differ.
+library, so it needs both products at the project level. `NEPDATE_LIBRARY_VERSION` in `project.yml`
+is the value About shows. `ci.sh` fails when any of the four differ.
 
-When `nepdate-swift` 0.1.0 is released, replace both pins with `.exact("0.1.0")` and `exactVersion:
-0.1.0`, update the Dependabot entry for the two local packages, and check the app still passes
-`./scripts/ci.sh`.
+To move to a new release, change the three pins and `NEPDATE_LIBRARY_VERSION` together, then check
+the app still passes `./scripts/ci.sh`.
 
 ## Xcode version
 

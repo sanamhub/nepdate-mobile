@@ -47,26 +47,24 @@ gate_format() {
     Packages/CalendarKit/Sources \
     Packages/CalendarUI/Sources || return 1
 
-  local package_revision project_revision ui_revision library_version
-  package_revision="$(sed -n 's/.*revision: "\([0-9a-f]*\)".*/\1/p' \
-    Packages/CalendarKit/Package.swift)"
-  ui_revision="$(sed -n 's/.*revision: "\([0-9a-f]*\)".*/\1/p' \
-    Packages/CalendarUI/Package.swift)"
-  project_revision="$(sed -n 's/.*revision: "\([0-9a-f]*\)".*/\1/p' project.yml)"
+  local package_version project_version ui_version library_version
+  package_version="$(sed -n 's/.*exact: "\([^"]*\)".*/\1/p' Packages/CalendarKit/Package.swift)"
+  ui_version="$(sed -n 's/.*exact: "\([^"]*\)".*/\1/p' Packages/CalendarUI/Package.swift)"
+  project_version="$(grep -A2 '^  NepDate:' project.yml | sed -n 's/.*exactVersion: \(.*\)/\1/p')"
   library_version="$(sed -n 's/.*NEPDATE_LIBRARY_VERSION: "\([^"]*\)".*/\1/p' project.yml)"
-  if [ -z "$project_revision" ] || [ "$package_revision" != "$project_revision" ]; then
-    echo "revision: project.yml (${project_revision}) and CalendarKit/Package.swift (${package_revision}) disagree"
+  if [ -z "$package_version" ] || [ "$package_version" != "$project_version" ]; then
+    echo "version: project.yml (${project_version}) and CalendarKit/Package.swift (${package_version}) disagree"
     return 1
   fi
-  if [ -z "$ui_revision" ] || [ "$package_revision" != "$ui_revision" ]; then
-    echo "revision: CalendarUI/Package.swift (${ui_revision}) and CalendarKit/Package.swift (${package_revision}) disagree"
+  if [ -z "$ui_version" ] || [ "$package_version" != "$ui_version" ]; then
+    echo "version: CalendarUI/Package.swift (${ui_version}) and CalendarKit/Package.swift (${package_version}) disagree"
     return 1
   fi
-  if [ -z "$library_version" ] || [ "$library_version" != "$package_revision" ]; then
-    echo "library: NepDateLibraryVersion (${library_version}) and the pin (${package_revision}) disagree"
+  if [ -z "$library_version" ] || [ "$library_version" != "$package_version" ]; then
+    echo "library: NepDateLibraryVersion (${library_version}) and the pin (${package_version}) disagree"
     return 1
   fi
-  echo "revision: nepdate-swift ${project_revision}"
+  echo "version: nepdate-swift ${project_version}"
   echo "library: NepDateLibraryVersion ${library_version}"
 
   local missing

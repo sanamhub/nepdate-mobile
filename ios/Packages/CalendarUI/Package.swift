@@ -19,7 +19,7 @@ let package = Package(
     .package(path: "../CalendarKit"),
     .package(
       url: "https://github.com/sanamhub/nepdate-swift.git",
-      revision: "708cd3626ecb22abbb90a3f1d1adc05e778db6d5"
+      exact: "1.0.0-rc.1"
     ),
   ],
   targets: [

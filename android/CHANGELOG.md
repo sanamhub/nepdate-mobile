@@ -42,3 +42,7 @@ All notable changes to the Android app. The format follows
   test rejects links outside the public repository allow-list (A3-00).
 - Play listing text, screenshots and the Data safety and content-rating drafts (A3-03).
 
+### Changed
+
+- The app uses nepdate-kotlin `1.0.0-rc.1` from Maven Central instead of a local checkout. CI no
+  longer checks out the library, and About shows the release version.

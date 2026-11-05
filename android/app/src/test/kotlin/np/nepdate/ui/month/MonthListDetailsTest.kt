@@ -36,14 +36,14 @@ class MonthListDetailsTest {
     fun eventNameUsesEnglishDigits() {
         setDetails(Digits.ENGLISH)
 
-        composeRule.onNodeWithText("New Year 2083").assertExists()
+        composeRule.onNodeWithText("New Year 2084").assertExists()
     }
 
     @Test
     fun eventNameUsesNepaliDigits() {
         setDetails(Digits.NEPALI)
 
-        composeRule.onNodeWithText("New Year २०८३").assertExists()
+        composeRule.onNodeWithText("New Year २०८४").assertExists()
     }
 
     private fun setDetails(digits: Digits) {

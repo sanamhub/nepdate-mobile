@@ -210,18 +210,16 @@ def check_version_source(doc: dict[str, Any]) -> None:
         raise WorkflowError("preflight must compare the tag with versionName")
 
 
-def check_library_checkout(doc: dict[str, Any]) -> None:
+def check_library_from_registry(doc: dict[str, Any]) -> None:
+    """The release builds against the Maven Central artifacts, never a sibling checkout."""
     for name, job_value in jobs(doc).items():
         job = need_map(job_value, f"jobs.{name}")
-        if "./gradlew" not in run_text(job):
-            continue
-        repositories = [
-            need_map(step.get("with", {}), f"{name}.with").get("repository")
-            for step in steps(job, name)
-            if str(step.get("uses", "")).startswith("actions/checkout@")
-        ]
-        if "sanamhub/nepdate-kotlin" not in repositories:
-            raise WorkflowError(f"{name} runs Gradle without checking out nepdate-kotlin")
+        for step in steps(job, name):
+            if not str(step.get("uses", "")).startswith("actions/checkout@"):
+                continue
+            repository = need_map(step.get("with", {}), f"{name}.with").get("repository")
+            if repository == "sanamhub/nepdate-kotlin":
+                raise WorkflowError(f"{name} must not check out nepdate-kotlin")
 
 
 def check_checksums_before_use(doc: dict[str, Any]) -> None:
@@ -306,7 +304,7 @@ def check(doc: dict[str, Any]) -> None:
     check_production_gates(doc)
     check_preflight(doc)
     check_version_source(doc)
-    check_library_checkout(doc)
+    check_library_from_registry(doc)
     check_checksums_before_use(doc)
     check_signing(doc)
     check_publish(doc)
@@ -336,9 +334,16 @@ def mutate_tag_version(doc: dict[str, Any]) -> None:
     step["run"] = 'version="${REF_NAME#android-v}"\necho "version=$version" >> "$GITHUB_OUTPUT"'
 
 
-def mutate_publish_without_library(doc: dict[str, Any]) -> None:
+def mutate_publish_with_library_checkout(doc: dict[str, Any]) -> None:
     publish = jobs(doc)["publish"]
-    publish["steps"] = [step for step in publish["steps"] if step.get("name") != "Check out nepdate-kotlin"]
+    publish["steps"].insert(
+        1,
+        {
+            "name": "Check out nepdate-kotlin",
+            "uses": "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "with": {"repository": "sanamhub/nepdate-kotlin", "path": "nepdate-kotlin"},
+        },
+    )
 
 
 def mutate_checksum_after_upload(doc: dict[str, Any]) -> None:
@@ -405,7 +410,7 @@ def main() -> int:
     )
     # These controls edit the real workflow in memory, so each rule is shown to read the live file.
     expect_mutation_failure(workflow, mutate_tag_version, "not from the tag")
-    expect_mutation_failure(workflow, mutate_publish_without_library, "without checking out nepdate-kotlin")
+    expect_mutation_failure(workflow, mutate_publish_with_library_checkout, "must not check out nepdate-kotlin")
     expect_mutation_failure(workflow, mutate_checksum_after_upload, "must check SHA256SUMS before")
     expect_mutation_failure(workflow, mutate_keep_keystore, "always remove the signing key")
     expect_mutation_failure(workflow, mutate_contents_write, "only the release job may have contents: write")

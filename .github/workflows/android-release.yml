@@ -91,14 +91,6 @@ jobs:
             exit 1
           fi
 
-      - name: Check out nepdate-kotlin
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          repository: sanamhub/nepdate-kotlin
-          ref: 4994a336ac31db6767430c451da61554ee933d1a
-          path: nepdate-kotlin
-          persist-credentials: false
-
       - name: Data freshness gate
         env:
           RELEASE_DATE: ${{ steps.version.outputs.release_date }}
@@ -117,14 +109,6 @@ jobs:
       - name: Check out the app
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          persist-credentials: false
-
-      - name: Check out nepdate-kotlin
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          repository: sanamhub/nepdate-kotlin
-          ref: 4994a336ac31db6767430c451da61554ee933d1a
-          path: nepdate-kotlin
           persist-credentials: false
 
       - name: Set up JDK 17
@@ -159,14 +143,6 @@ jobs:
       - name: Check out the app
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          persist-credentials: false
-
-      - name: Check out nepdate-kotlin
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          repository: sanamhub/nepdate-kotlin
-          ref: 4994a336ac31db6767430c451da61554ee933d1a
-          path: nepdate-kotlin
           persist-credentials: false
 
       - name: Set up JDK 17
@@ -248,15 +224,6 @@ jobs:
       - name: Check out the app
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          persist-credentials: false
-
-      # settings.gradle.kts includes nepdate-kotlin, so Gradle cannot configure the app without it.
-      - name: Check out nepdate-kotlin
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          repository: sanamhub/nepdate-kotlin
-          ref: 4994a336ac31db6767430c451da61554ee933d1a
-          path: nepdate-kotlin
           persist-credentials: false
 
       - name: Set up JDK 17
