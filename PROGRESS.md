@@ -1,6 +1,20 @@
 # Progress
 
-Current phase: A3, Android release readiness. Reviews of merged phases follow it.
+Current phase: M1, both apps ready for 1.0.0 beside the libraries. The release itself is the owner's
+decision. Reviews of merged phases follow it.
+
+## M1 Mobile 1.0 readiness
+
+| Task | Status |
+|---|---|
+| M1-01 Released libraries | PR #40: both apps use nepdate 1.0.0-rc.1 (Maven Central, SwiftPM exact). CI green. The NepDate family is exempt from the 14-day age rule by the owner's decision of 2026-11-05 |
+| M1-02 Finish the iOS widgets | PR #42: Month, Lock Screen and the two controls, routing and refresh |
+| M1-03 Release readiness | PR #41: `versionName` 1.0.0, release dry run green, `docs/runbooks/release-1.0.md`, iOS release status |
+
+- With the data as it is, the last Android release date that passes the 183-day holiday gate is
+  2027-06-03 (holidays end 2027-12-03). Tithi ends 2027-04-13 and only warns.
+- The two open rows in `docs/legal/README.md` still gate any public release.
+- When library 1.0.0 is tagged, a follow-up change moves both apps from 1.0.0-rc.1 to 1.0.0.
 
 ## A3 Android release readiness
 
@@ -17,9 +31,9 @@ Branch `feat/I2-ios-widgets`, from `main` at `302eb0a`. The plan is
 |---|---|
 | I2-01 Timeline | Done: one entry plus seven local midnights, tested across Kathmandu, New York and Sydney DST |
 | I2-02 W-01 and W-02 | Done: Today and upcoming views, `AppRoute` builds and parses the URLs and the app opens them, eight references, 35 in total |
-| I2-03 W-03 | Not started |
-| I2-04 W-04 and W-05 | Not started |
-| I2-05 Refresh and memory | Not started |
+| I2-03 W-03 | Done: `MonthNavigation` and `MonthWidgetTimeline` in CalendarKit, the grid in CalendarUI, three App Intents in the extension, two references (Jestha 2083, a six-week month) |
+| I2-04 W-04 and W-05 | Done: inline, circular and rectangular views, six references, two controls that hand a route to the app through the App Group |
+| I2-05 Refresh and memory | Done: `nepdate://converter`, reload after a settings change, a new day and a clock or zone change, spoken labels, a memory print per run |
 
 - `systemExtraLargePortrait` is deferred until the runner has Xcode 27.
 - The widget peak-memory number is a manual device check and will be recorded as **not measured**.
@@ -27,6 +41,9 @@ Branch `feat/I2-ios-widgets`, from `main` at `302eb0a`. The plan is
 - The snapshot matrix keeps a reference only for rendering modes whose pixels differ. The accented
   and vibrant renders of W-01 and W-02 are byte-identical to full colour, so both are collapsed; the
   equality test passed. The screenshot artefact has 12 images.
+- The month widget and the three Lock Screen families are also byte-identical in accented and
+  vibrant mode, so only full colour is kept. Eight new references make 43; the artefact has 20
+  images. The 35 earlier references did not change.
 
 ## A3-00 About links
 

@@ -16,6 +16,32 @@ struct AppRouteTests {
       AppRoute.day(MonthDate(year: 2084, month: 8, day: 20)).url.absoluteString
         == "nepdate://day/2084-08-20"
     )
+    #expect(AppRoute.converter.url.absoluteString == "nepdate://converter")
+  }
+
+  @Test("the three documented URLs parse and three bad ones are rejected")
+  func validAndInvalid() throws {
+    let valid: [(String, AppRoute)] = [
+      ("nepdate://day/2083-06-25", .day(MonthDate(year: 2083, month: 6, day: 25))),
+      ("nepdate://today", .today),
+      ("nepdate://converter", .converter),
+    ]
+    for (value, route) in valid {
+      let url = try #require(URL(string: value))
+      #expect(AppRoute(url: url) == route)
+    }
+    for value in ["nepdate://day/2083-06-32", "nepdate://day/83-6-25", "https://example.com"] {
+      let url = try #require(URL(string: value))
+      #expect(AppRoute(url: url) == nil)
+    }
+  }
+
+  @Test("a month widget day link opens that day through the same router")
+  func monthDayURL() throws {
+    let url = try #require(URL(string: "nepdate://day/2083-06-25"))
+    let route = try #require(AppRoute(url: url))
+    #expect(route == .day(MonthDate(year: 2083, month: 6, day: 25)))
+    #expect(route.tab == .month)
   }
 
   @Test("parsing a route's URL gives the same route")
@@ -26,6 +52,7 @@ struct AppRouteTests {
       .day(MonthDate(year: 2084, month: 8, day: 20)),
       .day(MonthDate(year: 1901, month: 1, day: 1)),
       .day(MonthDate(year: 2199, month: 12, day: 30)),
+      .converter,
     ]
     for route in routes {
       #expect(AppRoute(url: route.url) == route)
@@ -38,6 +65,7 @@ struct AppRouteTests {
       "https://today",
       "nepdate://tomorrow",
       "nepdate://today/extra",
+      "nepdate://converter/extra",
       "nepdate://day",
       "nepdate://day/2083-6-25",
       "nepdate://day/2083-06-25/x",

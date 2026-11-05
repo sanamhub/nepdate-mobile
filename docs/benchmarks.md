@@ -35,3 +35,12 @@ shrinking. The benchmark tests are in `:baselineprofile`:
 is not checked in: this environment has no Android reference device or emulator system image, so
 `generateBaselineProfile` could not run. The open issue above also tracks generating and committing
 that profile after the device measurements.
+
+## iOS
+
+| Measurement | Value | Result |
+|---|---|---|
+| Widget peak memory on a device with W-01, W-02, W-03 and every W-04 family placed and W-03 paged ten times | Not measured | Needs a device; there is no Apple account yet, so no TestFlight build |
+| `WidgetTimelinePerformanceTests.testMemory`, peak resident size of the test process around building 8 month entries (CI run [42011732710](https://github.com/sanamhub/nepdate-mobile/actions/runs/42011732710)) | 347,078,656 bytes before, 369,410,048 bytes after | A regression signal only: the process also holds the app and the test frameworks |
+| Widget executable | 1,173,392 bytes | Was 615,656 bytes before the Month and Lock Screen widgets; see `ios/README.md` |
+| App executable | 2,465,640 bytes | Was 2,045,984 bytes |

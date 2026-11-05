@@ -2,6 +2,7 @@ import CalendarKit
 import CalendarScreens
 import SwiftUI
 import UIKit
+import WidgetKit
 
 @main
 struct NepDateApp: App {
@@ -15,8 +16,12 @@ struct NepDateApp: App {
 private struct RootView: View {
   @State private var settings: Settings
   @State private var showsSettings = false
-  @State private var tab = RootTab.month
+  @State private var tab = AppTab.month
   @State private var route: AppRoute?
+  @Environment(\.scenePhase) private var scenePhase
+
+  /// Asks WidgetKit to reload when the settings, the day or the clock change (I2-05).
+  private let refresher = WidgetRefresher { WidgetCenter.shared.reloadAllTimelines() }
 
   init() {
     _settings = State(initialValue: SettingsStore().load())
@@ -51,20 +56,58 @@ private struct RootView: View {
       #endif
     }
     .background(Color(uiColor: .systemBackground))
-    // Widget taps (I2-02). An unknown or malformed URL just opens the app where it was.
+    // Widget taps. An unknown or malformed URL just opens the app where it was.
     .onOpenURL { url in
       guard let opened = AppRoute(url: url) else { return }
-      showsSettings = false
-      tab = .month
-      route = opened
+      open(opened)
+    }
+    .onAppear { activate() }
+    .onChange(of: scenePhase) { _, phase in
+      if phase == .active { activate() }
+    }
+    .onReceive(NotificationCenter.default.publisher(for: .NSSystemTimeZoneDidChange)) { _ in
+      refresher.timeChanged()
+    }
+    .onReceive(
+      NotificationCenter.default.publisher(for: UIApplication.significantTimeChangeNotification)
+    ) { _ in
+      refresher.timeChanged()
     }
     .sheet(isPresented: $showsSettings) {
       SettingsScreen(
         model: SettingsViewModel(settings: settings, store: store),
         info: info,
-        onChanged: { settings = $0 }
+        onChanged: {
+          settings = $0
+          refresher.settingsChanged()
+        }
       )
     }
+  }
+
+  /// Opens a route: its tab, and for the month tab the day or today.
+  private func open(_ opened: AppRoute) {
+    showsSettings = false
+    tab = opened.tab
+    route = opened.tab == .month ? opened : nil
+  }
+
+  /// Runs when the app becomes active: reloads the widgets on a new day, then opens the route a
+  /// control left in the App Group, or the one a UI test passes.
+  private func activate() {
+    let today = Self.testToday ?? TodayProvider().today(dateFollows: settings.dateFollows)
+    refresher.becameActive(on: today)
+    if let pending = PendingRouteStore().consume() {
+      open(pending)
+    }
+    #if DEBUG
+      if let value = ProcessInfo.processInfo.environment["NEPDATE_UI_TEST_URL"],
+        let url = URL(string: value),
+        let opened = AppRoute(url: url)
+      {
+        open(opened)
+      }
+    #endif
   }
 
   private func tabs(
@@ -79,11 +122,13 @@ private struct RootView: View {
             var model = SettingsViewModel(settings: settings, store: store)
             model.acceptNepalTime()
             settings = model.settings
+            refresher.settingsChanged()
           },
           onDismiss: {
             var model = SettingsViewModel(settings: settings, store: store)
             model.dismissNepalTime()
             settings = model.settings
+            refresher.settingsChanged()
           }
         )
       }
@@ -132,17 +177,10 @@ private struct RootView: View {
   }
 }
 
-/// The app's tabs, so a widget tap can switch to the month.
-private enum RootTab: Hashable {
-  case month
-  case upcoming
-  case converter
-}
-
 private struct RootTabView: View {
   let settings: Settings
   let today: MonthDate
-  @Binding var tab: RootTab
+  @Binding var tab: AppTab
   let route: AppRoute?
   let onRouteHandled: () -> Void
   let onSettings: () -> Void
@@ -168,7 +206,7 @@ private struct RootTabView: View {
         .tabItem {
           Label("Month", systemImage: "calendar")
         }
-        .tag(RootTab.month)
+        .tag(AppTab.month)
       }
 
       if let upcoming = UpcomingViewModel(
@@ -186,7 +224,7 @@ private struct RootTabView: View {
         .tabItem {
           Label("Upcoming", systemImage: "bell")
         }
-        .tag(RootTab.upcoming)
+        .tag(AppTab.upcoming)
       }
 
       ConverterScreen(
@@ -197,7 +235,7 @@ private struct RootTabView: View {
       .tabItem {
         Label("Converter", systemImage: "arrow.left.arrow.right")
       }
-      .tag(RootTab.converter)
+      .tag(AppTab.converter)
     }
   }
 }

@@ -7,12 +7,16 @@ import Testing
 import UIKit
 import WidgetKit
 
-/// The Today and upcoming widget references, plus the proof that a dropped rendering mode is
-/// byte-identical to the full-colour reference.
+/// The widget references, plus the proof that a dropped rendering mode is byte-identical to the
+/// full-colour reference.
 @MainActor
 @Suite("Widget snapshots", .serialized)
 struct WidgetSnapshotTests {
   private static let size = CGSize(width: 390, height: 844)
+  private static let monthSize = CGSize(width: 329, height: 345)
+  private static let inlineSize = CGSize(width: 257, height: 26)
+  private static let circularSize = CGSize(width: 76, height: 76)
+  private static let rectangularSize = CGSize(width: 172, height: 76)
   private static let holiday = MonthDate(year: 2083, month: 6, day: 25)
   private static let normal = MonthDate(year: 2083, month: 6, day: 20)
 
@@ -45,6 +49,47 @@ struct WidgetSnapshotTests {
         UpcomingWidgetView(entry: normal),
         named: "upcoming-medium-normal-\(suffix)",
         size: CGSize(width: 329, height: 155),
+        locale: language
+      )
+    }
+  }
+
+  @Test("W-03 month widget reference images, Jestha 2083")
+  func monthLarge() throws {
+    for language in [AppLanguage.english, .nepali] {
+      let suffix = language == .nepali ? "ne" : "en"
+      let entry = try WidgetTestData.monthEntry(language: language)
+      #expect(entry.rowCount == 6)
+      snapshot(
+        MonthWidgetView(entry: entry) { WidgetControlsPlaceholder() },
+        named: "month-large-jestha-\(suffix)",
+        size: Self.monthSize,
+        locale: language
+      )
+    }
+  }
+
+  @Test("W-04 Lock Screen reference images on the holiday")
+  func lockScreen() throws {
+    for language in [AppLanguage.english, .nepali] {
+      let suffix = language == .nepali ? "ne" : "en"
+      let entry = try WidgetTestData.entry(Self.holiday, language: language)
+      snapshot(
+        LockScreenInlineView(entry: entry),
+        named: "lock-inline-holiday-\(suffix)",
+        size: Self.inlineSize,
+        locale: language
+      )
+      snapshot(
+        LockScreenCircularView(entry: entry),
+        named: "lock-circular-holiday-\(suffix)",
+        size: Self.circularSize,
+        locale: language
+      )
+      snapshot(
+        LockScreenRectangularView(entry: entry),
+        named: "lock-rectangular-holiday-\(suffix)",
+        size: Self.rectangularSize,
         locale: language
       )
     }
@@ -97,6 +142,37 @@ struct WidgetSnapshotTests {
       upcomingVibrant == upcoming,
       "the vibrant upcoming mode differs; keep its reference"
     )
+
+    let month = try WidgetTestData.monthEntry()
+    try expectCollapsed(
+      MonthWidgetView(entry: month) { WidgetControlsPlaceholder() },
+      size: Self.monthSize,
+      name: "month"
+    )
+    try expectCollapsed(
+      LockScreenInlineView(entry: entry),
+      size: Self.inlineSize,
+      name: "lock inline"
+    )
+    try expectCollapsed(
+      LockScreenCircularView(entry: entry),
+      size: Self.circularSize,
+      name: "lock circular"
+    )
+    try expectCollapsed(
+      LockScreenRectangularView(entry: entry),
+      size: Self.rectangularSize,
+      name: "lock rectangular"
+    )
+  }
+
+  /// Renders `view` in the accented and vibrant modes and compares each with full colour.
+  private func expectCollapsed<V: View>(_ view: V, size: CGSize, name: String) throws {
+    let full = try imageData(view, size: size, mode: .fullColor)
+    let accented = try imageData(view, size: size, mode: .accented)
+    let vibrant = try imageData(view, size: size, mode: .vibrant)
+    #expect(accented == full, "the accented \(name) mode differs; keep its reference")
+    #expect(vibrant == full, "the vibrant \(name) mode differs; keep its reference")
   }
 
   private func snapshot<V: View>(
@@ -139,5 +215,16 @@ struct WidgetSnapshotTests {
     let renderer = ImageRenderer(content: content)
     renderer.scale = 2
     return try #require(renderer.uiImage?.pngData())
+  }
+}
+
+/// Stands in for the extension's Previous, Today and Next buttons, which need its App Intents.
+struct WidgetControlsPlaceholder: View {
+  var body: some View {
+    HStack(spacing: 2) {
+      Image(systemName: "chevron.left").frame(width: 28, height: 24)
+      Text("Today").font(.caption).frame(height: 24)
+      Image(systemName: "chevron.right").frame(width: 28, height: 24)
+    }
   }
 }

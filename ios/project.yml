@@ -39,6 +39,7 @@ targets:
     platform: iOS
     sources:
       - path: NepDateApp
+      - path: Shared
       - path: Resources
     settings:
       base:
@@ -60,6 +61,7 @@ targets:
     platform: iOS
     sources:
       - path: NepDateWidgets
+      - path: Shared
       - path: Resources
     settings:
       base:

@@ -1,13 +1,14 @@
 # ios
 
-The iPhone and iPad app and the Today widget extension. The Xcode project is generated from
+The iPhone and iPad app and the widget extension. The Xcode project is generated from
 `project.yml` by XcodeGen and never committed (ADR-0010).
 
 | Path | What it is |
 |---|---|
 | `project.yml` | XcodeGen spec: targets, packages, App Group, Info.plist and entitlements paths |
 | `NepDateApp/` | The thin `@main` SwiftUI app and its privacy manifest |
-| `NepDateWidgets/` | The widget extension: `@main` bundle, the placeholder Today widget, privacy manifest |
+| `NepDateWidgets/` | The widget extension: `@main` bundle, the Today, Today and upcoming, Month and Lock Screen widgets, the two controls, privacy manifest |
+| `Shared/` | App Intents compiled into the app and the extension: the two controls' intents, which open the app |
 | `Packages/CalendarKit` | Local SwiftPM package: dates, month layout, widget summaries, settings (I1) |
 | `Packages/CalendarUI` | Local SwiftPM package: product `CalendarUI` (views and colours shared by app and widget) and product `CalendarScreens` (the app-only month, day, Upcoming, Converter, Settings and About screens and their view models) |
 | `NepDateTests/` | Swift Testing tests and the committed snapshot references; renders the screenshot artefact |
@@ -42,10 +43,11 @@ pass.
 six month references are in `NepDateTests/__Snapshots__/MonthSnapshotTests`: light with Asoj 25
 selected, dark, Nepali with the tithi line, tithi in English, `.xxxLarge`, and `.accessibility2`.
 The four day references are in `NepDateTests/__Snapshots__/DayDetailSnapshotTests`: Asoj 9 2083 in
-light, dark, Nepali and `.accessibility2`. The eight widget references are in
+light, dark, Nepali and `.accessibility2`. The sixteen widget references are in
 `NepDateTests/__Snapshots__/WidgetSnapshotTests`: W-01 and W-02 on Asoj 25 2083 and Asoj 20 2083,
-in English and Nepali. Accented and vibrant render byte-identically to full colour, so they are not
-kept; `WidgetSnapshotTests.collapsedModesMatch` proves that. All references are rendered on the
+the month widget on Jestha 2083 (a six-week month) and the three Lock Screen families on Asoj 25
+2083, each in English and Nepali. Accented and vibrant render byte-identically to full colour for
+every widget, so they are not kept; `WidgetSnapshotTests.collapsedModesMatch` proves that. All references are rendered on the
 iPhone 17 simulator by Xcode 26.6. The test gate sets `SNAPSHOT_TESTING_RECORD=never`, so a missing image
 fails instead of being written. `ci.sh` exports it as `TEST_RUNNER_SNAPSHOT_TESTING_RECORD`, because
 `xcodebuild` passes a variable into the test process on the simulator only with that prefix;
@@ -203,10 +205,11 @@ a source `import Network` (run 39098192026) and, with the source grep switched o
 
 ## Executable sizes
 
-The build gate prints the sizes and gates none of them. In I1-05 the app executable is 2,045,984
-bytes and the widget executable is 615,656 bytes, 272 bytes above the 615,384-byte I1-04 baseline.
-The widget source did not change; the difference is linker layout from the app-only screens. Both
-link `nepdate-swift` (including the `NepDatePatro` tables) statically through `CalendarKit`, and the
-extension also carries its WidgetKit timeline code. This is the expected cost of static SwiftPM
-products and was not measured with a link map. If the tables become a real share of the download,
-I2 can ship `CalendarKit` as one dynamic framework in the app bundle that both executables load.
+The build gate prints the sizes and gates none of them. With the Month and Lock Screen widgets and
+the controls the app executable is 2,465,640 bytes (2,045,984 before) and the widget executable is
+1,173,392 bytes (615,656 before). The 557,736 bytes added to the widget come from the month grid and
+Lock Screen views, the month widget's data model, the App Intents for the buttons and controls, and
+the spoken labels. Both executables link `nepdate-swift` (including the `NepDatePatro` tables)
+statically through `CalendarKit`. This was not measured with a link map. If the tables become a real
+share of the download, `CalendarKit` can ship as one dynamic framework in the app bundle that both
+executables load.

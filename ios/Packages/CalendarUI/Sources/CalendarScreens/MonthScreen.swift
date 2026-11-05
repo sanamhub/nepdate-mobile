@@ -137,6 +137,9 @@ public struct MonthScreen: View {
     case .day(let date):
       go(to: MonthKey(monthOf: date))
       select(date)
+    case .converter:
+      // The Converter is another tab, so the app never hands this route to the month screen.
+      break
     }
     onRouteHandled()
   }

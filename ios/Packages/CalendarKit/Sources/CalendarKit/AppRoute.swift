@@ -1,7 +1,19 @@
 import Foundation
 import NepDate
 
-/// A place in the app that a URL opens: the widgets' taps and, later, the controls. It owns the
+/// The app's tabs.
+public enum AppTab: Sendable, Hashable {
+  /// The month grid.
+  case month
+
+  /// The upcoming holidays and events.
+  case upcoming
+
+  /// The date converter.
+  case converter
+}
+
+/// A place in the app that a URL opens: the widgets' taps and the controls. It owns the
 /// `nepdate://` URL format in both directions, so building and parsing can't drift apart.
 public enum AppRoute: Sendable, Hashable {
   /// Today's month.
@@ -10,14 +22,30 @@ public enum AppRoute: Sendable, Hashable {
   /// One day's detail, opened on its month.
   case day(MonthDate)
 
+  /// The Converter tab.
+  case converter
+
+  /// The tab that shows this route: the Converter for `converter`, the Month for the others.
+  public var tab: AppTab {
+    switch self {
+    case .converter:
+      return .converter
+    case .today, .day:
+      return .month
+    }
+  }
+
   /// The app's custom scheme, declared in `NepDateApp-Info.plist`.
   public static let scheme = "nepdate"
 
-  /// The URL for this route: `nepdate://today` or `nepdate://day/2083-06-25`, in ASCII digits.
+  /// The URL for this route: `nepdate://today`, `nepdate://converter` or
+  /// `nepdate://day/2083-06-25`, in ASCII digits.
   public var url: URL {
     switch self {
     case .today:
       return URL(string: "\(Self.scheme)://today")!
+    case .converter:
+      return URL(string: "\(Self.scheme)://converter")!
     case .day(let date):
       let value = String(format: "%04d-%02d-%02d", date.year, date.month, date.day)
       return URL(string: "\(Self.scheme)://day/\(value)")!
@@ -32,6 +60,8 @@ public enum AppRoute: Sendable, Hashable {
     switch url.host?.lowercased() ?? "" {
     case "today" where url.path.isEmpty || url.path == "/":
       self = .today
+    case "converter" where url.path.isEmpty || url.path == "/":
+      self = .converter
     case "day":
       guard let date = Self.date(fromPath: url.path) else { return nil }
       self = .day(date)
