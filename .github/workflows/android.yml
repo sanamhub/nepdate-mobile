@@ -153,7 +153,7 @@ jobs:
           fi
           echo "not debuggable"
           unzip -l "$apk" | grep "assets/dexopt/baseline.prof"
-          "$apksigner" verify --print-certs "$apk" | grep -E "Signer #1 certificate (DN|SHA-256)"
+          "$apksigner" verify --verbose --print-certs "$apk"
           echo "size: $(stat -c%s "$apk") bytes"
 
       - name: Upload the tester APK
