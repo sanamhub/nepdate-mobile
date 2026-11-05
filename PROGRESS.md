@@ -1,6 +1,20 @@
 # Progress
 
-Current phase: A3, Android release readiness. Reviews of merged phases follow it.
+Current phase: M1, both apps ready for 1.0.0 beside the libraries. The release itself is the owner's
+decision. Reviews of merged phases follow it.
+
+## M1 Mobile 1.0 readiness
+
+| Task | Status |
+|---|---|
+| M1-01 Released libraries | PR #40: both apps use nepdate 1.0.0-rc.1 (Maven Central, SwiftPM exact). CI green. The NepDate family is exempt from the 14-day age rule by the owner's decision of 2026-11-05 |
+| M1-02 Finish the iOS widgets | PR #42: Month, Lock Screen and the two controls, routing and refresh |
+| M1-03 Release readiness | PR #41: `versionName` 1.0.0, release dry run green, `docs/runbooks/release-1.0.md`, iOS release status |
+
+- With the data as it is, the last Android release date that passes the 183-day holiday gate is
+  2027-06-03 (holidays end 2027-12-03). Tithi ends 2027-04-13 and only warns.
+- The two open rows in `docs/legal/README.md` still gate any public release.
+- When library 1.0.0 is tagged, a follow-up change moves both apps from 1.0.0-rc.1 to 1.0.0.
 
 ## A3 Android release readiness
 
