@@ -58,7 +58,7 @@ Keep an offline backup of `nepdate-upload.jks` and both passwords. Then store th
 gh secret set ANDROID_KEYSTORE_PASSWORD --env production
 gh secret set ANDROID_KEY_ALIAS --env production
 gh secret set ANDROID_KEY_PASSWORD --env production
-gh secret set PLAY_SERVICE_ACCOUNT_JSON --env production < play-service-account.json
+Get-Content play-service-account.json -Raw | gh secret set PLAY_SERVICE_ACCOUNT_JSON --env production
 ```
 
 `gh secret set` without a value asks for it, so a password never lands in the shell history. Delete
