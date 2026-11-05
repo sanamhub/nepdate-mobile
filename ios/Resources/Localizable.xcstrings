@@ -783,6 +783,23 @@
         }
       }
     },
+    "NepDate month": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "NepDate month"
+          }
+        },
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "नेपडेट महिना"
+          }
+        }
+      }
+    },
     "Nepal": {
       "extractionState": "manual",
       "localizations": {
@@ -847,6 +864,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "नेपाली (०१२)"
+          }
+        }
+      }
+    },
+    "Next": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Next"
+          }
+        },
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "अर्को"
           }
         }
       }
@@ -949,6 +983,91 @@
           "stringUnit": {
             "state": "translated",
             "value": "आधिकारिक स्रोत"
+          }
+        }
+      }
+    },
+    "Open converter": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open converter"
+          }
+        },
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "रूपान्तरक खोल्नुहोस्"
+          }
+        }
+      }
+    },
+    "Open today": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open today"
+          }
+        },
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "आज खोल्नुहोस्"
+          }
+        }
+      }
+    },
+    "Opens the converter.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opens the converter."
+          }
+        },
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "रूपान्तरक खोल्छ।"
+          }
+        }
+      }
+    },
+    "Opens today's month.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opens today's month."
+          }
+        },
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "आजको महिना खोल्छ।"
+          }
+        }
+      }
+    },
+    "Previous": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Previous"
+          }
+        },
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "अघिल्लो"
           }
         }
       }
@@ -1140,6 +1259,23 @@
         }
       }
     },
+    "The month, with buttons to browse it.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The month, with buttons to browse it."
+          }
+        },
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "महिना, हेर्न बटनसहित।"
+          }
+        }
+      }
+    },
     "This device": {
       "extractionState": "manual",
       "localizations": {
@@ -1221,6 +1357,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "आजको विक्रम सम्वत् मिति।"
+          }
+        }
+      }
+    },
+    "Today's date and the next holiday.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Today's date and the next holiday."
+          }
+        },
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "आजको मिति र अर्को बिदा।"
           }
         }
       }

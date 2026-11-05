@@ -76,6 +76,17 @@ public struct TodayWidgetView: View {
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     .widgetURL(AppRoute.today.url)
+    .accessibilityElement(children: .ignore)
+    .accessibilityLabel(Text(verbatim: spoken))
+  }
+
+  /// The numeral, the holiday and the next holiday's count, spoken as one label.
+  private var spoken: String {
+    var text = WidgetSpeech.today(entry, words: .localized)
+    if let next = entry.nextHoliday {
+      text += ", " + WidgetSpeech.event(next, words: .localized)
+    }
+    return text
   }
 
   @ViewBuilder
@@ -132,6 +143,7 @@ public struct UpcomingWidgetView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
           }
           .foregroundStyle(.primary)
+          .accessibilityLabel(Text(verbatim: WidgetSpeech.event(event, words: .localized)))
         }
 
         Spacer(minLength: 0)

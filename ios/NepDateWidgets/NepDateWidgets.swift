@@ -6,5 +6,9 @@ struct NepDateWidgets: WidgetBundle {
   var body: some Widget {
     TodayWidget()
     UpcomingWidget()
+    MonthWidget()
+    LockScreenWidget()
+    OpenConverterControl()
+    OpenTodayControl()
   }
 }

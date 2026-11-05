@@ -93,6 +93,28 @@ public enum WidgetTimeline {
     deviceZone: TimeZone = .current,
     dayCount: Int = 7
   ) -> [WidgetEntry] {
+    instants(now: now, settings: settings, deviceZone: deviceZone, dayCount: dayCount)
+      .compactMap { instant in
+        entry(at: instant, settings: settings, deviceZone: deviceZone)
+      }
+  }
+
+  /// The instants of a timeline: the build instant, then each of the next local midnights.
+  ///
+  /// Midnights are computed with a Gregorian `Calendar` in the chosen zone by adding one day to
+  /// the start of the day, never by adding 86,400 seconds.
+  /// - Parameters:
+  ///   - now: The instant at which the timeline is built.
+  ///   - settings: The stored settings.
+  ///   - deviceZone: The device's zone, injected for tests.
+  ///   - dayCount: The number of midnights to add.
+  /// - Returns: `now` then up to `dayCount` midnights; empty when `dayCount` is not positive.
+  static func instants(
+    now: Date,
+    settings: Settings,
+    deviceZone: TimeZone,
+    dayCount: Int
+  ) -> [Date] {
     guard dayCount > 0 else { return [] }
     let zone = settings.dateFollows == .nepal ? CalendarDates.nepal : deviceZone
     var calendar = Calendar(identifier: .gregorian)
@@ -106,10 +128,7 @@ public enum WidgetTimeline {
       }
       instants.append(midnight)
     }
-
-    return instants.compactMap { instant in
-      entry(at: instant, settings: settings, deviceZone: deviceZone)
-    }
+    return instants
   }
 
   private static func entry(

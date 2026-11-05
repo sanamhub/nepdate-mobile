@@ -110,6 +110,48 @@ struct SnapshotRenderingTests {
     }
   }
 
+  @Test("W-03 and W-04 render in both languages")
+  func newWidgets() throws {
+    for language in [AppLanguage.english, .nepali] {
+      let locale = Locale(identifier: language == .nepali ? "ne" : "en")
+      let suffix = language == .nepali ? "ne" : "en"
+      let month = try WidgetTestData.monthEntry(language: language)
+      let holiday = try WidgetTestData.entry(
+        MonthDate(year: 2083, month: 6, day: 25),
+        language: language
+      )
+
+      try render(
+        MonthWidgetView(entry: month) { WidgetControlsPlaceholder() },
+        name: "widget-month-large-\(suffix)",
+        size: CGSize(width: 329, height: 345),
+        scheme: .light,
+        locale: locale
+      )
+      try render(
+        LockScreenInlineView(entry: holiday),
+        name: "widget-lock-inline-\(suffix)",
+        size: CGSize(width: 257, height: 26),
+        scheme: .light,
+        locale: locale
+      )
+      try render(
+        LockScreenCircularView(entry: holiday),
+        name: "widget-lock-circular-\(suffix)",
+        size: CGSize(width: 76, height: 76),
+        scheme: .light,
+        locale: locale
+      )
+      try render(
+        LockScreenRectangularView(entry: holiday),
+        name: "widget-lock-rectangular-\(suffix)",
+        size: CGSize(width: 172, height: 76),
+        scheme: .light,
+        locale: locale
+      )
+    }
+  }
+
   private func render<V: View>(
     _ view: V,
     name: String,
