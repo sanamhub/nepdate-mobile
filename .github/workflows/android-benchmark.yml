@@ -1,0 +1,83 @@
+name: Android benchmark
+
+# Runs the Macrobenchmarks (start-up and month swipes, with and without the Baseline Profile) on a
+# Gradle Managed Device and uploads the raw results and the Perfetto traces. The summary table in
+# the job is what docs/benchmarks.md quotes with the run link.
+#
+# The device is an x86_64 emulator on a shared runner. Compare one run with another; the numbers are
+# not the owner's phone. It runs by hand, and on a pull request that changes this file or the
+# benchmarks.
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - ".github/workflows/android-benchmark.yml"
+      - "android/baselineprofile/**"
+      - "tools/summarize_benchmarks.py"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: android-benchmark-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  benchmark:
+    name: Run the benchmarks
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+
+    steps:
+      - name: Check out the app
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up the Android SDK
+        uses: android-actions/setup-android@be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd # v4.0.4
+
+      - name: Install the compile SDK
+        run: sdkmanager "platforms;android-37.0" "build-tools;37.0.0"
+
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+          ls -l /dev/kvm
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
+
+      - name: Run the benchmarks
+        working-directory: android
+        run: >
+          ./gradlew :baselineprofile:pixel6Api34BenchmarkReleaseAndroidTest
+          -Pandroid.testInstrumentationRunnerArguments.class=np.nepdate.baselineprofile.LaunchSmokeTest
+          -Pandroid.testoptions.manageddevices.emulator.gpu=swiftshader_indirect
+          --no-daemon
+
+      - name: Summarise the results
+        if: always()
+        run: |
+          files="$(find android/baselineprofile/build/outputs -name '*benchmarkData.json')"
+          echo "$files"
+          test -n "$files"
+          python3 tools/summarize_benchmarks.py $files | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload the results and traces
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: benchmark-results
+          path: |
+            android/baselineprofile/build/outputs/managed_device_android_test_additional_output
+            android/baselineprofile/build/reports
+          if-no-files-found: warn
+          retention-days: 30
