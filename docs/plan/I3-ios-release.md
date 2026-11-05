@@ -1,5 +1,40 @@
 # I3: iOS release 1.0
 
+## Status on 2026-11-05
+
+Nothing in I3 has started. The maintainer has no Mac and no Apple Developer account (ADR-0010), so
+the plan splits into what can be done now and what waits for the account.
+
+| Task | Status | What is possible now |
+|---|---|---|
+| I3-01 Release workflow | Not started, on purpose | Nothing runnable. `ios-release.yml` and `ios-beta.yml` need the App Store Connect key and the `production` environment, so a workflow written now could not be dispatched or tested. It is written after the account exists, together with a static check like the Android one |
+| I3-02 App Store listing | Not started | The English text, the "Data Not Collected" privacy label answers, the age rating answers, the review notes and the privacy policy URL can be drafted in the repository, as the Android listing was. `ITSAppUsesNonExemptEncryption` is already `false` in the app's Info.plist. Screenshots need the required iPhone sizes, which the simulator on the CI runner can render; the current snapshot images are one size only |
+| I3-03 TestFlight, then 1.0 | Blocked | Needs the account, a build, and both open rows in `docs/legal/README.md` closed with a record (ADR-0009) |
+| I3-04 Human tasks | Blocked | The key check names `ios-beta.yml`, which does not exist yet; it can run only after I3-01 |
+
+I3-04 below says the one-time setup was done in an earlier phase. This repository has no
+`ios-beta.yml` and no record of an Apple account, so treat that setup as not done.
+
+Also waiting for a device: the widget peak-memory number and the start-up and download-size numbers
+of the first iOS phase. `systemExtraLargePortrait` stays deferred until the CI runner has Xcode 27.
+
+### What the owner must buy or create
+
+1. Apple Developer Program, individual, USD 99 a year, with an Apple ID that has two-factor
+   authentication and a card that allows international payments.
+2. In Certificates, Identifiers and Profiles: the bundle IDs `np.nepdate` and `np.nepdate.widgets`
+   and the App Group `group.np.nepdate`.
+3. In App Store Connect: the app record, the current agreements accepted, the DSA status set to
+   non-trader, and an App Store Connect API key with the Admin role (cloud signing needs Admin).
+4. In GitHub: the environments `testflight` and `production` with the secrets `ASC_KEY_P8`,
+   `ASC_KEY_ID` and `ASC_ISSUER_ID`, and a second person as the `production` reviewer.
+5. Both open legal rows closed with a record.
+6. Optional, only if a problem needs Xcode's own tools (Instruments, a stubborn widget layout): a
+   cloud Mac for one day. Providers bill at least 24 hours (ADR-0010).
+
+The steps in order, with the Android ones, are in
+[the 1.0 runbook](../runbooks/release-1.0.md).
+
 Read first: ADR-0007, ADR-0009, `docs/runbooks/release-ios.md`.
 
 ## Tasks
