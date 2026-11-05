@@ -43,6 +43,19 @@ All notable changes to the iOS app. The format follows
   footer and `nepdate://` links. Eight widget reference snapshots, 35 in total.
 - The app opens `nepdate://today` on today's month and `nepdate://day/<date>` on that day's detail;
   a malformed or unknown link opens the app where it was.
+- W-03 Month widget at `systemLarge`: the BS grid with AD numerals, holiday marks, event dots and
+  the today ring, Previous, Today and Next buttons, and a link on every day. The chosen month is
+  kept for the day only, so the first entry after midnight shows the current month.
+- W-04 Lock Screen widgets: inline, circular and rectangular, with the holiday underline and the
+  next holiday's day count.
+- W-05 controls "Open converter" and "Open today" for Control Center, the Lock Screen and the
+  Action button. `nepdate://converter` opens the Converter.
+- The widgets reload after a settings change, on the first activation of a new day and when the
+  time zone or clock changes.
+- Every widget has a spoken label for its numeral, holiday and day count; the month widget's
+  buttons are labelled Previous, Today and Next.
+- Eight more widget references (43 in total). The month widget and the Lock Screen families render
+  the same in accented and vibrant mode as in full colour, so those modes are not kept.
 
 ### Changed
 

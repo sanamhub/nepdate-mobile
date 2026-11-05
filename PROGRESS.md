@@ -17,9 +17,9 @@ Branch `feat/I2-ios-widgets`, from `main` at `302eb0a`. The plan is
 |---|---|
 | I2-01 Timeline | Done: one entry plus seven local midnights, tested across Kathmandu, New York and Sydney DST |
 | I2-02 W-01 and W-02 | Done: Today and upcoming views, `AppRoute` builds and parses the URLs and the app opens them, eight references, 35 in total |
-| I2-03 W-03 | Not started |
-| I2-04 W-04 and W-05 | Not started |
-| I2-05 Refresh and memory | Not started |
+| I2-03 W-03 | Done: `MonthNavigation` and `MonthWidgetTimeline` in CalendarKit, the grid in CalendarUI, three App Intents in the extension, two references (Jestha 2083, a six-week month) |
+| I2-04 W-04 and W-05 | Done: inline, circular and rectangular views, six references, two controls that hand a route to the app through the App Group |
+| I2-05 Refresh and memory | Done: `nepdate://converter`, reload after a settings change, a new day and a clock or zone change, spoken labels, a memory print per run |
 
 - `systemExtraLargePortrait` is deferred until the runner has Xcode 27.
 - The widget peak-memory number is a manual device check and will be recorded as **not measured**.
@@ -27,6 +27,9 @@ Branch `feat/I2-ios-widgets`, from `main` at `302eb0a`. The plan is
 - The snapshot matrix keeps a reference only for rendering modes whose pixels differ. The accented
   and vibrant renders of W-01 and W-02 are byte-identical to full colour, so both are collapsed; the
   equality test passed. The screenshot artefact has 12 images.
+- The month widget and the three Lock Screen families are also byte-identical in accented and
+  vibrant mode, so only full colour is kept. Eight new references make 43; the artefact has 20
+  images. The 35 earlier references did not change.
 
 ## A3-00 About links
 
