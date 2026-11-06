@@ -9,18 +9,26 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/** MR-09 AC2: ten swipes after a warm start, with frame timing. */
+/**
+ * MR-09 AC2: ten month swipes after a warm start, with frame timing, with no profile and with the
+ * Baseline Profile.
+ */
 @RunWith(AndroidJUnit4::class)
 class MonthSwipeBenchmark {
     @get:Rule
     val benchmarkRule = MacrobenchmarkRule()
 
     @Test
-    fun monthSwipes() {
+    fun monthSwipesWithoutProfile() = swipe(withoutProfile())
+
+    @Test
+    fun monthSwipesWithProfile() = swipe(withProfile())
+
+    private fun swipe(compilation: CompilationMode) {
         benchmarkRule.measureRepeated(
             packageName = PACKAGE_NAME,
             metrics = listOf(FrameTimingMetric()),
-            compilationMode = CompilationMode.DEFAULT,
+            compilationMode = compilation,
             startupMode = StartupMode.WARM,
             iterations = ITERATIONS,
             setupBlock = {
