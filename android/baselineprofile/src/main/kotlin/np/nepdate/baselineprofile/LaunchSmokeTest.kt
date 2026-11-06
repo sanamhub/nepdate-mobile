@@ -3,7 +3,6 @@ package np.nepdate.baselineprofile
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
-import androidx.test.uiautomator.BySelector
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
 import org.junit.Assert.assertTrue
@@ -36,9 +35,9 @@ class LaunchSmokeTest {
     fun everyTabAndTheSettingsScreenOpen() {
         launch()
         for (tab in listOf("Upcoming", "Converter", "Month")) {
-            tap(By.desc(tab), "the $tab tab")
+            tap(tab, "the $tab tab")
         }
-        tap(By.desc("Settings"), "the settings button")
+        tap("Settings", "the settings button")
         assertTrue(
             "The settings screen did not open",
             device.wait(Until.hasObject(By.text("Settings").pkg(PACKAGE_NAME)), UI_TIMEOUT_MS),
@@ -69,11 +68,14 @@ class LaunchSmokeTest {
         assertTrue("The app did not show a window", shown)
     }
 
+    /** A Compose item may expose its label as a description or as text, so try both. */
     private fun tap(
-        selector: BySelector,
+        label: String,
         what: String,
     ) {
-        val target = device.wait(Until.findObject(selector.pkg(PACKAGE_NAME)), UI_TIMEOUT_MS)
+        val target =
+            device.wait(Until.findObject(By.desc(label).pkg(PACKAGE_NAME)), UI_TIMEOUT_MS)
+                ?: device.wait(Until.findObject(By.text(label).pkg(PACKAGE_NAME)), UI_TIMEOUT_MS)
         assertTrue("Could not find $what", target != null)
         target.click()
         device.waitForIdle()
@@ -83,8 +85,9 @@ class LaunchSmokeTest {
         val crash = device.executeShellCommand("logcat -d -b crash")
         val runtime = device.executeShellCommand("logcat -d -s AndroidRuntime:E")
         val running = device.executeShellCommand("pidof $PACKAGE_NAME").isNotBlank()
+        val message = "The app crashed at: $step. running=$running"
         assertTrue(
-            "The app crashed at: $step. running=$running\n--- crash buffer ---\n$crash\n--- AndroidRuntime ---\n$runtime",
+            "$message\n--- crash buffer ---\n$crash\n--- AndroidRuntime ---\n$runtime",
             crash.isBlank() && runtime.lines().none { it.contains("FATAL EXCEPTION") },
         )
     }
