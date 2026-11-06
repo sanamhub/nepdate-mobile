@@ -29,7 +29,8 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:launchMode="singleTop">
+            android:launchMode="singleTop"
+            android:theme="@style/Theme.Nepdate.Launch">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -80,6 +81,30 @@
             <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/widget_month_info" />
+        </receiver>
+
+        <receiver
+            android:name=".widget.NextFestivalGlanceWidgetReceiver"
+            android:exported="true"
+            android:label="@string/widget2_next_festival_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_next_festival_info" />
+        </receiver>
+
+        <receiver
+            android:name=".widget.FestivalsGlanceWidgetReceiver"
+            android:exported="true"
+            android:label="@string/widget2_festivals_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_festivals_info" />
         </receiver>
 
         <receiver

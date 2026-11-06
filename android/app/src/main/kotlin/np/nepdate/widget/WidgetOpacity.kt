@@ -1,6 +1,7 @@
 package np.nepdate.widget
 
 import android.content.res.Configuration
+import android.os.Build
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.DpSize
@@ -11,9 +12,11 @@ import androidx.glance.GlanceTheme
 import androidx.glance.LocalContext
 import androidx.glance.LocalSize
 import androidx.glance.appwidget.appWidgetBackground
+import androidx.glance.appwidget.cornerRadius
 import androidx.glance.background
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.unit.ColorProvider
+import np.nepdate.R
 import np.nepdate.ui.theme.HolidayDark
 import np.nepdate.ui.theme.HolidayLight
 import np.nepdate.ui.theme.TodayDark
@@ -55,6 +58,22 @@ internal val MONTH_WIDGET_SIZES: Set<DpSize> =
         DpSize(320.dp, 320.dp),
     )
 
+/** The sizes the Next festival widget renders at: 2x1, 2x2 and a taller 2x3. */
+internal val NEXT_FESTIVAL_WIDGET_SIZES: Set<DpSize> =
+    setOf(
+        DpSize(110.dp, 50.dp),
+        DpSize(110.dp, 110.dp),
+        DpSize(160.dp, 160.dp),
+    )
+
+/** The sizes the Festivals list widget renders at: 4x2, a taller 4x2 and 4x3. */
+internal val FESTIVALS_WIDGET_SIZES: Set<DpSize> =
+    setOf(
+        DpSize(250.dp, 110.dp),
+        DpSize(250.dp, 190.dp),
+        DpSize(320.dp, 250.dp),
+    )
+
 /** The brand colours stay fixed; the surface follows dynamic colour (design system §2). */
 @Composable
 internal fun holidayProvider(): ColorProvider = dayNightColor(day = HolidayLight, night = HolidayDark)
@@ -73,12 +92,29 @@ internal fun holidayColor(): Color {
 
 /** The widget background at the configured opacity, with the system corner radius. */
 @Composable
-internal fun widgetRootOpacity(opacity: WidgetOpacity): GlanceModifier {
-    val surface = GlanceTheme.colors.background.getColor(LocalContext.current)
-    return GlanceModifier
-        .fillMaxSize()
-        .appWidgetBackground()
-        .background(surface.copy(alpha = opacity.alpha))
+internal fun widgetRootOpacity(opacity: WidgetOpacity): GlanceModifier = widgetRoot(opacity, GlanceTheme.colors.surface)
+
+/**
+ * The widget root: [color] at the configured opacity with the widget corner, the system radius on
+ * Android 12+ and 28 dp before. A solid background keeps the day and night colour provider; a
+ * translucent one is resolved for the current configuration, because alpha needs a concrete colour.
+ */
+@Composable
+internal fun widgetRoot(
+    opacity: WidgetOpacity,
+    color: ColorProvider,
+): GlanceModifier {
+    val fill =
+        when (opacity) {
+            WidgetOpacity.SOLID -> color
+            else -> ColorProvider(color.getColor(LocalContext.current).copy(alpha = opacity.alpha))
+        }
+    val base = GlanceModifier.fillMaxSize().appWidgetBackground()
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        base.cornerRadius(android.R.dimen.system_app_widget_background_radius).background(fill)
+    } else {
+        base.shapeBackground(R.drawable.widget_shape_28, fill)
+    }
 }
 
 /** Whether the current widget is the one-line 4x1 size. */

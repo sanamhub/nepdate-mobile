@@ -6,7 +6,6 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.datastore.preferences.core.Preferences
 import androidx.glance.GlanceId
-import androidx.glance.GlanceTheme
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.PreviewSizeMode
@@ -21,6 +20,9 @@ import np.nepdate.ui.common.resolve
 
 /** The fixed sample for generated previews: Ghatasthapana, Asoj 25, 2083. */
 internal val PREVIEW_DATE: NepaliDate = NepaliDate.of(2083, 6, 25)
+
+/** The sample for the festival widget previews: Asoj 20, 2083, five days before Ghatasthapana. */
+internal val PREVIEW_FESTIVAL_DATE: NepaliDate = NepaliDate.of(2083, 6, 20)
 
 /** W-01 Today. */
 class TodayGlanceWidget : GlanceAppWidget() {
@@ -44,9 +46,10 @@ class TodayGlanceWidget : GlanceAppWidget() {
                         showNepal = environment.showNepal,
                     )
                 }
-            val opacity = WidgetOpacity.fromKey(currentState<Preferences>()[WIDGET_OPACITY_KEY])
-            GlanceTheme {
-                TodayWidgetContent(model, opacity)
+            val preferences = currentState<Preferences>()
+            val opacity = WidgetOpacity.fromKey(preferences[WIDGET_OPACITY_KEY])
+            NepdateGlanceTheme(environment.settings.wallpaperColors) {
+                TodayWidgetContent(model, opacity, showAd = preferences[TODAY_SHOW_AD_KEY] ?: false)
             }
         }
     }
@@ -65,7 +68,7 @@ class TodayGlanceWidget : GlanceAppWidget() {
                 showNepal = false,
             )
         provideContent {
-            GlanceTheme {
+            NepdateGlanceTheme(wallpaperColors = false) {
                 TodayWidgetContent(model, WidgetOpacity.SOLID)
             }
         }
@@ -95,7 +98,7 @@ class UpcomingGlanceWidget : GlanceAppWidget() {
                     )
                 }
             val opacity = WidgetOpacity.fromKey(currentState<Preferences>()[WIDGET_OPACITY_KEY])
-            GlanceTheme {
+            NepdateGlanceTheme(environment.settings.wallpaperColors) {
                 UpcomingWidgetContent(model, opacity)
             }
         }
@@ -115,7 +118,7 @@ class UpcomingGlanceWidget : GlanceAppWidget() {
                 showNepal = false,
             )
         provideContent {
-            GlanceTheme {
+            NepdateGlanceTheme(wallpaperColors = false) {
                 UpcomingWidgetContent(model, WidgetOpacity.SOLID)
             }
         }
@@ -145,7 +148,7 @@ class MonthGlanceWidget : GlanceAppWidget() {
                     digits = environment.digits,
                     copy = environment.copy,
                 )
-            GlanceTheme {
+            NepdateGlanceTheme(environment.settings.wallpaperColors) {
                 MonthWidgetContent(
                     model = model,
                     opacity = WidgetOpacity.fromKey(preferences[WIDGET_OPACITY_KEY]),
@@ -169,7 +172,7 @@ class MonthGlanceWidget : GlanceAppWidget() {
                 copy = environment.copy,
             )
         provideContent {
-            GlanceTheme {
+            NepdateGlanceTheme(wallpaperColors = false) {
                 MonthWidgetContent(model, WidgetOpacity.SOLID)
             }
         }
@@ -187,6 +190,124 @@ class MonthGlanceWidget : GlanceAppWidget() {
     }
 }
 
+/** Next festival: days left to the next festival, with arrows to browse the ones after it. */
+class NextFestivalGlanceWidget : GlanceAppWidget() {
+    override val sizeMode: SizeMode = SizeMode.Responsive(NEXT_FESTIVAL_WIDGET_SIZES)
+    override val previewSizeMode: PreviewSizeMode = SizeMode.Responsive(setOf(DpSize(160.dp, 160.dp)))
+
+    override suspend fun provideGlance(
+        context: Context,
+        id: GlanceId,
+    ) {
+        val initial = widgetEnvironment(context)
+        provideContent {
+            val environment = rememberWidgetEnvironment(initial) { widgetEnvironment(context) }
+            val preferences = currentState<Preferences>()
+            val index = preferences[FESTIVAL_INDEX_KEY] ?: 0
+            val model =
+                remember(environment, index) {
+                    nextFestivalModel(
+                        today = environment.today,
+                        index = index,
+                        lang = environment.lang,
+                        digits = environment.digits,
+                        copy = environment.copy,
+                        controls = widgetControlCopy(context),
+                    )
+                }
+            NepdateGlanceTheme(environment.settings.wallpaperColors) {
+                NextFestivalWidgetContent(model, WidgetOpacity.fromKey(preferences[WIDGET_OPACITY_KEY]))
+            }
+        }
+    }
+
+    override suspend fun providePreview(
+        context: Context,
+        widgetCategory: Int,
+    ) {
+        val environment = previewEnvironment(context)
+        val model =
+            nextFestivalModel(
+                today = PREVIEW_FESTIVAL_DATE,
+                index = 0,
+                lang = environment.lang,
+                digits = environment.digits,
+                copy = environment.copy,
+                controls = widgetControlCopy(context),
+            )
+        provideContent {
+            NepdateGlanceTheme(wallpaperColors = false) {
+                NextFestivalWidgetContent(model, WidgetOpacity.SOLID)
+            }
+        }
+    }
+
+    /** Returns every placed copy to the nearest festival; called by the midnight refresh. */
+    suspend fun clearBrowsing(context: Context) {
+        val manager = androidx.glance.appwidget.GlanceAppWidgetManager(context)
+        manager.getGlanceIds(NextFestivalGlanceWidget::class.java).forEach { glanceId ->
+            updateAppWidgetState(context, glanceId) { preferences ->
+                preferences.remove(FESTIVAL_INDEX_KEY)
+            }
+        }
+    }
+}
+
+/** Festivals list: the next few festivals with a public holidays only filter. */
+class FestivalsGlanceWidget : GlanceAppWidget() {
+    override val sizeMode: SizeMode = SizeMode.Responsive(FESTIVALS_WIDGET_SIZES)
+    override val previewSizeMode: PreviewSizeMode = SizeMode.Responsive(setOf(DpSize(250.dp, 190.dp)))
+
+    override suspend fun provideGlance(
+        context: Context,
+        id: GlanceId,
+    ) {
+        val initial = widgetEnvironment(context)
+        provideContent {
+            val environment = rememberWidgetEnvironment(initial) { widgetEnvironment(context) }
+            val preferences = currentState<Preferences>()
+            val holidaysOnly = preferences[HOLIDAYS_ONLY_KEY] ?: false
+            val model =
+                remember(environment, holidaysOnly) {
+                    festivalsListModel(
+                        today = environment.today,
+                        holidaysOnly = holidaysOnly,
+                        limit = FESTIVALS_MAX_ROWS,
+                        digits = environment.digits,
+                        lang = environment.lang,
+                        copy = environment.copy,
+                        controls = widgetControlCopy(context),
+                    )
+                }
+            NepdateGlanceTheme(environment.settings.wallpaperColors) {
+                FestivalsWidgetContent(model, WidgetOpacity.fromKey(preferences[WIDGET_OPACITY_KEY]))
+            }
+        }
+    }
+
+    override suspend fun providePreview(
+        context: Context,
+        widgetCategory: Int,
+    ) {
+        val environment = previewEnvironment(context)
+        val model =
+            festivalsListModel(
+                today = PREVIEW_FESTIVAL_DATE,
+                holidaysOnly = false,
+                limit = FESTIVALS_MAX_ROWS,
+                digits = environment.digits,
+                lang = environment.lang,
+                copy = environment.copy,
+                controls = widgetControlCopy(context),
+            )
+        provideContent {
+            NepdateGlanceTheme(wallpaperColors = false) {
+                FestivalsWidgetContent(model, WidgetOpacity.SOLID)
+            }
+        }
+    }
+}
+
 class TodayGlanceWidgetReceiver : GlanceAppWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = TodayGlanceWidget()
 }
@@ -197,6 +318,14 @@ class UpcomingGlanceWidgetReceiver : GlanceAppWidgetReceiver() {
 
 class MonthGlanceWidgetReceiver : GlanceAppWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = MonthGlanceWidget()
+}
+
+class NextFestivalGlanceWidgetReceiver : GlanceAppWidgetReceiver() {
+    override val glanceAppWidget: GlanceAppWidget = NextFestivalGlanceWidget()
+}
+
+class FestivalsGlanceWidgetReceiver : GlanceAppWidgetReceiver() {
+    override val glanceAppWidget: GlanceAppWidget = FestivalsGlanceWidget()
 }
 
 /** The fixed strings and sample date used by `providePreview`, no DataStore read. */

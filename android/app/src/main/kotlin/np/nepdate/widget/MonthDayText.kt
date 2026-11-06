@@ -17,7 +17,7 @@ import androidx.glance.text.Text
 import androidx.glance.text.TextAlign
 import androidx.glance.text.TextStyle
 
-/** The numerals, AD day and event dot inside one W-03 cell. */
+/** The numerals, AD day and event dot inside one W-03 cell, inked for its today or holiday fill. */
 @Composable
 internal fun MonthDayText(
     cell: MonthWidgetCell,
@@ -32,13 +32,13 @@ internal fun MonthDayText(
                     color =
                         when {
                             !cell.isInMonth -> GlanceTheme.colors.onSurfaceVariant
-                            cell.isHoliday -> holidayProvider()
-                            cell.isToday -> todayProvider()
+                            cell.isToday -> onTodayProvider()
+                            cell.isHoliday -> onHolidayContainerProvider()
                             cell.isSaturday -> holidayProvider()
                             else -> GlanceTheme.colors.onSurface
                         },
                     fontSize = fontSize,
-                    fontWeight = if (cell.isToday) FontWeight.Medium else FontWeight.Normal,
+                    fontWeight = if (cell.isInMonth) FontWeight.Bold else FontWeight.Normal,
                     textAlign = TextAlign.Center,
                 ),
             maxLines = 1,
@@ -48,7 +48,12 @@ internal fun MonthDayText(
                 text = cell.adDay,
                 style =
                     TextStyle(
-                        color = if (cell.isHoliday) holidayProvider() else GlanceTheme.colors.onSurfaceVariant,
+                        color =
+                            when {
+                                cell.isToday -> onTodayProvider()
+                                cell.isHoliday -> onHolidayContainerProvider()
+                                else -> GlanceTheme.colors.onSurfaceVariant
+                            },
                         fontSize = 6.sp,
                         textAlign = TextAlign.Center,
                     ),
@@ -61,7 +66,7 @@ internal fun MonthDayText(
                     GlanceModifier
                         .padding(top = 1.dp)
                         .size(2.dp)
-                        .background(GlanceTheme.colors.onSurfaceVariant),
+                        .background(if (cell.isToday) onTodayProvider() else GlanceTheme.colors.onSurfaceVariant),
             ) {}
         }
     }

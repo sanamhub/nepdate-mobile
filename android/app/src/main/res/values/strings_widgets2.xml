@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Today widget: the round button that flips the face between BS and AD. -->
+    <string name="widget2_show_ad">Show the AD date</string>
+    <string name="widget2_show_bs">Show the Bikram Sambat date</string>
+
+    <!-- Next festival widget. -->
+    <string name="widget2_next_festival_name">Next festival</string>
+    <string name="widget2_next_festival_description">Days left to the next festival or public holiday. Arrows browse the ones after it.</string>
+    <string name="widget2_next_holiday_kind">Next public holiday</string>
+    <string name="widget2_next_festival_kind">Next festival</string>
+    <string name="widget2_previous_festival">Previous festival</string>
+    <string name="widget2_following_festival">Next festival</string>
+    <plurals name="widget2_days_unit">
+        <item quantity="one">day</item>
+        <item quantity="other">days</item>
+    </plurals>
+    <string name="widget2_date_line">%1$s, %2$s</string>
+
+    <!-- Festivals list widget. -->
+    <string name="widget2_festivals_name">Festivals list</string>
+    <string name="widget2_festivals_description">The next few festivals and public holidays, with a holidays only filter.</string>
+    <string name="widget2_festivals_title">Upcoming festivals</string>
+    <string name="widget2_holidays_only">Holidays only</string>
+    <string name="widget2_holidays_only_on">Showing public holidays only. Tap to show all festivals.</string>
+    <string name="widget2_holidays_only_off">Showing all festivals. Tap to show public holidays only.</string>
+    <string name="widget2_none_left">No more festivals in the calendar data</string>
+
+    <!-- Static previews for launchers before Android 15. -->
+    <string name="widget2_preview_days">5</string>
+    <string name="widget2_preview_festival">Ghatasthapana</string>
+    <string name="widget2_preview_festival_date">Sunday, Asoj 25</string>
+    <string name="widget2_preview_list">Dwadashi Shraddha · Tomorrow\nPitri Visarjan · in 4 days\nGhatasthapana · in 5 days</string>
+</resources>

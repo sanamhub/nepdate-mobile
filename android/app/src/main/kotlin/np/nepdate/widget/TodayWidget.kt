@@ -19,7 +19,6 @@ import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
 import androidx.glance.layout.padding
 import androidx.glance.layout.width
-import androidx.glance.semantics.contentDescription
 import androidx.glance.semantics.semantics
 import androidx.glance.semantics.testTag
 import androidx.glance.text.FontWeight
@@ -28,35 +27,7 @@ import androidx.glance.text.TextAlign
 import androidx.glance.text.TextStyle
 import np.nepdate.R
 
-/**
- * W-01 Today. The 2x2 layout stacks the hero numeral and the date; 4x2 puts the next holiday on
- * the right; 4x1 becomes one line. The holiday mark is a fill plus an underline at every opacity
- * (design-system H1).
- */
-@Composable
-internal fun TodayWidgetContent(
-    model: TodayWidgetModel,
-    opacity: WidgetOpacity,
-) {
-    val context = LocalContext.current
-    val tap = actionStartActivity(widgetIntent(context))
-    val label = context.getString(R.string.widget_today_name)
-    Box(
-        modifier =
-            widgetRootOpacity(opacity)
-                .clickable(tap)
-                .semantics {
-                    contentDescription = label
-                    testTag = "today_widget"
-                },
-    ) {
-        when {
-            isOneLineSize() -> TodayOneLine(model)
-            isSmallSize() -> TodayStacked(model, compact = true)
-            else -> TodaySideBySide(model, compact = false, showNext = true)
-        }
-    }
-}
+// The Today and upcoming (W-02) faces. The Today widget (W-01) draws its own face in TodayFace.kt.
 
 @Composable
 private fun TodayOneLine(model: TodayWidgetModel) {
@@ -88,66 +59,6 @@ private fun TodayOneLine(model: TodayWidgetModel) {
             )
             if (model.isHoliday) {
                 HolidayMark()
-            }
-        }
-    }
-}
-
-@Composable
-private fun TodaySideBySide(
-    model: TodayWidgetModel,
-    compact: Boolean,
-    showNext: Boolean,
-    tiny: Boolean = false,
-) {
-    Row(
-        modifier =
-            GlanceModifier
-                .fillMaxSize()
-                .padding(if (compact) 6.dp else 10.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Hero(model, compact, tiny)
-        Column(
-            modifier =
-                GlanceModifier
-                    .defaultWeight()
-                    .padding(start = if (compact) 6.dp else 10.dp, end = 4.dp),
-        ) {
-            Text(
-                text = model.monthName,
-                style =
-                    TextStyle(
-                        color = GlanceTheme.colors.onSurface,
-                        fontSize = if (compact) 11.sp else 14.sp,
-                        fontWeight = FontWeight.Medium,
-                    ),
-                maxLines = 1,
-            )
-            Text(
-                text = if (compact) model.weekdayShort else model.weekday,
-                style = TextStyle(color = GlanceTheme.colors.onSurfaceVariant, fontSize = if (compact) 9.sp else 12.sp),
-                maxLines = 1,
-            )
-            DateOrHoliday(model, compact = compact, short = true, tiny = tiny)
-        }
-        if (showNext) {
-            model.nextHoliday?.let { next ->
-                Column(
-                    modifier = GlanceModifier.width(72.dp),
-                    horizontalAlignment = Alignment.End,
-                ) {
-                    Text(
-                        text = next.name,
-                        style = TextStyle(color = holidayProvider(), fontSize = 9.sp, fontWeight = FontWeight.Medium),
-                        maxLines = 2,
-                    )
-                    Text(
-                        text = next.relative,
-                        style = TextStyle(color = GlanceTheme.colors.onSurfaceVariant, fontSize = 8.sp),
-                        maxLines = 1,
-                    )
-                }
             }
         }
     }

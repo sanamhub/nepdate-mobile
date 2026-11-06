@@ -39,6 +39,10 @@ internal class WidgetPreviewPublisher(
         manager.setWidgetPreviews<MonthGlanceWidgetReceiver>(
             intSetOf(AppWidgetProviderInfo.WIDGET_CATEGORY_HOME_SCREEN),
         )
+        manager.setWidgetPreviews<NextFestivalGlanceWidgetReceiver>(homeAndKeyguard)
+        manager.setWidgetPreviews<FestivalsGlanceWidgetReceiver>(
+            intSetOf(AppWidgetProviderInfo.WIDGET_CATEGORY_HOME_SCREEN),
+        )
     }
 
     private companion object {

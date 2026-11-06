@@ -38,7 +38,8 @@ class WidgetContentTest {
             }
 
             onNode(hasText("Asoj 25 Sunday, Ghatasthapana Brata")).assertExists()
-            onNode(hasText("25")).assertExists()
+            // The 4x1 face now also draws the numeral on the Sunny shape, so "25" appears twice.
+            onAllNodes(hasText("25")).assertCountEquals(2)
             onNode(hasText("२५")).assertDoesNotExist()
         }
 
@@ -57,7 +58,7 @@ class WidgetContentTest {
             }
 
             onNode(hasText("२५")).assertExists()
-            onNode(hasText("असोज · आइत")).assertExists()
+            onNode(hasText("असोज २०८३")).assertExists()
             onAllNodes(hasText("25")).assertCountEquals(0)
         }
 

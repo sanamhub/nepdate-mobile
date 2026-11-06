@@ -41,6 +41,10 @@ internal data class TodayWidgetModel(
     val isSaturday: Boolean,
     val nepalLabel: String?,
     val nextHoliday: WidgetUpcomingEntry?,
+    val bsMonthYear: String = "",
+    val bsShortLine: String = "",
+    val adDay: String = "",
+    val adMonthYear: String = "",
 )
 
 /** The W-02 model: W-01 on the left and the next three entries on the right. */
@@ -76,6 +80,7 @@ internal data class MonthWidgetModel(
     val nextLabel: String,
     val todayLabel: String,
     val cells: List<MonthWidgetCell>,
+    val adSpan: String = "",
 ) {
     val rowCount: Int get() = cells.size / DAYS_PER_WEEK
 }
@@ -134,6 +139,10 @@ internal fun todayWidgetModel(
         isSaturday = date.dayOfWeek == Weekday.SATURDAY,
         nepalLabel = if (showNepal) copy.nepal else null,
         nextHoliday = nextHoliday,
+        bsMonthYear = monthTitle(monthName, date.year, digits),
+        bsShortLine = "$monthName $bsDay",
+        adDay = date.gregorianDay.toString().inDigits(digits),
+        adMonthYear = monthTitle(copy.adMonthNames[date.gregorianMonth - 1], date.gregorianYear, digits),
     )
 }
 
@@ -187,7 +196,29 @@ internal fun monthWidgetModel(
         nextLabel = copy.nextLabel,
         todayLabel = copy.todayLabel,
         cells = layout.cells.map { it.toWidgetCell(digits) },
+        adSpan = adSpan(layout.firstDay, layout.lastDay, copy, digits),
     )
+}
+
+/**
+ * The AD months a BS month spans, such as "Sep – Oct 2026", or "Dec 2026 – Jan 2027" across a year.
+ * The form is the same in English and Nepali, so it is assembled here rather than read from a string.
+ */
+internal fun adSpan(
+    first: NepaliDate,
+    last: NepaliDate,
+    copy: WidgetCopy,
+    digits: Digits,
+): String {
+    val firstMonth = copy.adMonthShortNames[first.gregorianMonth - 1]
+    val lastMonth = copy.adMonthShortNames[last.gregorianMonth - 1]
+    val firstYear = first.gregorianYear.toString().inDigits(digits)
+    val lastYear = last.gregorianYear.toString().inDigits(digits)
+    return when {
+        first.gregorianYear != last.gregorianYear -> "$firstMonth $firstYear – $lastMonth $lastYear"
+        first.gregorianMonth != last.gregorianMonth -> "$firstMonth – $lastMonth $lastYear"
+        else -> "$firstMonth $lastYear"
+    }
 }
 
 /** The next public holiday after [after], or null when the coverage ends first. */
@@ -215,7 +246,7 @@ internal fun nextHoliday(
     return null
 }
 
-private fun np.nepdate.ui.upcoming.UpcomingEntry.toWidgetEntry(
+internal fun np.nepdate.ui.upcoming.UpcomingEntry.toWidgetEntry(
     lang: Lang,
     digits: Digits,
     copy: WidgetCopy,
@@ -240,7 +271,7 @@ private fun MonthCell.toWidgetCell(digits: Digits): MonthWidgetCell =
         hasEvents = hasEvents,
     )
 
-private fun bsDate(
+internal fun bsDate(
     date: NepaliDate,
     copy: WidgetCopy,
     digits: Digits,
