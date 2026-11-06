@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,7 +16,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -103,10 +104,7 @@ internal fun MonthGrid(
                 }
             }
             if (rowIndex < layout.rowCount - 1) {
-                HorizontalDivider(
-                    thickness = 0.5.dp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.20f),
-                )
+                Spacer(Modifier.height(ROW_GAP))
             }
         }
     }
@@ -127,7 +125,8 @@ private fun DayCell(
     val ink = dayInk(cell, isSelected)
     val base =
         modifier
-            .clip(RoundedCornerShape(8.dp))
+            .padding(1.dp)
+            .clip(RoundedCornerShape(14.dp))
             .background(ink.fill)
             .then(if (onCellClick != null) Modifier.clickable(onClick = onCellClick) else Modifier)
             .dayCellSemantics(cell, description, isSelected, onCellClick, todayDescription)
@@ -297,3 +296,5 @@ internal fun DayListDetails(
 }
 
 private const val DAYS_PER_WEEK = 7
+
+private val ROW_GAP = 2.dp

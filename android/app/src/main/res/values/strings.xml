@@ -29,8 +29,8 @@
     <string name="day_close">Close</string>
     <string name="day_weekday_ad">%1$s, %2$s</string>
 
-    <string name="nav_month">Month</string>
-    <string name="nav_upcoming">Upcoming</string>
+    <string name="nav_month">Patro</string>
+    <string name="nav_upcoming">Festivals</string>
     <string name="nav_converter">Converter</string>
     <string name="settings_title">Settings</string>
     <string name="settings_language">Language</string>

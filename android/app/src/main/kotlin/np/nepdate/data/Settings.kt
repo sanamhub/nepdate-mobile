@@ -21,6 +21,18 @@ enum class Digits {
     NEPALI,
 }
 
+/** The look the app uses: the phone's setting, or a fixed light or dark theme. */
+enum class Look {
+    /** Light or dark with the system setting. */
+    SYSTEM,
+
+    /** The warm Paper theme. */
+    PAPER,
+
+    /** The Night theme. */
+    DARK,
+}
+
 /**
  * The persisted preferences from MR-06 and MR-07. The app language is not stored here: Android's
  * per-app locale owns it (ADR-0005).
@@ -30,4 +42,7 @@ data class Settings(
     val digits: Digits = Digits.FOLLOW_LANGUAGE,
     val showTithi: Boolean = false,
     val dateFollowsSuggestionHandled: Boolean = false,
+    val look: Look = Look.SYSTEM,
+    val wallpaperColors: Boolean = false,
+    val firstRunDone: Boolean = false,
 )

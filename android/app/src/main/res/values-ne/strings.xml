@@ -29,9 +29,9 @@
     <string name="day_close">बन्द गर्नुहोस्</string>
     <string name="day_weekday_ad">%1$s, %2$s</string>
 
-    <string name="nav_month">महिना</string>
-    <string name="nav_upcoming">आउँदो</string>
-    <string name="nav_converter">परिवर्तक</string>
+    <string name="nav_month">पात्रो</string>
+    <string name="nav_upcoming">पर्व</string>
+    <string name="nav_converter">रूपान्तर</string>
     <string name="settings_title">सेटिङ</string>
     <string name="settings_language">भाषा</string>
     <string name="settings_language_system">प्रणाली</string>

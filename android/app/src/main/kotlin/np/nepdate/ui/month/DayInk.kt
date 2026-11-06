@@ -1,7 +1,6 @@
 package np.nepdate.ui.month
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -17,6 +16,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.font.FontWeight
+import np.nepdate.ui.common.SunnyShape
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextLayoutResult
@@ -136,17 +138,24 @@ private fun DayNumeral(
     color: Color,
     showUnderline: Boolean,
 ) {
-    val today = LocalNepdateColors.current.today
+    val colors = LocalNepdateColors.current
     Box(
         modifier =
             Modifier
-                .size(numeralSlot())
-                .then(if (cell.isToday) Modifier.border(2.dp, today, CircleShape) else Modifier),
+                .size(numeralSlot() + TODAY_GROWTH)
+                .then(
+                    if (cell.isToday) {
+                        Modifier.clip(SunnyShape).background(colors.today)
+                    } else {
+                        Modifier
+                    },
+                ),
         contentAlignment = Alignment.Center,
     ) {
         Text(
             text = cell.bsDay.toString().inDigits(digits),
-            color = color,
+            color = if (cell.isToday) colors.onToday else color,
+            fontWeight = if (cell.isToday) FontWeight.ExtraBold else null,
             style = MaterialTheme.typography.titleLarge,
             maxLines = 1,
         )
@@ -267,6 +276,8 @@ private const val TITHI_SIZE_STEP = 0.5f
 
 private val TITHI_LINE_HEIGHT = 1.15.em
 
-private val NUMERAL_BOX = 32.dp
+private val NUMERAL_BOX = 34.dp
+
+private val TODAY_GROWTH = 6.dp
 
 private val MARK_SLOT = 6.dp

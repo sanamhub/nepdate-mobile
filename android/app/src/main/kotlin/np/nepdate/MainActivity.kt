@@ -16,7 +16,10 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import np.nepdate.data.Settings
 import np.nepdate.ui.theme.NepdateTheme
+import np.nepdate.ui.theme.isDark
 import np.nepdate.widget.WidgetPreviewPublisher
 import np.nepdate.widget.dateFromIntent
 
@@ -31,7 +34,13 @@ class MainActivity : ComponentActivity() {
         applyDeepLink(intent)
         val container = (application as NepdateApplication).container
         setContent {
-            NepdateTheme {
+            val settings by container.settingsRepository.settings.collectAsStateWithLifecycle(
+                initialValue = Settings(),
+            )
+            NepdateTheme(
+                darkTheme = settings.look.isDark(),
+                dynamicColor = settings.wallpaperColors,
+            ) {
                 NepdateApp(
                     container = container,
                     initialDate = deepLinkDate,

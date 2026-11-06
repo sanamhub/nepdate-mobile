@@ -34,7 +34,7 @@ class LaunchSmokeTest {
     @Test
     fun everyTabAndTheSettingsScreenOpen() {
         launch()
-        for (tab in listOf("Upcoming", "Converter", "Month")) {
+        for (tab in listOf("Festivals", "Converter", "Patro")) {
             tap(tab, "the $tab tab")
         }
         tap("Settings", "the settings button")

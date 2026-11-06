@@ -2,10 +2,17 @@ package np.nepdate.ui.month
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
+import np.nepdate.ui.common.GroupPosition
+import np.nepdate.ui.common.SymbolIcon
+import np.nepdate.ui.common.groupShape
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,15 +23,9 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -86,6 +87,8 @@ fun MonthScreen(
     openDate: NepaliDate? = null,
     openDateKey: Int = 0,
     onSettings: (() -> Unit)? = null,
+    onSearch: (() -> Unit)? = null,
+    onOpenYear: (() -> Unit)? = null,
     onFirstGridDrawn: () -> Unit = {},
 ) {
     val lang = languageFor(LocalConfiguration.current.locales[0])
@@ -111,30 +114,55 @@ fun MonthScreen(
                 // Access must not reach the month behind it while it is open.
                 .then(if (showPicker) Modifier.clearAndSetSemantics {} else Modifier),
     ) {
-        MonthHeader(
+        MonthTopBar(
             layout = currentLayout,
             digits = displaySettings.digits,
-            nepalTime = nepalTime,
+            onChoose = onOpenYear ?: { showPicker = true },
+            onSearch = onSearch,
             onSettings = onSettings,
-            showToday = currentPage != todayPage,
-            canGoPrevious = currentPage > 0,
-            canGoNext = currentPage < MONTH_PAGE_COUNT - 1,
-            onChoose = { showPicker = true },
-            onPrevious = { goTo(currentPage - 1) },
-            onNext = { goTo(currentPage + 1) },
-            onToday = { goTo(todayPage) },
         )
-        WeekdayHeader(lang = lang)
-        MonthPager(
-            pagerState = pagerState,
-            selectedDate = selectedDate,
-            settings = displaySettings,
-            today = today,
-            lang = lang,
-            onDayClick = { selectedDate = it },
-            onFirstGridDrawn = onFirstGridDrawn,
-            modifier = Modifier.weight(1f),
-        )
+        val bigFont = LocalDensity.current.fontScale >= LIST_FONT_SCALE
+        if (currentPage == todayPage && !bigFont) {
+            TodayHero(
+                today = today,
+                lang = lang,
+                digits = displaySettings.digits,
+                onOpenDay = { selectedDate = it },
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+            )
+        }
+        Column(
+            modifier =
+                Modifier
+                    .weight(1f)
+                    .padding(start = 8.dp, end = 8.dp, top = 8.dp)
+                    .clip(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp))
+                    .background(MaterialTheme.colorScheme.surfaceContainerLow)
+                    .padding(top = 4.dp),
+        ) {
+            MonthHeader(
+                layout = currentLayout,
+                digits = displaySettings.digits,
+                nepalTime = nepalTime,
+                showToday = currentPage != todayPage,
+                canGoPrevious = currentPage > 0,
+                canGoNext = currentPage < MONTH_PAGE_COUNT - 1,
+                onPrevious = { goTo(currentPage - 1) },
+                onNext = { goTo(currentPage + 1) },
+                onToday = { goTo(todayPage) },
+            )
+            WeekdayHeader(lang = lang)
+            MonthPager(
+                pagerState = pagerState,
+                selectedDate = selectedDate,
+                settings = displaySettings,
+                today = today,
+                lang = lang,
+                onDayClick = { selectedDate = it },
+                onFirstGridDrawn = onFirstGridDrawn,
+                modifier = Modifier.weight(1f),
+            )
+        }
     }
 
     MonthOverlays(
@@ -233,73 +261,73 @@ private fun MonthPager(
     }
 }
 
+/** The top bar: the month title opens the year view; search and settings on the right. */
 @Composable
-private fun MonthHeader(
+private fun MonthTopBar(
     layout: MonthLayout,
     digits: Digits,
-    nepalTime: String?,
-    onSettings: (() -> Unit)?,
-    showToday: Boolean,
-    canGoPrevious: Boolean,
-    canGoNext: Boolean,
     onChoose: () -> Unit,
-    onPrevious: () -> Unit,
-    onNext: () -> Unit,
-    onToday: () -> Unit,
+    onSearch: (() -> Unit)?,
+    onSettings: (() -> Unit)?,
 ) {
     val chooseLabel = stringResource(R.string.month_choose)
-    val settingsLabel = stringResource(R.string.settings_title)
-
+    val bsMonthNames = stringArrayResource(R.array.bs_month_long).toList()
     Row(
         modifier =
             Modifier
                 .fillMaxWidth()
                 .statusBarsPadding()
-                .padding(start = 16.dp, end = 8.dp, top = 8.dp, bottom = 4.dp),
+                .heightIn(min = 64.dp)
+                .padding(start = 8.dp, end = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        MonthTitle(
-            layout = layout,
-            digits = digits,
-            nepalTime = nepalTime,
-            chooseLabel = chooseLabel,
-            onChoose = onChoose,
-            modifier = Modifier.weight(1f),
-        )
-        MonthNavigation(
-            showToday = showToday,
-            canGoPrevious = canGoPrevious,
-            canGoNext = canGoNext,
-            onPrevious = onPrevious,
-            onNext = onNext,
-            onToday = onToday,
-        )
+        Row(
+            modifier =
+                Modifier
+                    .weight(1f)
+                    .clip(RoundedCornerShape(16.dp))
+                    .clickable(onClick = onChoose)
+                    .semantics { contentDescription = chooseLabel }
+                    .heightIn(min = 48.dp)
+                    .padding(horizontal = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                text = monthTitle(bsMonthNames[layout.month.value - 1], layout.year, digits),
+                color = MaterialTheme.colorScheme.onBackground,
+                style = MaterialTheme.typography.headlineSmall,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            SymbolIcon(icon = R.drawable.ic_sym_arrow_drop_down, tint = MaterialTheme.colorScheme.onSurface)
+        }
+        if (onSearch != null) {
+            val searchLabel = stringResource(R.string.home_search)
+            IconButton(onClick = onSearch, modifier = Modifier.semantics { contentDescription = searchLabel }) {
+                SymbolIcon(icon = R.drawable.ic_sym_search, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+        }
         if (onSettings != null) {
-            IconButton(
-                onClick = onSettings,
-                modifier =
-                    Modifier
-                        .size(48.dp)
-                        .semantics { contentDescription = settingsLabel },
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.Settings,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurface,
-                )
+            val settingsLabel = stringResource(R.string.settings_title)
+            IconButton(onClick = onSettings, modifier = Modifier.semantics { contentDescription = settingsLabel }) {
+                SymbolIcon(icon = R.drawable.ic_sym_settings, tint = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
     }
 }
 
+/** The month card header: BS month, AD span, and the connected previous, today and next group. */
 @Composable
-private fun MonthTitle(
+private fun MonthHeader(
     layout: MonthLayout,
     digits: Digits,
     nepalTime: String?,
-    chooseLabel: String,
-    onChoose: () -> Unit,
-    modifier: Modifier = Modifier,
+    showToday: Boolean,
+    canGoPrevious: Boolean,
+    canGoNext: Boolean,
+    onPrevious: () -> Unit,
+    onNext: () -> Unit,
+    onToday: () -> Unit,
 ) {
     val colors = LocalNepdateColors.current
     val bsMonthNames = stringArrayResource(R.array.bs_month_long).toList()
@@ -312,37 +340,44 @@ private fun MonthTitle(
                 digits,
             ),
         )
-    Column(
+    Row(
         modifier =
-            modifier
-                .heightIn(min = 48.dp)
-                .clickable(onClick = onChoose)
-                .semantics { contentDescription = chooseLabel }
-                .padding(vertical = 4.dp),
-        verticalArrangement = Arrangement.Center,
+            Modifier
+                .fillMaxWidth()
+                .padding(start = 16.dp, end = 8.dp, top = 4.dp, bottom = 2.dp),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(
-            text = monthTitle(bsMonthNames[layout.month.value - 1], layout.year, digits),
-            color = MaterialTheme.colorScheme.onBackground,
-            style = MaterialTheme.typography.headlineMedium,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-        )
-        Text(
-            text = spanText,
-            color = colors.dimmed,
-            style = MaterialTheme.typography.bodyMedium,
-            maxLines = 2,
-            overflow = TextOverflow.Ellipsis,
-        )
-        if (nepalTime != null) {
+        Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = stringResource(R.string.month_nepal_time, nepalTime),
-                color = colors.today,
-                style = MaterialTheme.typography.labelMedium,
+                text = bsMonthNames[layout.month.value - 1],
+                color = MaterialTheme.colorScheme.onSurface,
+                style = MaterialTheme.typography.titleMedium,
                 maxLines = 1,
             )
+            Text(
+                text = spanText,
+                color = colors.dimmed,
+                style = MaterialTheme.typography.bodySmall,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+            )
+            if (nepalTime != null) {
+                Text(
+                    text = stringResource(R.string.month_nepal_time, nepalTime),
+                    color = MaterialTheme.colorScheme.primary,
+                    style = MaterialTheme.typography.labelMedium,
+                    maxLines = 1,
+                )
+            }
         }
+        MonthNavigation(
+            showToday = showToday,
+            canGoPrevious = canGoPrevious,
+            canGoNext = canGoNext,
+            onPrevious = onPrevious,
+            onNext = onNext,
+            onToday = onToday,
+        )
     }
 }
 
@@ -368,6 +403,7 @@ private fun adSpanText(span: AdSpan): String =
             )
     }
 
+/** Previous, Today (only off the current month) and Next as one connected button group. */
 @Composable
 private fun MonthNavigation(
     showToday: Boolean,
@@ -377,50 +413,69 @@ private fun MonthNavigation(
     onNext: () -> Unit,
     onToday: () -> Unit,
 ) {
-    val colors = LocalNepdateColors.current
     val previousLabel = stringResource(R.string.month_previous)
     val nextLabel = stringResource(R.string.month_next)
     val todayLabel = stringResource(R.string.month_today)
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        IconButton(
-            onClick = onPrevious,
+    val tonal = MaterialTheme.colorScheme.surfaceContainerHighest
+    Row(horizontalArrangement = Arrangement.spacedBy(2.dp), verticalAlignment = Alignment.CenterVertically) {
+        GroupButton(
+            shape = groupShape(GroupPosition.START),
+            color = tonal,
             enabled = canGoPrevious,
-            modifier =
-                Modifier
-                    .size(48.dp)
-                    .semantics { contentDescription = previousLabel },
-        ) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurface,
-            )
-        }
+            label = previousLabel,
+            onClick = onPrevious,
+        ) { SymbolIcon(icon = R.drawable.ic_sym_chevron_left, size = 22.dp) }
         if (showToday) {
-            TextButton(
+            GroupButton(
+                shape = groupShape(GroupPosition.MIDDLE),
+                color = MaterialTheme.colorScheme.primary,
+                enabled = true,
+                label = todayLabel,
                 onClick = onToday,
-                modifier = Modifier.heightIn(min = 48.dp),
-                contentPadding = PaddingValues(horizontal = 8.dp),
+                wide = true,
             ) {
-                Text(text = todayLabel, color = colors.today)
+                Text(
+                    text = todayLabel,
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    style = MaterialTheme.typography.labelLarge,
+                )
             }
         }
-        IconButton(
-            onClick = onNext,
+        GroupButton(
+            shape = groupShape(GroupPosition.END),
+            color = tonal,
             enabled = canGoNext,
-            modifier =
-                Modifier
-                    .size(48.dp)
-                    .semantics { contentDescription = nextLabel },
-        ) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurface,
-            )
-        }
+            label = nextLabel,
+            onClick = onNext,
+        ) { SymbolIcon(icon = R.drawable.ic_sym_chevron_right, size = 22.dp) }
     }
 }
+
+@Composable
+private fun GroupButton(
+    shape: Shape,
+    color: Color,
+    enabled: Boolean,
+    label: String,
+    onClick: () -> Unit,
+    wide: Boolean = false,
+    content: @Composable () -> Unit,
+) {
+    Box(
+        modifier =
+            Modifier
+                .padding(vertical = 4.dp)
+                .then(if (wide) Modifier.heightIn(min = 40.dp) else Modifier.size(width = 48.dp, height = 40.dp))
+                .clip(shape)
+                .background(if (enabled) color else color.copy(alpha = DISABLED_ALPHA))
+                .clickable(enabled = enabled, onClick = onClick)
+                .semantics { contentDescription = label }
+                .then(if (wide) Modifier.padding(horizontal = 14.dp, vertical = 10.dp) else Modifier),
+        contentAlignment = Alignment.Center,
+    ) { content() }
+}
+
+private const val DISABLED_ALPHA = 0.38f
 
 @Composable
 private fun WeekdayHeader(lang: Lang) {

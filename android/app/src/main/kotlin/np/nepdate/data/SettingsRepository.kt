@@ -55,12 +55,30 @@ class SettingsRepository(
         dataStore.edit { it[SUGGESTION_HANDLED] = value }
     }
 
+    /** Stores the look: phone setting, Paper or Night. */
+    suspend fun setLook(value: Look) {
+        dataStore.edit { it[LOOK] = value.name }
+    }
+
+    /** Stores whether surfaces follow the wallpaper colours (Android 12+). */
+    suspend fun setWallpaperColors(value: Boolean) {
+        dataStore.edit { it[WALLPAPER_COLORS] = value }
+    }
+
+    /** Records that the first-run screen was completed or skipped. */
+    suspend fun setFirstRunDone(value: Boolean) {
+        dataStore.edit { it[FIRST_RUN_DONE] = value }
+    }
+
     private fun Preferences.toSettings(): Settings =
         Settings(
             dateFollows = enumValue(DATE_FOLLOWS, DateFollows.DEVICE),
             digits = enumValue(DIGITS, Digits.FOLLOW_LANGUAGE),
             showTithi = this[SHOW_TITHI] ?: false,
             dateFollowsSuggestionHandled = this[SUGGESTION_HANDLED] ?: false,
+            look = enumValue(LOOK, Look.SYSTEM),
+            wallpaperColors = this[WALLPAPER_COLORS] ?: false,
+            firstRunDone = this[FIRST_RUN_DONE] ?: false,
         )
 
     private inline fun <reified T : Enum<T>> Preferences.enumValue(
@@ -76,5 +94,8 @@ class SettingsRepository(
         val DIGITS = stringPreferencesKey("digits")
         val SHOW_TITHI = booleanPreferencesKey("show_tithi")
         val SUGGESTION_HANDLED = booleanPreferencesKey("date_follows_suggestion_handled")
+        val LOOK = stringPreferencesKey("look")
+        val WALLPAPER_COLORS = booleanPreferencesKey("wallpaper_colors")
+        val FIRST_RUN_DONE = booleanPreferencesKey("first_run_done")
     }
 }
