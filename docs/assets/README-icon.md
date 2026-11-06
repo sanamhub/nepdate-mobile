@@ -1,31 +1,30 @@
 # NepDate app icon
 
 `nepdate-app-icon.svg` is the master artwork. It uses the 108 unit Android adaptive icon grid:
-a sindoor (`#B3261E`) background and a paper (`#FFF8F3`) Nepal flag pennant with a sindoor
-crescent and 12 point sun.
+a sindoor (`#B3261E`) background, the Nepal flag pennant as a deeper red shade (`#8C1D18`), and a
+marigold (`#E8A33D`) twelve ray sun holding the Devanagari numeral one in ink (`#271900`). The sun
+is the same today marker the app and widgets use, so the icon reads as "the date" first and
+"Nepal" second.
+
+The numeral is fixed. Standard Android launchers cannot redraw a third-party app icon every day.
 
 ## Geometry
 
-The design source draws the pennant as `35,22 79,51 52,51 79,86 35,86`. Those corners reach
-40.6 units from the centre, so a circular launcher mask would clip them. Every point is mapped
-with `x' = 54 + 0.8 * (x - 57)` and `y' = 54 + 0.8 * (y - 54)` (scale 0.8 about the pennant's
-bounding box centre, then centred on 54,54). The furthest corner is now 31.1 units from the
-centre, inside the 33 unit safe circle.
-
-- Pennant: `36.4,28.4 71.6,51.6 50,51.6 71.6,79.6 36.4,79.6`
-- Crescent: circle r 5.6 at 46,44.4 minus circle r 5.6 at 46,41.68, written as one path of
-  two arcs between the intersection points 40.57,43.04 and 51.43,43.04.
-- Sun: 12 points around 46.8,67.6, outer radius 8, inner radius 5.12, first point straight up.
+- Pennant shade: the flag pennant `36.4,28.4 71.6,51.6 50,51.6 71.6,79.6 36.4,79.6`, scaled
+  1.32 about 54,54 and moved by -4,-2. It runs past the safe circle on purpose: it is a tone
+  behind the sun, and launcher masks crop it.
+- Sun: 12 lobes around 56,58, outer radius 24, inner radius 0.86 of that, sampled 12 points per
+  lobe. It sits inside the 33 unit safe circle.
+- Numeral: the glyph `१` from Noto Sans Devanagari at weight 800, scaled to 22 units tall and
+  centred on 56,58.
 
 ## Exports
 
 | File | How it was made |
 | --- | --- |
-| `android/app/src/main/res/drawable/ic_launcher_foreground.xml` | The SVG `foreground` group copied by hand into a vector drawable (same path data). |
+| `android/app/src/main/res/drawable/ic_launcher_foreground.xml` | The three SVG paths, with colours from `ic_launcher_shade`, `ic_launcher_sun` and `ic_launcher_ink`. |
 | `android/app/src/main/res/values/colors.xml` `ic_launcher_background` | The SVG background colour, used as the adaptive icon background layer. |
-| `android/app/src/main/res/drawable/ic_launcher_monochrome.xml` | The three paths joined into one path with `fillType="evenOdd"`, so the crescent and sun are holes in the pennant for themed icons. |
-| `android/app/src/main/res/drawable/splash_icon.xml` | The foreground again, with the sun in a group pivoting on 46.8,67.6. |
-| `android/app/src/main/res/drawable/splash_icon_animated.xml` | Turns that group 0 to 30 degrees in 500 ms with the overshoot interpolator. |
-| `nepdate-play-icon-512.png` | No SVG converter was installed, so a Python script with Pillow drew the same coordinates at 2048 px (4x supersampled), cropped to the centre 84 units of the grid so the mark fits Google Play's 384 px keyline circle, and scaled to 512 px. Re-export from the SVG with any converter if it changes: crop the view box to `12 12 84 84` and render at 512 x 512. |
-
-If the artwork changes, edit the SVG first and copy the path data into every file above.
+| `android/app/src/main/res/drawable/ic_launcher_monochrome.xml` | The sun and numeral as one path with `fillType="evenOdd"`, so the numeral is a hole in the sun for themed icons. |
+| `android/app/src/main/res/drawable/splash_icon.xml` | The foreground again, with the sun in a group pivoting on 56,58 and the numeral outside it so it stays upright. |
+| `android/app/src/main/res/drawable/splash_icon_animated.xml` | Turns the sun group 0 to 30 degrees in 500 ms with the overshoot interpolator. |
+| `nepdate-play-icon-512.png` | The SVG with its view box cropped to `12 12 84 84`, rendered at 512 x 512 in a headless browser. |

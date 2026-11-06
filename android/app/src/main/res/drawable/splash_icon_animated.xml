@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Android 12+ splash icon: the sun turns 30 degrees with a gentle overshoot over 500 ms.
-     A 12 point star repeats every 30 degrees, so the last frame matches the launcher icon. -->
+<!-- Android 12+ splash icon: the marigold sun turns 30 degrees with a gentle overshoot over 500 ms.
+     Twelve rays repeat every 30 degrees, so the last frame matches the launcher icon. -->
 <animated-vector xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:aapt="http://schemas.android.com/aapt"
     android:drawable="@drawable/splash_icon">
