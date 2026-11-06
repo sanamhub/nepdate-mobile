@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="nepdate_background">#FFFBFE</color>
+    <color name="nepdate_background">#FFF8F3</color>
     <color name="widget_preview_text">#1C1B1F</color>
     <color name="widget_preview_holiday">#C8102E</color>
-    <color name="ic_launcher_background">#C8102E</color>
+    <!-- Launcher icon and splash: sindoor ground, paper mark. Not night variants: the icon stays the same. -->
+    <color name="ic_launcher_background">#B3261E</color>
+    <color name="ic_launcher_mark">#FFF8F3</color>
+    <!-- Splash window ground (surface); night value in values-night. -->
+    <color name="splash_background">#FFF8F3</color>
 </resources>

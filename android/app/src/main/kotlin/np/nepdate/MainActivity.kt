@@ -9,6 +9,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.sanamhub.nepdate.NepaliDate
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -16,7 +17,6 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import np.nepdate.data.Settings
 import np.nepdate.ui.theme.NepdateTheme
 import np.nepdate.ui.theme.isDark
@@ -29,6 +29,9 @@ class MainActivity : ComponentActivity() {
     private val activityScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // The manifest gives this activity Theme.Nepdate.Launch so Android 8 to 11 show the icon
+        // while the process starts; swap to the app theme before any view is made.
+        setTheme(R.style.Theme_Nepdate)
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         applyDeepLink(intent)

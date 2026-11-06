@@ -1,15 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Adaptive icon foreground: the Nepal flag pennant in paper with a sindoor crescent and sun.
+     Drawn on the 108 unit grid; every point sits inside the 66 unit safe circle at 54,54.
+     The master artwork is docs/assets/nepdate-app-icon.svg. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
     <path
-        android:fillColor="#FFFFFFFF"
-        android:pathData="M30,32 L78,32 L78,78 L30,78 Z" />
+        android:name="pennant"
+        android:fillColor="@color/ic_launcher_mark"
+        android:pathData="M36.4,28.4 L71.6,51.6 L50,51.6 L71.6,79.6 L36.4,79.6 Z" />
     <path
-        android:fillColor="#FFC8102E"
-        android:pathData="M30,32 L78,32 L78,43 L30,43 Z" />
+        android:name="crescent"
+        android:fillColor="@color/ic_launcher_background"
+        android:pathData="M40.57,43.04 A5.6,5.6 0 1,0 51.43,43.04 A5.6,5.6 0 0,1 40.57,43.04 Z" />
     <path
-        android:fillColor="#FFC8102E"
-        android:pathData="M42,26 L47,26 L47,37 L42,37 Z M61,26 L66,26 L66,37 L61,37 Z" />
+        android:name="sun"
+        android:fillColor="@color/ic_launcher_background"
+        android:pathData="M46.8,59.6 L48.13,62.65 L50.8,60.67 L50.42,63.98 L53.73,63.6 L51.75,66.27 L54.8,67.6 L51.75,68.93 L53.73,71.6 L50.42,71.22 L50.8,74.53 L48.13,72.55 L46.8,75.6 L45.47,72.55 L42.8,74.53 L43.18,71.22 L39.87,71.6 L41.85,68.93 L38.8,67.6 L41.85,66.27 L39.87,63.6 L43.18,63.98 L42.8,60.67 L45.47,62.65 Z" />
 </vector>

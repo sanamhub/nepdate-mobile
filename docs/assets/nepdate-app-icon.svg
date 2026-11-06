@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="108" height="108" viewBox="0 0 108 108">
+  <!-- NepDate app icon master, 108 unit adaptive icon grid. Mark fits the 66 unit safe circle at 54,54. -->
+  <rect id="background" width="108" height="108" fill="#B3261E"/>
+  <g id="foreground">
+    <path id="pennant" fill="#FFF8F3" d="M36.4,28.4 L71.6,51.6 L50,51.6 L71.6,79.6 L36.4,79.6 Z"/>
+    <path id="crescent" fill="#B3261E" d="M40.57,43.04 A5.6,5.6 0 1,0 51.43,43.04 A5.6,5.6 0 0,1 40.57,43.04 Z"/>
+    <path id="sun" fill="#B3261E" d="M46.8,59.6 L48.13,62.65 L50.8,60.67 L50.42,63.98 L53.73,63.6 L51.75,66.27 L54.8,67.6 L51.75,68.93 L53.73,71.6 L50.42,71.22 L50.8,74.53 L48.13,72.55 L46.8,75.6 L45.47,72.55 L42.8,74.53 L43.18,71.22 L39.87,71.6 L41.85,68.93 L38.8,67.6 L41.85,66.27 L39.87,63.6 L43.18,63.98 L42.8,60.67 L45.47,62.65 Z"/>
+  </g>
+</svg>
