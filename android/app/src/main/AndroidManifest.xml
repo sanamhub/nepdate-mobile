@@ -47,10 +47,13 @@
             </intent-filter>
         </activity>
 
+        <!-- Widget receivers. android:icon is a plain drawable, not the adaptive launcher icon:
+             some launcher widget lists drew the adaptive mipmap as a red tile with a blank square. -->
         <receiver
             android:name=".widget.TodayGlanceWidgetReceiver"
             android:exported="true"
-            android:label="@string/widget_today_name">
+            android:icon="@drawable/widget_picker_icon"
+            android:label="@string/widget3_today_name">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -62,7 +65,8 @@
         <receiver
             android:name=".widget.UpcomingGlanceWidgetReceiver"
             android:exported="true"
-            android:label="@string/widget_upcoming_name">
+            android:icon="@drawable/widget_picker_icon"
+            android:label="@string/widget3_upcoming_name">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -74,6 +78,7 @@
         <receiver
             android:name=".widget.MonthGlanceWidgetReceiver"
             android:exported="true"
+            android:icon="@drawable/widget_picker_icon"
             android:label="@string/widget_month_name">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -86,7 +91,8 @@
         <receiver
             android:name=".widget.NextFestivalGlanceWidgetReceiver"
             android:exported="true"
-            android:label="@string/widget2_next_festival_name">
+            android:icon="@drawable/widget_picker_icon"
+            android:label="@string/widget3_countdown_name">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -98,6 +104,7 @@
         <receiver
             android:name=".widget.FestivalsGlanceWidgetReceiver"
             android:exported="true"
+            android:icon="@drawable/widget_picker_icon"
             android:label="@string/widget2_festivals_name">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -105,6 +112,45 @@
             <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/widget_festivals_info" />
+        </receiver>
+
+        <receiver
+            android:name=".widget.DateChipGlanceWidgetReceiver"
+            android:exported="true"
+            android:icon="@drawable/widget_picker_icon"
+            android:label="@string/widget3_chip_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_chip_info" />
+        </receiver>
+
+        <receiver
+            android:name=".widget.DateStripGlanceWidgetReceiver"
+            android:exported="true"
+            android:icon="@drawable/widget_picker_icon"
+            android:label="@string/widget3_strip_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_strip_info" />
+        </receiver>
+
+        <receiver
+            android:name=".widget.WeekGlanceWidgetReceiver"
+            android:exported="true"
+            android:icon="@drawable/widget_picker_icon"
+            android:label="@string/widget3_week_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_week_info" />
         </receiver>
 
         <receiver

@@ -1,6 +1,7 @@
 package np.nepdate.widget
 
 import android.content.Context
+import androidx.annotation.Keep
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.glance.GlanceId
@@ -76,7 +77,11 @@ internal suspend fun applyMonthNavigation(
     update(context, glanceId)
 }
 
-/** The previous/next/today callback. Parameters carry the target month computed at render time. */
+/**
+ * The previous/next/today callback. Parameters carry the target month computed at render time.
+ * [Keep] stops R8 full mode from removing the constructor Glance calls by reflection.
+ */
+@Keep
 internal class MonthNavigationAction : ActionCallback {
     override suspend fun onAction(
         context: Context,

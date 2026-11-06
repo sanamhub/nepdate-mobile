@@ -12,7 +12,6 @@ import np.nepdate.ui.common.monthTitle
 import np.nepdate.ui.common.weekdayHeaders
 import np.nepdate.ui.month.MonthCell
 import np.nepdate.ui.month.monthLayout
-import np.nepdate.ui.upcoming.upcoming
 
 /**
  * One upcoming holiday or event in a widget. The strings are already localised and already use the
@@ -45,12 +44,15 @@ internal data class TodayWidgetModel(
     val bsShortLine: String = "",
     val adDay: String = "",
     val adMonthYear: String = "",
+    val tithi: String = "",
+    val eventName: String? = null,
+    val bsLongLine: String = "",
 )
 
-/** The W-02 model: W-01 on the left and the next three entries on the right. */
+/** The W-02 model: today on the left and the next days with a holiday or event on the right. */
 internal data class UpcomingWidgetModel(
     val today: TodayWidgetModel,
-    val entries: List<WidgetUpcomingEntry>,
+    val entries: List<WidgetDayRow>,
     val dataEnds: String?,
 )
 
@@ -111,13 +113,10 @@ internal fun todayWidgetModel(
     val adShort =
         "${date.gregorianDay.toString().inDigits(digits)} " +
             copy.adMonthShortNames[date.gregorianMonth - 1]
-    val info = Patro.info(date)
-    val holidayName =
-        if (info.isPublicHoliday) {
-            info.events.firstOrNull()?.name(lang) ?: copy.publicHoliday
-        } else {
-            null
-        }
+    val info = if (date in Patro.coverage) Patro.info(date) else null
+    val isHoliday = info?.isPublicHoliday == true
+    val firstEvent = info?.events?.firstOrNull()?.name(lang)
+    val holidayName = if (isHoliday) firstEvent ?: copy.publicHoliday else null
     val oneLine =
         if (holidayName == null) {
             "$monthName $bsDay $weekday, $adShort"
@@ -135,7 +134,7 @@ internal fun todayWidgetModel(
         adShortLine = adShort,
         oneLine = oneLine,
         holidayName = holidayName,
-        isHoliday = info.isPublicHoliday,
+        isHoliday = isHoliday,
         isSaturday = date.dayOfWeek == Weekday.SATURDAY,
         nepalLabel = if (showNepal) copy.nepal else null,
         nextHoliday = nextHoliday,
@@ -143,12 +142,16 @@ internal fun todayWidgetModel(
         bsShortLine = "$monthName $bsDay",
         adDay = date.gregorianDay.toString().inDigits(digits),
         adMonthYear = monthTitle(copy.adMonthNames[date.gregorianMonth - 1], date.gregorianYear, digits),
+        tithi = info?.tithi?.name(lang).orEmpty(),
+        eventName = firstEvent,
+        bsLongLine = bsDate(date, copy, digits),
     )
 }
 
 /**
- * Builds the W-02 model. The entry list is capped at three; [UpcomingWidgetModel.dataEnds] is set
- * only when fewer than three entries remain before the end of coverage (W-02 AC2).
+ * Builds the W-02 model: up to [UPCOMING_MAX_ROWS] days after today, each with all its events on
+ * one line. [UpcomingWidgetModel.dataEnds] is set only when the calendar data ends before the list
+ * fills (W-02 AC2).
  */
 internal fun upcomingWidgetModel(
     date: NepaliDate,
@@ -157,17 +160,29 @@ internal fun upcomingWidgetModel(
     copy: WidgetCopy,
     showNepal: Boolean,
 ): UpcomingWidgetModel {
-    val list = upcoming(date, limit = 3)
-    val entries = list.entries.map { it.toWidgetEntry(lang, digits, copy) }
+    val list =
+        upcomingDays(
+            today = date,
+            holidaysOnly = false,
+            lang = lang,
+            digits = digits,
+            copy = copy,
+            maxRows = UPCOMING_MAX_ROWS + 1,
+            maxDays = Int.MAX_VALUE,
+        )
+    val entries = list.rows.filter { it.date != date }.take(UPCOMING_MAX_ROWS)
     return UpcomingWidgetModel(
         today = todayWidgetModel(date, lang, digits, copy, showNepal),
         entries = entries,
         dataEnds =
-            list.dataEndsOn?.let { end ->
+            list.dataEndsOn?.takeIf { entries.size < UPCOMING_MAX_ROWS }?.let { end ->
                 copy.dataEndsOn(bsDate(end, copy, digits)).inDigits(digits)
             },
     )
 }
+
+/** The most days the Today and upcoming widget lists. */
+internal const val UPCOMING_MAX_ROWS = 4
 
 /**
  * Builds the W-03 model for [year]-[monthValue]. The model keeps the 5- or 6-row grid from the app,

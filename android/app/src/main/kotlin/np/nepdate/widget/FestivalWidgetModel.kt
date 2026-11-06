@@ -70,18 +70,9 @@ internal data class NextFestivalModel(
     val isHoliday: Boolean get() = entry?.isHoliday == true
 }
 
-/** One row of the Festivals list widget. */
-internal data class FestivalRow(
-    val date: NepaliDate,
-    val bsDay: String,
-    val name: String,
-    val relative: String,
-    val isHoliday: Boolean,
-)
-
 /** What the Festivals list widget draws. */
 internal data class FestivalsListModel(
-    val rows: List<FestivalRow>,
+    val rows: List<WidgetDayRow>,
     val holidaysOnly: Boolean,
     val emptyText: String,
 )
@@ -136,39 +127,20 @@ internal fun nextFestivalModel(
 }
 
 /**
- * Builds the Festivals list model: the next [limit] entries, or the next [limit] public holidays
- * when [holidaysOnly] is on.
+ * Builds the Festivals list model: every upcoming day with a holiday or an event by default, or only
+ * public holidays when [holidaysOnly] is on, capped by [upcomingDays].
  */
 internal fun festivalsListModel(
     today: NepaliDate,
     holidaysOnly: Boolean,
-    limit: Int,
     digits: Digits,
     lang: Lang,
     copy: WidgetCopy,
     controls: WidgetControlCopy,
 ): FestivalsListModel {
     require(digits != Digits.FOLLOW_LANGUAGE) { "Resolve Digits before building a widget model" }
-    val entries =
-        if (holidaysOnly) {
-            upcoming(today, limit = HOLIDAY_SCAN_LIMIT).entries.filter { it.isHoliday }.take(limit)
-        } else {
-            upcoming(today, limit = limit).entries
-        }
     return FestivalsListModel(
-        rows =
-            entries.map { entry ->
-                FestivalRow(
-                    date = entry.date,
-                    bsDay =
-                        entry.date.dayOfMonth
-                            .toString()
-                            .inDigits(digits),
-                    name = entry.name.name(lang),
-                    relative = copy.relative(entry.daysFromToday).inDigits(digits),
-                    isHoliday = entry.isHoliday,
-                )
-            },
+        rows = upcomingDays(today, holidaysOnly, lang, digits, copy).rows,
         holidaysOnly = holidaysOnly,
         emptyText = controls.noneLeft,
     )
@@ -201,6 +173,3 @@ private const val WINDOW_HOLIDAYS = 3
 
 /** How many events are scanned to find the next few public holidays for the filtered list. */
 private const val HOLIDAY_SCAN_LIMIT = 400
-
-/** The most rows the Festivals list shows. */
-internal const val FESTIVALS_MAX_ROWS = 4

@@ -9,6 +9,7 @@ import androidx.glance.appwidget.testing.unit.hasStartActivityClickAction
 import androidx.glance.appwidget.testing.unit.runGlanceAppWidgetUnitTest
 import androidx.glance.testing.unit.hasTestTag
 import androidx.glance.testing.unit.hasText
+import androidx.glance.testing.unit.hasTextEqualTo
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import io.github.sanamhub.nepdate.Lang
@@ -24,23 +25,20 @@ class WidgetContentTest {
     private val context: Context = ApplicationProvider.getApplicationContext()
 
     @Test
-    fun w01EnglishDigitsAt4x1() =
+    fun theDateStripShowsTheWeekdayDateAndTithiInEnglishDigits() =
         runGlanceAppWidgetUnitTest {
             setContext(context)
             setAppWidgetSize(GlanceAppWidgetSize.ONE_LINE)
             provideComposable {
                 GlanceTheme {
-                    TodayWidgetContent(
-                        todayModel(Digits.ENGLISH, Lang.ENGLISH),
-                        WidgetOpacity.SOLID,
-                    )
+                    DateStripContent(todayModel(Digits.ENGLISH, Lang.ENGLISH), WidgetOpacity.SOLID)
                 }
             }
 
-            onNode(hasText("Asoj 25 Sunday, Ghatasthapana Brata")).assertExists()
-            // The 4x1 face now also draws the numeral on the Sunny shape, so "25" appears twice.
-            onAllNodes(hasText("25")).assertCountEquals(2)
+            onNode(hasText("Sunday · Asoj 25, 2083")).assertExists()
+            onNode(hasTextEqualTo("25")).assertExists()
             onNode(hasText("२५")).assertDoesNotExist()
+            onNode(hasTestTag("strip_widget")).assert(hasStartActivityClickAction(widgetIntent(context)))
         }
 
     @Test
@@ -58,7 +56,7 @@ class WidgetContentTest {
             }
 
             onNode(hasText("२५")).assertExists()
-            onNode(hasText("असोज २०८३")).assertExists()
+            onNode(hasText("असोज")).assertExists()
             onAllNodes(hasText("25")).assertCountEquals(0)
         }
 
@@ -267,7 +265,7 @@ class WidgetContentTest {
 
 private object GlanceAppWidgetSize {
     val SMALL = DpSize(110.dp, 110.dp)
-    val ONE_LINE = DpSize(250.dp, 70.dp)
+    val ONE_LINE = DpSize(330.dp, 64.dp)
     val WIDE = DpSize(250.dp, 110.dp)
     val MONTH = DpSize(250.dp, 250.dp)
 }

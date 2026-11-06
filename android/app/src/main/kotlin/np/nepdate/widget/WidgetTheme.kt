@@ -60,10 +60,6 @@ internal fun onHolidayContainerProvider(): ColorProvider =
 @Composable
 internal fun onTodayProvider(): ColorProvider = dayNightColor(day = OnToday, night = OnToday)
 
-/** The soft fill of a small control on a coloured widget face. */
-@Composable
-internal fun chipProvider(): ColorProvider = dayNightColor(day = CHIP_LIGHT, night = CHIP_DARK)
-
 /**
  * Glance's colour set has no surface container roles, so they come from the brand scheme, or from
  * the system neutral palette when the widget follows the wallpaper.
@@ -111,5 +107,13 @@ internal fun GlanceModifier.shapeBackground(
     color: ColorProvider,
 ): GlanceModifier = background(imageProvider = ImageProvider(shape), colorFilter = ColorFilter.tint(color))
 
-private val CHIP_LIGHT = Color(0x14271900)
-private val CHIP_DARK = Color(0x1FFFFFFF)
+/**
+ * A rounded shape at [alpha]. [color] must be opaque: a translucent tint over the white shape comes
+ * out almost white, which is what made the old Today and Next festival buttons glare in dark mode.
+ */
+internal fun GlanceModifier.softShapeBackground(
+    @DrawableRes shape: Int,
+    color: ColorProvider,
+    alpha: Float,
+): GlanceModifier =
+    background(imageProvider = ImageProvider(shape), alpha = alpha, colorFilter = ColorFilter.tint(color))

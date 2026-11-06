@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Widget picker names and descriptions (widget review, item 10). -->
+    <string name="widget3_today_name">Today</string>
+    <string name="widget3_upcoming_name">Today and upcoming</string>
+    <string name="widget3_countdown_name">Festival countdown</string>
+    <string name="widget3_chip_name">Date chip</string>
+    <string name="widget3_chip_description">Today\'s month and date in one small tile.</string>
+    <string name="widget3_strip_name">Date and tithi</string>
+    <string name="widget3_strip_description">One row with the weekday, the Bikram Sambat date, the tithi and the AD date.</string>
+    <string name="widget3_week_name">This week</string>
+    <string name="widget3_week_description">The seven days of this week with their holidays and events.</string>
+
+    <!-- Headings inside widgets. -->
+    <string name="widget3_upcoming_title">Coming up</string>
+    <string name="widget3_festivals_title">Festivals and holidays</string>
+
+    <!-- Static previews for launchers before Android 15 (sample day: Asoj 25, 2083). -->
+    <string name="widget3_preview_day">25</string>
+    <string name="widget3_preview_month">Asoj</string>
+    <string name="widget3_preview_weekday">Sunday</string>
+    <string name="widget3_preview_strip_detail">Pratipada · Ghatasthapana</string>
+    <string name="widget3_preview_week">Sun  Mon  Tue  Wed  Thu  Fri  Sat\n 25   26   27   28   29   30   31</string>
+</resources>

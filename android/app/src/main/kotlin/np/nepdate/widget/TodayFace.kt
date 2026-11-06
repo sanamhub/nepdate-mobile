@@ -5,11 +5,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.glance.ColorFilter
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
-import androidx.glance.Image
-import androidx.glance.ImageProvider
 import androidx.glance.LocalContext
 import androidx.glance.LocalSize
 import androidx.glance.action.clickable
@@ -18,18 +15,15 @@ import androidx.glance.appwidget.action.actionStartActivity
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
 import androidx.glance.layout.Column
-import androidx.glance.layout.ContentScale
 import androidx.glance.layout.Row
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.padding
-import androidx.glance.layout.size
 import androidx.glance.semantics.contentDescription
 import androidx.glance.semantics.semantics
 import androidx.glance.semantics.testTag
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
-import androidx.glance.text.TextAlign
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
 import np.nepdate.R
@@ -39,36 +33,27 @@ private data class TodayFace(
     val top: String,
     val day: String,
     val weekday: String,
-    val sub: String,
-    val subIsHoliday: Boolean,
-    val oneLine: String,
+    val detail: String,
+    val pill: String?,
+    val pillIsHoliday: Boolean,
 )
 
-private fun TodayWidgetModel.face(showAd: Boolean): TodayFace =
-    if (showAd) {
-        TodayFace(
-            top = adMonthYear,
-            day = adDay,
-            weekday = weekday,
-            sub = bsShortLine,
-            subIsHoliday = false,
-            oneLine = "$weekday, $adDay $adMonthYear · $bsShortLine",
-        )
+private fun TodayWidgetModel.face(showAd: Boolean): TodayFace {
+    val pill = holidayName ?: eventName
+    return if (showAd) {
+        TodayFace(adMonthYear, adDay, weekday, joinDots(bsShortLine, tithi), pill, holidayName != null)
     } else {
-        TodayFace(
-            top = bsMonthYear,
-            day = bsDay,
-            weekday = weekday,
-            sub = holidayName ?: adShortLine,
-            subIsHoliday = holidayName != null,
-            oneLine = oneLine,
-        )
+        TodayFace(bsMonthYear, bsDay, weekday, joinDots(tithi, adLine), pill, holidayName != null)
     }
+}
+
+private fun joinDots(vararg parts: String): String = parts.filter { it.isNotEmpty() }.joinToString(" · ")
 
 /**
- * W-01 Today. The numeral sits on the marigold Sunny shape on a primary container face. A round
- * button flips the face between the BS and the AD date; the choice is saved per widget by
- * [TodayFaceAction]. 2x2 stacks the face, 4x2 puts the numeral beside the text, 4x1 is one line.
+ * W-01 Today. The numeral sits on the marigold Sunny shape on a primary container face, and every
+ * size scales its type with the widget: a larger widget gets a larger numeral and weekday, not just
+ * more padding. A round button flips the face between the BS and the AD date; the choice is saved
+ * per widget by [TodayFaceAction]. The rest of the face opens the app on today.
  *
  * @param showAd true to draw the AD face
  */
@@ -91,12 +76,9 @@ internal fun TodayWidgetContent(
                 },
         contentAlignment = Alignment.TopEnd,
     ) {
-        when {
-            isOneLineSize() -> TodayFaceOneLine(model, face)
-            isSmallSize() -> TodayFaceStacked(model, face)
-            else -> TodayFaceWide(model, face)
-        }
-        if (!isOneLineSize()) FlipButton(showAd)
+        val stacked = LocalSize.current.width < WIDE_FACE
+        if (stacked) TodayFaceStacked(model, face) else TodayFaceWide(model, face)
+        FlipButton(showAd, if (stacked) STACKED_FLIP else WIDE_FLIP)
     }
 }
 
@@ -106,26 +88,36 @@ private fun TodayFaceStacked(
     face: TodayFace,
 ) {
     val size = LocalSize.current
-    val sunny = (minOf(size.width, size.height) - STACKED_CHROME).coerceIn(MIN_SUNNY, MAX_SUNNY)
-    Column(
-        modifier = GlanceModifier.fillMaxSize().padding(12.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        TopLabel(model, face, fontSize = 14.sp)
-        Box(
-            modifier = GlanceModifier.fillMaxWidth().defaultWeight(),
-            contentAlignment = Alignment.Center,
-        ) {
+    val scale = typeScale(minOf(size.width, size.height))
+    val sunny = (minOf(size.width, size.height) - STACKED_CHROME * scale).coerceIn(MIN_SUNNY, MAX_SUNNY)
+    Column(modifier = GlanceModifier.fillMaxSize().padding(12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(
+            // A narrow face drops the year: the month name alone always fits beside the flip button.
+            text = if (size.width < FULL_DETAIL_WIDTH) face.top.substringBeforeLast(" ") else face.top,
+            modifier = GlanceModifier.fillMaxWidth().padding(end = STACKED_FLIP_CLEARANCE),
+            style = faceStyle(14.sp * scale, FontWeight.Bold),
+            maxLines = 1,
+        )
+        Box(modifier = GlanceModifier.fillMaxWidth().defaultWeight(), contentAlignment = Alignment.Center) {
             SunnyNumeral(face.day, sunny)
         }
-        Row(modifier = GlanceModifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        Text(
+            text = face.weekday,
+            modifier = GlanceModifier.fillMaxWidth(),
+            style = TextStyle(color = weekdayColor(model), fontSize = 15.sp * scale, fontWeight = FontWeight.Bold),
+            maxLines = 1,
+        )
+        if (face.pill != null && size.height >= PILL_HEIGHT) {
+            FacePill(face.pill, face.pillIsHoliday, 12.sp * scale)
+        } else {
             Text(
-                text = if (size.width < WIDE_ENOUGH_FOR_FULL_WEEKDAY) model.weekdayShort else face.weekday,
-                modifier = GlanceModifier.defaultWeight(),
-                style = TextStyle(color = weekdayColor(model), fontSize = 12.sp, fontWeight = FontWeight.Medium),
+                // A narrow face keeps only the first part (the tithi, or the BS date on the AD face),
+                // so a 2x2 widget never cuts a date mid-word.
+                text = if (size.width < FULL_DETAIL_WIDTH) face.detail.substringBefore(" · ") else face.detail,
+                modifier = GlanceModifier.fillMaxWidth(),
+                style = faceStyle(12.sp * scale),
                 maxLines = 1,
             )
-            SubLine(face, fontSize = 12.sp)
         }
     }
 }
@@ -136,196 +128,139 @@ private fun TodayFaceWide(
     face: TodayFace,
 ) {
     val size = LocalSize.current
-    val sunny = (size.height - WIDE_CHROME).coerceIn(MIN_SUNNY, MAX_SUNNY)
-    Row(
-        modifier = GlanceModifier.fillMaxSize().padding(12.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
+    val scale = typeScale(size.height)
+    val sunny = (size.height - WIDE_CHROME).coerceIn(MIN_SUNNY, MAX_SUNNY * scale)
+    Row(modifier = GlanceModifier.fillMaxSize().padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
         SunnyNumeral(face.day, sunny)
-        Column(modifier = GlanceModifier.defaultWeight().padding(start = 12.dp, end = 36.dp)) {
-            TopLabel(model, face, fontSize = 16.sp)
+        Column(modifier = GlanceModifier.defaultWeight().padding(start = 14.dp)) {
+            // Only the top line shares its row with the flip button, so only it keeps clear of it.
+            Text(
+                text = face.top,
+                modifier = GlanceModifier.padding(end = FLIP_CLEARANCE),
+                style = faceStyle(14.sp * scale, FontWeight.Bold),
+                maxLines = 1,
+            )
             Text(
                 text = face.weekday,
-                style = TextStyle(color = weekdayColor(model), fontSize = 13.sp, fontWeight = FontWeight.Medium),
+                style = TextStyle(color = weekdayColor(model), fontSize = 24.sp * scale, fontWeight = FontWeight.Bold),
                 maxLines = 1,
             )
-            SubLine(face, fontSize = 12.sp)
-            model.nextHoliday?.let { next ->
-                Text(
-                    text = "${next.name} · ${next.relative}",
-                    modifier = GlanceModifier.padding(top = 2.dp),
-                    style = TextStyle(color = GlanceTheme.colors.onPrimaryContainer, fontSize = 11.sp),
-                    maxLines = 1,
-                )
-            }
+            WideFooter(model, face, scale, roomy = size.height >= WIDE_PILL_HEIGHT)
         }
     }
 }
 
+/**
+ * The lines under the weekday. A short face has room for one more line: today's holiday or event
+ * pill when there is one, otherwise the detail line. A taller face shows the detail and then the
+ * pill, or the next holiday.
+ */
 @Composable
-private fun TodayFaceOneLine(
+private fun WideFooter(
     model: TodayWidgetModel,
     face: TodayFace,
+    scale: Float,
+    roomy: Boolean,
 ) {
-    Row(
-        modifier = GlanceModifier.fillMaxSize().padding(horizontal = 12.dp, vertical = 6.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        SunnyNumeral(face.day, ONE_LINE_SUNNY)
-        Text(
-            text = face.oneLine,
-            modifier = GlanceModifier.defaultWeight().padding(start = 10.dp),
-            style =
-                TextStyle(
-                    color =
-                        if (model.isHoliday ||
-                            model.isSaturday
-                        ) {
-                            holidayProvider()
-                        } else {
-                            GlanceTheme.colors.onPrimaryContainer
-                        },
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.Medium,
-                ),
-            maxLines = 2,
-        )
+    if (!roomy && face.pill != null) {
+        FacePill(face.pill, face.pillIsHoliday, 12.sp * scale)
+        return
     }
-}
-
-@Composable
-private fun TopLabel(
-    model: TodayWidgetModel,
-    face: TodayFace,
-    fontSize: TextUnit,
-) {
-    // The end padding keeps the label clear of the flip button in the corner.
-    Row(modifier = GlanceModifier.fillMaxWidth().padding(end = 36.dp), verticalAlignment = Alignment.CenterVertically) {
-        Text(
-            text = face.top,
-            style =
-                TextStyle(
-                    color = GlanceTheme.colors.onPrimaryContainer,
-                    fontSize = fontSize,
-                    fontWeight = FontWeight.Bold,
-                ),
-            maxLines = 1,
-        )
-        model.nepalLabel?.let {
+    Text(text = face.detail, style = faceStyle(13.sp * scale), maxLines = 1)
+    val next = model.nextHoliday
+    when {
+        !roomy -> Unit
+        face.pill != null -> FacePill(face.pill, face.pillIsHoliday, 12.sp * scale)
+        next != null ->
             Text(
-                text = " · $it",
-                style = TextStyle(color = GlanceTheme.colors.onPrimaryContainer, fontSize = 10.sp),
+                text = "${next.name} · ${next.relative}",
+                modifier = GlanceModifier.padding(top = 2.dp),
+                style = faceStyle(12.sp * scale, FontWeight.Medium),
                 maxLines = 1,
             )
-        }
     }
 }
 
-/** The holiday name on a holiday container pill, or the other calendar's date as plain text. */
+/** Today's holiday on the holiday container, or today's event on the surface, as a small pill. */
 @Composable
-private fun SubLine(
-    face: TodayFace,
+private fun FacePill(
+    text: String,
+    isHoliday: Boolean,
     fontSize: TextUnit,
 ) {
-    val modifier =
-        if (face.subIsHoliday) {
-            GlanceModifier
-                .shapeBackground(R.drawable.widget_shape_pill, holidayContainerProvider())
-                .padding(horizontal = 8.dp, vertical = 2.dp)
-        } else {
-            GlanceModifier
-        }
     Text(
-        text = face.sub,
-        modifier = modifier,
+        text = text,
+        modifier =
+            GlanceModifier
+                .padding(top = 4.dp)
+                .shapeBackground(
+                    R.drawable.widget_shape_pill,
+                    if (isHoliday) holidayContainerProvider() else GlanceTheme.colors.surface,
+                ).padding(horizontal = 10.dp, vertical = 3.dp),
         style =
             TextStyle(
-                color = if (face.subIsHoliday) onHolidayContainerProvider() else GlanceTheme.colors.onPrimaryContainer,
+                color = if (isHoliday) onHolidayContainerProvider() else GlanceTheme.colors.onSurface,
                 fontSize = fontSize,
-                fontWeight = if (face.subIsHoliday) FontWeight.Medium else FontWeight.Normal,
+                fontWeight = FontWeight.Bold,
             ),
         maxLines = 1,
     )
 }
 
 @Composable
+private fun faceStyle(
+    fontSize: TextUnit,
+    weight: FontWeight = FontWeight.Normal,
+): TextStyle = TextStyle(color = GlanceTheme.colors.onPrimaryContainer, fontSize = fontSize, fontWeight = weight)
+
+@Composable
 private fun weekdayColor(model: TodayWidgetModel): ColorProvider =
     if (model.isHoliday || model.isSaturday) holidayProvider() else GlanceTheme.colors.onPrimaryContainer
 
-/** The round flip button: 36 dp visible, inside a 48 dp touch target. */
-@Composable
-private fun FlipButton(showAd: Boolean) {
-    val context = LocalContext.current
-    val description = context.getString(if (showAd) R.string.widget2_show_bs else R.string.widget2_show_ad)
-    Box(
-        modifier =
-            GlanceModifier
-                .padding(4.dp)
-                .size(TOUCH_TARGET)
-                .clickable(actionRunCallback<TodayFaceAction>())
-                .semantics {
-                    contentDescription = description
-                    testTag = "today_flip"
-                },
-        contentAlignment = Alignment.Center,
-    ) {
-        Box(
-            modifier = GlanceModifier.size(36.dp).shapeBackground(R.drawable.widget_shape_pill, chipProvider()),
-            contentAlignment = Alignment.Center,
-        ) {
-            Image(
-                provider = ImageProvider(R.drawable.ic_sym_swap_horiz),
-                contentDescription = null,
-                modifier = GlanceModifier.size(20.dp),
-                colorFilter = ColorFilter.tint(GlanceTheme.colors.onPrimaryContainer),
-            )
-        }
-    }
-}
-
 /**
- * A numeral on the marigold Sunny shape. Glance cannot draw paths, so the shape is the
- * `widget_sunny` vector tinted with the day or night today colour.
+ * The flip button: a filled primary circle with the on-primary icon. The old button tinted a white
+ * shape with a 12% white tint, which `setColorFilter` blends instead of replacing, so it drew nearly
+ * white on the dark face. Primary on primary container keeps the icon above 4.5:1 and the button
+ * above 3:1 in light, dark and wallpaper colours.
  */
 @Composable
-internal fun SunnyNumeral(
-    text: String,
-    size: Dp,
-    fontSize: TextUnit = (size.value * NUMERAL_SCALE).sp,
+private fun FlipButton(
+    showAd: Boolean,
+    width: Dp,
 ) {
-    Box(modifier = GlanceModifier.size(size), contentAlignment = Alignment.Center) {
-        SunnyShape(GlanceModifier.fillMaxSize())
-        Text(
-            text = text,
-            style =
-                TextStyle(
-                    color = onTodayProvider(),
-                    fontSize = fontSize,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center,
+    val context = LocalContext.current
+    val description = context.getString(if (showAd) R.string.widget2_show_bs else R.string.widget2_show_ad)
+    Box(modifier = GlanceModifier.padding(4.dp)) {
+        IconControl(
+            spec =
+                ControlSpec(
+                    icon = R.drawable.ic_sym_swap_horiz,
+                    description = description,
+                    tag = "today_flip",
+                    action = actionRunCallback<TodayFaceAction>(),
                 ),
-            maxLines = 1,
+            style =
+                ControlStyle(
+                    shape = R.drawable.widget_shape_pill,
+                    fill = GlanceTheme.colors.primary,
+                    ink = GlanceTheme.colors.onPrimary,
+                    width = width,
+                    height = width,
+                ),
         )
     }
 }
 
-/** The Sunny shape alone, scaled to fit [modifier]'s bounds. */
-@Composable
-internal fun SunnyShape(modifier: GlanceModifier) {
-    Image(
-        provider = ImageProvider(R.drawable.widget_sunny),
-        contentDescription = null,
-        modifier = modifier,
-        contentScale = ContentScale.Fit,
-        colorFilter = ColorFilter.tint(todayProvider()),
-    )
-}
-
 internal val TOUCH_TARGET = 48.dp
+private val WIDE_FACE = 200.dp
+private val PILL_HEIGHT = 150.dp
+private val FLIP_CLEARANCE = 40.dp
+private val STACKED_FLIP_CLEARANCE = 32.dp
+private val WIDE_FLIP = 36.dp
+private val STACKED_FLIP = 28.dp
+private val FULL_DETAIL_WIDTH = 160.dp
+private val WIDE_PILL_HEIGHT = 130.dp
 private val MIN_SUNNY = 40.dp
-private val MAX_SUNNY = 112.dp
-private val ONE_LINE_SUNNY = 44.dp
-private val STACKED_CHROME = 70.dp
+private val MAX_SUNNY = 120.dp
+private val STACKED_CHROME = 72.dp
 private val WIDE_CHROME = 24.dp
-private val WIDE_ENOUGH_FOR_FULL_WEEKDAY = 150.dp
-private const val NUMERAL_SCALE = 0.44f

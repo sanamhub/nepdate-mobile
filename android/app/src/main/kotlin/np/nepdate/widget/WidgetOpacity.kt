@@ -1,16 +1,12 @@
 package np.nepdate.widget
 
-import android.content.res.Configuration
 import android.os.Build
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.glance.GlanceModifier
-import androidx.glance.GlanceTheme
 import androidx.glance.LocalContext
-import androidx.glance.LocalSize
 import androidx.glance.appwidget.appWidgetBackground
 import androidx.glance.appwidget.cornerRadius
 import androidx.glance.background
@@ -42,15 +38,7 @@ internal val WIDGET_OPACITY_KEY = stringPreferencesKey("widget_opacity")
 
 private const val SEVENTY_PERCENT_ALPHA = 0.7f
 
-/** The three responsive sizes W-01 and W-02 render at. */
-internal val TODAY_WIDGET_SIZES: Set<DpSize> =
-    setOf(
-        DpSize(110.dp, 110.dp),
-        DpSize(250.dp, 70.dp),
-        DpSize(250.dp, 110.dp),
-    )
-
-/** The three responsive sizes W-03 renders at. */
+/** The responsive sizes W-03 renders at. */
 internal val MONTH_WIDGET_SIZES: Set<DpSize> =
     setOf(
         DpSize(250.dp, 180.dp),
@@ -58,20 +46,22 @@ internal val MONTH_WIDGET_SIZES: Set<DpSize> =
         DpSize(320.dp, 320.dp),
     )
 
-/** The sizes the Next festival widget renders at: 2x1, 2x2 and a taller 2x3. */
-internal val NEXT_FESTIVAL_WIDGET_SIZES: Set<DpSize> =
-    setOf(
-        DpSize(110.dp, 50.dp),
-        DpSize(110.dp, 110.dp),
-        DpSize(160.dp, 160.dp),
-    )
-
-/** The sizes the Festivals list widget renders at: 4x2, a taller 4x2 and 4x3. */
+/** The sizes the Festivals list renders at: 4x2, a taller 4x2, 4x3 and a wide 5x4. */
 internal val FESTIVALS_WIDGET_SIZES: Set<DpSize> =
     setOf(
         DpSize(250.dp, 110.dp),
         DpSize(250.dp, 190.dp),
         DpSize(320.dp, 250.dp),
+        DpSize(400.dp, 320.dp),
+    )
+
+/** The sizes the Week widget renders at: one row and two rows, at four and five cells wide. */
+internal val WEEK_WIDGET_SIZES: Set<DpSize> =
+    setOf(
+        DpSize(250.dp, 50.dp),
+        DpSize(250.dp, 110.dp),
+        DpSize(320.dp, 50.dp),
+        DpSize(320.dp, 110.dp),
     )
 
 /** The brand colours stay fixed; the surface follows dynamic colour (design system §2). */
@@ -80,19 +70,6 @@ internal fun holidayProvider(): ColorProvider = dayNightColor(day = HolidayLight
 
 @Composable
 internal fun todayProvider(): ColorProvider = dayNightColor(day = TodayLight, night = TodayDark)
-
-@Composable
-internal fun holidayColor(): Color {
-    val context = LocalContext.current
-    val night =
-        (context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) ==
-            Configuration.UI_MODE_NIGHT_YES
-    return if (night) HolidayDark else HolidayLight
-}
-
-/** The widget background at the configured opacity, with the system corner radius. */
-@Composable
-internal fun widgetRootOpacity(opacity: WidgetOpacity): GlanceModifier = widgetRoot(opacity, GlanceTheme.colors.surface)
 
 /**
  * The widget root: [color] at the configured opacity with the widget corner, the system radius on
@@ -104,26 +81,19 @@ internal fun widgetRoot(
     opacity: WidgetOpacity,
     color: ColorProvider,
 ): GlanceModifier {
-    val fill =
-        when (opacity) {
-            WidgetOpacity.SOLID -> color
-            else -> ColorProvider(color.getColor(LocalContext.current).copy(alpha = opacity.alpha))
-        }
     val base = GlanceModifier.fillMaxSize().appWidgetBackground()
-    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-        base.cornerRadius(android.R.dimen.system_app_widget_background_radius).background(fill)
-    } else {
-        base.shapeBackground(R.drawable.widget_shape_28, fill)
+    return when {
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+            val fill =
+                when (opacity) {
+                    WidgetOpacity.SOLID -> color
+                    else -> ColorProvider(color.getColor(LocalContext.current).copy(alpha = opacity.alpha))
+                }
+            base.cornerRadius(android.R.dimen.system_app_widget_background_radius).background(fill)
+        }
+        // Before Android 12 the corner comes from a tinted shape, and a tinted shape takes its
+        // alpha from the image, never from the tint (see softShapeBackground).
+        opacity == WidgetOpacity.SOLID -> base.shapeBackground(R.drawable.widget_shape_28, color)
+        else -> base.softShapeBackground(R.drawable.widget_shape_28, color, opacity.alpha)
     }
 }
-
-/** Whether the current widget is the one-line 4x1 size. */
-@Composable
-internal fun isOneLineSize(): Boolean {
-    val size = LocalSize.current
-    return size.width >= 200.dp && size.height < 90.dp
-}
-
-/** Whether the current widget is the compact 2x2 size. */
-@Composable
-internal fun isSmallSize(): Boolean = LocalSize.current.width < 200.dp

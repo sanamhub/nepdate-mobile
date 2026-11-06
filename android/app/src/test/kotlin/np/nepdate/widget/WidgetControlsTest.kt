@@ -44,7 +44,7 @@ class WidgetControlsTest {
 
             onNode(hasTestTag("today_flip")).assert(hasRunCallbackClickAction<TodayFaceAction>())
             onNode(hasTestTag("today_flip")).assert(hasContentDescription("Show the Bikram Sambat date"))
-            onNode(hasText("October 2026")).assertExists()
+            onNode(hasText("October")).assertExists()
             onNode(hasText("Asoj 25")).assertExists()
         }
 
@@ -105,31 +105,20 @@ class WidgetControlsTest {
         }
 
     @Test
-    fun theHolidaysOnlyFilterKeepsOnlyPublicHolidays() {
-        val all =
-            festivalsListModel(
-                today,
-                false,
-                FESTIVALS_MAX_ROWS,
-                Digits.ENGLISH,
-                Lang.ENGLISH,
-                englishWidgetCopy,
-                controls,
-            )
-        val holidays =
-            festivalsListModel(
-                today,
-                true,
-                FESTIVALS_MAX_ROWS,
-                Digits.ENGLISH,
-                Lang.ENGLISH,
-                englishWidgetCopy,
-                controls,
-            )
+    fun theListShowsEventsAndHolidaysByDefaultAndTheFilterKeepsOnlyHolidays() {
+        val all = festivalsListModel(today, false, Digits.ENGLISH, Lang.ENGLISH, englishWidgetCopy, controls)
+        val holidays = festivalsListModel(today, true, Digits.ENGLISH, Lang.ENGLISH, englishWidgetCopy, controls)
 
-        assertEquals(FESTIVALS_MAX_ROWS, all.rows.size)
         assertFalse(all.holidaysOnly)
-        assertEquals(FESTIVALS_MAX_ROWS, holidays.rows.size)
+        assertTrue(all.rows.size in 2..LIST_MAX_ROWS)
+        assertTrue("the default list includes public holidays", all.rows.any { it.isHoliday })
+        assertTrue("the default list includes other events", all.rows.any { !it.isHoliday })
+        assertTrue(all.rows.all { today.daysUntil(it.date) <= LIST_WINDOW_DAYS })
+        assertEquals(all.rows.size, all.rows.distinctBy { it.date }.size)
+
+        assertTrue(holidays.holidaysOnly)
+        assertTrue(holidays.rows.isNotEmpty())
+        assertTrue(holidays.rows.size <= LIST_MAX_ROWS)
         assertTrue(holidays.rows.all { it.isHoliday })
     }
 
@@ -138,16 +127,7 @@ class WidgetControlsTest {
         runGlanceAppWidgetUnitTest {
             setContext(context)
             setAppWidgetSize(DpSize(320.dp, 250.dp))
-            val model =
-                festivalsListModel(
-                    today,
-                    false,
-                    FESTIVALS_MAX_ROWS,
-                    Digits.ENGLISH,
-                    Lang.ENGLISH,
-                    englishWidgetCopy,
-                    controls,
-                )
+            val model = festivalsListModel(today, false, Digits.ENGLISH, Lang.ENGLISH, englishWidgetCopy, controls)
             provideComposable {
                 GlanceTheme { FestivalsWidgetContent(model, WidgetOpacity.SOLID) }
             }

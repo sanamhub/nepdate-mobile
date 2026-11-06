@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- previewLayout serves Android 12 to 14 pickers, previewImage older ones; Android 15+ pickers get
+     a generated preview from WidgetPreviewPublisher. -->
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:configure="np.nepdate.widget.WidgetConfigActivity"
@@ -11,6 +13,7 @@
     android:minResizeHeight="50dp"
     android:minResizeWidth="110dp"
     android:minWidth="110dp"
+    android:previewImage="@drawable/widget_preview_image_countdown"
     android:previewLayout="@layout/widget_preview_next_festival"
     android:resizeMode="horizontal|vertical"
     android:targetCellHeight="2"

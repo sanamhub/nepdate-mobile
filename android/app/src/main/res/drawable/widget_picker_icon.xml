@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The widget picker icon: the launcher icon's background and foreground flattened into one plain
+     drawable. Some launchers, the OnePlus one among them, drew the adaptive mipmap in the widget
+     list as a red tile with a blank white square; a plain layer list has no adaptive layers to
+     mis-draw. It reuses the icon's own colour and foreground, so the icon redesign carries over. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:width="72dp" android:height="72dp">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/ic_launcher_background" />
+            <corners android:radius="20dp" />
+        </shape>
+    </item>
+    <!-- Like an adaptive icon, show the middle 72 of the foreground's 108 units. -->
+    <item
+        android:bottom="-18dp"
+        android:drawable="@drawable/ic_launcher_foreground"
+        android:left="-18dp"
+        android:right="-18dp"
+        android:top="-18dp" />
+</layer-list>

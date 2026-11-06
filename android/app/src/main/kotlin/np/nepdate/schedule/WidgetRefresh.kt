@@ -4,12 +4,15 @@ import android.util.Log
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.state.updateAppWidgetState
 import np.nepdate.data.Settings
+import np.nepdate.widget.DateChipGlanceWidget
+import np.nepdate.widget.DateStripGlanceWidget
 import np.nepdate.widget.FestivalsGlanceWidget
 import np.nepdate.widget.MonthGlanceWidget
 import np.nepdate.widget.NextFestivalGlanceWidget
 import np.nepdate.widget.TodayGlanceWidget
 import np.nepdate.widget.UpcomingGlanceWidget
 import np.nepdate.widget.WIDGET_REFRESH_KEY
+import np.nepdate.widget.WeekGlanceWidget
 import java.util.concurrent.atomic.AtomicLong
 
 /** The widget work a receiver, the settings observer or the app open triggers. */
@@ -23,7 +26,7 @@ internal interface WidgetUpdater {
     suspend fun clearShownMonth()
 }
 
-/** Production updater. All five widgets are updated, whether or not an instance is placed. */
+/** Production updater. Every placed copy of every widget is updated. */
 internal class GlanceWidgetUpdater(
     private val context: android.content.Context,
 ) : WidgetUpdater {
@@ -40,6 +43,9 @@ internal class GlanceWidgetUpdater(
             MonthGlanceWidget(),
             NextFestivalGlanceWidget(),
             FestivalsGlanceWidget(),
+            DateChipGlanceWidget(),
+            DateStripGlanceWidget(),
+            WeekGlanceWidget(),
         ).forEach { widget ->
             manager.getGlanceIds(widget.javaClass).forEach { glanceId ->
                 updateAppWidgetState(context, glanceId) { preferences ->

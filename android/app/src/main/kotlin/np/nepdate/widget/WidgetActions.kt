@@ -1,6 +1,7 @@
 package np.nepdate.widget
 
 import android.content.Context
+import androidx.annotation.Keep
 import androidx.datastore.preferences.core.MutablePreferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
@@ -8,6 +9,10 @@ import androidx.glance.GlanceId
 import androidx.glance.action.ActionParameters
 import androidx.glance.appwidget.action.ActionCallback
 import androidx.glance.appwidget.state.updateAppWidgetState
+
+// Every ActionCallback here carries @Keep. Glance builds a callback with
+// `getDeclaredConstructor().newInstance()` and only logs a failure; its consumer rule keeps the class
+// but, under R8 full mode, not the no-argument constructor, so a shrunk build silently ignored taps.
 
 // Per-widget state for the interactive controls. Each key lives in the placed widget's own Glance
 // preferences, next to the opacity and the shown month, so two placed copies never share a choice.
@@ -38,6 +43,7 @@ internal suspend fun changeWidgetState(
 }
 
 /** Flips the Today widget between its BS and AD faces. */
+@Keep
 internal class TodayFaceAction : ActionCallback {
     override suspend fun onAction(
         context: Context,
@@ -54,6 +60,7 @@ internal class TodayFaceAction : ActionCallback {
 }
 
 /** Moves the Next festival widget to the index computed at render time. */
+@Keep
 internal class FestivalStepAction : ActionCallback {
     override suspend fun onAction(
         context: Context,
@@ -72,6 +79,7 @@ internal class FestivalStepAction : ActionCallback {
 }
 
 /** Toggles the Festivals list's public holidays only filter. */
+@Keep
 internal class HolidayFilterAction : ActionCallback {
     override suspend fun onAction(
         context: Context,
