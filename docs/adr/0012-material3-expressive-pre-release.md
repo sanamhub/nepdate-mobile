@@ -1,6 +1,6 @@
 # ADR-0012: material3 1.5 pre-release for Material 3 Expressive
 
-- Status: Proposed
+- Status: Accepted
 - Date: 2026-11-06
 - Deciders: Sanam Pakuwal
 
