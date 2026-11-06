@@ -49,7 +49,7 @@ class StartupBenchmark {
         ) {
             pressHome()
             startActivityAndWait()
-            device.waitForIdle()
+            drawFrameAfterFullyDrawn()
         }
     }
 

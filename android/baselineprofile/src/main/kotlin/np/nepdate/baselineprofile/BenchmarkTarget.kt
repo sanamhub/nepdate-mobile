@@ -2,6 +2,7 @@ package np.nepdate.baselineprofile
 
 import androidx.benchmark.macro.BaselineProfileMode
 import androidx.benchmark.macro.CompilationMode
+import androidx.benchmark.macro.MacrobenchmarkScope
 
 /** The package used by the baseline profile and Macrobenchmark tests. */
 internal const val PACKAGE_NAME = "np.nepdate"
@@ -19,3 +20,19 @@ internal fun withoutProfile(): CompilationMode = CompilationMode.None()
 /** The checked-in Baseline Profile is installed and compiled, and the run fails if it is missing. */
 internal fun withProfile(): CompilationMode =
     CompilationMode.Partial(baselineProfileMode = BaselineProfileMode.Require, warmupIterations = 2)
+
+/**
+ * `StartupTimingMetric` reads the first frame drawn after `reportFullyDrawn()`, and the app is idle
+ * once it has drawn the month grid, so no such frame would exist. A short vertical drag on the grid
+ * asks for one. It runs after the launch, so the first-display and fully-drawn times are not moved.
+ */
+internal fun MacrobenchmarkScope.drawFrameAfterFullyDrawn() {
+    device.waitForIdle()
+    val x = device.displayWidth / 2
+    val y = (device.displayHeight * SWIPE_Y_FRACTION).toInt()
+    device.swipe(x, y, x, y + FRAME_NUDGE_PX, FRAME_NUDGE_STEPS)
+    device.waitForIdle()
+}
+
+private const val FRAME_NUDGE_PX = 40
+private const val FRAME_NUDGE_STEPS = 10

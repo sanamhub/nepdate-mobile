@@ -66,8 +66,8 @@ jobs:
       - name: Summarise the results
         if: always()
         run: |
-          files="$(find android/baselineprofile/build/outputs -name '*benchmarkData.json')"
-          echo "$files"
+          find android/baselineprofile/build -name '*benchmarkData.json' -o -name '*.perfetto-trace' | sort
+          files="$(find android/baselineprofile/build -name '*benchmarkData.json')"
           test -n "$files"
           python3 tools/summarize_benchmarks.py $files | tee -a "$GITHUB_STEP_SUMMARY"
 
@@ -77,7 +77,7 @@ jobs:
         with:
           name: benchmark-results
           path: |
-            android/baselineprofile/build/outputs/managed_device_android_test_additional_output
+            android/baselineprofile/build/outputs
             android/baselineprofile/build/reports
           if-no-files-found: warn
           retention-days: 30
