@@ -109,6 +109,7 @@ class GridFitTest {
                                 digits = Digits.ENGLISH,
                                 lang = Lang.ENGLISH,
                                 showTithi = true,
+                                showAdDay = true,
                                 ink = dayInk(cell, false),
                             )
                         }

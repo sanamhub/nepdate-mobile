@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -35,6 +34,7 @@ import androidx.compose.ui.unit.sp
 import io.github.sanamhub.nepdate.Lang
 import io.github.sanamhub.nepdate.patro.Named
 import np.nepdate.data.Digits
+import np.nepdate.ui.common.DiamondShape
 import np.nepdate.ui.common.SunnyShape
 import np.nepdate.ui.common.inDigits
 import np.nepdate.ui.theme.LocalNepdateColors
@@ -55,13 +55,14 @@ internal fun dayInk(
 ): DayInk {
     val colors = LocalNepdateColors.current
     val background = MaterialTheme.colorScheme.background
-    val selection = MaterialTheme.colorScheme.surfaceContainerHigh
+    val selection = MaterialTheme.colorScheme.surfaceContainerHighest
     val holidayInk = cell.isInMonth && (cell.isHoliday || cell.isSaturday)
+    // A plain day draws no tile, so the month reads as numbers on the card, not a wall of boxes.
     val fill =
         when {
             isSelected -> selection
             cell.isHoliday -> colors.holidayFillOn(background)
-            else -> background
+            else -> Color.Transparent
         }
     val primary =
         when {
@@ -90,15 +91,18 @@ internal fun BoxScope.DayCellContent(
     digits: Digits,
     lang: Lang,
     showTithi: Boolean,
+    showAdDay: Boolean,
     ink: DayInk,
 ) {
-    Text(
-        text = cell.adDay.toString().inDigits(digits),
-        modifier = Modifier.align(Alignment.TopEnd),
-        color = ink.secondary,
-        style = MaterialTheme.typography.labelSmall,
-        maxLines = 1,
-    )
+    if (showAdDay) {
+        Text(
+            text = cell.adDay.toString().inDigits(digits),
+            modifier = Modifier.align(Alignment.TopEnd),
+            color = ink.secondary,
+            style = MaterialTheme.typography.labelSmall,
+            maxLines = 1,
+        )
+    }
     Column(
         modifier = Modifier.align(Alignment.Center),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -191,15 +195,16 @@ internal fun HolidayUnderline(
     )
 }
 
+/** The event-day marker: a small diamond, so it never reads as a stray full stop. */
 @Composable
 private fun EventDot(holidayInk: Boolean) {
     val colors = LocalNepdateColors.current
     Box(
         modifier =
             Modifier
-                .padding(top = 2.dp)
-                .size(4.dp)
-                .background(if (holidayInk) colors.holiday else colors.event, CircleShape),
+                .padding(top = 1.dp)
+                .size(5.dp)
+                .background(if (holidayInk) colors.holiday else colors.event, DiamondShape),
     )
 }
 

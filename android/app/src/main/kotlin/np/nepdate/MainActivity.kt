@@ -34,7 +34,9 @@ class MainActivity : ComponentActivity() {
         setTheme(R.style.Theme_Nepdate)
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
-        applyDeepLink(intent)
+        // A recreated activity (rotation, theme change) keeps the launch intent; reading it again
+        // would reopen the day sheet the user already closed.
+        if (savedInstanceState == null) applyDeepLink(intent)
         val container = (application as NepdateApplication).container
         setContent {
             val settings by container.settingsRepository.settings.collectAsStateWithLifecycle(

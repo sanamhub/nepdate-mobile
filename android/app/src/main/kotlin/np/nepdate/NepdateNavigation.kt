@@ -28,7 +28,8 @@ internal enum class Overlay { NONE, SETTINGS, ABOUT, SEARCH, YEAR }
 
 /**
  * Where the app shell is: the open overlay, the selected tab, and the pending requests to open a
- * day or jump to a month. The overlay and the tab survive process death.
+ * day or jump to a month. The overlay and the tab survive process death. A request is consumed
+ * once the month tab has acted on it, so it never replays.
  */
 @Stable
 internal class AppNavigation(
@@ -63,6 +64,19 @@ internal class AppNavigation(
         destination = NepdateDestination.MONTH
         jumpMonth = year to month
         jumpKey++
+    }
+
+    /**
+     * Marks the pending open-day request as handled, so the day sheet does not open again when the
+     * month tab comes back into composition (a swipe or tap back to Patro).
+     */
+    fun consumeOpenDate() {
+        openDate = null
+    }
+
+    /** Marks the pending month jump as handled, for the same reason as [consumeOpenDate]. */
+    fun consumeJump() {
+        jumpMonth = null
     }
 
     /** The system back gesture: About returns to Settings, every other overlay closes. */
@@ -102,6 +116,9 @@ internal fun OverlayScreen(
                 onShowTithi = { scope.launch { repository.setShowTithi(it) } },
                 onLook = { scope.launch { repository.setLook(it) } },
                 onWallpaperColors = { scope.launch { repository.setWallpaperColors(it) } },
+                onShowAdDates = { scope.launch { repository.setShowAdDates(it) } },
+                onHaptics = { scope.launch { repository.setHaptics(it) } },
+                onStartTab = { scope.launch { repository.setStartTab(it) } },
                 onOpenAbout = { navigation.overlay = Overlay.ABOUT },
             )
         Overlay.ABOUT ->
@@ -118,6 +135,7 @@ internal fun OverlayScreen(
                 settings = settings,
                 onBack = { navigation.overlay = Overlay.NONE },
                 onOpenDate = navigation::showDate,
+                recentStore = repository.recentSearches,
                 modifier = modifier,
             )
         Overlay.YEAR ->

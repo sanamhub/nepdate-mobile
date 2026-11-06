@@ -15,11 +15,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -33,7 +31,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import io.github.sanamhub.nepdate.Lang
 import io.github.sanamhub.nepdate.NepaliDate
-import kotlinx.coroutines.launch
 import np.nepdate.R
 import np.nepdate.data.Settings
 import np.nepdate.ui.common.languageFor
@@ -74,6 +71,8 @@ fun MonthScreen(
     jumpToMonth: Pair<Int, Int>? = null,
     jumpKey: Int = 0,
     onFirstGridDrawn: () -> Unit = {},
+    onOpenDateHandled: () -> Unit = {},
+    onJumpHandled: () -> Unit = {},
 ) {
     val lang = languageFor(LocalConfiguration.current.locales[0])
     val displaySettings = settings.copy(digits = settings.digits.resolve(lang))
@@ -83,14 +82,11 @@ fun MonthScreen(
         remember(currentPage, displaySettings, today) {
             monthLayout(yearForPage(currentPage), monthForPage(currentPage), displaySettings, today)
         }
-    val scope = rememberCoroutineScope()
-    val goTo: (Int) -> Unit = { page -> scope.launch { pagerState.animateScrollToPage(page) } }
+    val goTo = rememberMonthGoTo(pagerState)
     var showPicker by remember { mutableStateOf(false) }
     var selectedDate by remember { mutableStateOf<NepaliDate?>(null) }
-    OpenDateEffect(openDate, openDateKey, pagerState) { selectedDate = it }
-    LaunchedEffect(jumpToMonth, jumpKey) {
-        jumpToMonth?.let { (year, month) -> pagerState.scrollToPage(monthPage(year, month)) }
-    }
+    OpenDateEffect(openDate, openDateKey, pagerState, onHandled = onOpenDateHandled) { selectedDate = it }
+    JumpEffect(jumpToMonth, jumpKey, pagerState, onHandled = onJumpHandled)
     Column(
         modifier =
             modifier
@@ -156,15 +152,13 @@ private fun ColumnScope.MonthBody(
     val currentPage = pagerState.settledPage
     val todayPage = monthPage(today.year, today.monthValue)
     val bigFont = LocalDensity.current.fontScale >= LIST_FONT_SCALE
-    if (currentPage == todayPage && !bigFont) {
-        TodayHero(
-            today = today,
-            lang = lang,
-            digits = settings.digits,
-            onOpenDay = onDayClick,
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
-        )
-    }
+    TodayHeroSlot(
+        visible = currentPage == todayPage && !bigFont,
+        today = today,
+        lang = lang,
+        digits = settings.digits,
+        onOpenDay = onDayClick,
+    )
     Column(
         modifier =
             Modifier
@@ -172,7 +166,7 @@ private fun ColumnScope.MonthBody(
                 .padding(start = 8.dp, end = 8.dp, top = 8.dp)
                 .clip(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp))
                 .background(MaterialTheme.colorScheme.surfaceContainerLow)
-                .padding(top = 4.dp),
+                .padding(top = 6.dp),
     ) {
         MonthHeader(
             layout = layout,

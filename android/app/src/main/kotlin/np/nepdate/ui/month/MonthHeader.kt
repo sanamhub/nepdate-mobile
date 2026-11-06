@@ -1,12 +1,11 @@
 package np.nepdate.ui.month
 
-import androidx.compose.foundation.background
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.indication
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -14,17 +13,24 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonGroup
+import androidx.compose.material3.ButtonGroupDefaults
+import androidx.compose.material3.ButtonGroupMenuState
+import androidx.compose.material3.ButtonGroupScope
+import androidx.compose.material3.ButtonShapes
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
@@ -35,14 +41,13 @@ import androidx.compose.ui.unit.dp
 import np.nepdate.R
 import np.nepdate.data.Digits
 import np.nepdate.ui.common.AdSpan
-import np.nepdate.ui.common.GroupPosition
 import np.nepdate.ui.common.SymbolIcon
 import np.nepdate.ui.common.adSpan
-import np.nepdate.ui.common.groupShape
 import np.nepdate.ui.common.monthTitle
 import np.nepdate.ui.theme.LocalNepdateColors
 
 /** The top bar: the month title opens the year view; search and settings on the right. */
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 internal fun MonthTopBar(
     layout: MonthLayout,
@@ -84,13 +89,21 @@ internal fun MonthTopBar(
         }
         if (onSearch != null) {
             val searchLabel = stringResource(R.string.home_search)
-            IconButton(onClick = onSearch, modifier = Modifier.semantics { contentDescription = searchLabel }) {
+            IconButton(
+                onClick = onSearch,
+                shapes = IconButtonDefaults.shapes(),
+                modifier = Modifier.semantics { contentDescription = searchLabel },
+            ) {
                 SymbolIcon(icon = R.drawable.ic_sym_search, tint = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
         if (onSettings != null) {
             val settingsLabel = stringResource(R.string.settings_title)
-            IconButton(onClick = onSettings, modifier = Modifier.semantics { contentDescription = settingsLabel }) {
+            IconButton(
+                onClick = onSettings,
+                shapes = IconButtonDefaults.shapes(),
+                modifier = Modifier.semantics { contentDescription = settingsLabel },
+            ) {
                 SymbolIcon(icon = R.drawable.ic_sym_settings, tint = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
@@ -132,7 +145,7 @@ internal fun MonthHeader(
             Text(
                 text = bsMonthNames[layout.month.value - 1],
                 color = MaterialTheme.colorScheme.onSurface,
-                style = MaterialTheme.typography.titleMedium,
+                style = MaterialTheme.typography.titleLarge,
                 maxLines = 1,
             )
             Text(
@@ -184,7 +197,11 @@ private fun adSpanText(span: AdSpan): String =
             )
     }
 
-/** Previous, Today (only off the current month) and Next as one connected button group. */
+/**
+ * Previous, Today (only off the current month) and Next as one Material 3 Expressive connected
+ * button group: a pressed button widens and squares its inner corners while its neighbours give way.
+ */
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun MonthNavigation(
     showToday: Boolean,
@@ -196,74 +213,99 @@ private fun MonthNavigation(
 ) {
     val previousLabel = stringResource(R.string.month_previous)
     val nextLabel = stringResource(R.string.month_next)
+    val previous = NavButton(previousLabel, R.drawable.ic_sym_chevron_left, canGoPrevious, onPrevious)
+    val next = NavButton(nextLabel, R.drawable.ic_sym_chevron_right, canGoNext, onNext)
     val todayLabel = stringResource(R.string.month_today)
-    val tonal = MaterialTheme.colorScheme.surfaceContainerHighest
-    Row(horizontalArrangement = Arrangement.spacedBy(2.dp), verticalAlignment = Alignment.CenterVertically) {
-        GroupButton(
-            shape = groupShape(GroupPosition.START),
-            color = tonal,
-            enabled = canGoPrevious,
-            label = previousLabel,
-            onClick = onPrevious,
-        ) { SymbolIcon(icon = R.drawable.ic_sym_chevron_left, size = 22.dp) }
+    val leading =
+        ButtonShapes(
+            shape = ButtonGroupDefaults.connectedLeadingButtonShape,
+            pressedShape = ButtonGroupDefaults.connectedLeadingButtonPressShape,
+        )
+    val middle = ButtonShapes(MaterialTheme.shapes.small, ButtonGroupDefaults.connectedMiddleButtonPressShape)
+    val trailing =
+        ButtonShapes(
+            shape = ButtonGroupDefaults.connectedTrailingButtonShape,
+            pressedShape = ButtonGroupDefaults.connectedTrailingButtonPressShape,
+        )
+    ButtonGroup(
+        overflowIndicator = { ButtonGroupDefaults.OverflowIndicator(it) },
+        horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        navItem(previous, leading)
         if (showToday) {
-            GroupButton(
-                shape = groupShape(GroupPosition.MIDDLE),
-                color = MaterialTheme.colorScheme.primary,
-                enabled = true,
-                label = todayLabel,
-                onClick = onToday,
-                modifier = Modifier.testTag("month_today_button"),
-                wide = true,
-            ) {
-                Text(
-                    text = todayLabel,
-                    color = MaterialTheme.colorScheme.onPrimary,
-                    style = MaterialTheme.typography.labelLarge,
-                )
-            }
+            customItem(
+                buttonGroupContent = {
+                    val source = remember { MutableInteractionSource() }
+                    Button(
+                        onClick = onToday,
+                        shapes = middle,
+                        modifier =
+                            Modifier
+                                .animateWidth(source)
+                                .testTag("month_today_button")
+                                .heightIn(min = NAV_BUTTON_HEIGHT),
+                        contentPadding = PaddingValues(horizontal = 16.dp),
+                        interactionSource = source,
+                    ) { Text(text = todayLabel, style = MaterialTheme.typography.labelLarge) }
+                },
+                menuContent = { menu -> MenuEntry(todayLabel, onToday, menu) },
+            )
         }
-        GroupButton(
-            shape = groupShape(GroupPosition.END),
-            color = tonal,
-            enabled = canGoNext,
-            label = nextLabel,
-            onClick = onNext,
-        ) { SymbolIcon(icon = R.drawable.ic_sym_chevron_right, size = 22.dp) }
+        navItem(next, trailing)
     }
 }
 
-@Composable
-private fun GroupButton(
-    shape: Shape,
-    color: Color,
-    enabled: Boolean,
-    label: String,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    wide: Boolean = false,
-    content: @Composable () -> Unit,
+/** One chevron of the group: an icon-only tonal button with its spoken label. */
+private class NavButton(
+    val label: String,
+    @DrawableRes val icon: Int,
+    val enabled: Boolean,
+    val onClick: () -> Unit,
+)
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+private fun ButtonGroupScope.navItem(
+    button: NavButton,
+    shapes: ButtonShapes,
 ) {
-    // The click area and its semantics include the 4 dp above and below the pill, so the touch
-    // target is 48 dp high while the drawn pill and its ripple stay 40 dp.
-    val interactionSource = remember { MutableInteractionSource() }
-    Box(
-        modifier =
-            modifier
-                .clickable(
-                    interactionSource = interactionSource,
-                    indication = null,
-                    enabled = enabled,
-                    onClick = onClick,
-                ).semantics { contentDescription = label }
-                .padding(vertical = 4.dp)
-                .then(if (wide) Modifier.heightIn(min = 40.dp) else Modifier.size(width = 48.dp, height = 40.dp))
-                .clip(shape)
-                .background(if (enabled) color else color.copy(alpha = DISABLED_ALPHA))
-                .indication(interactionSource, ripple())
-                .then(if (wide) Modifier.padding(horizontal = 14.dp, vertical = 10.dp) else Modifier),
-        contentAlignment = Alignment.Center,
-    ) { content() }
+    customItem(
+        buttonGroupContent = {
+            val source = remember { MutableInteractionSource() }
+            FilledTonalButton(
+                onClick = button.onClick,
+                shapes = shapes,
+                enabled = button.enabled,
+                modifier =
+                    Modifier
+                        .animateWidth(source)
+                        .semantics { contentDescription = button.label }
+                        .size(NAV_BUTTON_WIDTH, NAV_BUTTON_HEIGHT),
+                contentPadding = PaddingValues(0.dp),
+                interactionSource = source,
+            ) { SymbolIcon(icon = button.icon, size = 22.dp) }
+        },
+        menuContent = { menu -> MenuEntry(button.label, button.onClick, menu) },
+    )
 }
 
-private const val DISABLED_ALPHA = 0.38f
+/** The entry a button becomes if the group ever overflows into its menu. */
+@Composable
+private fun MenuEntry(
+    label: String,
+    onClick: () -> Unit,
+    menu: ButtonGroupMenuState,
+) {
+    DropdownMenuItem(
+        text = { Text(label) },
+        onClick = {
+            onClick()
+            menu.dismiss()
+        },
+    )
+}
+
+private val NAV_BUTTON_WIDTH = 52.dp
+
+// The group's buttons are drawn at the 48 dp touch height, so their target is the button itself.
+private val NAV_BUTTON_HEIGHT = 48.dp

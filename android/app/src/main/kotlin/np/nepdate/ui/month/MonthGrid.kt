@@ -2,6 +2,8 @@ package np.nepdate.ui.month
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.indication
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -18,8 +20,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -39,6 +43,7 @@ import io.github.sanamhub.nepdate.NepaliDate
 import np.nepdate.R
 import np.nepdate.data.Digits
 import np.nepdate.data.Settings
+import np.nepdate.ui.common.LocalBottomBarPadding
 import np.nepdate.ui.common.adDate
 import np.nepdate.ui.common.bsLong
 import np.nepdate.ui.common.inDigits
@@ -67,6 +72,8 @@ internal fun MonthGrid(
         modifier =
             modifier
                 .fillMaxSize()
+                // The grid ends above the floating bar; the month card runs on behind it.
+                .padding(LocalBottomBarPadding.current)
                 .padding(horizontal = 8.dp)
                 .testTag("month_grid"),
     ) {
@@ -85,6 +92,7 @@ internal fun MonthGrid(
                         digits = settings.digits,
                         lang = lang,
                         showTithi = settings.showTithi,
+                        showAdDay = settings.showAdDates,
                         todayDescription = todayDescription,
                         description =
                             dayDescription(
@@ -117,24 +125,41 @@ private fun DayCell(
     digits: Digits,
     lang: Lang,
     showTithi: Boolean,
+    showAdDay: Boolean,
     todayDescription: String,
     description: String,
     onCellClick: (() -> Unit)?,
     modifier: Modifier = Modifier,
 ) {
     val ink = dayInk(cell, isSelected)
-    val base =
-        modifier
-            .padding(1.dp)
-            .clip(RoundedCornerShape(14.dp))
-            .background(ink.fill)
-            .then(if (onCellClick != null) Modifier.clickable(onClick = onCellClick) else Modifier)
-            .dayCellSemantics(cell, description, isSelected, onCellClick, todayDescription)
+    // A holiday sits on a soft pill; the selected day on a squarer tile, so the two never blur.
+    val shape = if (cell.isHoliday && !isSelected) HolidayCellShape else SelectedCellShape
+    val interactionSource = remember { MutableInteractionSource() }
     Box(
-        modifier = base.padding(2.dp),
+        modifier =
+            modifier
+                .padding(horizontal = 2.dp, vertical = 1.dp)
+                .then(
+                    if (onCellClick != null) {
+                        Modifier.clickable(interactionSource, indication = null, onClick = onCellClick)
+                    } else {
+                        Modifier
+                    },
+                ).dayCellSemantics(cell, description, isSelected, onCellClick, todayDescription),
     ) {
+        // The tile and its ripple take the shape; the numerals are not clipped by it, so the AD day
+        // in the corner stays whole on a pill.
+        Box(
+            Modifier
+                .matchParentSize()
+                .clip(shape)
+                .background(ink.fill)
+                .indication(interactionSource, ripple()),
+        )
         if (cell.date != null) {
-            DayCellContent(cell, isSelected, digits, lang, showTithi, ink)
+            Box(Modifier.matchParentSize().padding(2.dp)) {
+                DayCellContent(cell, isSelected, digits, lang, showTithi, showAdDay, ink)
+            }
         }
     }
 }
@@ -178,12 +203,13 @@ internal fun MonthList(
     modifier: Modifier = Modifier,
 ) {
     val todayDescription = stringResource(R.string.month_today)
+    val barBottom = LocalBottomBarPadding.current.calculateBottomPadding()
     LazyColumn(
         modifier =
             modifier
                 .fillMaxSize()
                 .testTag("month_list"),
-        contentPadding = PaddingValues(16.dp),
+        contentPadding = PaddingValues(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 16.dp + barBottom),
     ) {
         items(
             items = layout.cells.filter { it.isInMonth },
@@ -298,3 +324,7 @@ internal fun DayListDetails(
 private const val DAYS_PER_WEEK = 7
 
 private val ROW_GAP = 2.dp
+
+private val HolidayCellShape = RoundedCornerShape(percent = 50)
+
+private val SelectedCellShape = RoundedCornerShape(16.dp)
