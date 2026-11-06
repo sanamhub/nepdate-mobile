@@ -1,19 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Android 8 to 11 launch window: surface colour with the icon on a sindoor circle in the
-     centre, sized like the Android 12 splash (160 dp circle, 240 dp icon box). -->
+<!-- Android 8 to 11 launch window: surface colour with the flag in the centre, sized like the
+     Android 12 splash for an icon without a background (288 dp icon box). -->
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:drawable="@color/splash_background" />
     <item
-        android:width="160dp"
-        android:height="160dp"
-        android:gravity="center">
-        <shape android:shape="oval">
-            <solid android:color="@color/ic_launcher_background" />
-        </shape>
-    </item>
-    <item
-        android:width="240dp"
-        android:height="240dp"
+        android:width="288dp"
+        android:height="288dp"
         android:drawable="@drawable/splash_icon"
         android:gravity="center" />
 </layer-list>

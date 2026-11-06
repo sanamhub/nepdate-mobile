@@ -5,9 +5,13 @@
     <color name="widget_preview_holiday">#C8102E</color>
     <!-- Launcher icon and splash: sindoor ground, pennant shade, marigold sun. Not night variants: the icon stays the same. -->
     <color name="ic_launcher_background">#B3261E</color>
-    <color name="ic_launcher_shade">#8C1D18</color>
+    <color name="ic_launcher_shade">#33000000</color>
     <color name="ic_launcher_sun">#E8A33D</color>
     <color name="ic_launcher_ink">#271900</color>
+    <!-- Splash flag: Nepal flag crimson, blue border and white emblems. -->
+    <color name="splash_flag_crimson">#DC143C</color>
+    <color name="splash_flag_blue">#003893</color>
+    <color name="splash_flag_white">#FFFFFF</color>
     <!-- Splash window ground (surface); night value in values-night. -->
     <color name="splash_background">#FFF8F3</color>
 </resources>

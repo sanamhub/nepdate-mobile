@@ -1,9 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Android 12+ splash icon: the marigold sun turns 30 degrees with a gentle overshoot over 500 ms.
-     Twelve rays repeat every 30 degrees, so the last frame matches the launcher icon. -->
+<!-- Android 12+ splash icon: the flag grows from 0.93 to 1.08 with a soft overshoot while its
+     sun turns 30 degrees, both over 500 ms. Twelve points repeat every 30 degrees, so the last
+     frame matches the static flag. -->
 <animated-vector xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:aapt="http://schemas.android.com/aapt"
     android:drawable="@drawable/splash_icon">
+    <target android:name="flag">
+        <aapt:attr name="android:animation">
+            <set>
+                <objectAnimator
+                    android:duration="500"
+                    android:interpolator="@android:anim/overshoot_interpolator"
+                    android:propertyName="scaleX"
+                    android:valueFrom="0.93"
+                    android:valueTo="1.08"
+                    android:valueType="floatType" />
+                <objectAnimator
+                    android:duration="500"
+                    android:interpolator="@android:anim/overshoot_interpolator"
+                    android:propertyName="scaleY"
+                    android:valueFrom="0.93"
+                    android:valueTo="1.08"
+                    android:valueType="floatType" />
+            </set>
+        </aapt:attr>
+    </target>
     <target android:name="sun">
         <aapt:attr name="android:animation">
             <objectAnimator
