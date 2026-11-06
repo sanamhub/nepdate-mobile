@@ -15,6 +15,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import np.nepdate.data.DateFollows
 import np.nepdate.data.Digits
 import np.nepdate.data.Settings
+import np.nepdate.data.StartTab
 import np.nepdate.ui.theme.NepdateTheme
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -50,6 +51,37 @@ class SettingsScreenTest {
         composeRule.onNodeWithText("Digits").performScrollTo().performClick()
         composeRule.onNodeWithText("Follow language").performClick()
         assertEquals(Digits.FOLLOW_LANGUAGE, settings.digits)
+
+        // Rows whose callbacks are not wired stay hidden.
+        composeRule.onNodeWithText("Haptic feedback").assertDoesNotExist()
+    }
+
+    @Test
+    fun newSettingsWriteWhenWired() {
+        composeRule.setContent {
+            NepdateTheme(darkTheme = false, dynamicColor = false) {
+                SettingsScreen(
+                    settings = settings,
+                    appVersion = "0.0.1 (1)",
+                    libraryVersion = "0.1.0",
+                    osVersion = "14",
+                    onClose = {},
+                    onDateFollows = {},
+                    onDigits = {},
+                    onShowTithi = {},
+                    onShowAdDates = { settings = settings.copy(showAdDates = it) },
+                    onHaptics = { settings = settings.copy(haptics = it) },
+                    onStartTab = { settings = settings.copy(startTab = it) },
+                )
+            }
+        }
+        composeRule.onNodeWithText("Show AD dates in the month grid").performScrollTo().performClick()
+        assertEquals(false, settings.showAdDates)
+        composeRule.onNodeWithText("Haptic feedback").performScrollTo().performClick()
+        assertEquals(false, settings.haptics)
+        composeRule.onNodeWithText("Opens on").performScrollTo().performClick()
+        composeRule.onNodeWithText("Converter").performClick()
+        assertEquals(StartTab.CONVERTER, settings.startTab)
     }
 
     @Test
@@ -65,6 +97,7 @@ class SettingsScreenTest {
         composeRule.onNodeWithText("Licences").assertExists()
         composeRule.onNodeWithText("Privacy").assertExists()
         composeRule.onNodeWithText("Source code").assertExists()
+        composeRule.onNodeWithText("Web patro").assertExists()
     }
 
     @Test

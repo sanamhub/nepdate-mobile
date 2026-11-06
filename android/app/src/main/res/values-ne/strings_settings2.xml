@@ -25,7 +25,6 @@
     <string name="about_coverage_range">%1$s देखि %2$s सम्म</string>
     <string name="about_data_updates">नयाँ वर्षको बिदाको तथ्याङ्क एप अपडेटमार्फत आउँछ।</string>
     <string name="about_android_version">एन्ड्रोइड संस्करण</string>
-    <string name="about_opens_browser">ब्राउजरमा खुल्छ</string>
 
     <!-- First run. -->
     <string name="firstrun_title">हल्का, छिटो, आफ्नै पात्रो</string>

@@ -1,14 +1,9 @@
 package np.nepdate.ui.search
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -27,12 +22,12 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -58,12 +53,14 @@ import io.github.sanamhub.nepdate.NepaliDate
 import io.github.sanamhub.nepdate.patro.Patro
 import io.github.sanamhub.nepdate.toNepaliDate
 import np.nepdate.R
+import np.nepdate.data.RecentSearchStore
 import np.nepdate.data.Settings
 import np.nepdate.ui.common.SymbolIcon
 import np.nepdate.ui.common.inDigits
 import np.nepdate.ui.common.languageFor
 import np.nepdate.ui.common.resolve
 import np.nepdate.ui.upcoming.IndexedEntry
+import np.nepdate.ui.upcoming.ParvaRowStyle
 import np.nepdate.ui.upcoming.ParvaStrings
 import np.nepdate.ui.upcoming.UpcomingEntry
 import np.nepdate.ui.upcoming.VisibleGroup
@@ -84,18 +81,21 @@ internal fun SearchScreen(
     onBack: () -> Unit,
     onOpenDate: (NepaliDate) -> Unit,
     modifier: Modifier = Modifier,
+    recentStore: RecentSearchStore? = null,
 ) {
     val lang = languageFor(LocalConfiguration.current.locales[0])
-    val digits = settings.digits.resolve(lang)
-    val strings = ParvaStrings.current(digits)
+    val strings = ParvaStrings.current(settings.digits.resolve(lang))
     var query by rememberSaveable { mutableStateOf("") }
     val trimmed = query.trim()
     val allEntries = remember(today) { coverageEntries(today) }
     val jumpDate = remember(trimmed) { parseJumpDate(trimmed) }
     val results =
         remember(allEntries, trimmed) { if (trimmed.isEmpty()) emptyList() else searchGroups(allEntries, trimmed) }
+    val recent = rememberRecentSearches(recentStore)
+    val rowColor = MaterialTheme.colorScheme.surfaceContainerLowest
+    val style = ParvaRowStyle(container = { rowColor }, highlight = trimmed, tagPrefix = "search_result_")
     val open: (NepaliDate) -> Unit = { date ->
-        rememberRecent(trimmed)
+        if (parseJumpDate(trimmed) == null) recent.add(trimmed)
         onOpenDate(date)
     }
 
@@ -113,29 +113,18 @@ internal fun SearchScreen(
             modifier = Modifier.fillMaxSize().testTag("search_results"),
             contentPadding = PaddingValues(bottom = 16.dp),
         ) {
-            if (trimmed.isEmpty() && RecentSearches.queries.isNotEmpty()) {
-                item(key = "recent") { RecentSearchChips(onPick = { query = it }) }
+            if (trimmed.isEmpty() && recent.queries.isNotEmpty()) {
+                item(key = "recent") {
+                    RecentSearchChips(recent = recent, onPick = { query = it }, modifier = Modifier.animateItem())
+                }
             }
             item(key = "jump") {
-                JumpToDateCard(
-                    date = jumpDate,
-                    strings = strings,
-                    onOpen = { jumpDate?.let(open) },
-                )
+                JumpToDateCard(date = jumpDate, strings = strings, onOpen = { jumpDate?.let(open) })
             }
             if (trimmed.isNotEmpty() && jumpDate == null) {
                 item(key = "count") { ResultCount(results.sumOf { it.entries.size }, trimmed, strings) }
             }
-            parvaGroups(
-                groups = results,
-                lang = lang,
-                today = today,
-                strings = strings,
-                container = { MaterialTheme.colorScheme.surfaceContainerLowest },
-                highlight = trimmed,
-                onSelect = open,
-                tagPrefix = "search_result_",
-            )
+            parvaGroups(groups = results, lang = lang, today = today, strings = strings, style = style, onSelect = open)
         }
     }
 }
@@ -162,7 +151,11 @@ private fun SearchField(
         modifier = Modifier.fillMaxWidth().height(72.dp).padding(horizontal = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        IconButton(onClick = onBack, modifier = Modifier.semantics { contentDescription = backLabel }) {
+        IconButton(
+            onClick = onBack,
+            shapes = IconButtonDefaults.shapes(),
+            modifier = Modifier.semantics { contentDescription = backLabel },
+        ) {
             SymbolIcon(icon = R.drawable.ic_sym_arrow_back, tint = MaterialTheme.colorScheme.onSurface)
         }
         Spacer(Modifier.width(4.dp))
@@ -194,65 +187,21 @@ private fun SearchField(
                 }
             },
         )
-        if (query.isNotEmpty()) {
-            IconButton(
-                onClick = { onQueryChange("") },
-                modifier = Modifier.semantics { contentDescription = clearLabel },
-            ) {
-                SymbolIcon(icon = R.drawable.ic_sym_close, tint = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
-        }
+        if (query.isNotEmpty()) ClearButton(label = clearLabel, onClear = { onQueryChange("") })
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun RecentSearchChips(onPick: (String) -> Unit) {
-    Column(
-        modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 14.dp, bottom = 6.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp),
+private fun ClearButton(
+    label: String,
+    onClear: () -> Unit,
+) {
+    IconButton(
+        onClick = onClear,
+        shapes = IconButtonDefaults.shapes(),
+        modifier = Modifier.semantics { contentDescription = label },
     ) {
-        Text(
-            text = stringResource(R.string.search_recent),
-            modifier = Modifier.padding(start = 4.dp).semantics { heading() },
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            style = MaterialTheme.typography.labelLarge,
-            fontWeight = FontWeight.Bold,
-        )
-        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            RecentSearches.queries.forEach { recent ->
-                Row(
-                    modifier =
-                        Modifier
-                            .heightIn(min = 48.dp)
-                            .clickable { onPick(recent) },
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Row(
-                        modifier =
-                            Modifier
-                                .heightIn(min = 32.dp)
-                                .border(
-                                    BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-                                    RoundedCornerShape(8.dp),
-                                ).padding(start = 8.dp, end = 12.dp, top = 6.dp, bottom = 6.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        SymbolIcon(
-                            icon = R.drawable.ic_sym_history,
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                            size = 18.dp,
-                        )
-                        Spacer(Modifier.width(6.dp))
-                        Text(
-                            text = recent,
-                            style = MaterialTheme.typography.labelLarge,
-                            color = MaterialTheme.colorScheme.onSurface,
-                        )
-                    }
-                }
-            }
-        }
+        SymbolIcon(icon = R.drawable.ic_sym_close, tint = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
 
@@ -333,18 +282,6 @@ private fun ResultCount(
     )
 }
 
-/** Recent searches for this process only; nothing is written to storage. */
-private object RecentSearches {
-    val queries = mutableStateListOf<String>()
-}
-
-private fun rememberRecent(query: String) {
-    if (query.isEmpty() || parseJumpDate(query) != null) return
-    RecentSearches.queries.remove(query)
-    RecentSearches.queries.add(0, query)
-    while (RecentSearches.queries.size > MAX_RECENT) RecentSearches.queries.removeAt(RecentSearches.queries.lastIndex)
-}
-
 /** Every event in the data coverage, with its distance from [today] (negative in the past). */
 private fun coverageEntries(today: NepaliDate): List<UpcomingEntry> =
     upcoming(Patro.coverage.start, limit = Int.MAX_VALUE)
@@ -388,6 +325,5 @@ internal fun parseJumpDate(text: String): NepaliDate? {
 
 private val DATE_PATTERN = Regex("""(\d{4})\s*[-/.]\s*(\d{1,2})\s*[-/.]\s*(\d{1,2})""")
 private const val BS_YEAR_FLOOR = 2040
-private const val MAX_RECENT = 5
 private const val BS_EXAMPLE = "2083-07-15"
 private const val AD_EXAMPLE = "2026-11-01"

@@ -32,12 +32,29 @@ class AboutLinksTest {
         val urls = aboutLinkUrls()
 
         assertEquals(
-            setOf(KNOWN_DATA_URL, REPORT_DATE_URL, LICENCES_URL, PRIVACY_URL, SOURCE_URL),
+            setOf(
+                KNOWN_DATA_URL,
+                REPORT_DATE_URL,
+                LICENCES_URL,
+                PRIVACY_URL,
+                SOURCE_URL,
+                NEPDATE_SITE_URL,
+                WEB_PATRO_URL,
+            ),
             urls.toSet(),
         )
         for (url in urls) {
             assertNull("$url should be allowed", aboutUrlProblem(url))
         }
+    }
+
+    @Test
+    fun theProjectSitesAreAllowedOnlyOverHttps() {
+        assertEquals("https://nepdate.com", NEPDATE_SITE_URL)
+        assertEquals("https://patro.nepdate.com", WEB_PATRO_URL)
+        assertNotNull(aboutUrlProblem("http://nepdate.com"))
+        assertNotNull(aboutUrlProblem("https://nepdate.com.example.test"))
+        assertNotNull(aboutUrlProblem("https://nepdate.com:8443"))
     }
 
     @Test

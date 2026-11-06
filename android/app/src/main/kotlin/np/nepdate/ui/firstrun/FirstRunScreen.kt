@@ -3,6 +3,7 @@ package np.nepdate.ui.firstrun
 import android.content.res.Configuration
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -25,6 +26,7 @@ import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -48,7 +50,6 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.sanamhub.nepdate.NepaliDate
@@ -125,8 +126,8 @@ internal fun FirstRunScreen(
         }
         Button(
             onClick = onDone,
+            shapes = ButtonDefaults.shapes(shape = RoundedCornerShape(32.dp), pressedShape = RoundedCornerShape(16.dp)),
             modifier = Modifier.fillMaxWidth().height(64.dp).testTag("first_run_done"),
-            shape = RoundedCornerShape(32.dp),
         ) {
             Text(
                 text = stringResource(R.string.firstrun_open),
@@ -320,7 +321,12 @@ private fun RowScope.LookCard(
     onClick: () -> Unit,
 ) {
     val scheme = MaterialTheme.colorScheme
-    val corner: Dp = if (selected) 28.dp else 18.dp
+    // The chosen card rounds out on the motion scheme's spring.
+    val corner by animateDpAsState(
+        targetValue = if (selected) 28.dp else 18.dp,
+        animationSpec = MaterialTheme.motionScheme.fastSpatialSpec(),
+        label = "lookCorner",
+    )
     val shape = RoundedCornerShape(corner)
     Column(
         modifier =

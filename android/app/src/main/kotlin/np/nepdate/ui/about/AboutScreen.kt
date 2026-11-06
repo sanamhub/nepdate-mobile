@@ -1,67 +1,62 @@
 package np.nepdate.ui.about
 
+import android.content.ActivityNotFoundException
+import android.content.Context
 import android.content.Intent
 import androidx.activity.compose.BackHandler
-import androidx.annotation.DrawableRes
-import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.MaterialShapes
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.LinkAnnotation
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextLinkStyles
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withLink
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
-import io.github.sanamhub.nepdate.patro.Patro
 import np.nepdate.R
 import np.nepdate.data.Digits
-import np.nepdate.ui.common.SymbolIcon
-import np.nepdate.ui.common.bsLong
-import np.nepdate.ui.common.languageFor
-import np.nepdate.ui.common.resolve
-import np.nepdate.ui.common.segmentShape
-import np.nepdate.ui.settings.BackHeader
-import np.nepdate.ui.settings.HOLIDAYS_ICS_URL
-import np.nepdate.ui.settings.KNOWN_DATA_URL
-import np.nepdate.ui.settings.LICENCES_URL
-import np.nepdate.ui.settings.PRIVACY_URL
-import np.nepdate.ui.settings.REPORT_DATE_URL
-import np.nepdate.ui.settings.SOURCE_URL
-import np.nepdate.ui.settings.holidayShareIntent
+import np.nepdate.ui.common.MaterialShape
+import np.nepdate.ui.common.ShapeBadge
+import np.nepdate.ui.settings.BackButton
+import np.nepdate.ui.settings.NEPDATE_SITE_URL
 
 /**
- * About and privacy (MR-11, MR-12): the app icon and version, the three promises, the holiday data
- * coverage and the links. [digits] is the Digits setting; the app language resolves it.
+ * About and privacy (MR-11, MR-12): the app icon and version, what powers it, the three promises,
+ * the holiday data coverage and the links. [digits] is the Digits setting; the app language resolves
+ * it.
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun AboutScreen(
     appVersion: String,
@@ -72,37 +67,54 @@ internal fun AboutScreen(
     digits: Digits = Digits.FOLLOW_LANGUAGE,
 ) {
     BackHandler { onBack() }
-    Column(
+    val scroll = TopAppBarDefaults.pinnedScrollBehavior()
+    Scaffold(
         modifier =
             modifier
                 .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(bottom = 24.dp)
+                .nestedScroll(scroll.nestedScrollConnection)
                 .testTag("about_screen"),
-    ) {
-        BackHeader(onBack = onBack, backTag = "about_back")
-        AppIdentity(appVersion)
-        AboutDetails(appVersion, libraryVersion, osVersion, digits)
+        containerColor = MaterialTheme.colorScheme.surface,
+        topBar = {
+            TopAppBar(
+                title = {},
+                navigationIcon = { BackButton(onBack = onBack, tag = "about_back") },
+                scrollBehavior = scroll,
+            )
+        },
+    ) { padding ->
+        Column(
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(padding)
+                    .padding(bottom = 24.dp),
+        ) {
+            AppIdentity(appVersion)
+            AboutDetails(appVersion, libraryVersion, osVersion, digits)
+        }
     }
 }
 
+/** The icon on a soft four-sided cookie, the name, the version and what powers the app. */
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun AppIdentity(appVersion: String) {
     val iconLabel = stringResource(R.string.about_icon)
+    val iconShape = remember { MaterialShape(MaterialShapes.Cookie4Sided) }
     Column(
-        modifier = Modifier.fillMaxWidth().padding(start = 24.dp, end = 24.dp, bottom = 18.dp),
+        modifier = Modifier.fillMaxWidth().padding(start = 24.dp, end = 24.dp, bottom = 20.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(6.dp),
     ) {
         // The adaptive launcher icon cannot be painted directly, so its foreground sits on the
         // icon's own sindoor background.
-        Box(
-            modifier =
-                Modifier
-                    .size(96.dp)
-                    .clip(RoundedCornerShape(32.dp))
-                    .background(colorResource(R.color.ic_launcher_background))
-                    .semantics { contentDescription = iconLabel },
+        ShapeBadge(
+            shape = iconShape,
+            color = colorResource(R.color.ic_launcher_background),
+            size = 104.dp,
+            modifier = Modifier.semantics { contentDescription = iconLabel },
         ) {
             Image(
                 painter = painterResource(R.drawable.ic_launcher_foreground),
@@ -115,6 +127,7 @@ private fun AppIdentity(appVersion: String) {
             modifier = Modifier.padding(top = 6.dp).semantics { heading() },
             color = MaterialTheme.colorScheme.onSurface,
             style = MaterialTheme.typography.displaySmall,
+            fontWeight = FontWeight.Bold,
         )
         Text(
             text = stringResource(R.string.about_version, appVersion),
@@ -122,222 +135,54 @@ private fun AppIdentity(appVersion: String) {
             style = MaterialTheme.typography.bodyMedium,
             textAlign = TextAlign.Center,
         )
+        PoweredBy()
     }
 }
 
-/**
- * The promises, the data coverage, the links and the build details. The Settings screen shows the
- * same block while the About screen is not wired in.
- */
+/** "Powered by nepdate.com", where the site name is a link that opens the browser. */
 @Composable
-internal fun AboutDetails(
-    appVersion: String,
-    libraryVersion: String,
-    osVersion: String,
-    digits: Digits = Digits.FOLLOW_LANGUAGE,
-) {
-    val resolved = digits.resolve(languageFor(LocalConfiguration.current.locales[0]))
-    Column(
-        modifier = Modifier.padding(horizontal = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-    ) {
-        Promises()
-        CoverageCard(resolved)
-        Links()
-        BuildDetails(appVersion, libraryVersion, osVersion)
-    }
-}
-
-@Composable
-private fun Promises() {
-    val scheme = MaterialTheme.colorScheme
-    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        Promise(
-            R.drawable.ic_sym_wifi_off_filled,
-            R.string.about_offline,
-            scheme.primaryContainer,
-            scheme.onPrimaryContainer,
-        )
-        Promise(
-            R.drawable.ic_sym_block_filled,
-            R.string.about_no_ads,
-            scheme.secondaryContainer,
-            scheme.onSecondaryContainer,
-        )
-        Promise(
-            R.drawable.ic_sym_shield_lock_filled,
-            R.string.about_no_data,
-            scheme.tertiaryContainer,
-            scheme.onTertiaryContainer,
-        )
-    }
-}
-
-@Composable
-private fun RowScope.Promise(
-    @DrawableRes icon: Int,
-    @StringRes label: Int,
-    container: Color,
-    content: Color,
-) {
-    Column(
-        modifier =
-            Modifier
-                .weight(1f)
-                .clip(RoundedCornerShape(24.dp))
-                .background(container)
-                .padding(horizontal = 10.dp, vertical = 14.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(6.dp),
-    ) {
-        SymbolIcon(icon, tint = content, size = 28.dp)
-        Text(
-            text = stringResource(label),
-            color = content,
-            style = MaterialTheme.typography.labelLarge,
-            textAlign = TextAlign.Center,
-        )
-    }
-}
-
-@Composable
-private fun CoverageCard(digits: Digits) {
-    val months = stringArrayResource(R.array.bs_month_long).toList()
-    val start = Patro.coverage.start
-    val end = Patro.coverage.endInclusive
-    Column(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(24.dp))
-                .background(MaterialTheme.colorScheme.surfaceContainer)
-                .padding(horizontal = 18.dp, vertical = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(4.dp),
-    ) {
-        Text(
-            text = stringResource(R.string.settings_coverage),
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            style = MaterialTheme.typography.labelLarge,
-        )
-        Text(
-            text =
-                stringResource(
-                    R.string.about_coverage_range,
-                    bsLong(start, months[start.monthValue - 1], digits),
-                    bsLong(end, months[end.monthValue - 1], digits),
-                ),
-            color = MaterialTheme.colorScheme.onSurface,
-            style = MaterialTheme.typography.titleMedium,
-        )
-        Text(
-            text =
-                stringResource(R.string.settings_official_sources) + ": " +
-                    stringResource(R.string.settings_official_sources_value),
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            style = MaterialTheme.typography.bodyMedium,
-        )
-        Text(
-            text =
-                stringResource(R.string.settings_data_source) + ": " +
-                    stringResource(R.string.settings_data_source_value),
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            style = MaterialTheme.typography.bodyMedium,
-        )
-        Text(
-            text = stringResource(R.string.about_data_updates),
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            style = MaterialTheme.typography.bodyMedium,
-        )
-    }
-}
-
-/** One About link: what it says, its symbol and the intent it fires. */
-private data class AboutLink(
-    @DrawableRes val icon: Int,
-    @StringRes val label: Int,
-    val intent: () -> Intent,
-)
-
-private fun browse(url: String): () -> Intent = { Intent(Intent.ACTION_VIEW, url.toUri()) }
-
-@Composable
-private fun Links() {
-    val links =
-        buildList {
-            add(AboutLink(R.drawable.ic_sym_flag, R.string.settings_report_date, browse(REPORT_DATE_URL)))
-            add(AboutLink(R.drawable.ic_sym_help, R.string.settings_known_data, browse(KNOWN_DATA_URL)))
-            add(AboutLink(R.drawable.ic_sym_policy, R.string.settings_privacy, browse(PRIVACY_URL)))
-            add(AboutLink(R.drawable.ic_sym_code, R.string.settings_source_code, browse(SOURCE_URL)))
-            add(AboutLink(R.drawable.ic_sym_license, R.string.settings_licences, browse(LICENCES_URL)))
-            if (HOLIDAYS_ICS_URL.isNotEmpty()) {
-                add(
-                    AboutLink(R.drawable.ic_sym_share, R.string.settings_subscribe) {
-                        Intent.createChooser(holidayShareIntent(HOLIDAYS_ICS_URL), null)
-                    },
-                )
-            }
-        }
+private fun PoweredBy() {
     val context = LocalContext.current
-    val opensBrowser = stringResource(R.string.about_opens_browser)
-    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-        links.forEachIndexed { index, link ->
-            Row(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .heightIn(min = 56.dp)
-                        .clip(segmentShape(index, links.size, outer = 20.dp))
-                        .background(MaterialTheme.colorScheme.surfaceContainer)
-                        .clickable(role = Role.Button, onClickLabel = opensBrowser) {
-                            context.startActivity(link.intent())
-                        }.padding(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                SymbolIcon(link.icon, tint = MaterialTheme.colorScheme.onSurfaceVariant, size = 22.dp)
-                Text(
-                    text = stringResource(link.label),
-                    modifier = Modifier.weight(1f),
-                    color = MaterialTheme.colorScheme.onSurface,
-                    style = MaterialTheme.typography.titleSmall,
-                )
-                SymbolIcon(
-                    R.drawable.ic_sym_open_in_new,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    size = 20.dp,
-                )
-            }
+    val site = stringResource(R.string.about_site_name)
+    val template = stringResource(R.string.about_powered_by, site)
+    val linkColor = MaterialTheme.colorScheme.primary
+    val text =
+        buildAnnotatedString {
+            val start = template.indexOf(site)
+            append(template.substring(0, start.coerceAtLeast(0)))
+            val link =
+                LinkAnnotation.Clickable(
+                    tag = NEPDATE_SITE_URL,
+                    styles =
+                        TextLinkStyles(
+                            style =
+                                SpanStyle(
+                                    color = linkColor,
+                                    fontWeight = FontWeight.Bold,
+                                    textDecoration = TextDecoration.Underline,
+                                ),
+                        ),
+                ) { openUrl(context, NEPDATE_SITE_URL) }
+            withLink(link) { append(site) }
+            if (start >= 0) append(template.substring(start + site.length))
         }
-    }
+    Text(
+        text = text,
+        modifier = Modifier.heightIn(min = 48.dp).padding(top = 12.dp).testTag("about_powered_by"),
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        style = MaterialTheme.typography.bodyLarge,
+        textAlign = TextAlign.Center,
+    )
 }
 
-@Composable
-private fun BuildDetails(
-    appVersion: String,
-    libraryVersion: String,
-    osVersion: String,
+/** Opens [url] in the browser with `ACTION_VIEW`; a phone without a browser simply does nothing. */
+internal fun openUrl(
+    context: Context,
+    url: String,
 ) {
-    Column(
-        modifier = Modifier.padding(horizontal = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        BuildDetail(stringResource(R.string.settings_app_version), appVersion)
-        BuildDetail(stringResource(R.string.settings_library_version), libraryVersion)
-        BuildDetail(stringResource(R.string.about_android_version), osVersion)
-    }
-}
-
-@Composable
-private fun BuildDetail(
-    label: String,
-    value: String,
-) {
-    Column {
-        Text(
-            text = label,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            style = MaterialTheme.typography.labelMedium,
-        )
-        Text(text = value, color = MaterialTheme.colorScheme.onSurface, style = MaterialTheme.typography.bodyMedium)
+    try {
+        context.startActivity(Intent(Intent.ACTION_VIEW, url.toUri()))
+    } catch (_: ActivityNotFoundException) {
+        // No browser installed; there is nothing useful to show instead.
     }
 }

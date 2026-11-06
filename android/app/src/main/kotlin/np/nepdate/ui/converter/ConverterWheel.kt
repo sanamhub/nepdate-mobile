@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -76,6 +77,7 @@ internal fun DateWheel(
     digits: Digits,
     onDateChange: (NepaliDate) -> Unit,
     modifier: Modifier = Modifier,
+    onTick: () -> Unit = {},
 ) {
     val columns =
         when (direction) {
@@ -104,6 +106,7 @@ internal fun DateWheel(
             columns.forEach { column ->
                 WheelColumn(
                     column = column,
+                    onTick = onTick,
                     modifier =
                         Modifier
                             .weight(column.weight)
@@ -137,12 +140,18 @@ internal fun DatePickDialog(
             )
         },
         confirmButton = {
-            TextButton(onClick = { onConfirm(draft) }, modifier = Modifier.testTag("converter_pick_done")) {
+            TextButton(
+                onClick = { onConfirm(draft) },
+                shapes = ButtonDefaults.shapes(),
+                modifier = Modifier.testTag("converter_pick_done"),
+            ) {
                 Text(stringResource(R.string.converter_done))
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text(stringResource(R.string.month_picker_cancel)) }
+            TextButton(onClick = onDismiss, shapes = ButtonDefaults.shapes()) {
+                Text(stringResource(R.string.month_picker_cancel))
+            }
         },
     )
 }
@@ -269,6 +278,7 @@ private fun adColumns(
 @Composable
 private fun WheelColumn(
     column: WheelSpec,
+    onTick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val selected = column.selectedIndex.coerceIn(0, column.labels.lastIndex)
@@ -276,6 +286,7 @@ private fun WheelColumn(
     val fling = rememberSnapFlingBehavior(listState, SnapPosition.Center)
     val scope = rememberCoroutineScope()
     val onSelect by rememberUpdatedState(column.onSelect)
+    val tick by rememberUpdatedState(onTick)
     val currentSelected by rememberUpdatedState(selected)
     val centred by remember {
         derivedStateOf {
@@ -290,7 +301,10 @@ private fun WheelColumn(
         snapshotFlow { centred }
             .distinctUntilChanged()
             .filter { listState.isScrollInProgress && it != currentSelected }
-            .collect { onSelect(it) }
+            .collect {
+                tick()
+                onSelect(it)
+            }
     }
     // The value moves the wheel: follow a change from outside (clamped day, TalkBack, a new year).
     LaunchedEffect(selected, column.labels) {

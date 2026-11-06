@@ -17,7 +17,9 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -50,6 +52,7 @@ internal fun DayDetailActions(
     lang: Lang,
     settings: Settings,
     bsMonthNames: List<String>,
+    onCopied: () -> Unit = {},
 ) {
     val context = LocalContext.current
     val publicHoliday = stringResource(R.string.public_holiday)
@@ -93,7 +96,10 @@ internal fun DayDetailActions(
             icon = R.drawable.ic_sym_content_copy,
             position = GroupPosition.END,
             primary = false,
-            onClick = { copyDate(context, date, settings, bsMonthNames) },
+            onClick = {
+                copyDate(context, date, settings, bsMonthNames)
+                onCopied()
+            },
             modifier = Modifier.weight(1f),
         )
     }
@@ -109,7 +115,12 @@ private fun ActionButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val shape = groupShape(position, outer = 28.dp, inner = 8.dp)
+    // Pressing squares the button a little, the Expressive press feedback, then it springs back.
+    val shapes =
+        ButtonDefaults.shapes(
+            shape = groupShape(position, outer = 28.dp, inner = 8.dp),
+            pressedShape = RoundedCornerShape(PRESSED_CORNER),
+        )
     val padding = PaddingValues(horizontal = 8.dp, vertical = 8.dp)
     val buttonModifier = modifier.fillMaxHeight().heightIn(min = 64.dp)
     val content: @Composable () -> Unit = {
@@ -125,12 +136,12 @@ private fun ActionButton(
         }
     }
     if (primary) {
-        Button(onClick = onClick, modifier = buttonModifier, shape = shape, contentPadding = padding) { content() }
+        Button(onClick = onClick, shapes = shapes, modifier = buttonModifier, contentPadding = padding) { content() }
     } else {
         FilledTonalButton(
             onClick = onClick,
+            shapes = shapes,
             modifier = buttonModifier,
-            shape = shape,
             contentPadding = padding,
         ) { content() }
     }
@@ -194,3 +205,4 @@ private fun copyDate(
 }
 
 private const val PRIMARY_WEIGHT = 1.4f
+private val PRESSED_CORNER = 12.dp

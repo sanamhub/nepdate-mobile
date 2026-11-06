@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Settings -->
+    <string name="settings_group_app">एप</string>
+    <string name="settings_show_ad">महिनाको ग्रिडमा अङ्ग्रेजी मिति देखाउने</string>
+    <string name="settings_show_ad_supporting">हरेक गतेको छेउमा सानो अङ्ग्रेजी मिति</string>
+    <string name="settings_start_tab">खोल्दा देखिने पाना</string>
+    <string name="settings_haptics">छुँदा हल्का कम्पन</string>
+    <string name="settings_haptics_supporting">पाङ्ग्रा घुमाउँदा वा स्विच थिच्दा हल्का कम्पन</string>
+
+    <!-- About -->
+    <string name="about_powered_by">%1$s द्वारा सञ्चालित</string>
+    <string name="about_web_patro">वेब पात्रो</string>
+    <string name="about_web_patro_supporting">patro.nepdate.com कुनै पनि ब्राउजरमा चल्छ, इन्स्टल गर्नु पर्दैन</string>
+
+    <!-- Festivals -->
+    <string name="parva_open_month">%1$s पात्रोमा खोल्नुहोस्</string>
+    <plurals name="parva_month_holidays">
+        <item quantity="one">%d बिदा</item>
+        <item quantity="other">%d बिदा</item>
+    </plurals>
+
+    <!-- Search -->
+    <string name="search_clear_recent">मेटाउनुहोस्</string>
+
+    <!-- Converter -->
+    <string name="converter_swap_dates">दुई मिति साटासाट गर्नुहोस्</string>
+</resources>

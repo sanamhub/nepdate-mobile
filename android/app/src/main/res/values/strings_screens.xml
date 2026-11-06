@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Settings -->
+    <string name="settings_group_app">App</string>
+    <string name="settings_show_ad">Show AD dates in the month grid</string>
+    <string name="settings_show_ad_supporting">The small AD day beside each date</string>
+    <string name="settings_start_tab">Opens on</string>
+    <string name="settings_haptics">Haptic feedback</string>
+    <string name="settings_haptics_supporting">A light tap when you turn a wheel or flip a switch</string>
+
+    <!-- About -->
+    <string name="about_site_name" translatable="false">nepdate.com</string>
+    <string name="about_powered_by">Powered by %1$s</string>
+    <string name="about_web_patro">Web patro</string>
+    <string name="about_web_patro_supporting">patro.nepdate.com works in any browser, no install needed</string>
+
+    <!-- Festivals -->
+    <string name="parva_open_month">Open %1$s in the patro</string>
+    <plurals name="parva_month_holidays">
+        <item quantity="one">%d holiday</item>
+        <item quantity="other">%d holidays</item>
+    </plurals>
+
+    <!-- Search -->
+    <string name="search_clear_recent">Clear</string>
+
+    <!-- Converter -->
+    <string name="converter_swap_dates">Swap the two dates</string>
+</resources>

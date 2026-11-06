@@ -1,13 +1,14 @@
 package np.nepdate.ui.day
 
 import androidx.annotation.DrawableRes
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -22,8 +23,11 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.ListItemDefaults
+import androidx.compose.material3.ListItemShapes
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.SegmentedListItem
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -33,12 +37,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
@@ -65,8 +66,8 @@ import np.nepdate.ui.common.bsLongNepali
 import np.nepdate.ui.common.inDigits
 import np.nepdate.ui.common.languageFor
 import np.nepdate.ui.common.resolve
-import np.nepdate.ui.common.segmentShape
 import np.nepdate.ui.common.weekdayName
+import np.nepdate.ui.settings.rememberHaptics
 import np.nepdate.ui.theme.LocalNepdateColors
 
 /**
@@ -108,6 +109,7 @@ fun DayDetailContent(
     val bsMonthNames = stringArrayResource(R.array.bs_month_long).toList()
     var shown by remember(date) { mutableStateOf(date) }
     val info = remember(shown) { if (shown in Patro.coverage) Patro.info(shown) else null }
+    val haptics = rememberHaptics(settings.haptics)
 
     Column(
         modifier =
@@ -125,13 +127,18 @@ fun DayDetailContent(
     ) {
         DayDetailHeader(
             date = shown,
-            info = info,
             today = today,
             lang = lang,
             digits = displaySettings.digits,
             bsMonthNames = bsMonthNames,
-            onPrevious = { shown = shown.minusDays(1) },
-            onNext = { shown = shown.plusDays(1) },
+            onPrevious = {
+                haptics.tick()
+                shown = shown.minusDays(1)
+            },
+            onNext = {
+                haptics.tick()
+                shown = shown.plusDays(1)
+            },
         )
         DayDetailChips(date = shown, info = info, today = today, digits = displaySettings.digits)
         if (info == null) {
@@ -150,15 +157,15 @@ fun DayDetailContent(
             lang = lang,
             settings = displaySettings,
             bsMonthNames = bsMonthNames,
+            onCopied = haptics::confirm,
         )
     }
 }
 
-/** The date tile, the weekday and both dates, and the connected previous and next day buttons. */
+/** The date, which slides on the motion scheme's spring as it steps, and the previous and next buttons. */
 @Composable
 private fun DayDetailHeader(
     date: NepaliDate,
-    info: CalendarInfo?,
     today: NepaliDate?,
     lang: Lang,
     digits: Digits,
@@ -166,12 +173,53 @@ private fun DayDetailHeader(
     onPrevious: () -> Unit,
     onNext: () -> Unit,
 ) {
-    val adMonthNames = stringArrayResource(R.array.ad_month_long).toList()
+    val motion = MaterialTheme.motionScheme
     Row(
         modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        DayTile(date = date, isHoliday = info?.isPublicHoliday == true, isToday = date == today, digits = digits)
+        AnimatedContent(
+            targetState = date,
+            modifier = Modifier.weight(1f),
+            transitionSpec = {
+                // Next slides up, previous slides down: the way the arrow points.
+                val direction = if (targetState > initialState) 1 else -1
+                val enter =
+                    slideInVertically(motion.defaultSpatialSpec()) { it / SLIDE_FRACTION * direction } +
+                        fadeIn(motion.defaultEffectsSpec())
+                val exit =
+                    slideOutVertically(motion.defaultSpatialSpec()) { -it / SLIDE_FRACTION * direction } +
+                        fadeOut(motion.fastEffectsSpec())
+                enter.togetherWith(exit)
+            },
+            label = "day",
+        ) { shownDate ->
+            DayHeading(shownDate, today, lang, digits, bsMonthNames)
+        }
+        Spacer(Modifier.width(8.dp))
+        DayStepper(
+            canGoBack = date > NepaliDate.MIN,
+            canGoForward = date < NepaliDate.MAX,
+            onPrevious = onPrevious,
+            onNext = onNext,
+            modifier = Modifier.align(Alignment.Top),
+        )
+    }
+}
+
+/** The date tile, the weekday, the BS date in both scripts and the AD date. */
+@Composable
+private fun DayHeading(
+    date: NepaliDate,
+    today: NepaliDate?,
+    lang: Lang,
+    digits: Digits,
+    bsMonthNames: List<String>,
+) {
+    val adMonthNames = stringArrayResource(R.array.ad_month_long).toList()
+    val isHoliday = remember(date) { date in Patro.coverage && Patro.info(date).isPublicHoliday }
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        DayTile(date = date, isHoliday = isHoliday, isToday = date == today, digits = digits)
         Spacer(Modifier.width(16.dp))
         Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
             Text(
@@ -203,14 +251,6 @@ private fun DayDetailHeader(
                 style = MaterialTheme.typography.bodyMedium,
             )
         }
-        Spacer(Modifier.width(8.dp))
-        DayStepper(
-            canGoBack = date > NepaliDate.MIN,
-            canGoForward = date < NepaliDate.MAX,
-            onPrevious = onPrevious,
-            onNext = onNext,
-            modifier = Modifier.align(Alignment.Top),
-        )
     }
 }
 
@@ -283,7 +323,8 @@ private fun StepButton(
     FilledTonalIconButton(
         onClick = onClick,
         enabled = enabled,
-        shape = shape,
+        // Pressing rounds the connected corners out, the Expressive press feedback.
+        shapes = IconButtonDefaults.shapes(shape = shape, pressedShape = RoundedCornerShape(16.dp)),
         colors =
             IconButtonDefaults.filledTonalIconButtonColors(
                 containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
@@ -295,57 +336,6 @@ private fun StepButton(
                 .semantics { contentDescription = label },
     ) {
         SymbolIcon(icon = icon, size = 22.dp)
-    }
-}
-
-/** The public holiday chip and, when today is known, how far the date is from today. */
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
-private fun DayDetailChips(
-    date: NepaliDate,
-    info: CalendarInfo?,
-    today: NepaliDate?,
-    digits: Digits,
-) {
-    val holiday = info?.isPublicHoliday == true
-    if (!holiday && today == null) return
-    val colors = LocalNepdateColors.current
-    FlowRow(
-        modifier = Modifier.padding(horizontal = 4.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        if (holiday) {
-            Row(
-                modifier =
-                    Modifier
-                        .heightIn(min = 32.dp)
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(colors.holidayContainer)
-                        .padding(horizontal = 12.dp, vertical = 6.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                SymbolIcon(icon = R.drawable.ic_sym_celebration_filled, tint = colors.onHolidayContainer, size = 18.dp)
-                Spacer(Modifier.width(6.dp))
-                Text(
-                    text = stringResource(R.string.public_holiday),
-                    color = colors.onHolidayContainer,
-                    style = MaterialTheme.typography.labelLarge,
-                )
-            }
-        }
-        if (today != null) {
-            Text(
-                text = relativeDayLabel(today.daysUntil(date).toInt()).inDigits(digits),
-                modifier =
-                    Modifier
-                        .heightIn(min = 32.dp)
-                        .border(BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant), RoundedCornerShape(8.dp))
-                        .padding(horizontal = 12.dp, vertical = 6.dp),
-                color = MaterialTheme.colorScheme.onSurface,
-                style = MaterialTheme.typography.labelLarge,
-            )
-        }
     }
 }
 
@@ -390,9 +380,9 @@ private fun DayDetailFacts(
             }
         }
     if (rows.isEmpty()) return
-    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(ListItemDefaults.SegmentedGap)) {
         rows.forEachIndexed { index, row ->
-            FactListItem(row = row, digits = digits, shape = segmentShape(index, rows.size, outer = 20.dp))
+            FactListItem(row = row, digits = digits, shapes = ListItemDefaults.segmentedShapes(index, rows.size))
         }
     }
 }
@@ -411,49 +401,30 @@ private data class FactRow(
 private fun FactListItem(
     row: FactRow,
     digits: Digits,
-    shape: Shape,
+    shapes: ListItemShapes,
 ) {
-    Row(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .heightIn(min = 64.dp)
-                .clip(shape)
-                .background(MaterialTheme.colorScheme.surfaceContainerHigh)
-                .padding(horizontal = 16.dp, vertical = 10.dp),
-        verticalAlignment = Alignment.CenterVertically,
+    SegmentedListItem(
+        shapes = shapes,
+        modifier = Modifier.heightIn(min = 64.dp),
+        colors =
+            ListItemDefaults.segmentedColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                overlineContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            ),
+        leadingContent = {
+            ShapeBadge(shape = CircleShape, color = row.iconContainer, size = 40.dp) {
+                SymbolIcon(icon = row.icon, tint = row.iconContent, size = 22.dp)
+            }
+        },
+        overlineContent = { Text(stringResource(row.label), style = MaterialTheme.typography.labelMedium) },
     ) {
-        ShapeBadge(shape = CircleShape, color = row.iconContainer, size = 40.dp) {
-            SymbolIcon(icon = row.icon, tint = row.iconContent, size = 22.dp)
-        }
-        Spacer(Modifier.width(16.dp))
-        Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-            Text(
-                text = stringResource(row.label),
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                style = MaterialTheme.typography.labelMedium,
-            )
-            Text(
-                text = row.value.inDigits(digits),
-                modifier = if (row.tag != null) Modifier.testTag(row.tag) else Modifier,
-                color = MaterialTheme.colorScheme.onSurface,
-                style = MaterialTheme.typography.bodyLarge,
-                fontWeight = if (row.emphasised) FontWeight.Bold else null,
-            )
-        }
+        Text(
+            text = row.value.inDigits(digits),
+            modifier = if (row.tag != null) Modifier.testTag(row.tag) else Modifier,
+            style = MaterialTheme.typography.bodyLarge,
+            fontWeight = if (row.emphasised) FontWeight.Bold else null,
+        )
     }
 }
 
-/**
- * How far [days] from today is, for example `Today`, `Tomorrow`, `in 5 days` or `3 days ago`. The
- * caller rewrites the digits with [inDigits].
- */
-@Composable
-internal fun relativeDayLabel(days: Int): String =
-    when {
-        days == 0 -> stringResource(R.string.month_today)
-        days == 1 -> stringResource(R.string.upcoming_tomorrow)
-        days == -1 -> stringResource(R.string.day_yesterday)
-        days > 1 -> pluralStringResource(R.plurals.upcoming_in_days, days, days)
-        else -> pluralStringResource(R.plurals.day_days_ago, -days, -days)
-    }
+private const val SLIDE_FRACTION = 3

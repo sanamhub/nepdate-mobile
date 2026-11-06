@@ -26,7 +26,6 @@
     <string name="about_coverage_range">%1$s to %2$s</string>
     <string name="about_data_updates">New years of holiday data arrive with app updates.</string>
     <string name="about_android_version">Android version</string>
-    <string name="about_opens_browser">Opens in your browser</string>
 
     <!-- First run. -->
     <string name="firstrun_title">A light, fast patro of your own</string>
