@@ -4,26 +4,10 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.os.Build
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.selection.selectable
-import androidx.compose.foundation.selection.selectableGroup
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -32,40 +16,33 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.stringResource
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.sanamhub.nepdate.KATHMANDU
 import io.github.sanamhub.nepdate.NepaliDate
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import np.nepdate.data.DateFollows
 import np.nepdate.data.Settings
+import np.nepdate.data.SettingsRepository
 import np.nepdate.data.TodayProvider
 import np.nepdate.di.AppContainer
 import np.nepdate.ui.NepdateDestination
-import np.nepdate.ui.common.SymbolIcon
+import np.nepdate.ui.ShortNavigationBar
 import np.nepdate.ui.common.inDigits
 import np.nepdate.ui.common.languageFor
 import np.nepdate.ui.common.resolve
 import np.nepdate.ui.converter.ConverterScreen
+import np.nepdate.ui.firstrun.FirstRunScreen
 import np.nepdate.ui.month.MonthScreen
 import np.nepdate.ui.settings.NepalTimeSuggestion
-import np.nepdate.ui.settings.SettingsScreen
 import np.nepdate.ui.settings.shouldSuggestNepalTime
 import np.nepdate.ui.upcoming.UpcomingScreen
 import java.time.Duration
@@ -84,55 +61,75 @@ fun NepdateApp(
     initialDateKey: Int = 0,
     onFirstGridDrawn: () -> Unit = {},
 ) {
-    val settings by container.settingsRepository.settings.collectAsStateWithLifecycle(initialValue = Settings())
+    val repository = container.settingsRepository
+    val settings by repository.settings.collectAsStateWithLifecycle(initialValue = Settings())
     val today = rememberToday(container.todayProvider, settings.dateFollows)
     val nepalTime = rememberNepalTime(container.todayProvider, settings)
     val scope = rememberCoroutineScope()
-    var settingsOpen by rememberSaveable { mutableStateOf(false) }
+    val firstRunDone by remember(repository) { repository.settings.map { it.firstRunDone } }
+        .collectAsStateWithLifecycle(initialValue = true)
+    val navigation = rememberAppNavigation()
 
     LaunchedEffect(initialDateKey) {
-        if (initialDate != null) settingsOpen = false
+        if (initialDate != null) navigation.showDate(initialDate)
     }
+    BackHandler(enabled = navigation.overlay != Overlay.NONE) { navigation.back() }
 
-    if (settingsOpen) {
-        SettingsScreen(
+    if (!firstRunDone) {
+        FirstRunScreen(
             settings = settings,
-            appVersion = "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})",
-            libraryVersion = BuildConfig.NEPDATE_VERSION,
-            osVersion = Build.VERSION.RELEASE,
-            onClose = { settingsOpen = false },
-            onDateFollows = { scope.launch { container.settingsRepository.setDateFollows(it) } },
-            onDigits = { scope.launch { container.settingsRepository.setDigits(it) } },
-            onShowTithi = { scope.launch { container.settingsRepository.setShowTithi(it) } },
+            onLook = { scope.launch { repository.setLook(it) } },
+            onDone = { scope.launch { repository.setFirstRunDone(true) } },
+            modifier = modifier,
         )
+        return
+    }
+    if (navigation.overlay != Overlay.NONE) {
+        OverlayScreen(navigation, settings, today, repository, scope, modifier)
         return
     }
 
     Column(modifier = modifier.fillMaxSize()) {
-        if (shouldSuggestNepalTime(settings, ZoneId.systemDefault())) {
-            NepalTimeSuggestion(
-                onAccept = {
-                    scope.launch {
-                        container.settingsRepository.setDateFollows(DateFollows.NEPAL)
-                        container.settingsRepository.setDateFollowsSuggestionHandled(true)
-                    }
-                },
-                onDismiss = {
-                    scope.launch { container.settingsRepository.setDateFollowsSuggestionHandled(true) }
-                },
-            )
-        }
+        NepalTimeBanner(settings = settings, repository = repository, scope = scope)
         NepdateContent(
             settings = settings,
             today = today,
             nepalTime = nepalTime,
-            initialDate = initialDate,
-            initialDateKey = initialDateKey,
-            onSettings = { settingsOpen = true },
+            initialDate = navigation.openDate,
+            initialDateKey = navigation.openKey,
+            onSettings = { navigation.overlay = Overlay.SETTINGS },
+            onSearch = { navigation.overlay = Overlay.SEARCH },
+            onOpenYear = { navigation.overlay = Overlay.YEAR },
+            onShowInPatro = navigation::showDate,
+            jumpToMonth = navigation.jumpMonth,
+            jumpKey = navigation.jumpKey,
+            destination = navigation.destination,
+            onDestination = { navigation.destination = it },
             onFirstGridDrawn = onFirstGridDrawn,
             modifier = Modifier.weight(1f),
         )
     }
+}
+
+/** Offers to follow Nepal time when the device is set to another zone and the offer is still open. */
+@Composable
+private fun NepalTimeBanner(
+    settings: Settings,
+    repository: SettingsRepository,
+    scope: CoroutineScope,
+) {
+    if (!shouldSuggestNepalTime(settings, ZoneId.systemDefault())) return
+    NepalTimeSuggestion(
+        onAccept = {
+            scope.launch {
+                repository.setDateFollows(DateFollows.NEPAL)
+                repository.setDateFollowsSuggestionHandled(true)
+            }
+        },
+        onDismiss = {
+            scope.launch { repository.setDateFollowsSuggestionHandled(true) }
+        },
+    )
 }
 
 /**
@@ -167,13 +164,22 @@ internal fun NepdateContent(
     initialDate: NepaliDate? = null,
     initialDateKey: Int = 0,
     onSettings: (() -> Unit)? = null,
+    onSearch: (() -> Unit)? = null,
+    onOpenYear: (() -> Unit)? = null,
+    onShowInPatro: ((NepaliDate) -> Unit)? = null,
+    jumpToMonth: Pair<Int, Int>? = null,
+    jumpKey: Int = 0,
+    destination: NepdateDestination? = null,
+    onDestination: ((NepdateDestination) -> Unit)? = null,
     onFirstGridDrawn: () -> Unit = {},
 ) {
-    var destination by rememberSaveable { mutableStateOf(NepdateDestination.MONTH) }
+    var ownDestination by rememberSaveable { mutableStateOf(NepdateDestination.MONTH) }
+    val current = destination ?: ownDestination
+    val select: (NepdateDestination) -> Unit = { onDestination?.invoke(it) ?: run { ownDestination = it } }
 
     Column(modifier = modifier.fillMaxSize()) {
         Box(Modifier.weight(1f)) {
-            when (destination) {
+            when (current) {
                 NepdateDestination.MONTH ->
                     MonthScreen(
                         initialYear = today.year,
@@ -184,6 +190,10 @@ internal fun NepdateContent(
                         openDate = initialDate,
                         openDateKey = initialDateKey,
                         onSettings = onSettings,
+                        onSearch = onSearch,
+                        onOpenYear = onOpenYear,
+                        jumpToMonth = jumpToMonth,
+                        jumpKey = jumpKey,
                         onFirstGridDrawn = onFirstGridDrawn,
                     )
                 NepdateDestination.UPCOMING ->
@@ -197,90 +207,14 @@ internal fun NepdateContent(
                         today = today,
                         settings = settings,
                         onSettings = onSettings,
+                        onShowInPatro = onShowInPatro,
                     )
             }
         }
         ShortNavigationBar(
-            selected = destination,
-            onSelect = { destination = it },
+            selected = current,
+            onSelect = select,
         )
-    }
-}
-
-/**
- * The Material 3 Expressive short navigation bar (64 dp): the selected tab shows its filled symbol
- * in a secondary-container pill and a bold label; the others show outlined symbols. One composable
- * for every tab, so the bar never drifts between screens.
- */
-@Composable
-internal fun ShortNavigationBar(
-    selected: NepdateDestination,
-    onSelect: (NepdateDestination) -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Surface(color = MaterialTheme.colorScheme.surfaceContainer, modifier = modifier.fillMaxWidth()) {
-        Row(
-            modifier =
-                Modifier
-                    .navigationBarsPadding()
-                    .height(64.dp)
-                    .selectableGroup(),
-        ) {
-            NepdateDestination.entries.forEach { item ->
-                val isSelected = item == selected
-                val label = stringResource(item.label)
-                val pill by animateColorAsState(
-                    if (isSelected) MaterialTheme.colorScheme.secondaryContainer else Color.Transparent,
-                    label = "nav pill",
-                )
-                Column(
-                    modifier =
-                        Modifier
-                            .weight(1f)
-                            .fillMaxHeight()
-                            .selectable(
-                                selected = isSelected,
-                                onClick = { onSelect(item) },
-                                role = Role.Tab,
-                            ).testTag("nav_${item.name.lowercase()}")
-                            .semantics { contentDescription = label },
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center,
-                ) {
-                    Box(
-                        modifier =
-                            Modifier
-                                .size(width = 56.dp, height = 32.dp)
-                                .clip(CircleShape)
-                                .background(pill),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        SymbolIcon(
-                            icon = if (isSelected) item.selectedIcon else item.icon,
-                            tint =
-                                if (isSelected) {
-                                    MaterialTheme.colorScheme.onSecondaryContainer
-                                } else {
-                                    MaterialTheme.colorScheme.onSurfaceVariant
-                                },
-                        )
-                    }
-                    Spacer(Modifier.height(4.dp))
-                    Text(
-                        text = label,
-                        style = MaterialTheme.typography.labelMedium,
-                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                        color =
-                            if (isSelected) {
-                                MaterialTheme.colorScheme.onSurface
-                            } else {
-                                MaterialTheme.colorScheme.onSurfaceVariant
-                            },
-                        maxLines = 1,
-                    )
-                }
-            }
-        }
     }
 }
 

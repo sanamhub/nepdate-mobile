@@ -19,7 +19,6 @@
     <string name="public_holiday_label">सार्वजनिक बिदा</string>
 
     <string name="day_tithi">तिथि</string>
-    <string name="day_events">कार्यक्रमहरू</string>
     <string name="day_add_to_calendar">पात्रोमा थप्नुहोस्</string>
     <string name="day_copy_date">मिति प्रतिलिपि गर्नुहोस्</string>
     <string name="day_copied">मिति प्रतिलिपि गरियो</string>
@@ -49,7 +48,6 @@
     <string name="settings_app_version">एप संस्करण</string>
     <string name="settings_library_version">लाइब्रेरी संस्करण</string>
     <string name="settings_coverage">बिदाको जानकारी</string>
-    <string name="settings_coverage_value">%1$s – %2$s</string>
     <string name="settings_data_source">जानकारीको स्रोत</string>
     <string name="settings_data_source_value">हबमार्फत C# NepDate (MIT)</string>
     <string name="settings_official_sources">आधिकारिक स्रोत</string>
@@ -100,7 +98,6 @@
     <string name="diagnostic_digits_nepali">नेपाली</string>
     <string name="diagnostic_digits_english">अंग्रेजी</string>
 
-    <string name="upcoming_title">आउँदो</string>
     <string name="upcoming_empty">अझै आउँदो बिदा वा कार्यक्रम छैन</string>
     <string name="upcoming_data_ends">बिदा र कार्यक्रमको जानकारी %1$s मा सकिन्छ</string>
     <string name="upcoming_tomorrow">भोलि</string>
@@ -112,28 +109,7 @@
     </plurals>
 
     <string name="converter_title">मिति परिवर्तक</string>
-    <string name="converter_bs_label">नेपाली मिति</string>
-    <string name="converter_bs_hint" tools:ignore="TypographyDashes">२०८३-०६-२० वा २०८३ असोज २०</string>
-    <string name="converter_convert">बदल्नुहोस्</string>
-    <string name="converter_choose_ad">ईस्वी मिति छान्नुहोस्</string>
-    <string name="converter_ad_picker_title">ईस्वी मिति छान्नुहोस्</string>
-    <string name="converter_result">नतिजा</string>
-    <string name="converter_compare_label">यससँग तुलना गर्नुहोस्</string>
-    <string name="converter_compare_hint" tools:ignore="TypographyDashes">२०८२-०१-०१</string>
-    <string name="converter_compare">तुलना गर्नुहोस्</string>
-    <string name="converter_compare_range">%1$s देखि %2$s</string>
     <string name="converter_weekday_ad">%1$s, %2$s</string>
-    <string name="converter_today">आज</string>
-    <string name="converter_tomorrow">भोलि</string>
-    <string name="converter_error_invalid_month">महिना १ देखि १२ सम्म हुनुपर्छ</string>
-    <string name="converter_error_out_of_range">यो मिति नेपाली मितिको दायराबाहिर छ</string>
-    <string name="converter_error_unreadable" tools:ignore="TypographyDashes">२०८३-०६-२० जस्तो नेपाली मिति लेख्नुहोस्</string>
-    <string name="converter_error_no_first_date">पहिले मिति बदल्नुहोस्</string>
-
-    <plurals name="converter_error_invalid_day">
-        <item quantity="one">%1$s %3$d मा %2$d दिन छ</item>
-        <item quantity="other">%1$s %3$d मा %2$d दिन छ</item>
-    </plurals>
 
     <plurals name="converter_days_from_today">
         <item quantity="one">%1$d दिन पछि</item>

@@ -2,7 +2,6 @@
 <resources>
     <string name="home_today_tag">आज</string>
     <string name="home_search">पर्व र मिति खोज्नुहोस्</string>
-    <string name="home_open_year">वर्ष हेर्नुहोस्</string>
     <string name="home_next_holiday_today">आज %1$s</string>
     <string name="home_next_holiday_tomorrow">भोलि %1$s</string>
     <string name="home_next_holiday_days">%1$s %2$s दिनमा</string>

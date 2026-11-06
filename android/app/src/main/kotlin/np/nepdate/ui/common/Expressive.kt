@@ -1,6 +1,7 @@
 package np.nepdate.ui.common
 
 import androidx.annotation.DrawableRes
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.size
@@ -11,7 +12,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.foundation.background
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Outline
@@ -86,7 +86,13 @@ internal fun segmentShape(
     when {
         count == 1 -> RoundedCornerShape(outer)
         index == 0 -> RoundedCornerShape(topStart = outer, topEnd = outer, bottomStart = inner, bottomEnd = inner)
-        index == count - 1 -> RoundedCornerShape(topStart = inner, topEnd = inner, bottomStart = outer, bottomEnd = outer)
+        index == count - 1 ->
+            RoundedCornerShape(
+                topStart = inner,
+                topEnd = inner,
+                bottomStart = outer,
+                bottomEnd = outer,
+            )
         else -> RoundedCornerShape(inner)
     }
 
@@ -100,8 +106,20 @@ internal fun groupShape(
     inner: Dp = 6.dp,
 ): Shape =
     when (position) {
-        GroupPosition.START -> RoundedCornerShape(CornerSize(outer), CornerSize(inner), CornerSize(inner), CornerSize(outer))
-        GroupPosition.END -> RoundedCornerShape(CornerSize(inner), CornerSize(outer), CornerSize(outer), CornerSize(inner))
+        GroupPosition.START ->
+            RoundedCornerShape(
+                CornerSize(outer),
+                CornerSize(inner),
+                CornerSize(inner),
+                CornerSize(outer),
+            )
+        GroupPosition.END ->
+            RoundedCornerShape(
+                CornerSize(inner),
+                CornerSize(outer),
+                CornerSize(outer),
+                CornerSize(inner),
+            )
         GroupPosition.MIDDLE -> RoundedCornerShape(inner)
         GroupPosition.ALONE -> RoundedCornerShape(outer)
     }

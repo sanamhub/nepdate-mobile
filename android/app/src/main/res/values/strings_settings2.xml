@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Settings groups and rows (Material 3 Expressive redesign). -->
+    <string name="settings_back">Back</string>
+    <string name="settings_group_look">Look</string>
+    <string name="settings_group_language">Language and digits</string>
+    <string name="settings_group_patro">Patro</string>
+    <string name="settings_look">Theme</string>
+    <string name="settings_look_system">Phone setting</string>
+    <string name="settings_look_paper">Paper</string>
+    <string name="settings_look_dark">Dark</string>
+    <string name="settings_wallpaper_colors">Wallpaper colours</string>
+    <string name="settings_wallpaper_colors_supporting">Take the app colours from your wallpaper</string>
+    <string name="settings_tithi_supporting">In small text under each day</string>
+    <string name="settings_about_row">About and privacy</string>
+    <string name="settings_about_row_supporting">Version, holiday data, source code, report a wrong date</string>
+    <string name="settings_copy_diagnostic_supporting">App version, Android version and these settings, nothing else</string>
+
+    <!-- About. -->
+    <string name="about_name" translatable="false">NepDate</string>
+    <string name="about_icon">NepDate icon</string>
+    <string name="about_version">Version %1$s, based on the C# NepDate library</string>
+    <string name="about_offline">Works offline</string>
+    <string name="about_no_ads">No ads</string>
+    <string name="about_no_data">Collects no data</string>
+    <string name="about_coverage_range">%1$s to %2$s</string>
+    <string name="about_data_updates">New years of holiday data arrive with app updates.</string>
+    <string name="about_android_version">Android version</string>
+    <string name="about_opens_browser">Opens in your browser</string>
+
+    <!-- First run. -->
+    <string name="firstrun_title">A light, fast patro of your own</string>
+    <string name="firstrun_lead">A Nepali calendar that works offline and shows no ads. Pick a language and a look; you can change both in Settings.</string>
+    <string name="firstrun_lead_look_only">A Nepali calendar that works offline and shows no ads. Pick a look; you can change it in Settings.</string>
+    <string name="firstrun_open">Open the patro</string>
+</resources>

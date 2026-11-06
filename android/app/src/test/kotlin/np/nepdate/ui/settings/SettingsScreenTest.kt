@@ -35,15 +35,19 @@ class SettingsScreenTest {
     fun choicesWriteTheSettings() {
         setUp()
 
+        // Multi-choice rows open a dialog of options; picking one applies it and closes the dialog.
+        composeRule.onNodeWithText("Digits").performScrollTo().performClick()
         composeRule.onNodeWithText("English (012)").performClick()
         assertEquals(Digits.ENGLISH, settings.digits)
 
+        composeRule.onNodeWithText("Date follows").performScrollTo().performClick()
         composeRule.onNodeWithText("Nepal time").performClick()
         assertEquals(DateFollows.NEPAL, settings.dateFollows)
 
-        composeRule.onNodeWithText("Show tithi in the month grid").performClick()
+        composeRule.onNodeWithText("Show tithi in the month grid").performScrollTo().performClick()
         assertEquals(true, settings.showTithi)
 
+        composeRule.onNodeWithText("Digits").performScrollTo().performClick()
         composeRule.onNodeWithText("Follow language").performClick()
         assertEquals(Digits.FOLLOW_LANGUAGE, settings.digits)
     }
@@ -55,7 +59,7 @@ class SettingsScreenTest {
         composeRule.onNodeWithText("About").assertExists()
         composeRule.onNodeWithText("0.0.1 (1)").assertExists()
         composeRule.onNodeWithText("0.1.0").assertExists()
-        composeRule.onNodeWithText("Baisakh १, २०७७ – Mangsir २०, २०८४").assertExists()
+        composeRule.onNodeWithText("Baisakh १, २०७७ to Mangsir २०, २०८४").assertExists()
         composeRule.onNodeWithText("Known data questions").assertExists()
         composeRule.onNodeWithText("Report a wrong date").assertExists()
         composeRule.onNodeWithText("Licences").assertExists()
@@ -102,6 +106,7 @@ class SettingsScreenTest {
 
         composeRule.onNodeWithText("Language").assertExists()
         composeRule.onNodeWithText("System").assertExists()
+        composeRule.onNodeWithText("Language").performClick()
         composeRule.onNodeWithText("नेपाली").assertExists()
     }
 

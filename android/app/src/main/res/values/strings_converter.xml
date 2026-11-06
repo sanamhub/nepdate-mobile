@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Converter: direction, wheel and live result. -->
+    <string name="converter_direction">Conversion direction</string>
+    <string name="converter_bs_to_ad">BS to AD</string>
+    <string name="converter_ad_to_bs">AD to BS</string>
+    <string name="converter_wheel_day">Day</string>
+    <string name="converter_wheel_next">Next value</string>
+    <string name="converter_wheel_previous">Previous value</string>
+    <string name="converter_in_ad">In AD</string>
+    <string name="converter_in_bs">In BS</string>
+    <string name="converter_relative_today">today</string>
+    <string name="converter_relative_tomorrow">tomorrow</string>
+    <string name="converter_relative_yesterday">yesterday</string>
+    <string name="converter_show_in_patro">Show in patro</string>
+
+    <!-- Converter: the distance between two dates. -->
+    <string name="converter_between_title">Between two dates</string>
+    <string name="converter_between_from">From</string>
+    <string name="converter_between_to">To</string>
+    <string name="converter_between_to_today">To (today)</string>
+    <string name="converter_choose_first">Choose the first date</string>
+    <string name="converter_choose_second">Choose the second date</string>
+    <string name="converter_done">Done</string>
+
+    <!-- Year at a glance. -->
+    <string name="year_back">Back to the month</string>
+    <string name="year_previous">Previous year</string>
+    <string name="year_next">Next year</string>
+    <string name="year_month_tile">%1$s, %2$s</string>
+    <plurals name="year_month_holidays">
+        <item quantity="one">%1$d public holiday</item>
+        <item quantity="other">%1$d public holidays</item>
+    </plurals>
+</resources>

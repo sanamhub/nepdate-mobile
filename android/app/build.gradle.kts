@@ -78,6 +78,14 @@ android {
         generateLocaleConfig = true
     }
 
+    // The first-run and settings language choice switch between Nepali and English at runtime,
+    // so every install needs both languages rather than only the device's.
+    bundle {
+        language {
+            enableSplit = false
+        }
+    }
+
     lint {
         warningsAsErrors = true
         abortOnError = true

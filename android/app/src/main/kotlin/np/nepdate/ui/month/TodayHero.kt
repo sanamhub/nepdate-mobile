@@ -49,7 +49,6 @@ import np.nepdate.ui.upcoming.upcoming
  * date, the day's first event and the countdown to the next public holiday. One tinted container,
  * the only hero on the screen.
  */
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 internal fun TodayHero(
     today: NepaliDate,
@@ -58,11 +57,7 @@ internal fun TodayHero(
     onOpenDay: (NepaliDate) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val colors = LocalNepdateColors.current
     val info = remember(today) { if (today in Patro.coverage) Patro.info(today) else null }
-    val nextHoliday = remember(today) { upcoming(today, limit = HOLIDAY_LOOKAHEAD).entries.firstOrNull { it.isHoliday } }
-    val adMonths = stringArrayResource(R.array.ad_month_long).toList()
-    val onContainer = MaterialTheme.colorScheme.onPrimaryContainer
     Column(
         modifier =
             modifier
@@ -73,74 +68,111 @@ internal fun TodayHero(
                 .padding(start = 18.dp, end = 18.dp, top = 16.dp, bottom = 14.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            ShapeBadge(shape = SunnyShape, color = colors.today, size = 96.dp) {
-                Text(
-                    text = today.dayOfMonth.toString().inDigits(digits),
-                    color = colors.onToday,
-                    fontSize = 44.sp,
-                    lineHeight = 48.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                )
-            }
-            Spacer(Modifier.width(16.dp))
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = stringResource(R.string.home_today_tag),
-                    color = onContainer.copy(alpha = 0.8f),
-                    style = MaterialTheme.typography.labelLarge,
-                )
-                Text(
-                    text = weekdayName(today, lang),
-                    color = onContainer,
-                    style = MaterialTheme.typography.headlineSmall,
-                    modifier = Modifier.semantics { heading() },
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-                info?.tithi?.let { tithi ->
-                    Text(text = tithi.name(lang), color = onContainer, style = MaterialTheme.typography.bodyLarge)
-                }
-                Text(
-                    text = adDate(today, adMonths, digits),
-                    color = onContainer.copy(alpha = 0.85f),
-                    style = MaterialTheme.typography.bodyMedium,
-                )
-            }
+        HeroDate(today = today, tithi = info?.tithi?.name(lang), lang = lang, digits = digits)
+        HeroChips(
+            today = today,
+            event = info?.events?.firstOrNull()?.name(lang),
+            lang = lang,
+            digits = digits,
+            onOpenDay = onOpenDay,
+        )
+    }
+}
+
+/** The BS day on the Sunny shape, with the weekday, tithi and AD date beside it. */
+@Composable
+private fun HeroDate(
+    today: NepaliDate,
+    tithi: String?,
+    lang: Lang,
+    digits: Digits,
+) {
+    val colors = LocalNepdateColors.current
+    val adMonths = stringArrayResource(R.array.ad_month_long).toList()
+    val onContainer = MaterialTheme.colorScheme.onPrimaryContainer
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        ShapeBadge(shape = SunnyShape, color = colors.today, size = 96.dp) {
+            Text(
+                text = today.dayOfMonth.toString().inDigits(digits),
+                color = colors.onToday,
+                fontSize = 44.sp,
+                lineHeight = 48.sp,
+                fontWeight = FontWeight.ExtraBold,
+            )
         }
-        FlowRow(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            info?.events?.firstOrNull()?.let { event ->
-                HeroChip(
-                    text = event.name(lang).inDigits(digits),
-                    container = onContainer.copy(alpha = 0.08f),
-                    content = onContainer,
-                    icon = R.drawable.ic_sym_celebration_filled,
-                )
+        Spacer(Modifier.width(16.dp))
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = stringResource(R.string.home_today_tag),
+                color = onContainer.copy(alpha = 0.8f),
+                style = MaterialTheme.typography.labelLarge,
+            )
+            Text(
+                text = weekdayName(today, lang),
+                color = onContainer,
+                style = MaterialTheme.typography.headlineSmall,
+                modifier = Modifier.semantics { heading() },
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            tithi?.let {
+                Text(text = it, color = onContainer, style = MaterialTheme.typography.bodyLarge)
             }
-            nextHoliday?.let { entry ->
-                val name = entry.name.name(lang).inDigits(digits)
-                val text =
-                    when (entry.daysFromToday) {
-                        0 -> stringResource(R.string.home_next_holiday_today, name)
-                        1 -> stringResource(R.string.home_next_holiday_tomorrow, name)
-                        else ->
-                            stringResource(
-                                R.string.home_next_holiday_days,
-                                name,
-                                entry.daysFromToday.toString().inDigits(digits),
-                            )
-                    }
-                HeroChip(
-                    text = text,
-                    container = colors.holidayContainer,
-                    content = colors.onHolidayContainer,
-                    icon = null,
-                    onClick = { onOpenDay(entry.date) },
-                )
-            }
+            Text(
+                text = adDate(today, adMonths, digits),
+                color = onContainer.copy(alpha = 0.85f),
+                style = MaterialTheme.typography.bodyMedium,
+            )
+        }
+    }
+}
+
+/** The day's first event and the countdown to the next public holiday, as chips. */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun HeroChips(
+    today: NepaliDate,
+    event: String?,
+    lang: Lang,
+    digits: Digits,
+    onOpenDay: (NepaliDate) -> Unit,
+) {
+    val colors = LocalNepdateColors.current
+    val onContainer = MaterialTheme.colorScheme.onPrimaryContainer
+    val nextHoliday =
+        remember(today) { upcoming(today, limit = HOLIDAY_LOOKAHEAD).entries.firstOrNull { it.isHoliday } }
+    FlowRow(
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        event?.let {
+            HeroChip(
+                text = it.inDigits(digits),
+                container = onContainer.copy(alpha = 0.08f),
+                content = onContainer,
+                icon = R.drawable.ic_sym_celebration_filled,
+            )
+        }
+        nextHoliday?.let { entry ->
+            val name = entry.name.name(lang).inDigits(digits)
+            val text =
+                when (entry.daysFromToday) {
+                    0 -> stringResource(R.string.home_next_holiday_today, name)
+                    1 -> stringResource(R.string.home_next_holiday_tomorrow, name)
+                    else ->
+                        stringResource(
+                            R.string.home_next_holiday_days,
+                            name,
+                            entry.daysFromToday.toString().inDigits(digits),
+                        )
+                }
+            HeroChip(
+                text = text,
+                container = colors.holidayContainer,
+                content = colors.onHolidayContainer,
+                icon = null,
+                onClick = { onOpenDay(entry.date) },
+            )
         }
     }
 }
