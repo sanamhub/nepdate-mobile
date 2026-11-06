@@ -4,7 +4,9 @@ import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ColorScheme
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.MaterialExpressiveTheme
+import androidx.compose.material3.MotionScheme
 import androidx.compose.material3.Shapes
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
@@ -108,6 +110,7 @@ internal fun Look.isDark(): Boolean =
  * The app theme. Paper and Night are the brand schemes; wallpaper colours (Android 12+) are an
  * opt-in setting. [HolidayLight] and [TodayLight] stay fixed in every scheme.
  */
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun NepdateTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
@@ -128,8 +131,9 @@ fun NepdateTheme(
     val brandColors = nepdateColorsFor(darkTheme, colorScheme)
 
     CompositionLocalProvider(LocalNepdateColors provides brandColors) {
-        MaterialTheme(
+        MaterialExpressiveTheme(
             colorScheme = colorScheme,
+            motionScheme = MotionScheme.expressive(),
             typography = NepdateTypography,
             shapes = NepdateShapes,
             content = content,

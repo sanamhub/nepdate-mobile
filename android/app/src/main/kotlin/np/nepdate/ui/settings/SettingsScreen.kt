@@ -292,7 +292,7 @@ private fun rememberCopyDiagnostic(
     return {
         val text = diagnosticText(appVersion, osVersion, settings, labels)
         val clipboard = context.getSystemService(ClipboardManager::class.java)
-        clipboard.setPrimaryClip(ClipData.newPlainText("Nepdate", text))
+        clipboard.setPrimaryClip(ClipData.newPlainText("NepDate", text))
         onCopied()
     }
 }
