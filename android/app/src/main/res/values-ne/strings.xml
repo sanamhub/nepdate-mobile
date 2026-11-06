@@ -19,8 +19,8 @@
     <string name="public_holiday_label">सार्वजनिक बिदा</string>
 
     <string name="day_tithi">तिथि</string>
-    <string name="day_add_to_calendar">पात्रोमा थप्नुहोस्</string>
-    <string name="day_copy_date">मिति प्रतिलिपि गर्नुहोस्</string>
+    <string name="day_add_to_calendar">क्यालेन्डरमा थप्नुहोस्</string>
+    <string name="day_copy_date">प्रतिलिपि</string>
     <string name="day_copied">मिति प्रतिलिपि गरियो</string>
     <string name="day_copy_label">नेपाली मिति</string>
     <string name="day_no_data">यो मितिको बिदा वा तिथिको जानकारी अझै छैन</string>

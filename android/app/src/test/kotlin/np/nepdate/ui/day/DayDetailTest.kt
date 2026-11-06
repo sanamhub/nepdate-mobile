@@ -80,7 +80,7 @@ class DayDetailTest {
     fun mr02Ac3CopyDateUsesTheNepaliCopy() {
         setDayDetail(NepaliDate.of(2083, 6, 9), Settings(digits = Digits.NEPALI))
 
-        composeRule.onNodeWithText("मिति प्रतिलिपि गर्नुहोस्").performClick()
+        composeRule.onNodeWithText("प्रतिलिपि").performClick()
 
         assertClipboard("असोज ९, २०८३")
     }
