@@ -21,6 +21,10 @@ Each CI run signs with a new throwaway key, so Android refuses to install a buil
 another run, or over a debug build from your own machine: uninstall the old one first
 (`adb uninstall np.nepdate` or long-press the icon). Uninstalling clears the app's settings.
 
+If the app crashes, send the `adb logcat` lines from the crash. The run also has a
+`tester-apk-mapping` artifact: it holds the R8 mapping for that run's `tester-apk`, and the
+trace is readable with it (`retrace mapping.txt trace.txt`). It matches only that run's APK.
+
 The iPhone column is not run yet; the iOS agent fills it in its M0 work. Automated tests cover month
 layout, view models, scheduling and settings; this file covers the rest.
 
