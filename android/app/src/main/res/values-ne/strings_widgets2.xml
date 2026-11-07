@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Today widget: the round button that flips the face between BS and AD. -->
+    <string name="widget2_show_ad">अङ्ग्रेजी मिति देखाउनुहोस्</string>
+    <string name="widget2_show_bs">बिक्रम सम्बत मिति देखाउनुहोस्</string>
+
+    <!-- Next festival widget. -->
+    <string name="widget2_next_festival_name">अर्को पर्व</string>
+    <string name="widget2_next_festival_description">अर्को पर्व वा सार्वजनिक बिदासम्म बाँकी दिन। तीरले त्यसपछिका पर्व हेर्न मिल्छ।</string>
+    <string name="widget2_next_holiday_kind">अर्को सार्वजनिक बिदा</string>
+    <string name="widget2_next_festival_kind">अर्को पर्व</string>
+    <string name="widget2_previous_festival">अघिल्लो पर्व</string>
+    <string name="widget2_following_festival">अर्को पर्व</string>
+    <plurals name="widget2_days_unit" tools:ignore="UnusedQuantity">
+        <item quantity="one">दिन</item>
+        <item quantity="other">दिन</item>
+    </plurals>
+    <string name="widget2_date_line">%1$s, %2$s</string>
+
+    <!-- Festivals list widget. -->
+    <string name="widget2_festivals_name">पर्वको सूची</string>
+    <string name="widget2_festivals_description">आउँदा केही पर्व र सार्वजनिक बिदा, बिदा मात्र छान्ने सुविधासहित।</string>
+    <string name="widget2_festivals_title">आउँदा पर्व</string>
+    <string name="widget2_holidays_only">बिदा मात्र</string>
+    <string name="widget2_holidays_only_on">सार्वजनिक बिदा मात्र देखाइएको छ। सबै पर्व हेर्न थिच्नुहोस्।</string>
+    <string name="widget2_holidays_only_off">सबै पर्व देखाइएको छ। सार्वजनिक बिदा मात्र हेर्न थिच्नुहोस्।</string>
+    <string name="widget2_none_left">पात्रोको जानकारीमा अब कुनै पर्व बाँकी छैन</string>
+
+    <!-- Static previews for launchers before Android 15. -->
+    <string name="widget2_preview_days">५</string>
+    <string name="widget2_preview_festival">घटस्थापना</string>
+    <string name="widget2_preview_festival_date">आइतबार, असोज २५</string>
+    <string name="widget2_preview_list">द्वादशी श्राद्ध · भोलि\nपितृ विसर्जन · ४ दिनमा\nघटस्थापना · ५ दिनमा</string>
+</resources>

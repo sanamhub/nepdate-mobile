@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The static widget picker image for launchers before Android 12. Shapes and the Sunny vector
+     only: no bitmap. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:width="300dp" android:height="220dp">
+        <shape android:shape="rectangle">
+            <solid android:color="#FFFFF8F3" />
+            <corners android:radius="24dp" />
+        </shape>
+    </item>
+    <item android:left="16dp" android:top="18dp" android:width="150dp" android:height="12dp" android:gravity="top|start">
+        <shape android:shape="rectangle">
+            <solid android:color="#FF1F1B16" />
+            <corners android:radius="4dp" />
+        </shape>
+    </item>
+    <item android:left="200dp" android:top="12dp" android:width="86dp" android:height="26dp" android:gravity="top|start">
+        <shape android:shape="rectangle">
+            <solid android:color="#FFF6EADF" />
+            <corners android:radius="13dp" />
+        </shape>
+    </item>
+    <item android:left="10dp" android:top="52dp" android:width="280dp" android:height="48dp" android:gravity="top|start">
+        <shape android:shape="rectangle">
+            <solid android:color="#FFF6EADF" />
+            <corners android:radius="16dp" />
+        </shape>
+    </item>
+    <item android:left="18dp" android:top="58dp" android:width="36dp" android:height="36dp" android:gravity="top|start">
+        <shape android:shape="rectangle">
+            <solid android:color="#FFFFDAD6" />
+            <corners android:radius="10dp" />
+        </shape>
+    </item>
+    <item android:left="66dp" android:top="68dp" android:width="150dp" android:height="8dp" android:gravity="top|start">
+        <shape android:shape="rectangle">
+            <solid android:color="#FFB3261E" />
+            <corners android:radius="4dp" />
+        </shape>
+    </item>
+    <item android:left="230dp" android:top="68dp" android:width="44dp" android:height="8dp" android:gravity="top|start">
+        <shape android:shape="rectangle">
+            <solid android:color="#FF9C8F80" />
+            <corners android:radius="4dp" />
+        </shape>
+    </item>
+    <item android:left="10dp" android:top="106dp" android:width="280dp" android:height="48dp" android:gravity="top|start">
+        <shape android:shape="rectangle">
+            <solid android:color="#FFF6EADF" />
+            <corners android:radius="16dp" />
+        </shape>
+    </item>
+    <item android:left="18dp" android:top="112dp" android:width="36dp" android:height="36dp" android:gravity="top|start">
+        <shape android:shape="rectangle">
+            <solid android:color="#FFEDE0D4" />
+            <corners android:radius="10dp" />
+        </shape>
+    </item>
+    <item android:left="66dp" android:top="122dp" android:width="150dp" android:height="8dp" android:gravity="top|start">
+        <shape android:shape="rectangle">
+            <solid android:color="#FF1F1B16" />
+            <corners android:radius="4dp" />
+        </shape>
+    </item>
+    <item android:left="230dp" android:top="122dp" android:width="44dp" android:height="8dp" android:gravity="top|start">
+        <shape android:shape="rectangle">
+            <solid android:color="#FF9C8F80" />
+            <corners android:radius="4dp" />
+        </shape>
+    </item>
+    <item android:left="10dp" android:top="160dp" android:width="280dp" android:height="48dp" android:gravity="top|start">
+        <shape android:shape="rectangle">
+            <solid android:color="#FFF6EADF" />
+            <corners android:radius="16dp" />
+        </shape>
+    </item>
+    <item android:left="18dp" android:top="166dp" android:width="36dp" android:height="36dp" android:gravity="top|start">
+        <shape android:shape="rectangle">
+            <solid android:color="#FFFFDAD6" />
+            <corners android:radius="10dp" />
+        </shape>
+    </item>
+    <item android:left="66dp" android:top="176dp" android:width="150dp" android:height="8dp" android:gravity="top|start">
+        <shape android:shape="rectangle">
+            <solid android:color="#FFB3261E" />
+            <corners android:radius="4dp" />
+        </shape>
+    </item>
+    <item android:left="230dp" android:top="176dp" android:width="44dp" android:height="8dp" android:gravity="top|start">
+        <shape android:shape="rectangle">
+            <solid android:color="#FF9C8F80" />
+            <corners android:radius="4dp" />
+        </shape>
+    </item>
+</layer-list>

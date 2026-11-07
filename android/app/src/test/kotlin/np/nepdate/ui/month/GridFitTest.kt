@@ -109,6 +109,7 @@ class GridFitTest {
                                 digits = Digits.ENGLISH,
                                 lang = Lang.ENGLISH,
                                 showTithi = true,
+                                showAdDay = true,
                                 ink = dayInk(cell, false),
                             )
                         }
@@ -118,10 +119,11 @@ class GridFitTest {
         }
 
         val parent = composeRule.onNodeWithTag("fit_cell").fetchSemanticsNode().boundsInRoot
-        listOf("9", "25", "Chaturdashi").forEach { text ->
+        // The tithi carries soft hyphens at its joins, so match its first part.
+        listOf("9", "25", "Chatur").forEach { text ->
             val child =
                 composeRule
-                    .onAllNodesWithText(text, useUnmergedTree = true)
+                    .onAllNodesWithText(text, substring = true, useUnmergedTree = true)
                     .onFirst()
                     .fetchSemanticsNode()
                     .boundsInRoot

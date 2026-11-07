@@ -26,10 +26,16 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Nepdate">
 
+        <!-- configChanges: a language switch (first run or Settings) redraws in place through
+             Compose instead of recreating the activity, which flashed and jumped the screen. Some
+             phones (OnePlus) send keyboard, touchscreen and screen size bits with a per-app language
+             change, so those are listed too. Theme (uiMode) and density still recreate. -->
         <activity
             android:name=".MainActivity"
+            android:configChanges="locale|layoutDirection|keyboard|keyboardHidden|touchscreen|navigation|orientation|screenLayout|screenSize|smallestScreenSize"
             android:exported="true"
-            android:launchMode="singleTop">
+            android:launchMode="singleTop"
+            android:theme="@style/Theme.Nepdate.Launch">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -46,10 +52,13 @@
             </intent-filter>
         </activity>
 
+        <!-- Widget receivers. android:icon is a PNG, not a vector or the adaptive launcher icon:
+             the OnePlus widget list drew both as a red tile with a blank white square. -->
         <receiver
             android:name=".widget.TodayGlanceWidgetReceiver"
             android:exported="true"
-            android:label="@string/widget_today_name">
+            android:icon="@drawable/widget_picker_icon"
+            android:label="@string/widget3_today_name">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -61,7 +70,8 @@
         <receiver
             android:name=".widget.UpcomingGlanceWidgetReceiver"
             android:exported="true"
-            android:label="@string/widget_upcoming_name">
+            android:icon="@drawable/widget_picker_icon"
+            android:label="@string/widget3_upcoming_name">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -73,6 +83,7 @@
         <receiver
             android:name=".widget.MonthGlanceWidgetReceiver"
             android:exported="true"
+            android:icon="@drawable/widget_picker_icon"
             android:label="@string/widget_month_name">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -80,6 +91,71 @@
             <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/widget_month_info" />
+        </receiver>
+
+        <receiver
+            android:name=".widget.NextFestivalGlanceWidgetReceiver"
+            android:exported="true"
+            android:icon="@drawable/widget_picker_icon"
+            android:label="@string/widget3_countdown_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_next_festival_info" />
+        </receiver>
+
+        <receiver
+            android:name=".widget.FestivalsGlanceWidgetReceiver"
+            android:exported="true"
+            android:icon="@drawable/widget_picker_icon"
+            android:label="@string/widget2_festivals_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_festivals_info" />
+        </receiver>
+
+        <receiver
+            android:name=".widget.DateChipGlanceWidgetReceiver"
+            android:exported="true"
+            android:icon="@drawable/widget_picker_icon"
+            android:label="@string/widget3_chip_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_chip_info" />
+        </receiver>
+
+        <receiver
+            android:name=".widget.DateStripGlanceWidgetReceiver"
+            android:exported="true"
+            android:icon="@drawable/widget_picker_icon"
+            android:label="@string/widget3_strip_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_strip_info" />
+        </receiver>
+
+        <receiver
+            android:name=".widget.WeekGlanceWidgetReceiver"
+            android:exported="true"
+            android:icon="@drawable/widget_picker_icon"
+            android:label="@string/widget3_week_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_week_info" />
         </receiver>
 
         <receiver

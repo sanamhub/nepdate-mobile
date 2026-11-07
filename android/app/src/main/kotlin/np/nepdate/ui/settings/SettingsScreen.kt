@@ -1,63 +1,50 @@
 package np.nepdate.ui.settings
 
-import android.app.LocaleManager
 import android.content.ClipData
 import android.content.ClipboardManager
-import android.content.Intent
-import android.os.Build
-import android.os.LocaleList
 import androidx.activity.compose.BackHandler
-import androidx.annotation.RequiresApi
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.selection.selectable
-import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.LargeFlexibleTopAppBar
+import androidx.compose.material3.ListItemShapes
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RadioButton
-import androidx.compose.material3.Switch
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
-import androidx.core.net.toUri
-import io.github.sanamhub.nepdate.patro.Patro
 import np.nepdate.R
 import np.nepdate.data.DateFollows
 import np.nepdate.data.Digits
+import np.nepdate.data.Look
 import np.nepdate.data.Settings
-import np.nepdate.ui.common.bsLong
-import np.nepdate.ui.common.languageFor
-import np.nepdate.ui.common.resolve
-import np.nepdate.ui.theme.LocalNepdateColors
+import np.nepdate.data.StartTab
+import np.nepdate.ui.about.AboutDetails
+import np.nepdate.ui.common.SymbolIcon
 
-/** Settings and About (MR-06, MR-07, MR-11, MR-12). */
+/**
+ * Settings (MR-06, MR-07, MR-12): a large flexible app bar over segmented groups for the look,
+ * language and digits, the patro, the app and About. Multi-choice rows open a dialog; toggles switch
+ * in place. A row whose callback is null is left out, so a setting never shows before it is wired.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun SettingsScreen(
     settings: Settings,
@@ -68,144 +55,117 @@ internal fun SettingsScreen(
     onDateFollows: (DateFollows) -> Unit,
     onDigits: (Digits) -> Unit,
     onShowTithi: (Boolean) -> Unit,
+    onLook: (Look) -> Unit = {},
+    onWallpaperColors: (Boolean) -> Unit = {},
+    onOpenAbout: (() -> Unit)? = null,
+    onShowAdDates: ((Boolean) -> Unit)? = null,
+    onHaptics: ((Boolean) -> Unit)? = null,
+    onStartTab: ((StartTab) -> Unit)? = null,
 ) {
     BackHandler { onClose() }
-    val lang = languageFor(LocalConfiguration.current.locales[0])
-    val digits = settings.digits.resolve(lang)
-    Column(
-        modifier =
-            Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(bottom = 24.dp)
-                .testTag("settings_screen"),
-    ) {
-        SettingsHeader(onClose)
-        Column(
-            modifier = Modifier.padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                LanguageSection()
+    val scroll = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+    CompositionLocalProvider(LocalSettingsHaptics provides rememberHaptics(settings.haptics)) {
+        Scaffold(
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .nestedScroll(scroll.nestedScrollConnection)
+                    .testTag("settings_screen"),
+            containerColor = MaterialTheme.colorScheme.surface,
+            topBar = {
+                LargeFlexibleTopAppBar(
+                    title = { Text(stringResource(R.string.settings_title)) },
+                    navigationIcon = { BackButton(onBack = onClose, tag = "settings_close") },
+                    scrollBehavior = scroll,
+                )
+            },
+        ) { padding ->
+            Column(
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                        .padding(padding)
+                        .padding(bottom = 24.dp),
+            ) {
+                LookGroup(settings, onLook, onWallpaperColors)
+                LanguageGroup(settings, onDigits)
+                PatroGroup(settings, onDateFollows, onShowTithi, onShowAdDates)
+                AppGroup(settings, onStartTab, onHaptics)
+                AboutGroup(settings, appVersion, libraryVersion, osVersion, onOpenAbout)
             }
-            SettingsChoices(settings, onDateFollows, onDigits, onShowTithi)
-            HorizontalDivider(Modifier.padding(vertical = 8.dp))
-            AboutSection(settings, digits, appVersion, libraryVersion, osVersion)
         }
     }
 }
 
 @Composable
-private fun SettingsChoices(
+private fun AboutGroup(
     settings: Settings,
-    onDateFollows: (DateFollows) -> Unit,
-    onDigits: (Digits) -> Unit,
-    onShowTithi: (Boolean) -> Unit,
-) {
-    SettingsSection(stringResource(R.string.settings_digits))
-    ChoiceRow(
-        label = stringResource(R.string.settings_digits_follow),
-        selected = settings.digits == Digits.FOLLOW_LANGUAGE,
-        onClick = { onDigits(Digits.FOLLOW_LANGUAGE) },
-    )
-    ChoiceRow(
-        label = stringResource(R.string.settings_digits_nepali),
-        selected = settings.digits == Digits.NEPALI,
-        onClick = { onDigits(Digits.NEPALI) },
-    )
-    ChoiceRow(
-        label = stringResource(R.string.settings_digits_english),
-        selected = settings.digits == Digits.ENGLISH,
-        onClick = { onDigits(Digits.ENGLISH) },
-    )
-    SettingsSection(stringResource(R.string.settings_date_follows))
-    ChoiceRow(
-        label = stringResource(R.string.settings_date_device),
-        selected = settings.dateFollows == DateFollows.DEVICE,
-        onClick = { onDateFollows(DateFollows.DEVICE) },
-    )
-    ChoiceRow(
-        label = stringResource(R.string.settings_date_nepal),
-        selected = settings.dateFollows == DateFollows.NEPAL,
-        onClick = { onDateFollows(DateFollows.NEPAL) },
-    )
-    Row(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .heightIn(min = 48.dp)
-                .toggleable(
-                    value = settings.showTithi,
-                    onValueChange = onShowTithi,
-                    role = Role.Switch,
-                ),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Text(
-            text = stringResource(R.string.settings_show_tithi),
-            modifier = Modifier.weight(1f),
-            style = MaterialTheme.typography.bodyLarge,
-        )
-        Switch(checked = settings.showTithi, onCheckedChange = null)
-    }
-}
-
-@Composable
-private fun AboutSection(
-    settings: Settings,
-    digits: Digits,
     appVersion: String,
     libraryVersion: String,
     osVersion: String,
+    onOpenAbout: (() -> Unit)?,
 ) {
-    val bsMonthNames = stringArrayResource(R.array.bs_month_long).toList()
-    SettingsSection(stringResource(R.string.settings_about))
-    SettingsInfo(
-        label = stringResource(R.string.settings_app_version),
-        value = appVersion,
-    )
-    SettingsInfo(
-        label = stringResource(R.string.settings_library_version),
-        value = libraryVersion,
-    )
-    SettingsInfo(
-        label = stringResource(R.string.settings_coverage),
-        value =
-            stringResource(
-                R.string.settings_coverage_value,
-                bsLong(Patro.coverage.start, bsMonthNames[0], digits),
-                bsLong(
-                    Patro.coverage.endInclusive,
-                    bsMonthNames[Patro.coverage.endInclusive.monthValue - 1],
-                    digits,
-                ),
-            ),
-    )
-    SettingsInfo(
-        label = stringResource(R.string.settings_data_source),
-        value = stringResource(R.string.settings_data_source_value),
-    )
-    SettingsInfo(
-        label = stringResource(R.string.settings_official_sources),
-        value = stringResource(R.string.settings_official_sources_value),
-    )
-    SettingsLink(stringResource(R.string.settings_known_data), KNOWN_DATA_URL)
-    SettingsLink(stringResource(R.string.settings_report_date), REPORT_DATE_URL)
-    SettingsLink(stringResource(R.string.settings_licences), LICENCES_URL)
-    SettingsLink(stringResource(R.string.settings_privacy), PRIVACY_URL)
-    SettingsLink(stringResource(R.string.settings_source_code), SOURCE_URL)
-    if (HOLIDAYS_ICS_URL.isNotEmpty()) {
-        ShareSubscription(HOLIDAYS_ICS_URL)
+    var copied by remember { mutableStateOf(false) }
+    val haptics = LocalSettingsHaptics.current
+    val copy =
+        rememberCopyDiagnostic(appVersion, osVersion, settings) {
+            haptics.confirm()
+            copied = true
+        }
+    val rows =
+        buildList<@Composable (ListItemShapes) -> Unit> {
+            if (onOpenAbout != null) {
+                add { shapes ->
+                    SettingsRow(
+                        icon = R.drawable.ic_sym_info_filled,
+                        tone = Tone.SECONDARY,
+                        title = stringResource(R.string.settings_about_row),
+                        supporting = stringResource(R.string.settings_about_row_supporting),
+                        shapes = shapes,
+                        onClick = onOpenAbout,
+                    ) {
+                        SymbolIcon(R.drawable.ic_sym_chevron_right, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                }
+            }
+            add { shapes ->
+                SettingsRow(
+                    icon = R.drawable.ic_sym_content_copy,
+                    tone = Tone.SECONDARY,
+                    title = stringResource(R.string.settings_copy_diagnostic),
+                    supporting = stringResource(R.string.settings_copy_diagnostic_supporting),
+                    shapes = shapes,
+                    onClick = copy,
+                )
+            }
+        }
+    SettingsGroup(stringResource(R.string.settings_about), rows)
+    if (copied) {
+        Text(
+            text = stringResource(R.string.settings_copied),
+            modifier =
+                Modifier
+                    .padding(horizontal = 32.dp, vertical = 4.dp)
+                    .semantics { liveRegion = LiveRegionMode.Polite },
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            style = MaterialTheme.typography.bodySmall,
+        )
     }
-    CopyDiagnostic(appVersion, osVersion, settings)
+    // Without the About screen wired in, the about details stay reachable here.
+    if (onOpenAbout == null) {
+        AboutDetails(appVersion, libraryVersion, osVersion, settings.digits)
+    }
 }
 
+/** The click action that copies the diagnostic text (ADR-0007 §5) to the clipboard. */
 @Composable
-private fun CopyDiagnostic(
+private fun rememberCopyDiagnostic(
     appVersion: String,
     osVersion: String,
     settings: Settings,
-) {
+    onCopied: () -> Unit,
+): () -> Unit {
     val context = LocalContext.current
     val labels =
         DiagnosticLabels(
@@ -222,170 +182,10 @@ private fun CopyDiagnostic(
             nepaliDigits = stringResource(R.string.diagnostic_digits_nepali),
             englishDigits = stringResource(R.string.diagnostic_digits_english),
         )
-    var copied by remember { mutableStateOf(false) }
-    TextButton(
-        onClick = {
-            val text = diagnosticText(appVersion, osVersion, settings, labels)
-            val clipboard = context.getSystemService(ClipboardManager::class.java)
-            clipboard.setPrimaryClip(ClipData.newPlainText("Nepdate", text))
-            copied = true
-        },
-        modifier = Modifier.heightIn(min = 48.dp),
-    ) {
-        Text(stringResource(R.string.settings_copy_diagnostic))
+    return {
+        val text = diagnosticText(appVersion, osVersion, settings, labels)
+        val clipboard = context.getSystemService(ClipboardManager::class.java)
+        clipboard.setPrimaryClip(ClipData.newPlainText("NepDate", text))
+        onCopied()
     }
-    if (copied) {
-        Text(
-            text = stringResource(R.string.settings_copied),
-            color = LocalNepdateColors.current.dimmed,
-            style = MaterialTheme.typography.bodySmall,
-        )
-    }
-}
-
-@Composable
-private fun SettingsHeader(onClose: () -> Unit) {
-    Row(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .statusBarsPadding()
-                .padding(start = 16.dp, end = 8.dp, top = 8.dp, bottom = 4.dp)
-                .heightIn(min = 48.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Text(
-            text = stringResource(R.string.settings_title),
-            modifier = Modifier.weight(1f),
-            color = MaterialTheme.colorScheme.onBackground,
-            style = MaterialTheme.typography.headlineMedium,
-        )
-        IconButton(
-            onClick = onClose,
-            modifier = Modifier.testTag("settings_close"),
-        ) {
-            Icon(
-                imageVector = Icons.Filled.Close,
-                contentDescription = stringResource(R.string.day_close),
-            )
-        }
-    }
-}
-
-@Composable
-private fun SettingsSection(title: String) {
-    Text(
-        text = title,
-        modifier = Modifier.padding(top = 12.dp),
-        color = LocalNepdateColors.current.dimmed,
-        style = MaterialTheme.typography.titleSmall,
-    )
-}
-
-@Composable
-private fun ChoiceRow(
-    label: String,
-    selected: Boolean,
-    onClick: () -> Unit,
-) {
-    Row(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .heightIn(min = 48.dp)
-                .selectable(selected = selected, onClick = onClick, role = Role.RadioButton),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        RadioButton(selected = selected, onClick = null)
-        Text(text = label, modifier = Modifier.padding(start = 8.dp), style = MaterialTheme.typography.bodyLarge)
-    }
-}
-
-@Composable
-private fun SettingsInfo(
-    label: String,
-    value: String,
-) {
-    Column {
-        Text(text = label, color = MaterialTheme.colorScheme.onSurface, style = MaterialTheme.typography.bodyLarge)
-        Text(text = value, color = LocalNepdateColors.current.dimmed, style = MaterialTheme.typography.bodyMedium)
-    }
-}
-
-@Composable
-private fun SettingsLink(
-    label: String,
-    url: String,
-) {
-    val context = LocalContext.current
-    TextButton(
-        onClick = { context.startActivity(Intent(Intent.ACTION_VIEW, url.toUri())) },
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .heightIn(min = 48.dp),
-        contentPadding = PaddingValues(0.dp),
-    ) {
-        Text(
-            text = label,
-            modifier = Modifier.fillMaxWidth(),
-            textAlign = TextAlign.Start,
-        )
-    }
-}
-
-@Composable
-private fun ShareSubscription(url: String) {
-    val context = LocalContext.current
-    TextButton(
-        onClick = {
-            context.startActivity(Intent.createChooser(holidayShareIntent(url), null))
-        },
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .heightIn(min = 48.dp),
-    ) {
-        Text(stringResource(R.string.settings_subscribe))
-    }
-}
-
-@RequiresApi(Build.VERSION_CODES.TIRAMISU)
-@Composable
-private fun LanguageSection() {
-    val context = LocalContext.current
-    val manager = context.getSystemService(LocaleManager::class.java) ?: return
-    var selected by remember {
-        mutableStateOf(
-            manager.applicationLocales
-                .takeUnless { it.isEmpty }
-                ?.get(0)
-                ?.language,
-        )
-    }
-    SettingsSection(stringResource(R.string.settings_language))
-    ChoiceRow(
-        label = stringResource(R.string.settings_language_system),
-        selected = selected == null,
-        onClick = {
-            manager.applicationLocales = LocaleList.getEmptyLocaleList()
-            selected = null
-        },
-    )
-    ChoiceRow(
-        label = stringResource(R.string.settings_language_english),
-        selected = selected == "en",
-        onClick = {
-            manager.applicationLocales = LocaleList.forLanguageTags("en")
-            selected = "en"
-        },
-    )
-    ChoiceRow(
-        label = stringResource(R.string.settings_language_nepali),
-        selected = selected == "ne",
-        onClick = {
-            manager.applicationLocales = LocaleList.forLanguageTags("ne")
-            selected = "ne"
-        },
-    )
 }

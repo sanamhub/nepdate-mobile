@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The static Festivals and holidays preview for Android 12 to 14 pickers. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_shape_28"
+    android:backgroundTint="@color/nepdate_background"
+    android:orientation="vertical"
+    android:padding="14dp"
+    tools:ignore="Overdraw,HardcodedText">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/widget3_festivals_title"
+        android:textColor="@color/widget_preview_text"
+        android:textSize="17sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:lineSpacingExtra="10dp"
+        android:text="@string/widget2_preview_list"
+        android:textColor="@color/widget_preview_text"
+        android:textSize="14sp" />
+</LinearLayout>

@@ -4,181 +4,90 @@ import android.content.Context
 import androidx.compose.runtime.remember
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import androidx.datastore.preferences.core.Preferences
 import androidx.glance.GlanceId
-import androidx.glance.GlanceTheme
 import androidx.glance.appwidget.GlanceAppWidget
-import androidx.glance.appwidget.GlanceAppWidgetReceiver
+import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.PreviewSizeMode
 import androidx.glance.appwidget.SizeMode
-import androidx.glance.appwidget.provideContent
 import androidx.glance.appwidget.state.updateAppWidgetState
-import androidx.glance.currentState
 import io.github.sanamhub.nepdate.NepaliDate
-import np.nepdate.data.Settings
-import np.nepdate.ui.common.languageFor
-import np.nepdate.ui.common.resolve
 
 /** The fixed sample for generated previews: Ghatasthapana, Asoj 25, 2083. */
 internal val PREVIEW_DATE: NepaliDate = NepaliDate.of(2083, 6, 25)
 
-/** W-01 Today. */
+/** The sample for the festival widget previews: Asoj 20, 2083, five days before Ghatasthapana. */
+internal val PREVIEW_FESTIVAL_DATE: NepaliDate = NepaliDate.of(2083, 6, 20)
+
+/** W-01 Today. Exact sizing, so the numeral and the type grow with the widget. */
 class TodayGlanceWidget : GlanceAppWidget() {
-    override val sizeMode: SizeMode = SizeMode.Responsive(TODAY_WIDGET_SIZES)
-    override val previewSizeMode: PreviewSizeMode = SizeMode.Responsive(setOf(DpSize(250.dp, 110.dp)))
+    override val sizeMode: SizeMode = SizeMode.Exact
+    override val previewSizeMode: PreviewSizeMode = SizeMode.Responsive(setOf(DpSize(160.dp, 160.dp)))
 
     override suspend fun provideGlance(
         context: Context,
         id: GlanceId,
-    ) {
-        val initial = widgetEnvironment(context)
-        provideContent {
-            val environment = rememberWidgetEnvironment(initial) { widgetEnvironment(context) }
-            val model =
-                remember(environment) {
-                    todayWidgetModel(
-                        date = environment.today,
-                        lang = environment.lang,
-                        digits = environment.digits,
-                        copy = environment.copy,
-                        showNepal = environment.showNepal,
-                    )
-                }
-            val opacity = WidgetOpacity.fromKey(currentState<Preferences>()[WIDGET_OPACITY_KEY])
-            GlanceTheme {
-                TodayWidgetContent(model, opacity)
-            }
-        }
+    ) = provideNepdateContent(context) { environment, preferences ->
+        val model = remember(environment) { environment.todayModel(environment.today) }
+        TodayWidgetContent(model, preferences.opacity(), showAd = preferences[TODAY_SHOW_AD_KEY] ?: false)
     }
 
     override suspend fun providePreview(
         context: Context,
         widgetCategory: Int,
     ) {
-        val environment = previewEnvironment(context)
-        val model =
-            todayWidgetModel(
-                date = PREVIEW_DATE,
-                lang = environment.lang,
-                digits = environment.digits,
-                copy = environment.copy,
-                showNepal = false,
-            )
-        provideContent {
-            GlanceTheme {
-                TodayWidgetContent(model, WidgetOpacity.SOLID)
-            }
-        }
+        val model = previewEnvironment(context).todayModel(PREVIEW_DATE)
+        providePreviewContent { TodayWidgetContent(model, WidgetOpacity.SOLID) }
     }
 }
 
 /** W-02 Today and upcoming. */
 class UpcomingGlanceWidget : GlanceAppWidget() {
-    override val sizeMode: SizeMode = SizeMode.Responsive(TODAY_WIDGET_SIZES)
-    override val previewSizeMode: PreviewSizeMode = SizeMode.Responsive(setOf(DpSize(250.dp, 110.dp)))
+    override val sizeMode: SizeMode = SizeMode.Exact
+    override val previewSizeMode: PreviewSizeMode = SizeMode.Responsive(setOf(DpSize(300.dp, 150.dp)))
 
     override suspend fun provideGlance(
         context: Context,
         id: GlanceId,
-    ) {
-        val initial = widgetEnvironment(context)
-        provideContent {
-            val environment = rememberWidgetEnvironment(initial) { widgetEnvironment(context) }
-            val model =
-                remember(environment) {
-                    upcomingWidgetModel(
-                        date = environment.today,
-                        lang = environment.lang,
-                        digits = environment.digits,
-                        copy = environment.copy,
-                        showNepal = environment.showNepal,
-                    )
-                }
-            val opacity = WidgetOpacity.fromKey(currentState<Preferences>()[WIDGET_OPACITY_KEY])
-            GlanceTheme {
-                UpcomingWidgetContent(model, opacity)
-            }
-        }
+    ) = provideNepdateContent(context) { environment, preferences ->
+        val model = remember(environment) { environment.upcomingModel(environment.today) }
+        UpcomingWidgetContent(model, preferences.opacity())
     }
 
     override suspend fun providePreview(
         context: Context,
         widgetCategory: Int,
     ) {
-        val environment = previewEnvironment(context)
-        val model =
-            upcomingWidgetModel(
-                date = PREVIEW_DATE,
-                lang = environment.lang,
-                digits = environment.digits,
-                copy = environment.copy,
-                showNepal = false,
-            )
-        provideContent {
-            GlanceTheme {
-                UpcomingWidgetContent(model, WidgetOpacity.SOLID)
-            }
-        }
+        val model = previewEnvironment(context).upcomingModel(PREVIEW_FESTIVAL_DATE)
+        providePreviewContent { UpcomingWidgetContent(model, WidgetOpacity.SOLID) }
     }
 }
 
 /** W-03 Month. */
 class MonthGlanceWidget : GlanceAppWidget() {
     override val sizeMode: SizeMode = SizeMode.Responsive(MONTH_WIDGET_SIZES)
-    override val previewSizeMode: PreviewSizeMode = SizeMode.Responsive(setOf(DpSize(250.dp, 250.dp)))
+    override val previewSizeMode: PreviewSizeMode = SizeMode.Responsive(setOf(DpSize(300.dp, 300.dp)))
 
     override suspend fun provideGlance(
         context: Context,
         id: GlanceId,
-    ) {
-        val initial = widgetEnvironment(context)
-        provideContent {
-            val environment = rememberWidgetEnvironment(initial) { widgetEnvironment(context) }
-            val preferences = currentState<Preferences>()
-            val shown = shownMonth(preferences, environment.today)
-            val model =
-                monthWidgetModel(
-                    year = shown.first,
-                    monthValue = shown.second,
-                    today = environment.today,
-                    lang = environment.lang,
-                    digits = environment.digits,
-                    copy = environment.copy,
-                )
-            GlanceTheme {
-                MonthWidgetContent(
-                    model = model,
-                    opacity = WidgetOpacity.fromKey(preferences[WIDGET_OPACITY_KEY]),
-                )
-            }
-        }
+    ) = provideNepdateContent(context) { environment, preferences ->
+        val shown = shownMonth(preferences, environment.today)
+        val model =
+            remember(environment, shown) { environment.monthModel(shown.first, shown.second, environment.today) }
+        MonthWidgetContent(model, preferences.opacity())
     }
 
     override suspend fun providePreview(
         context: Context,
         widgetCategory: Int,
     ) {
-        val environment = previewEnvironment(context)
-        val model =
-            monthWidgetModel(
-                year = PREVIEW_DATE.year,
-                monthValue = PREVIEW_DATE.monthValue,
-                today = PREVIEW_DATE,
-                lang = environment.lang,
-                digits = environment.digits,
-                copy = environment.copy,
-            )
-        provideContent {
-            GlanceTheme {
-                MonthWidgetContent(model, WidgetOpacity.SOLID)
-            }
-        }
+        val model = previewEnvironment(context).monthModel(PREVIEW_DATE.year, PREVIEW_DATE.monthValue, PREVIEW_DATE)
+        providePreviewContent { MonthWidgetContent(model, WidgetOpacity.SOLID) }
     }
 
     /** Clears the shown month so a midnight refresh draws today's month (W-03 AC1). */
     suspend fun clearShownMonth(context: Context) {
-        val manager = androidx.glance.appwidget.GlanceAppWidgetManager(context)
-        manager.getGlanceIds(MonthGlanceWidget::class.java).forEach { glanceId ->
+        GlanceAppWidgetManager(context).getGlanceIds(MonthGlanceWidget::class.java).forEach { glanceId ->
             updateAppWidgetState(context, glanceId) { preferences ->
                 preferences.remove(SHOWN_YEAR_KEY)
                 preferences.remove(SHOWN_MONTH_KEY)
@@ -187,28 +96,58 @@ class MonthGlanceWidget : GlanceAppWidget() {
     }
 }
 
-class TodayGlanceWidgetReceiver : GlanceAppWidgetReceiver() {
-    override val glanceAppWidget: GlanceAppWidget = TodayGlanceWidget()
+/** Next festival: days left to the next festival, with arrows to browse the ones after it. */
+class NextFestivalGlanceWidget : GlanceAppWidget() {
+    override val sizeMode: SizeMode = SizeMode.Exact
+    override val previewSizeMode: PreviewSizeMode = SizeMode.Responsive(setOf(DpSize(160.dp, 160.dp)))
+
+    override suspend fun provideGlance(
+        context: Context,
+        id: GlanceId,
+    ) = provideNepdateContent(context) { environment, preferences ->
+        val index = preferences[FESTIVAL_INDEX_KEY] ?: 0
+        val model = remember(environment, index) { environment.nextFestival(context, environment.today, index) }
+        NextFestivalWidgetContent(model, preferences.opacity())
+    }
+
+    override suspend fun providePreview(
+        context: Context,
+        widgetCategory: Int,
+    ) {
+        val model = previewEnvironment(context).nextFestival(context, PREVIEW_FESTIVAL_DATE, 0)
+        providePreviewContent { NextFestivalWidgetContent(model, WidgetOpacity.SOLID) }
+    }
+
+    /** Returns every placed copy to the nearest festival; called by the midnight refresh. */
+    suspend fun clearBrowsing(context: Context) {
+        GlanceAppWidgetManager(context).getGlanceIds(NextFestivalGlanceWidget::class.java).forEach { glanceId ->
+            updateAppWidgetState(context, glanceId) { preferences -> preferences.remove(FESTIVAL_INDEX_KEY) }
+        }
+    }
 }
 
-class UpcomingGlanceWidgetReceiver : GlanceAppWidgetReceiver() {
-    override val glanceAppWidget: GlanceAppWidget = UpcomingGlanceWidget()
-}
+/** Festivals list: a scrolling list of upcoming festivals and holidays with a holidays only filter. */
+class FestivalsGlanceWidget : GlanceAppWidget() {
+    override val sizeMode: SizeMode = SizeMode.Responsive(FESTIVALS_WIDGET_SIZES)
+    override val previewSizeMode: PreviewSizeMode = SizeMode.Responsive(setOf(DpSize(300.dp, 220.dp)))
 
-class MonthGlanceWidgetReceiver : GlanceAppWidgetReceiver() {
-    override val glanceAppWidget: GlanceAppWidget = MonthGlanceWidget()
-}
+    override suspend fun provideGlance(
+        context: Context,
+        id: GlanceId,
+    ) = provideNepdateContent(context) { environment, preferences ->
+        val holidaysOnly = preferences[HOLIDAYS_ONLY_KEY] ?: false
+        val model =
+            remember(environment, holidaysOnly) {
+                environment.festivalsList(context, environment.today, holidaysOnly)
+            }
+        FestivalsWidgetContent(model, preferences.opacity())
+    }
 
-/** The fixed strings and sample date used by `providePreview`, no DataStore read. */
-private fun previewEnvironment(context: Context): WidgetEnvironment {
-    val lang = languageFor(context.resources.configuration.locales[0])
-    val settings = Settings()
-    return WidgetEnvironment(
-        settings = settings,
-        today = PREVIEW_DATE,
-        lang = lang,
-        digits = settings.digits.resolve(lang),
-        copy = widgetCopy(context),
-        showNepal = false,
-    )
+    override suspend fun providePreview(
+        context: Context,
+        widgetCategory: Int,
+    ) {
+        val model = previewEnvironment(context).festivalsList(context, PREVIEW_FESTIVAL_DATE, false)
+        providePreviewContent { FestivalsWidgetContent(model, WidgetOpacity.SOLID) }
+    }
 }

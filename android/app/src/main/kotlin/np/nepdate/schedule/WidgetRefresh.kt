@@ -4,21 +4,29 @@ import android.util.Log
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.state.updateAppWidgetState
 import np.nepdate.data.Settings
+import np.nepdate.widget.DateChipGlanceWidget
+import np.nepdate.widget.DateStripGlanceWidget
+import np.nepdate.widget.FestivalsGlanceWidget
 import np.nepdate.widget.MonthGlanceWidget
+import np.nepdate.widget.NextFestivalGlanceWidget
 import np.nepdate.widget.TodayGlanceWidget
 import np.nepdate.widget.UpcomingGlanceWidget
 import np.nepdate.widget.WIDGET_REFRESH_KEY
+import np.nepdate.widget.WeekGlanceWidget
 import java.util.concurrent.atomic.AtomicLong
 
 /** The widget work a receiver, the settings observer or the app open triggers. */
 internal interface WidgetUpdater {
     suspend fun updateAll()
 
-    /** Clears W-03's shown month so the next update draws the current month (W-03 AC1). */
+    /**
+     * Clears the browsing state: W-03's shown month (W-03 AC1) and the Next festival position, so
+     * the next update draws the current month and the nearest festival.
+     */
     suspend fun clearShownMonth()
 }
 
-/** Production updater. All three widgets are updated, whether or not an instance is placed. */
+/** Production updater. Every placed copy of every widget is updated. */
 internal class GlanceWidgetUpdater(
     private val context: android.content.Context,
 ) : WidgetUpdater {
@@ -29,7 +37,16 @@ internal class GlanceWidgetUpdater(
     override suspend fun updateAll() {
         val token = nextRefreshToken()
         val manager = GlanceAppWidgetManager(context)
-        listOf(TodayGlanceWidget(), UpcomingGlanceWidget(), MonthGlanceWidget()).forEach { widget ->
+        listOf(
+            TodayGlanceWidget(),
+            UpcomingGlanceWidget(),
+            MonthGlanceWidget(),
+            NextFestivalGlanceWidget(),
+            FestivalsGlanceWidget(),
+            DateChipGlanceWidget(),
+            DateStripGlanceWidget(),
+            WeekGlanceWidget(),
+        ).forEach { widget ->
             manager.getGlanceIds(widget.javaClass).forEach { glanceId ->
                 updateAppWidgetState(context, glanceId) { preferences ->
                     preferences[WIDGET_REFRESH_KEY] = token
@@ -42,6 +59,7 @@ internal class GlanceWidgetUpdater(
 
     override suspend fun clearShownMonth() {
         MonthGlanceWidget().clearShownMonth(context)
+        NextFestivalGlanceWidget().clearBrowsing(context)
     }
 
     private companion object {

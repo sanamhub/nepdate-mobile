@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_today_tag">Today</string>
+    <string name="home_search">Search festivals and dates</string>
+    <string name="home_next_holiday_today">%1$s today</string>
+    <string name="home_next_holiday_tomorrow">%1$s tomorrow</string>
+    <string name="home_next_holiday_days">%1$s in %2$s days</string>
+</resources>

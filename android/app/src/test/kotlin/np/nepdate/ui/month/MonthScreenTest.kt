@@ -84,12 +84,13 @@ class MonthScreenTest {
     fun mr01Ac5TodayButtonOnlyAppearsOffTheCurrentMonth() {
         setMonthScreen()
 
-        composeRule.onNodeWithText("Today").assertDoesNotExist()
+        // The today hero also says "Today", so the button is found by its tag.
+        composeRule.onNodeWithTag("month_today_button").assertDoesNotExist()
         composeRule.onNodeWithContentDescription("Next month").performClick()
         waitForText("Kartik 2083")
-        composeRule.onNodeWithText("Today").assertExists().performClick()
+        composeRule.onNodeWithTag("month_today_button").assertExists().performClick()
         waitForText("Asoj 2083")
-        composeRule.onNodeWithText("Today").assertDoesNotExist()
+        composeRule.onNodeWithTag("month_today_button").assertDoesNotExist()
     }
 
     @Test
