@@ -94,6 +94,8 @@ internal fun BoxScope.DayCellContent(
     showAdDay: Boolean,
     ink: DayInk,
 ) {
+    // The AD day sits in the cell's top corner and the numeral column starts below it, so a
+    // two-digit BS day and its AD day never overlap on a narrow cell.
     if (showAdDay) {
         Text(
             text = cell.adDay.toString().inDigits(digits),
@@ -101,10 +103,11 @@ internal fun BoxScope.DayCellContent(
             color = ink.secondary,
             style = MaterialTheme.typography.labelSmall,
             maxLines = 1,
+            softWrap = false,
         )
     }
     Column(
-        modifier = Modifier.align(Alignment.Center),
+        modifier = Modifier.align(Alignment.Center).padding(top = if (showAdDay) AD_ROW else 0.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         DayNumeral(cell, digits, ink.primary, showUnderline = isSelected && cell.isHoliday)
@@ -223,7 +226,7 @@ internal fun TithiLine(
     modifier: Modifier = Modifier,
     onTextLayout: (TextLayoutResult) -> Unit = {},
 ) {
-    val text = tithi.name(lang)
+    val text = withTithiBreaks(tithi.name(lang))
     val style =
         MaterialTheme.typography.labelSmall.copy(
             hyphens = Hyphens.Auto,
@@ -244,6 +247,20 @@ internal fun TithiLine(
         )
     }
 }
+
+/**
+ * Soft hyphens at the joins of the long Latin tithi names (Ekadashi, Chaturdashi, Shashthi and the like), so a
+ * two-line name breaks as "Eka-dashi" with a hyphen rather than mid-syllable without one.
+ * Devanagari names are left alone.
+ */
+internal fun withTithiBreaks(name: String): String =
+    name
+        .replace("Chatur", "Chatur$SOFT_HYPHEN")
+        .replace("Shashthi", "Shash${SOFT_HYPHEN}thi")
+        .replace("Dashami", "Da${SOFT_HYPHEN}shami")
+        .replace(Regex("(?<=[a-z])dashi"), "${SOFT_HYPHEN}dashi")
+
+private val SOFT_HYPHEN = Char(0xAD)
 
 /** The size and line count a tithi name is drawn with. */
 private data class TithiFit(
@@ -286,3 +303,6 @@ private val NUMERAL_BOX = 34.dp
 private val TODAY_GROWTH = 6.dp
 
 private val MARK_SLOT = 6.dp
+
+/** The room the AD day in the corner takes above the numeral column. */
+internal val AD_ROW = 12.dp

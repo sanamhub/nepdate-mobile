@@ -49,7 +49,7 @@
     <string name="settings_library_version">लाइब्रेरी संस्करण</string>
     <string name="settings_coverage">बिदाको जानकारी</string>
     <string name="settings_data_source">जानकारीको स्रोत</string>
-    <string name="settings_data_source_value">हबमार्फत C# NepDate (MIT)</string>
+    <string name="settings_data_source_value">nepdate.com, खुला स्रोत (MIT)</string>
     <string name="settings_official_sources">आधिकारिक स्रोत</string>
     <string name="settings_official_sources_value">गृह मन्त्रालयको बिदा सूचना; नेपाल पञ्चाङ्ग निर्णायक समिति</string>
     <string name="settings_known_data">जानकारीका ज्ञात प्रश्नहरू</string>
@@ -176,4 +176,5 @@
         <item>नोभेम्बर</item>
         <item>डिसेम्बर</item>
     </string-array>
+    <string name="home_today_holiday">सार्वजनिक बिदा: %1$s</string>
 </resources>

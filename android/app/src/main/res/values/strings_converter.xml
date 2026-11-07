@@ -32,4 +32,5 @@
         <item quantity="one">%1$d public holiday</item>
         <item quantity="other">%1$d public holidays</item>
     </plurals>
+    <string name="converter_reset">Reset</string>
 </resources>

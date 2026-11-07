@@ -72,32 +72,49 @@ internal fun AboutDetails(
     }
 }
 
-/** Three equal-height badges; long labels wrap inside them in balanced lines. */
+/** One promise badge: its symbol and its short label. */
+private data class PromiseBadge(
+    @param:DrawableRes val icon: Int,
+    @param:StringRes val label: Int,
+)
+
+private val PROMISES =
+    listOf(
+        PromiseBadge(R.drawable.ic_sym_wifi_off_filled, R.string.about_offline),
+        PromiseBadge(R.drawable.ic_sym_block_filled, R.string.about_no_ads),
+        PromiseBadge(R.drawable.ic_sym_shield_lock_filled, R.string.about_no_data),
+        PromiseBadge(R.drawable.ic_sym_code, R.string.about_open_source),
+        PromiseBadge(R.drawable.ic_sym_bolt_filled, R.string.about_fast),
+        PromiseBadge(R.drawable.ic_sym_translate, R.string.about_bilingual),
+    )
+
+private const val PROMISE_COLUMNS = 3
+
+/**
+ * Six compact badges in two rows of three. Each column keeps one container colour, so the grid
+ * reads as three soft stripes rather than six competing tiles; rows share a height.
+ */
 @Composable
 private fun Promises() {
     val scheme = MaterialTheme.colorScheme
-    Row(
-        modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Min),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        Promise(
-            R.drawable.ic_sym_wifi_off_filled,
-            R.string.about_offline,
-            scheme.primaryContainer,
-            scheme.onPrimaryContainer,
+    val colours =
+        listOf(
+            scheme.primaryContainer to scheme.onPrimaryContainer,
+            scheme.secondaryContainer to scheme.onSecondaryContainer,
+            scheme.tertiaryContainer to scheme.onTertiaryContainer,
         )
-        Promise(
-            R.drawable.ic_sym_block_filled,
-            R.string.about_no_ads,
-            scheme.secondaryContainer,
-            scheme.onSecondaryContainer,
-        )
-        Promise(
-            R.drawable.ic_sym_shield_lock_filled,
-            R.string.about_no_data,
-            scheme.tertiaryContainer,
-            scheme.onTertiaryContainer,
-        )
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        PROMISES.chunked(PROMISE_COLUMNS).forEach { row ->
+            Row(
+                modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Min),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                row.forEachIndexed { column, badge ->
+                    val (container, content) = colours[column]
+                    Promise(badge.icon, badge.label, container, content)
+                }
+            }
+        }
     }
 }
 
@@ -113,17 +130,17 @@ private fun RowScope.Promise(
             Modifier
                 .weight(1f)
                 .fillMaxHeight()
-                .clip(RoundedCornerShape(24.dp))
+                .clip(RoundedCornerShape(20.dp))
                 .background(container)
-                .padding(horizontal = 10.dp, vertical = 16.dp),
+                .padding(horizontal = 8.dp, vertical = 12.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(6.dp),
     ) {
-        SymbolIcon(icon, tint = content, size = 28.dp)
+        SymbolIcon(icon, tint = content, size = 24.dp)
         Text(
             text = stringResource(label),
             color = content,
-            style = MaterialTheme.typography.labelLarge.copy(lineBreak = LineBreak.Heading),
+            style = MaterialTheme.typography.labelMedium.copy(lineBreak = LineBreak.Heading),
             textAlign = TextAlign.Center,
         )
     }

@@ -1,7 +1,9 @@
 package np.nepdate
 
 import android.content.Intent
+import android.content.res.Configuration
 import android.os.Bundle
+import android.os.LocaleList
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -27,6 +29,7 @@ class MainActivity : ComponentActivity() {
     private var deepLinkDate by mutableStateOf<NepaliDate?>(null)
     private var deepLinkKey by mutableIntStateOf(0)
     private val activityScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private var drawnLocales: LocaleList? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // The manifest gives this activity Theme.Nepdate.Launch so Android 8 to 11 show the icon
@@ -54,6 +57,23 @@ class MainActivity : ComponentActivity() {
                 )
             }
         }
+        refreshWidgets()
+    }
+
+    /**
+     * The manifest keeps this activity alive through a language change (first run or Settings), so
+     * the widgets and their previews are redrawn here in the new language instead of on recreation.
+     */
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        // The activity's resources already carry the new configuration here, so compare with the
+        // locales this activity last drew the widgets for.
+        if (newConfig.locales != drawnLocales) refreshWidgets()
+    }
+
+    private fun refreshWidgets() {
+        drawnLocales = resources.configuration.locales
+        val container = (application as NepdateApplication).container
         activityScope.launch {
             runCatching {
                 container.widgetRefresh.refresh(

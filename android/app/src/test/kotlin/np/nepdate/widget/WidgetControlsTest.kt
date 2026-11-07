@@ -44,7 +44,8 @@ class WidgetControlsTest {
 
             onNode(hasTestTag("today_flip")).assert(hasRunCallbackClickAction<TodayFaceAction>())
             onNode(hasTestTag("today_flip")).assert(hasContentDescription("Show the Bikram Sambat date"))
-            onNode(hasText("October")).assertExists()
+            // A narrow face shortens the AD month so it fits beside the flip button.
+            onNode(hasText("Oct")).assertExists()
             onNode(hasText("Asoj 25")).assertExists()
         }
 

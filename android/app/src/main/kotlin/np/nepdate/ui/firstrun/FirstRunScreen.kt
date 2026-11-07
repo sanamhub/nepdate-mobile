@@ -198,7 +198,7 @@ private fun LanguageChoice(
     val context = LocalContext.current
     val configuration = LocalConfiguration.current
     val systemLanguage = configuration.locales[0].language
-    var selected by remember { mutableStateOf(AppLanguage.current(context) ?: systemLanguage) }
+    var selected by remember(configuration) { mutableStateOf(AppLanguage.current(context) ?: systemLanguage) }
     val englishMonths =
         remember(context, configuration) {
             val english = Configuration(configuration).apply { setLocale(Locale.ENGLISH) }

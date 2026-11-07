@@ -11,3 +11,10 @@
 -keep class * implements androidx.glance.appwidget.action.ActionCallback {
     <init>();
 }
+
+# WorkManager builds each work request's input merger by reflection with its no-argument
+# constructor. R8 full mode drops that constructor, every Glance session worker then fails before it
+# starts, and placed widgets stay on their loading layout.
+-keep class * extends androidx.work.InputMerger {
+    <init>();
+}

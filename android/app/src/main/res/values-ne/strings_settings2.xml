@@ -18,10 +18,13 @@
 
     <!-- About. -->
     <string name="about_icon">NepDate आइकन</string>
-    <string name="about_version">संस्करण %1$s, C# NepDate library मा आधारित</string>
+    <string name="about_version">संस्करण %1$s</string>
     <string name="about_offline">इन्टरनेट चाहिँदैन</string>
     <string name="about_no_ads">विज्ञापन छैन</string>
     <string name="about_no_data">कुनै डेटा सङ्कलन छैन</string>
+    <string name="about_open_source">निःशुल्क र खुला स्रोत</string>
+    <string name="about_fast">छिटो र हलुका</string>
+    <string name="about_bilingual">नेपाली र अङ्ग्रेजी</string>
     <string name="about_coverage_range">%1$s देखि %2$s सम्म</string>
     <string name="about_data_updates">नयाँ वर्षको बिदाको तथ्याङ्क एप अपडेटमार्फत आउँछ।</string>
     <string name="about_android_version">एन्ड्रोइड संस्करण</string>

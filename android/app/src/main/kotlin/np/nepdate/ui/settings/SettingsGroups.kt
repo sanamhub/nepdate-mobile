@@ -8,6 +8,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import np.nepdate.R
@@ -95,7 +96,10 @@ internal fun LanguageGroup(
 @Composable
 private fun LanguageRow(shapes: ListItemShapes) {
     val context = LocalContext.current
-    var selected by remember { mutableStateOf(AppLanguage.current(context).orEmpty()) }
+    // Keyed on the configuration: the language can also change from the system's app settings,
+    // and the activity now stays alive through that change.
+    val configuration = LocalConfiguration.current
+    var selected by remember(configuration) { mutableStateOf(AppLanguage.current(context).orEmpty()) }
     ChoiceRow(
         icon = R.drawable.ic_sym_translate,
         tone = Tone.SECONDARY,

@@ -32,4 +32,5 @@
         <item quantity="one">%1$d सार्वजनिक बिदा</item>
         <item quantity="other">%1$d सार्वजनिक बिदा</item>
     </plurals>
+    <string name="converter_reset">रिसेट</string>
 </resources>

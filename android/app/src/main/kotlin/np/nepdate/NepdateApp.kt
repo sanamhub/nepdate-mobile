@@ -22,6 +22,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
@@ -38,6 +39,7 @@ import io.github.sanamhub.nepdate.KATHMANDU
 import io.github.sanamhub.nepdate.NepaliDate
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -85,6 +87,9 @@ fun NepdateApp(
     val firstRunDone by remember(repository) { repository.settings.map { it.firstRunDone } }
         .collectAsStateWithLifecycle(initialValue = true)
     val navigation = rememberAppNavigation()
+    // Keeps each tab's saved state (the converter's dates, the shown month) while an overlay such
+    // as Settings or Search replaces the tabs, so coming back shows them as they were.
+    val tabsState = rememberSaveableStateHolder()
 
     LaunchedEffect(initialDateKey) {
         if (initialDate != null) navigation.showDate(initialDate)
@@ -108,26 +113,28 @@ fun NepdateApp(
 
     Column(modifier = modifier.fillMaxSize()) {
         NepalTimeBanner(settings = settings, repository = repository, scope = scope)
-        NepdateContent(
-            settings = settings,
-            today = today,
-            nepalTime = nepalTime,
-            initialDate = navigation.openDate,
-            initialDateKey = navigation.openKey,
-            onSettings = { navigation.overlay = Overlay.SETTINGS },
-            onSearch = { navigation.overlay = Overlay.SEARCH },
-            onOpenYear = { navigation.overlay = Overlay.YEAR },
-            onShowInPatro = navigation::showDate,
-            onShowMonth = navigation::showMonth,
-            jumpToMonth = navigation.jumpMonth,
-            jumpKey = navigation.jumpKey,
-            destination = navigation.destination,
-            onDestination = { navigation.destination = it },
-            onFirstGridDrawn = onFirstGridDrawn,
-            onOpenDateHandled = navigation::consumeOpenDate,
-            onJumpHandled = navigation::consumeJump,
-            modifier = Modifier.weight(1f),
-        )
+        tabsState.SaveableStateProvider(TABS_STATE_KEY) {
+            NepdateContent(
+                settings = settings,
+                today = today,
+                nepalTime = nepalTime,
+                initialDate = navigation.openDate,
+                initialDateKey = navigation.openKey,
+                onSettings = { navigation.overlay = Overlay.SETTINGS },
+                onSearch = { navigation.overlay = Overlay.SEARCH },
+                onOpenYear = { navigation.overlay = Overlay.YEAR },
+                onShowInPatro = navigation::showDate,
+                onShowMonth = navigation::showMonth,
+                jumpToMonth = navigation.jumpMonth,
+                jumpKey = navigation.jumpKey,
+                destination = navigation.destination,
+                onDestination = { navigation.destination = it },
+                onFirstGridDrawn = onFirstGridDrawn,
+                onOpenDateHandled = navigation::consumeOpenDate,
+                onJumpHandled = navigation::consumeJump,
+                modifier = Modifier.weight(1f),
+            )
+        }
     }
 }
 
@@ -326,8 +333,10 @@ private fun rememberTabPager(
     LaunchedEffect(current) {
         if (state.targetPage != current.ordinal) state.goTo(current.ordinal, spring, reduceMotion)
     }
+    // The first settled page is only the initial page. Reporting it would overwrite a tab chosen
+    // in the same frame, such as the "Opens on" setting read just after launch.
     LaunchedEffect(state) {
-        snapshotFlow { state.settledPage }.collect { latestSelect(NepdateDestination.entries[it]) }
+        snapshotFlow { state.settledPage }.drop(1).collect { latestSelect(NepdateDestination.entries[it]) }
     }
     return remember(state, scope, spring, reduceMotion) {
         TabPager(state) { tab -> scope.launch { state.goTo(tab.ordinal, spring, reduceMotion) } }
@@ -407,6 +416,8 @@ private fun StartTabEffect(
         applied = true
     }
 }
+
+private const val TABS_STATE_KEY = "tabs"
 
 private fun StartTab.destination(): NepdateDestination =
     when (this) {

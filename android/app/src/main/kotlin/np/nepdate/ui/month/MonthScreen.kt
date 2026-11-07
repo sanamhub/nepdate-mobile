@@ -2,16 +2,20 @@ package np.nepdate.ui.month
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -21,6 +25,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
@@ -28,11 +33,13 @@ import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import io.github.sanamhub.nepdate.Lang
 import io.github.sanamhub.nepdate.NepaliDate
 import np.nepdate.R
 import np.nepdate.data.Settings
+import np.nepdate.ui.common.LocalBottomBarPadding
 import np.nepdate.ui.common.languageFor
 import np.nepdate.ui.common.resolve
 import np.nepdate.ui.common.weekdayHeaders
@@ -152,17 +159,65 @@ private fun ColumnScope.MonthBody(
     val currentPage = pagerState.settledPage
     val todayPage = monthPage(today.year, today.monthValue)
     val bigFont = LocalDensity.current.fontScale >= LIST_FONT_SCALE
-    TodayHeroSlot(
-        visible = currentPage == todayPage && !bigFont,
-        today = today,
-        lang = lang,
-        digits = settings.digits,
-        onOpenDay = onDayClick,
-    )
+    val density = LocalDensity.current
+    val bottomBar = LocalBottomBarPadding.current.calculateBottomPadding()
+    // Each row keeps room for its numeral, event mark and two tithi lines. When the hero leaves too
+    // little height for that, the page scrolls instead of squeezing the tithi out of the cells.
+    val gridMin =
+        MONTH_CARD_CHROME + bottomBar +
+            (if (settings.showTithi) ROW_MIN_TITHI else ROW_MIN).plus(if (settings.showAdDates) AD_ROW else 0.dp) *
+            layout.rowCount
+    var heroHeight by remember { mutableStateOf(0.dp) }
+    BoxWithConstraints(modifier = Modifier.weight(1f)) {
+        val cardHeight = maxOf(maxHeight - heroHeight, gridMin)
+        Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
+            Column(modifier = Modifier.onSizeChanged { heroHeight = with(density) { it.height.toDp() } }) {
+                TodayHeroSlot(
+                    visible = currentPage == todayPage && !bigFont,
+                    today = today,
+                    lang = lang,
+                    digits = settings.digits,
+                    onOpenDay = onDayClick,
+                )
+            }
+            MonthCard(
+                pagerState,
+                layout,
+                settings,
+                today,
+                lang,
+                nepalTime,
+                selectedDate,
+                onDayClick,
+                onFirstGridDrawn,
+                goTo,
+                cardHeight,
+            )
+        }
+    }
+}
+
+/** The month card: its header, the weekday row and the month pager, at [height]. */
+@Composable
+private fun MonthCard(
+    pagerState: PagerState,
+    layout: MonthLayout,
+    settings: Settings,
+    today: NepaliDate,
+    lang: Lang,
+    nepalTime: String?,
+    selectedDate: NepaliDate?,
+    onDayClick: (NepaliDate) -> Unit,
+    onFirstGridDrawn: () -> Unit,
+    goTo: (Int) -> Unit,
+    height: Dp,
+) {
+    val currentPage = pagerState.settledPage
+    val todayPage = monthPage(today.year, today.monthValue)
     Column(
         modifier =
             Modifier
-                .weight(1f)
+                .height(height)
                 .padding(start = 8.dp, end = 8.dp, top = 8.dp)
                 .clip(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp))
                 .background(MaterialTheme.colorScheme.surfaceContainerLow)
@@ -314,5 +369,9 @@ internal fun yearForPage(page: Int): Int = PICKER_FIRST_YEAR + page / MONTHS_PER
 
 /** The BS month of a pager page, 1..12. */
 internal fun monthForPage(page: Int): Int = page % MONTHS_PER_YEAR + 1
+
+private val MONTH_CARD_CHROME = 140.dp
+private val ROW_MIN = 52.dp
+private val ROW_MIN_TITHI = 76.dp
 
 private const val SATURDAY_INDEX = 6

@@ -26,8 +26,13 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Nepdate">
 
+        <!-- configChanges: a language switch (first run or Settings) redraws in place through
+             Compose instead of recreating the activity, which flashed and jumped the screen. Some
+             phones (OnePlus) send keyboard, touchscreen and screen size bits with a per-app language
+             change, so those are listed too. Theme (uiMode) and density still recreate. -->
         <activity
             android:name=".MainActivity"
+            android:configChanges="locale|layoutDirection|keyboard|keyboardHidden|touchscreen|navigation|orientation|screenLayout|screenSize|smallestScreenSize"
             android:exported="true"
             android:launchMode="singleTop"
             android:theme="@style/Theme.Nepdate.Launch">
@@ -47,8 +52,8 @@
             </intent-filter>
         </activity>
 
-        <!-- Widget receivers. android:icon is a plain drawable, not the adaptive launcher icon:
-             some launcher widget lists drew the adaptive mipmap as a red tile with a blank square. -->
+        <!-- Widget receivers. android:icon is a PNG, not a vector or the adaptive launcher icon:
+             the OnePlus widget list drew both as a red tile with a blank white square. -->
         <receiver
             android:name=".widget.TodayGlanceWidgetReceiver"
             android:exported="true"

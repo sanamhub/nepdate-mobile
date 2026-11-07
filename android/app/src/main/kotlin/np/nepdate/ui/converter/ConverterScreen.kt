@@ -1,26 +1,32 @@
 package np.nepdate.ui.converter
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableLongStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -67,14 +73,10 @@ internal fun ConverterScreen(
     val lang = languageFor(LocalConfiguration.current.locales[0])
     val digits = settings.digits.resolve(lang)
     val seeds = remember { ConverterSeeds.of(initialBs, initialCompare, initialState, today) }
-    var direction by rememberSaveable { mutableStateOf(ConvertDirection.BS_TO_AD) }
-    var pickedDay by rememberSaveable { mutableLongStateOf(seeds.picked.toEpochDay()) }
-    var fromDay by rememberSaveable { mutableLongStateOf(seeds.from.toEpochDay()) }
-    var toDay by rememberSaveable { mutableLongStateOf(seeds.to.toEpochDay()) }
-    val picked = NepaliDate.ofEpochDay(pickedDay)
+    val inputs = rememberConverterInputs(seeds.picked, seeds.from, seeds.to)
+    val picked = NepaliDate.ofEpochDay(inputs.pickedDay)
     val conversion = remember(picked, today) { conversionOf(picked, today) }
-    val comparison =
-        remember(fromDay, toDay) { comparisonOf(NepaliDate.ofEpochDay(fromDay), NepaliDate.ofEpochDay(toDay)) }
+    val comparison = remember(inputs.fromDay, inputs.toDay) { inputs.comparison() }
     val haptics = rememberHaptics(settings.haptics)
 
     Column(
@@ -85,24 +87,31 @@ internal fun ConverterScreen(
                 .padding(bottom = LocalBottomBarPadding.current.calculateBottomPadding() + 24.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        ConverterTopBar(onSettings = onSettings)
+        ConverterTopBar(
+            onSettings = onSettings,
+            onReset =
+                {
+                    inputs.reset(today)
+                    haptics.confirm()
+                }.takeIf { inputs.isChanged(today) },
+        )
         Column(
             modifier = Modifier.padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            DirectionGroup(direction = direction, haptics = haptics, onDirection = { direction = it })
-            key(direction) {
+            DirectionGroup(direction = inputs.direction, haptics = haptics, onDirection = { inputs.direction = it })
+            key(inputs.direction, inputs.wheelKey) {
                 DateWheel(
                     date = picked,
-                    direction = direction,
+                    direction = inputs.direction,
                     digits = digits,
-                    onDateChange = { pickedDay = it.toEpochDay() },
+                    onDateChange = { inputs.pickedDay = it.toEpochDay() },
                     onTick = haptics::tick,
                 )
             }
             ResultCard(
                 conversion = conversion,
-                direction = direction,
+                direction = inputs.direction,
                 lang = lang,
                 digits = digits,
                 onShowInPatro = onShowInPatro,
@@ -111,10 +120,10 @@ internal fun ConverterScreen(
             BetweenCard(
                 comparison = comparison,
                 today = today,
-                direction = direction,
+                direction = inputs.direction,
                 digits = digits,
-                onFrom = { fromDay = it.toEpochDay() },
-                onTo = { toDay = it.toEpochDay() },
+                onFrom = { inputs.fromDay = it.toEpochDay() },
+                onTo = { inputs.toDay = it.toEpochDay() },
                 onSwapped = haptics::tick,
             )
         }
@@ -138,7 +147,7 @@ private data class ConverterSeeds(
             val from =
                 initialState.comparison?.from
                     ?: parsed(initialCompare, today)
-                    ?: NepaliDate.of(today.year, 1, 1)
+                    ?: ConverterInputs.yearStart(today)
             val to = initialState.comparison?.to ?: today
             return ConverterSeeds(picked, from, to)
         }
@@ -151,7 +160,10 @@ private data class ConverterSeeds(
 }
 
 @Composable
-private fun ConverterTopBar(onSettings: (() -> Unit)?) {
+private fun ConverterTopBar(
+    onSettings: (() -> Unit)?,
+    onReset: (() -> Unit)?,
+) {
     Row(
         modifier =
             Modifier
@@ -172,6 +184,14 @@ private fun ConverterTopBar(onSettings: (() -> Unit)?) {
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
+        // Shown only once something differs from today, so an untouched converter stays quiet.
+        AnimatedVisibility(visible = onReset != null, enter = fadeIn() + scaleIn(), exit = fadeOut() + scaleOut()) {
+            TextButton(onClick = { onReset?.invoke() }, shapes = ButtonDefaults.shapes()) {
+                SymbolIcon(icon = R.drawable.ic_sym_history, size = 18.dp)
+                Spacer(Modifier.width(6.dp))
+                Text(stringResource(R.string.converter_reset))
+            }
+        }
         if (onSettings != null) {
             val settingsLabel = stringResource(R.string.settings_title)
             IconButton(

@@ -17,12 +17,15 @@
     <string name="settings_copy_diagnostic_supporting">App version, Android version and these settings, nothing else</string>
 
     <!-- About. -->
-    <string name="about_name" translatable="false">NepDate</string>
+    <string name="about_name" translatable="false">NepDate Patro</string>
     <string name="about_icon">NepDate icon</string>
-    <string name="about_version">Version %1$s, based on the C# NepDate library</string>
+    <string name="about_version">Version %1$s</string>
     <string name="about_offline">Works offline</string>
     <string name="about_no_ads">No ads</string>
     <string name="about_no_data">Collects no data</string>
+    <string name="about_open_source">Free and open source</string>
+    <string name="about_fast">Fast and light</string>
+    <string name="about_bilingual">Nepali and English</string>
     <string name="about_coverage_range">%1$s to %2$s</string>
     <string name="about_data_updates">New years of holiday data arrive with app updates.</string>
     <string name="about_android_version">Android version</string>

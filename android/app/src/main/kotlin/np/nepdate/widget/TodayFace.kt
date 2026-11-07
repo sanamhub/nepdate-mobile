@@ -31,6 +31,7 @@ import np.nepdate.R
 /** The strings one face of the Today widget draws: the BS face or the AD face. */
 private data class TodayFace(
     val top: String,
+    val narrowTop: String,
     val day: String,
     val weekday: String,
     val detail: String,
@@ -41,9 +42,17 @@ private data class TodayFace(
 private fun TodayWidgetModel.face(showAd: Boolean): TodayFace {
     val pill = holidayName ?: eventName
     return if (showAd) {
-        TodayFace(adMonthYear, adDay, weekday, joinDots(bsShortLine, tithi), pill, holidayName != null)
+        TodayFace(adMonthYear, adMonthShort, adDay, weekday, joinDots(bsShortLine, tithi), pill, holidayName != null)
     } else {
-        TodayFace(bsMonthYear, bsDay, weekday, joinDots(tithi, adLine), pill, holidayName != null)
+        TodayFace(
+            bsMonthYear,
+            bsMonthYear.substringBeforeLast(" "),
+            bsDay,
+            weekday,
+            joinDots(tithi, adLine),
+            pill,
+            holidayName != null,
+        )
     }
 }
 
@@ -92,8 +101,9 @@ private fun TodayFaceStacked(
     val sunny = (minOf(size.width, size.height) - STACKED_CHROME * scale).coerceIn(MIN_SUNNY, MAX_SUNNY)
     Column(modifier = GlanceModifier.fillMaxSize().padding(12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
-            // A narrow face drops the year: the month name alone always fits beside the flip button.
-            text = if (size.width < FULL_DETAIL_WIDTH) face.top.substringBeforeLast(" ") else face.top,
+            // A narrow face drops the year and, on the AD side, shortens the month, so the line fits
+            // beside the flip button without an ellipsis.
+            text = if (size.width < FULL_DETAIL_WIDTH) face.narrowTop else face.top,
             modifier = GlanceModifier.fillMaxWidth().padding(end = STACKED_FLIP_CLEARANCE),
             style = faceStyle(14.sp * scale, FontWeight.Bold),
             maxLines = 1,

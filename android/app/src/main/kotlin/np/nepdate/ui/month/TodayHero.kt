@@ -92,7 +92,8 @@ internal fun ColumnScope.TodayHeroSlot(
 
 /**
  * The today card at the top of the patro: the BS day on the Sunny shape, the weekday, tithi, AD
- * date, the day's first event and the countdown to the next public holiday. One tinted container,
+ * date, every event of the day (a public holiday first, in holiday red) and the countdown to the
+ * next public holiday. One tinted container,
  * the only hero on the screen, with a quiet marigold flower in its corner.
  */
 @Composable
@@ -128,7 +129,8 @@ internal fun TodayHero(
             HeroDate(today = today, tithi = info?.tithi?.name(lang), lang = lang, digits = digits)
             HeroChips(
                 today = today,
-                event = info?.events?.firstOrNull()?.name(lang),
+                events = info?.events.orEmpty().map { it.name(lang) },
+                isHoliday = info?.isPublicHoliday == true,
                 lang = lang,
                 digits = digits,
                 onOpenDay = onOpenDay,
@@ -186,12 +188,17 @@ private fun HeroDate(
     }
 }
 
-/** The day's first event and the countdown to the next public holiday, as chips. */
+/**
+ * Every event of the day and the countdown to the next public holiday, as chips. On a public
+ * holiday the first event is the holiday's name and takes the holiday red; the countdown then skips
+ * today and names the next one.
+ */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun HeroChips(
     today: NepaliDate,
-    event: String?,
+    events: List<String>,
+    isHoliday: Boolean,
     lang: Lang,
     digits: Digits,
     onOpenDay: (NepaliDate) -> Unit,
@@ -200,14 +207,30 @@ private fun HeroChips(
     val onContainer = MaterialTheme.colorScheme.onPrimaryContainer
     val chip = onContainer.copy(alpha = CHIP_ALPHA)
     val nextHoliday =
-        remember(today) { upcoming(today, limit = HOLIDAY_LOOKAHEAD).entries.firstOrNull { it.isHoliday } }
+        remember(today) {
+            upcoming(today, limit = HOLIDAY_LOOKAHEAD).entries.firstOrNull { it.isHoliday && it.daysFromToday > 0 }
+        }
     FlowRow(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        event?.let {
-            HeroChip(text = it.inDigits(digits), container = chip, content = onContainer) {
-                SymbolIcon(icon = R.drawable.ic_sym_celebration_filled, tint = onContainer, size = 18.dp)
+        events.forEachIndexed { index, name ->
+            if (isHoliday && index == 0) {
+                HeroChip(
+                    text = stringResource(R.string.home_today_holiday, name.inDigits(digits)),
+                    container = colors.holidayContainer,
+                    content = colors.onHolidayContainer,
+                ) {
+                    SymbolIcon(
+                        icon = R.drawable.ic_sym_celebration_filled,
+                        tint = colors.onHolidayContainer,
+                        size = 18.dp,
+                    )
+                }
+            } else {
+                HeroChip(text = name.inDigits(digits), container = chip, content = onContainer) {
+                    SymbolIcon(icon = R.drawable.ic_sym_celebration_filled, tint = onContainer, size = 18.dp)
+                }
             }
         }
         nextHoliday?.let { entry ->
