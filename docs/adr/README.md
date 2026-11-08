@@ -16,3 +16,5 @@ port are in the hub (`sanamhub/nepdate`).
 | [0009](0009-distribution-and-releases.md) | Distribution and releases | Accepted |
 | [0010](0010-ios-without-a-mac.md) | Build, sign and ship the iOS app without a Mac | Accepted |
 | [0011](0011-workmanager-only-through-glance.md) | WorkManager only as Glance's dependency | Accepted |
+| [0012](0012-material3-expressive-pre-release.md) | material3 1.5 pre-release for Material 3 Expressive | Accepted |
+| [0013](0013-opt-in-date-notification.md) | Opt-in date notification on Android | Proposed |

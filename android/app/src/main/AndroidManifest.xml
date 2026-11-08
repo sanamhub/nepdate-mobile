@@ -3,6 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <!-- Requested only when the person turns on the status bar date (ADR-0013). -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <!-- Glance's WorkManager dependency declares these; v1 uses neither network nor foreground
          work, and ADR-0007 allows only the boot receiver. -->
     <uses-permission
@@ -143,6 +145,19 @@
             <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/widget_strip_info" />
+        </receiver>
+
+        <receiver
+            android:name=".widget.TextDateGlanceWidgetReceiver"
+            android:exported="true"
+            android:icon="@drawable/widget_picker_icon"
+            android:label="@string/widget4_text_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_text_info" />
         </receiver>
 
         <receiver

@@ -16,6 +16,8 @@ internal object SettingsKeys {
     val SHOW_AD_DATES = booleanPreferencesKey("show_ad_dates")
     val HAPTICS = booleanPreferencesKey("haptics")
     val START_TAB = stringPreferencesKey("start_tab")
+    val STATUS_BAR_DATE = booleanPreferencesKey("status_bar_date")
+    val NOTIFICATION_DATE = booleanPreferencesKey("notification_date")
     val RECENT_SEARCHES = stringPreferencesKey("recent_searches")
 }
 
@@ -33,6 +35,8 @@ internal fun Preferences.toSettings(): Settings {
         showAdDates = this[SettingsKeys.SHOW_AD_DATES] ?: defaults.showAdDates,
         haptics = this[SettingsKeys.HAPTICS] ?: defaults.haptics,
         startTab = enumValue(SettingsKeys.START_TAB, defaults.startTab),
+        statusBarDate = this[SettingsKeys.STATUS_BAR_DATE] ?: defaults.statusBarDate,
+        notificationDate = this[SettingsKeys.NOTIFICATION_DATE] ?: defaults.notificationDate,
     )
 }
 

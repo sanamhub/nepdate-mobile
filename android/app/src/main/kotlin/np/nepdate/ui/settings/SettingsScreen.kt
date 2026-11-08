@@ -60,6 +60,8 @@ internal fun SettingsScreen(
     onOpenAbout: (() -> Unit)? = null,
     onShowAdDates: ((Boolean) -> Unit)? = null,
     onHaptics: ((Boolean) -> Unit)? = null,
+    onStatusBarDate: ((Boolean) -> Unit)? = null,
+    onNotificationDate: ((Boolean) -> Unit)? = null,
     onStartTab: ((StartTab) -> Unit)? = null,
 ) {
     BackHandler { onClose() }
@@ -91,7 +93,7 @@ internal fun SettingsScreen(
                 LookGroup(settings, onLook, onWallpaperColors)
                 LanguageGroup(settings, onDigits)
                 PatroGroup(settings, onDateFollows, onShowTithi, onShowAdDates)
-                AppGroup(settings, onStartTab, onHaptics)
+                AppGroup(settings, onStartTab, onHaptics, onStatusBarDate, onNotificationDate)
                 AboutGroup(settings, appVersion, libraryVersion, osVersion, onOpenAbout)
             }
         }

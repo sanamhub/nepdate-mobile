@@ -82,6 +82,19 @@ class SettingsRepository(
         dataStore.edit { it[SettingsKeys.HAPTICS] = value }
     }
 
+    /** Stores one of the two date notification switches. */
+    suspend fun setDateNotice(
+        notice: DateNotice,
+        value: Boolean,
+    ) {
+        val key =
+            when (notice) {
+                DateNotice.STATUS_BAR -> SettingsKeys.STATUS_BAR_DATE
+                DateNotice.CARD -> SettingsKeys.NOTIFICATION_DATE
+            }
+        dataStore.edit { it[key] = value }
+    }
+
     /** Stores the tab a cold start opens on. */
     suspend fun setStartTab(value: StartTab) {
         dataStore.edit { it[SettingsKeys.START_TAB] = value.name }

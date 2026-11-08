@@ -1,6 +1,10 @@
 package np.nepdate.ui.settings
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.material3.ListItemShapes
 import androidx.compose.runtime.Composable
@@ -11,6 +15,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.core.content.ContextCompat
 import np.nepdate.R
 import np.nepdate.data.DateFollows
 import np.nepdate.data.Digits
@@ -176,6 +181,8 @@ internal fun AppGroup(
     settings: Settings,
     onStartTab: ((StartTab) -> Unit)?,
     onHaptics: ((Boolean) -> Unit)?,
+    onStatusBarDate: ((Boolean) -> Unit)? = null,
+    onNotificationDate: ((Boolean) -> Unit)? = null,
 ) {
     val rows: Rows = mutableListOf()
     if (onStartTab != null) {
@@ -210,5 +217,65 @@ internal fun AppGroup(
             )
         }
     }
+    if (onStatusBarDate != null) {
+        rows += { shapes ->
+            NotificationSwitchRow(
+                icon = R.drawable.ic_sym_event_available,
+                title = stringResource(R.string.settings_status_bar_date),
+                supporting = stringResource(R.string.settings_status_bar_date_supporting),
+                checked = settings.statusBarDate,
+                onChange = onStatusBarDate,
+                shapes = shapes,
+            )
+        }
+    }
+    if (onNotificationDate != null) {
+        rows += { shapes ->
+            NotificationSwitchRow(
+                icon = R.drawable.ic_sym_calendar_month,
+                title = stringResource(R.string.settings_notification_date),
+                supporting = stringResource(R.string.settings_notification_date_supporting),
+                checked = settings.notificationDate,
+                onChange = onNotificationDate,
+                shapes = shapes,
+            )
+        }
+    }
     if (rows.isNotEmpty()) SettingsGroup(stringResource(R.string.settings_group_app), rows)
+}
+
+/**
+ * A switch for one of the date notifications. Turning it on asks for the notification permission
+ * first on Android 13 and later; when the permission is refused the setting stays off.
+ */
+@Composable
+private fun NotificationSwitchRow(
+    icon: Int,
+    title: String,
+    supporting: String,
+    checked: Boolean,
+    onChange: (Boolean) -> Unit,
+    shapes: ListItemShapes,
+) {
+    val permission =
+        rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            if (granted) onChange(true)
+        }
+    val context = LocalContext.current
+    SwitchRow(
+        icon = icon,
+        tone = Tone.SECONDARY,
+        title = title,
+        supporting = supporting,
+        checked = checked,
+        onCheckedChange = { on ->
+            val needsPermission =
+                on &&
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+                    ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) !=
+                    PackageManager.PERMISSION_GRANTED
+            if (needsPermission) permission.launch(Manifest.permission.POST_NOTIFICATIONS) else onChange(on)
+        },
+        shapes = shapes,
+    )
 }

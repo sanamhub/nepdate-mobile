@@ -26,4 +26,16 @@
 
     <!-- Converter -->
     <string name="converter_swap_dates">Swap the two dates</string>
+    <string name="settings_status_bar_date">Day in status bar</string>
+    <string name="settings_status_bar_date_supporting">Today\'s day as a small number at the top of the screen</string>
+    <string name="settings_notification_date">Date in notifications</string>
+    <string name="settings_notification_date_supporting">A silent card with the full date, tithi and holiday</string>
+    <string name="notify_channel_icon">Day in status bar</string>
+    <string name="notify_channel_card">Date in notifications</string>
+    <string name="notify_channel_description">Shows today\'s date. Silent.</string>
+    <string name="home_more_events">+%1$s more</string>
+    <string name="converter_type_bs">Type a BS date</string>
+    <string name="converter_type_ad">Type an AD date</string>
+    <string name="converter_type_invalid">Not a date</string>
+    <string name="converter_type_hint">Type or turn</string>
 </resources>

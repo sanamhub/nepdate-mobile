@@ -26,7 +26,7 @@ enum class Look {
     /** Light or dark with the system setting. */
     SYSTEM,
 
-    /** The warm Paper theme. */
+    /** The light theme, shown as "Light". */
     PAPER,
 
     /** The Night theme. */
@@ -45,6 +45,15 @@ enum class StartTab {
     CONVERTER,
 }
 
+/** The two date notifications, each with its own switch. */
+enum class DateNotice {
+    /** Today's BS day as the status bar icon. */
+    STATUS_BAR,
+
+    /** A silent card with the full date in the notifications. */
+    CARD,
+}
+
 /**
  * The persisted preferences from MR-06 and MR-07. The app language is not stored here: Android's
  * per-app locale owns it (ADR-0005).
@@ -52,6 +61,8 @@ enum class StartTab {
  * @property showAdDates whether the month grid shows the small AD day next to each BS day
  * @property haptics whether wheels, toggles and steppers give a light vibration
  * @property startTab the tab a cold start opens on
+ * @property statusBarDate whether today's BS day shows as an icon in the status bar
+ * @property notificationDate whether a silent card with today's full date stays in the notifications
  */
 data class Settings(
     val dateFollows: DateFollows = DateFollows.DEVICE,
@@ -64,4 +75,6 @@ data class Settings(
     val showAdDates: Boolean = true,
     val haptics: Boolean = true,
     val startTab: StartTab = StartTab.PATRO,
+    val statusBarDate: Boolean = false,
+    val notificationDate: Boolean = false,
 )

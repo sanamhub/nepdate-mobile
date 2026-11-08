@@ -216,12 +216,14 @@ androidComponents {
                             }
                         }.toSet()
 
-                // Exactly two entries are allowed: the boot receiver for the widget alarm, and the
-                // app's own AndroidX signature permission for dynamic receivers. A declared
-                // permission gets no exemption; if it is also requested, it fails.
+                // Exactly three entries are allowed: the boot receiver for the widget alarm, the
+                // opt-in status bar date's notification permission (ADR-0013), and the app's own
+                // AndroidX signature permission for dynamic receivers. A declared permission gets
+                // no exemption; if it is also requested, it fails.
                 val allowed =
                     setOf(
                         "android.permission.RECEIVE_BOOT_COMPLETED",
+                        "android.permission.POST_NOTIFICATIONS",
                         "$applicationId.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION",
                     )
                 val extra = requested - allowed

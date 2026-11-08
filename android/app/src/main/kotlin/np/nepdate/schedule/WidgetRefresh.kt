@@ -4,11 +4,13 @@ import android.util.Log
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.state.updateAppWidgetState
 import np.nepdate.data.Settings
+import np.nepdate.notify.TodayNotifier
 import np.nepdate.widget.DateChipGlanceWidget
 import np.nepdate.widget.DateStripGlanceWidget
 import np.nepdate.widget.FestivalsGlanceWidget
 import np.nepdate.widget.MonthGlanceWidget
 import np.nepdate.widget.NextFestivalGlanceWidget
+import np.nepdate.widget.TextDateGlanceWidget
 import np.nepdate.widget.TodayGlanceWidget
 import np.nepdate.widget.UpcomingGlanceWidget
 import np.nepdate.widget.WIDGET_REFRESH_KEY
@@ -46,6 +48,7 @@ internal class GlanceWidgetUpdater(
             DateChipGlanceWidget(),
             DateStripGlanceWidget(),
             WeekGlanceWidget(),
+            TextDateGlanceWidget(),
         ).forEach { widget ->
             manager.getGlanceIds(widget.javaClass).forEach { glanceId ->
                 updateAppWidgetState(context, glanceId) { preferences ->
@@ -71,10 +74,11 @@ internal class GlanceWidgetUpdater(
     }
 }
 
-/** Refreshes widgets and re-arms the one midnight alarm (ADR-0006). */
+/** Refreshes widgets and the status bar date, and re-arms the one midnight alarm (ADR-0006). */
 internal class WidgetRefresh(
     private val updater: WidgetUpdater,
     private val scheduler: MidnightScheduler,
+    private val notifier: TodayNotifier = TodayNotifier.NONE,
 ) {
     suspend fun refresh(
         settings: Settings,
@@ -82,6 +86,7 @@ internal class WidgetRefresh(
     ) {
         if (resetMonth) updater.clearShownMonth()
         updater.updateAll()
+        notifier.update(settings)
         scheduler.schedule(settings)
     }
 

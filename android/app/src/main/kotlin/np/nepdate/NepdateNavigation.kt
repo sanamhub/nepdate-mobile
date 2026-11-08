@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import io.github.sanamhub.nepdate.NepaliDate
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import np.nepdate.data.DateNotice
 import np.nepdate.data.Settings
 import np.nepdate.data.SettingsRepository
 import np.nepdate.ui.NepdateDestination
@@ -118,6 +119,8 @@ internal fun OverlayScreen(
                 onWallpaperColors = { scope.launch { repository.setWallpaperColors(it) } },
                 onShowAdDates = { scope.launch { repository.setShowAdDates(it) } },
                 onHaptics = { scope.launch { repository.setHaptics(it) } },
+                onStatusBarDate = { scope.launch { repository.setDateNotice(DateNotice.STATUS_BAR, it) } },
+                onNotificationDate = { scope.launch { repository.setDateNotice(DateNotice.CARD, it) } },
                 onStartTab = { scope.launch { repository.setStartTab(it) } },
                 onOpenAbout = { navigation.overlay = Overlay.ABOUT },
             )
