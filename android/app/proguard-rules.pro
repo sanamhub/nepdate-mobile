@@ -18,3 +18,10 @@
 -keep class * extends androidx.work.InputMerger {
     <init>();
 }
+
+# Glance finds the placed copies of a widget by its GlanceAppWidget class name. R8 full mode merged
+# the eight widget classes into three, so a refresh drew one widget's content into another (a Today
+# and upcoming widget turned into a Today widget after a theme change). Kept classes are not merged.
+-keep class * extends androidx.glance.appwidget.GlanceAppWidget {
+    <init>();
+}
