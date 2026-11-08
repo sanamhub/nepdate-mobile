@@ -104,7 +104,7 @@ internal fun MonthTopBar(
                 shapes = IconButtonDefaults.shapes(),
                 modifier = Modifier.semantics { contentDescription = settingsLabel },
             ) {
-                SymbolIcon(icon = R.drawable.ic_sym_settings, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                SymbolIcon(icon = R.drawable.ic_sym_settings_filled, tint = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
     }

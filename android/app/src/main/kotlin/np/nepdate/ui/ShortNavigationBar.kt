@@ -1,6 +1,7 @@
 package np.nepdate.ui
 
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -46,7 +47,10 @@ import kotlin.math.roundToInt
 
 /**
  * The floating navigation bar (Material 3 Expressive, 2025): a fully rounded pill on
- * surfaceContainer, inset from the screen edges and lifted above the gesture bar. The selected
+ * surfaceContainerHighest, inset from the screen edges and lifted above the gesture bar. The pages
+ * draw their cards on surfaceContainer, so the bar takes the highest container tone, a hairline
+ * outline and a deeper shadow to stay distinct from whatever scrolls under it, in dark theme too
+ * where a shadow alone barely shows. The selected
  * indicator follows the tab pager's position, so it glides with a swipe and springs with a tap;
  * mid-way it stretches a little, like a drop of ink moving between tabs.
  *
@@ -63,9 +67,9 @@ internal fun FloatingNavigationBar(
     Surface(
         modifier = modifier.navigationBarsPadding().padding(bottom = BAR_MARGIN),
         shape = CircleShape,
-        color = MaterialTheme.colorScheme.surfaceContainer,
-        tonalElevation = 3.dp,
-        shadowElevation = 6.dp,
+        color = MaterialTheme.colorScheme.surfaceContainerHighest,
+        shadowElevation = 12.dp,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
     ) {
         Box(modifier = Modifier.padding(BAR_PADDING)) {
             SelectedIndicator(position)

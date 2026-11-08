@@ -101,6 +101,9 @@ internal fun FirstRunScreen(
                 .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 24.dp)
                 .testTag("first_run_screen"),
     ) {
+        // Only the welcome text scrolls. The choices sit in a fixed block above the button, and the
+        // title and lead keep a fixed number of lines, so switching language never moves the
+        // controls under the finger: English wraps to more lines than Nepali.
         Column(modifier = Modifier.weight(1f).verticalScroll(rememberScrollState())) {
             Collage(today, digits)
             Text(
@@ -108,6 +111,7 @@ internal fun FirstRunScreen(
                 modifier = Modifier.padding(start = 4.dp, end = 4.dp, top = 8.dp).semantics { heading() },
                 color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.ExtraBold),
+                minLines = TITLE_LINES,
             )
             Text(
                 text =
@@ -117,13 +121,14 @@ internal fun FirstRunScreen(
                 modifier = Modifier.padding(start = 4.dp, end = 4.dp, top = 6.dp),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.bodyLarge,
+                minLines = LEAD_LINES,
             )
-            if (canPickLanguage) {
-                LanguageChoice(today, modifier = Modifier.padding(top = 20.dp))
-            }
-            LookChoice(settings.look, onLook, modifier = Modifier.padding(top = 12.dp))
-            Spacer(Modifier.height(16.dp))
         }
+        if (canPickLanguage) {
+            LanguageChoice(today, modifier = Modifier.padding(top = 12.dp))
+        }
+        LookChoice(settings.look, onLook, modifier = Modifier.padding(top = 12.dp))
+        Spacer(Modifier.height(16.dp))
         Button(
             onClick = onDone,
             shapes = ButtonDefaults.shapes(shape = RoundedCornerShape(32.dp), pressedShape = RoundedCornerShape(16.dp)),
@@ -387,3 +392,7 @@ private const val PREVIEW_LINE_WIDTH = 0.45f
 
 private const val NEPALI = "ne"
 private const val ENGLISH = "en"
+
+/** The lines the welcome title and lead always take, so the screen does not jump between languages. */
+private const val TITLE_LINES = 2
+private const val LEAD_LINES = 3

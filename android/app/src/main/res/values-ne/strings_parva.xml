@@ -35,4 +35,5 @@
         <item quantity="one">%1$d नतिजा</item>
         <item quantity="other">%1$d नतिजा</item>
     </plurals>
+    <string name="parva_holiday_today">आज सार्वजनिक बिदा</string>
 </resources>

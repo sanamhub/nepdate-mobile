@@ -78,6 +78,7 @@ internal fun DateWheel(
     onDateChange: (NepaliDate) -> Unit,
     modifier: Modifier = Modifier,
     onTick: () -> Unit = {},
+    framed: Boolean = true,
 ) {
     val columns =
         when (direction) {
@@ -89,9 +90,16 @@ internal fun DateWheel(
             modifier
                 .fillMaxWidth()
                 .height(WHEEL_ROW * WHEEL_ROWS)
-                .clip(RoundedCornerShape(28.dp))
-                .background(MaterialTheme.colorScheme.surfaceContainerLow)
-                .padding(horizontal = 10.dp),
+                .then(
+                    if (framed) {
+                        Modifier
+                            .clip(
+                                RoundedCornerShape(28.dp),
+                            ).background(MaterialTheme.colorScheme.surfaceContainerLow)
+                    } else {
+                        Modifier
+                    },
+                ).padding(horizontal = 10.dp),
         contentAlignment = Alignment.Center,
     ) {
         Box(

@@ -20,7 +20,7 @@ import androidx.compose.ui.unit.dp
 import np.nepdate.data.Look
 
 // A Material 3 scheme from the marigold seed #E8A33D with warm neutrals and a slate tertiary
-// (design system §2). The "Paper" look is the light scheme.
+// (design system §2). The "Light" look is the light scheme.
 internal val LightColors =
     lightColorScheme(
         primary = Color(0xFF7C5800),

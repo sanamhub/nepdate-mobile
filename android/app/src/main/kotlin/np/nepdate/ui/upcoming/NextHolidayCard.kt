@@ -27,6 +27,7 @@ import io.github.sanamhub.nepdate.Lang
 import np.nepdate.R
 import np.nepdate.ui.common.ShapeBadge
 import np.nepdate.ui.common.SoftBurstShape
+import np.nepdate.ui.common.SymbolIcon
 import np.nepdate.ui.common.inDigits
 import np.nepdate.ui.common.weekdayName
 import np.nepdate.ui.day.relativeDayLabel
@@ -62,7 +63,10 @@ internal fun NextHolidayCard(
         Countdown(days = entry.daysFromToday, strings = strings)
         Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
             Text(
-                text = stringResource(R.string.parva_next_holiday),
+                text =
+                    stringResource(
+                        if (entry.daysFromToday == 0) R.string.parva_holiday_today else R.string.parva_next_holiday,
+                    ),
                 color = content.copy(alpha = LABEL_ALPHA),
                 style = MaterialTheme.typography.labelLarge,
             )
@@ -95,13 +99,18 @@ private fun Countdown(
     val colors = LocalNepdateColors.current
     Column(modifier = Modifier.widthIn(min = 84.dp), horizontalAlignment = Alignment.CenterHorizontally) {
         ShapeBadge(shape = SoftBurstShape, color = colors.onHolidayContainer, size = 84.dp) {
-            Text(
-                text = days.toString().inDigits(strings.digits),
-                color = colors.holidayContainer,
-                fontSize = 34.sp,
-                lineHeight = 36.sp,
-                fontWeight = FontWeight.ExtraBold,
-            )
+            // "0 days" reads as a bug, so a holiday that is today gets the celebration mark instead.
+            if (days == 0) {
+                SymbolIcon(icon = R.drawable.ic_sym_celebration_filled, tint = colors.holidayContainer, size = 36.dp)
+            } else {
+                Text(
+                    text = days.toString().inDigits(strings.digits),
+                    color = colors.holidayContainer,
+                    fontSize = 34.sp,
+                    lineHeight = 36.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                )
+            }
         }
         Text(
             text = if (days == 0) relativeDayLabel(0) else pluralStringResource(R.plurals.parva_days_left, days),

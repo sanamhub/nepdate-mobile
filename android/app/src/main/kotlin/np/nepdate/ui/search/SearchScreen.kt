@@ -47,6 +47,7 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import io.github.sanamhub.nepdate.NepDateException
 import io.github.sanamhub.nepdate.NepaliDate
@@ -55,10 +56,13 @@ import io.github.sanamhub.nepdate.toNepaliDate
 import np.nepdate.R
 import np.nepdate.data.RecentSearchStore
 import np.nepdate.data.Settings
+import np.nepdate.ui.common.DATE_DIGITS
+import np.nepdate.ui.common.DateSlashTransformation
 import np.nepdate.ui.common.SymbolIcon
 import np.nepdate.ui.common.inDigits
 import np.nepdate.ui.common.languageFor
 import np.nepdate.ui.common.resolve
+import np.nepdate.ui.common.withDateSlashes
 import np.nepdate.ui.upcoming.IndexedEntry
 import np.nepdate.ui.upcoming.ParvaRowStyle
 import np.nepdate.ui.upcoming.ParvaStrings
@@ -171,6 +175,13 @@ private fun SearchField(
             textStyle = textStyle,
             singleLine = true,
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+            // A query of digits only is a date being typed, so it shows the YYYY/MM/DD slashes.
+            visualTransformation =
+                if (query.isNotEmpty() && query.length <= DATE_DIGITS && query.all { it.isDigit() }) {
+                    DateSlashTransformation
+                } else {
+                    VisualTransformation.None
+                },
             keyboardActions = KeyboardActions(onSearch = { onSubmit() }),
             cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
             decorationBox = { inner ->
@@ -307,8 +318,10 @@ internal fun searchGroups(
  * @return the BS date, or null when the text is not a valid date in range
  */
 internal fun parseJumpDate(text: String): NepaliDate? {
-    val ascii = text.map { if (it in '०'..'९') '0' + (it - '०') else it }.joinToString("")
-    val match = DATE_PATTERN.matchEntire(ascii.trim()) ?: return null
+    val ascii = text.map { if (it in '०'..'९') '0' + (it - '०') else it }.joinToString("").trim()
+    // Eight digits typed without separators (20830722) read as YYYYMMDD.
+    val spaced = if (ascii.length == DATE_DIGITS && ascii.all { it.isDigit() }) withDateSlashes(ascii) else ascii
+    val match = DATE_PATTERN.matchEntire(spaced) ?: return null
     val (year, month, day) = match.destructured.toList().map { it.toInt() }
     return if (year > BS_YEAR_FLOOR) {
         NepaliDate.ofOrNull(year, month, day)

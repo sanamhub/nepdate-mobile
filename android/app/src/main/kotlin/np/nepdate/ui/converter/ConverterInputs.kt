@@ -41,6 +41,12 @@ internal class ConverterInputs(
             fromDay != yearStart(today).toEpochDay() ||
             toDay != today.toEpochDay()
 
+    /** Puts a typed [date] on the wheel; the new key rebuilds it so its columns scroll there. */
+    fun jumpTo(date: NepaliDate) {
+        pickedDay = date.toEpochDay()
+        wheelKey++
+    }
+
     /** Back to a fresh converter on [today]: BS to AD, today on the wheel, the year so far. */
     fun reset(today: NepaliDate) {
         direction = ConvertDirection.BS_TO_AD

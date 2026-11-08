@@ -214,7 +214,10 @@ private fun HeroChips(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        events.forEachIndexed { index, name ->
+        // A festival day can carry five or more events. The card shows the first two on one line
+        // each and a "+N more" chip that opens the day, so it never grows taller than the grid.
+        val shown = if (events.size > MAX_EVENT_CHIPS) events.take(MAX_EVENT_CHIPS - 1) else events
+        shown.forEachIndexed { index, name ->
             if (isHoliday && index == 0) {
                 HeroChip(
                     text = stringResource(R.string.home_today_holiday, name.inDigits(digits)),
@@ -233,7 +236,22 @@ private fun HeroChips(
                 }
             }
         }
-        nextHoliday?.let { entry ->
+        if (shown.size < events.size) {
+            HeroChip(
+                text =
+                    stringResource(
+                        R.string.home_more_events,
+                        (events.size - shown.size).toString().inDigits(digits),
+                    ),
+                container = chip,
+                content = onContainer,
+                onClick = { onOpenDay(today) },
+            ) {
+                SymbolIcon(icon = R.drawable.ic_sym_event, tint = onContainer, size = 18.dp)
+            }
+        }
+        // Only a quiet day has room to point at the next holiday.
+        nextHoliday?.takeIf { events.size < MAX_EVENT_CHIPS }?.let { entry ->
             HeroChip(
                 text = nextHolidayText(entry.name.name(lang).inDigits(digits), entry.daysFromToday, digits),
                 container = chip,
@@ -280,11 +298,18 @@ private fun HeroChip(
     ) {
         leading()
         Spacer(Modifier.width(8.dp))
-        Text(text = text, color = content, style = MaterialTheme.typography.labelLarge, maxLines = 2)
+        Text(
+            text = text,
+            color = content,
+            style = MaterialTheme.typography.labelLarge,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
     }
 }
 
 private const val HOLIDAY_LOOKAHEAD = 60
+private const val MAX_EVENT_CHIPS = 3
 private const val ENTER_SCALE = 0.94f
 private const val SOFT_ALPHA = 0.8f
 private const val CHIP_ALPHA = 0.1f

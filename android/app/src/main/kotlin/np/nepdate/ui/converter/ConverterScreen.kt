@@ -5,6 +5,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,6 +17,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.IconButton
@@ -30,6 +32,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
@@ -39,6 +42,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import io.github.sanamhub.nepdate.NepaliDate
 import np.nepdate.R
+import np.nepdate.data.Digits
 import np.nepdate.data.Settings
 import np.nepdate.ui.common.LocalBottomBarPadding
 import np.nepdate.ui.common.SymbolIcon
@@ -100,15 +104,7 @@ internal fun ConverterScreen(
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             DirectionGroup(direction = inputs.direction, haptics = haptics, onDirection = { inputs.direction = it })
-            key(inputs.direction, inputs.wheelKey) {
-                DateWheel(
-                    date = picked,
-                    direction = inputs.direction,
-                    digits = digits,
-                    onDateChange = { inputs.pickedDay = it.toEpochDay() },
-                    onTick = haptics::tick,
-                )
-            }
+            DateEntry(inputs, picked, digits, haptics)
             ResultCard(
                 conversion = conversion,
                 direction = inputs.direction,
@@ -125,6 +121,47 @@ internal fun ConverterScreen(
                 onFrom = { inputs.fromDay = it.toEpochDay() },
                 onTo = { inputs.toDay = it.toEpochDay() },
                 onSwapped = haptics::tick,
+            )
+        }
+    }
+}
+
+/**
+ * One card with the two ways to set the date: the typing row on top and the wheel under it. The
+ * row shows the wheel's date as its hint and a typed date moves the wheel, so they read as one
+ * control rather than two inputs.
+ */
+@Composable
+private fun DateEntry(
+    inputs: ConverterInputs,
+    picked: NepaliDate,
+    digits: Digits,
+    haptics: Haptics,
+) {
+    Column(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(28.dp))
+                .background(MaterialTheme.colorScheme.surfaceContainerLow)
+                .padding(top = 10.dp, start = 10.dp, end = 10.dp),
+    ) {
+        TypedDateField(
+            direction = inputs.direction,
+            current = picked,
+            onDate = {
+                inputs.jumpTo(it)
+                haptics.confirm()
+            },
+        )
+        key(inputs.direction, inputs.wheelKey) {
+            DateWheel(
+                date = picked,
+                direction = inputs.direction,
+                digits = digits,
+                onDateChange = { inputs.pickedDay = it.toEpochDay() },
+                onTick = haptics::tick,
+                framed = false,
             )
         }
     }
@@ -199,7 +236,7 @@ private fun ConverterTopBar(
                 shapes = IconButtonDefaults.shapes(),
                 modifier = Modifier.semantics { contentDescription = settingsLabel },
             ) {
-                SymbolIcon(icon = R.drawable.ic_sym_settings, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                SymbolIcon(icon = R.drawable.ic_sym_settings_filled, tint = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
     }

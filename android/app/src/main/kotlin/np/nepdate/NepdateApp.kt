@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.FiniteAnimationSpec
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -226,7 +227,10 @@ internal fun NepdateContent(
             onOpenDateHandled = onOpenDateHandled,
             onJumpHandled = onJumpHandled,
         )
-    Box(modifier = modifier.fillMaxSize()) {
+    // The tab host paints the theme background itself. The window background follows the phone's
+    // dark mode, so a page that draws none (the converter) showed it through when the app look was
+    // Light on a phone in dark mode.
+    Box(modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         CompositionLocalProvider(LocalBottomBarPadding provides floatingBarPadding()) {
             HorizontalPager(
                 state = tabs,

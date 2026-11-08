@@ -285,7 +285,10 @@ private fun DayTile(
     }
 }
 
-/** Previous day above next day, joined into one connected group. */
+/**
+ * Next day above previous day, joined into one connected group. Up counts the date up, like a
+ * number stepper, which is what people expect from an up arrow beside a date.
+ */
 @Composable
 private fun DayStepper(
     canGoBack: Boolean,
@@ -297,17 +300,17 @@ private fun DayStepper(
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(2.dp)) {
         StepButton(
             icon = R.drawable.ic_sym_keyboard_arrow_up,
-            label = stringResource(R.string.day_previous),
+            label = stringResource(R.string.day_next),
             shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp, bottomStart = 6.dp, bottomEnd = 6.dp),
-            enabled = canGoBack,
-            onClick = onPrevious,
+            enabled = canGoForward,
+            onClick = onNext,
         )
         StepButton(
             icon = R.drawable.ic_sym_keyboard_arrow_down,
-            label = stringResource(R.string.day_next),
+            label = stringResource(R.string.day_previous),
             shape = RoundedCornerShape(topStart = 6.dp, topEnd = 6.dp, bottomStart = 20.dp, bottomEnd = 20.dp),
-            enabled = canGoForward,
-            onClick = onNext,
+            enabled = canGoBack,
+            onClick = onPrevious,
         )
     }
 }
