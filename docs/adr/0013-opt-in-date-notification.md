@@ -1,6 +1,6 @@
 # ADR-0013: Opt-in date notification on Android
 
-- Status: Proposed
+- Status: Accepted
 - Date: 2026-11-08
 - Deciders: Sanam Pakuwal
 - Amends: ADR-0007, decision 2 ("No permissions requested in v1 ... No notifications")
