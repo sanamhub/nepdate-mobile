@@ -31,8 +31,12 @@ internal suspend fun GlanceAppWidget.provideNepdateContent(
 internal suspend fun GlanceAppWidget.providePreviewContent(content: @Composable () -> Unit): Nothing =
     provideContent { NepdateGlanceTheme(wallpaperColors = false) { content() } }
 
-/** The background opacity chosen for this placed widget. */
-internal fun Preferences.opacity(): WidgetOpacity = WidgetOpacity.fromKey(this[WIDGET_OPACITY_KEY])
+/** The background opacity chosen for this placed widget, or [default] before any choice. */
+internal fun Preferences.opacity(default: WidgetOpacity = WidgetOpacity.SOLID): WidgetOpacity =
+    this[WIDGET_OPACITY_KEY]?.let(WidgetOpacity::fromKey) ?: default
+
+/** True when this placed widget was set to show only the date. */
+internal fun Preferences.minimal(): Boolean = this[WIDGET_MINIMAL_KEY] ?: false
 
 internal fun WidgetEnvironment.todayModel(date: NepaliDate): TodayWidgetModel =
     todayWidgetModel(date = date, lang = lang, digits = digits, copy = copy, showNepal = showNepal)

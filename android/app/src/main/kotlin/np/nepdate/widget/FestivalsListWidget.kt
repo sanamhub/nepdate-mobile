@@ -9,6 +9,7 @@ import androidx.glance.GlanceTheme
 import androidx.glance.Image
 import androidx.glance.ImageProvider
 import androidx.glance.LocalContext
+import androidx.glance.LocalSize
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.action.actionStartActivity
@@ -70,8 +71,9 @@ internal fun FestivalsWidgetContent(
                 maxLines = 2,
             )
         } else {
+            val lines = if (LocalSize.current.height >= TWO_LINE_ROWS) 2 else 1
             LazyColumn(modifier = GlanceModifier.fillMaxWidth().defaultWeight()) {
-                itemsIndexed(model.rows) { index, row -> FestivalListRow(row, index) }
+                itemsIndexed(model.rows) { index, row -> FestivalListRow(row, index, lines) }
             }
         }
     }
@@ -137,6 +139,7 @@ private fun HolidaysOnlyChip(holidaysOnly: Boolean) {
 private fun FestivalListRow(
     row: WidgetDayRow,
     index: Int,
+    lines: Int,
 ) {
     val context = LocalContext.current
     Column(modifier = GlanceModifier.fillMaxWidth()) {
@@ -161,7 +164,7 @@ private fun FestivalListRow(
                         fontSize = 14.sp,
                         fontWeight = if (row.isHoliday) FontWeight.Bold else FontWeight.Medium,
                     ),
-                maxLines = 2,
+                maxLines = lines,
             )
             Text(
                 text = row.relative,
@@ -176,3 +179,6 @@ private fun FestivalListRow(
         }
     }
 }
+
+/** A list shorter than this shows one line per row, so a short widget never clips a row. */
+private val TWO_LINE_ROWS = 150.dp

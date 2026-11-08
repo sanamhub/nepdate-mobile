@@ -41,7 +41,7 @@ class DateStripGlanceWidget : GlanceAppWidget() {
         id: GlanceId,
     ) = provideNepdateContent(context) { environment, preferences ->
         val model = remember(environment) { environment.todayModel(environment.today) }
-        DateStripContent(model, preferences.opacity())
+        DateStripContent(model, preferences.opacity(), minimal = preferences.minimal())
     }
 
     override suspend fun providePreview(
@@ -63,7 +63,7 @@ class WeekGlanceWidget : GlanceAppWidget() {
         id: GlanceId,
     ) = provideNepdateContent(context) { environment, preferences ->
         val model = remember(environment) { environment.weekModel(environment.today) }
-        WeekWidgetContent(model, preferences.opacity())
+        WeekWidgetContent(model, preferences.opacity(), minimal = preferences.minimal())
     }
 
     override suspend fun providePreview(
@@ -74,3 +74,28 @@ class WeekGlanceWidget : GlanceAppWidget() {
         providePreviewContent { WeekWidgetContent(model, WidgetOpacity.SOLID) }
     }
 }
+
+/** Date text: today's date as plain type with no card, on the wallpaper by default. */
+class TextDateGlanceWidget : GlanceAppWidget() {
+    override val sizeMode: SizeMode = SizeMode.Exact
+    override val previewSizeMode: PreviewSizeMode = SizeMode.Responsive(setOf(DpSize(250.dp, 80.dp)))
+
+    override suspend fun provideGlance(
+        context: Context,
+        id: GlanceId,
+    ) = provideNepdateContent(context) { environment, preferences ->
+        val model = remember(environment) { environment.todayModel(environment.today) }
+        TextDateContent(model, preferences.opacity(TEXT_DATE_OPACITY), minimal = preferences.minimal())
+    }
+
+    override suspend fun providePreview(
+        context: Context,
+        widgetCategory: Int,
+    ) {
+        val model = previewEnvironment(context).todayModel(PREVIEW_DATE)
+        providePreviewContent { TextDateContent(model, WidgetOpacity.SOLID) }
+    }
+}
+
+/** The Date text widget sits on the wallpaper until its owner picks a background. */
+internal val TEXT_DATE_OPACITY = WidgetOpacity.TRANSPARENT

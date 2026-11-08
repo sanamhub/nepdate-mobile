@@ -7,7 +7,7 @@
     <!-- Next festival widget. -->
     <string name="widget2_next_festival_name">अर्को पर्व</string>
     <string name="widget2_next_festival_description">अर्को पर्व वा सार्वजनिक बिदासम्म बाँकी दिन। तीरले त्यसपछिका पर्व हेर्न मिल्छ।</string>
-    <string name="widget2_next_holiday_kind">अर्को सार्वजनिक बिदा</string>
+    <string name="widget2_next_holiday_kind">अर्को बिदा</string>
     <string name="widget2_next_festival_kind">अर्को पर्व</string>
     <string name="widget2_previous_festival">अघिल्लो पर्व</string>
     <string name="widget2_following_festival">अर्को पर्व</string>

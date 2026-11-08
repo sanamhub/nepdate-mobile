@@ -84,8 +84,11 @@ private fun MonthHeaderRow(
                     .clickable(actionStartActivity(widgetIntent(context, model.firstDay)))
                     .semantics { testTag = "month_header" },
         ) {
+            // Beside the button group a narrow header has no room for "Mangsir 2083" on one line,
+            // so it puts the year on the second line instead of cutting it.
+            val split = !wide && model.title.contains(' ')
             Text(
-                text = model.title,
+                text = if (split) model.title.substringBeforeLast(' ') else model.title,
                 modifier = GlanceModifier.semantics { testTag = "month_title" },
                 style =
                     TextStyle(
@@ -95,9 +98,15 @@ private fun MonthHeaderRow(
                     ),
                 maxLines = 1,
             )
-            if (showSpan && model.adSpan.isNotEmpty()) {
+            val second =
+                when {
+                    split -> model.title.substringAfterLast(' ')
+                    showSpan -> model.adSpan
+                    else -> ""
+                }
+            if (second.isNotEmpty()) {
                 Text(
-                    text = model.adSpan,
+                    text = second,
                     style = TextStyle(color = GlanceTheme.colors.onSurfaceVariant, fontSize = 12.sp),
                     maxLines = 1,
                 )

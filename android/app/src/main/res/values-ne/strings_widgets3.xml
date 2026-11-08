@@ -13,7 +13,7 @@
 
     <!-- Headings inside widgets. -->
     <string name="widget3_upcoming_title">आउँदा दिन</string>
-    <string name="widget3_festivals_title">चाडपर्व र बिदा</string>
+    <string name="widget3_festivals_title">चाडपर्व</string>
 
     <!-- Static previews for launchers before Android 15 (sample day: Asoj 25, 2083). -->
     <string name="widget3_preview_day">२५</string>

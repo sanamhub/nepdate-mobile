@@ -19,6 +19,7 @@ import androidx.glance.layout.Row
 import androidx.glance.layout.Spacer
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
+import androidx.glance.layout.height
 import androidx.glance.layout.padding
 import androidx.glance.layout.width
 import androidx.glance.semantics.contentDescription
@@ -46,6 +47,7 @@ private data class FestivalFace(
 internal fun NextFestivalWidgetContent(
     model: NextFestivalModel,
     opacity: WidgetOpacity,
+    minimal: Boolean = false,
 ) {
     val context = LocalContext.current
     val face =
@@ -66,8 +68,8 @@ internal fun NextFestivalWidgetContent(
     ) {
         when {
             model.entry == null -> EmptyFace(model.emptyText, face.ink)
-            LocalSize.current.height < COMPACT_HEIGHT -> NextFestivalCompact(model, face)
-            else -> NextFestivalFull(model, face)
+            LocalSize.current.height < COMPACT_HEIGHT -> NextFestivalCompact(model, face, minimal)
+            else -> NextFestivalFull(model, face, minimal)
         }
     }
 }
@@ -76,20 +78,25 @@ internal fun NextFestivalWidgetContent(
 private fun NextFestivalFull(
     model: NextFestivalModel,
     face: FestivalFace,
+    minimal: Boolean,
 ) {
     val entry = model.entry ?: return
     val size = LocalSize.current
     val scale = typeScale(minOf(size.width, size.height))
     val tall = size.height >= TALL_HEIGHT
     Column(modifier = GlanceModifier.fillMaxSize().padding(start = 16.dp, end = 8.dp, top = 4.dp, bottom = 14.dp)) {
-        Row(modifier = GlanceModifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        Row(
+            modifier = GlanceModifier.fillMaxWidth().height(ARROW_ROW),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
             Text(
                 text = model.kind,
                 modifier = GlanceModifier.defaultWeight(),
                 style = TextStyle(color = face.ink, fontSize = 12.sp * scale, fontWeight = FontWeight.Bold),
                 maxLines = 2,
             )
-            FestivalArrows(model, face)
+            // A two-cell face is too narrow for the label and the arrows side by side.
+            if (!minimal && size.width >= ARROWS_IN_FULL) FestivalArrows(model, face)
         }
         Spacer(GlanceModifier.defaultWeight())
         DaysLeft(model, face.ink, numberSize = (size.height.value * NUMBER_SHARE).coerceIn(MIN_NUMBER, MAX_NUMBER).sp)
@@ -98,17 +105,44 @@ private fun NextFestivalFull(
             style = TextStyle(color = face.ink, fontSize = 16.sp * scale, fontWeight = FontWeight.Bold),
             maxLines = if (tall) 2 else 1,
         )
-        Text(text = model.dateLine, style = TextStyle(color = face.ink, fontSize = 12.sp * scale), maxLines = 1)
+        if (!minimal) {
+            Text(text = model.dateLine, style = TextStyle(color = face.ink, fontSize = 12.sp * scale), maxLines = 1)
+        }
     }
 }
 
-/** The 2x1 face: number and name on the left, the arrows on the right. */
+/**
+ * The one-row face. Wide enough, it puts the count, the name and the arrows in a row; a two-cell
+ * face stacks the count over the name, so a long count such as "Today" never pushes the name out.
+ */
 @Composable
 private fun NextFestivalCompact(
     model: NextFestivalModel,
     face: FestivalFace,
+    minimal: Boolean,
 ) {
     val entry = model.entry ?: return
+    val width = LocalSize.current.width
+    if (width < COMPACT_ROW_WIDTH) {
+        Column(
+            modifier = GlanceModifier.fillMaxSize().padding(horizontal = 14.dp, vertical = 6.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            val roomy = LocalSize.current.height >= ROOMY_STACK
+            DaysLeft(model, face.ink, numberSize = if (roomy) 34.sp else 22.sp)
+            Text(
+                text = entry.name,
+                style =
+                    TextStyle(
+                        color = face.ink,
+                        fontSize = if (roomy) 15.sp else 13.sp,
+                        fontWeight = FontWeight.Bold,
+                    ),
+                maxLines = if (roomy) 2 else 1,
+            )
+        }
+        return
+    }
     Row(
         modifier = GlanceModifier.fillMaxSize().padding(start = 14.dp, end = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -120,7 +154,7 @@ private fun NextFestivalCompact(
             style = TextStyle(color = face.ink, fontSize = 14.sp, fontWeight = FontWeight.Bold),
             maxLines = 2,
         )
-        if (LocalSize.current.width >= ARROWS_IN_COMPACT) FestivalArrows(model, face)
+        if (!minimal && width >= ARROWS_IN_COMPACT) FestivalArrows(model, face)
     }
 }
 
@@ -214,7 +248,11 @@ private fun EmptyFace(
 
 private val COMPACT_HEIGHT = 100.dp
 private val TALL_HEIGHT = 150.dp
-private val ARROWS_IN_COMPACT = 180.dp
+private val ARROWS_IN_COMPACT = 220.dp
+private val ARROWS_IN_FULL = 160.dp
+private val COMPACT_ROW_WIDTH = 170.dp
+private val ARROW_ROW = 48.dp
+private val ROOMY_STACK = 84.dp
 private const val NUMBER_SHARE = 0.32f
 private const val MIN_NUMBER = 36f
 private const val MAX_NUMBER = 96f

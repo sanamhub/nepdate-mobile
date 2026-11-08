@@ -37,3 +37,7 @@ class DateStripGlanceWidgetReceiver : GlanceAppWidgetReceiver() {
 class WeekGlanceWidgetReceiver : GlanceAppWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = WeekGlanceWidget()
 }
+
+class TextDateGlanceWidgetReceiver : GlanceAppWidgetReceiver() {
+    override val glanceAppWidget: GlanceAppWidget = TextDateGlanceWidget()
+}

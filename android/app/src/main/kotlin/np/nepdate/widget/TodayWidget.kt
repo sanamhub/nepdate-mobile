@@ -39,6 +39,7 @@ import np.nepdate.R
 internal fun UpcomingWidgetContent(
     model: UpcomingWidgetModel,
     opacity: WidgetOpacity,
+    minimal: Boolean = false,
 ) {
     val context = LocalContext.current
     val label = context.getString(R.string.widget_upcoming_name)
@@ -51,25 +52,40 @@ internal fun UpcomingWidgetContent(
                     testTag = "upcoming_widget"
                 }.padding(8.dp),
     ) {
-        TodayBlock(model.today, context)
-        UpcomingEntries(model, context)
+        TodayBlock(model.today, context, minimal)
+        UpcomingEntries(model, context, minimal)
     }
 }
 
-/** The left block: month, numeral, weekday and tithi, sized from the widget height. */
+/**
+ * The left block: month, numeral, weekday and tithi. Its width is a share of the widget, and its
+ * type grows with the height only as far as that width holds, so the weekday is never cut.
+ */
 @Composable
 private fun TodayBlock(
     today: TodayWidgetModel,
     context: Context,
+    minimal: Boolean,
 ) {
-    val height = LocalSize.current.height
-    val scale = typeScale(height)
-    val sunny = (height - BLOCK_CHROME * scale).coerceIn(MIN_SUNNY, MAX_SUNNY)
+    val size = LocalSize.current
+    val fit = widgetFit()
+    val width = (size.width * BLOCK_SHARE).coerceIn(MIN_BLOCK, MAX_BLOCK)
+    val text = width - BLOCK_PADDING
+    val scale = columnScale(size.height, text, BLOCK_WIDTH_AT_ONE)
+    val chrome = fit.line(12.sp * scale) + fit.line(13.sp * scale) + BLOCK_VERTICAL
+    val showTithi =
+        !minimal &&
+            today.tithi.isNotEmpty() &&
+            fit.fits(today.tithi, 11.sp * scale, text) &&
+            size.height - chrome - fit.line(11.sp * scale) >= MIN_SUNNY + BLOCK_PADDING
+    val sunny =
+        (size.height - chrome - (if (showTithi) fit.line(11.sp * scale) else 0.dp) - BLOCK_PADDING)
+            .coerceIn(MIN_SUNNY, minOf(MAX_SUNNY, text))
     val ink = GlanceTheme.colors.onPrimaryContainer
     Column(
         modifier =
             GlanceModifier
-                .width(sunny + BLOCK_PADDING)
+                .width(width)
                 .fillMaxHeight()
                 .shapeBackground(R.drawable.widget_shape_20, GlanceTheme.colors.primaryContainer)
                 .clickable(actionStartActivity(widgetIntent(context)))
@@ -80,7 +96,7 @@ private fun TodayBlock(
     ) {
         Text(
             // The block is only as wide as the numeral, so it names the month without the year.
-            text = today.bsMonthYear.substringBeforeLast(" "),
+            text = today.monthName,
             style =
                 TextStyle(
                     color = ink,
@@ -92,7 +108,7 @@ private fun TodayBlock(
         )
         SunnyNumeral(today.bsDay, sunny)
         Text(
-            text = today.weekday,
+            text = if (fit.fits(today.weekday, 13.sp * scale, text)) today.weekday else today.weekdayShort,
             style =
                 TextStyle(
                     color = if (today.isHoliday || today.isSaturday) holidayProvider() else ink,
@@ -102,7 +118,7 @@ private fun TodayBlock(
                 ),
             maxLines = 1,
         )
-        if (today.tithi.isNotEmpty() && height >= TITHI_HEIGHT) {
+        if (showTithi) {
             Text(
                 text = today.tithi,
                 style = TextStyle(color = ink, fontSize = 11.sp * scale, textAlign = TextAlign.Center),
@@ -116,6 +132,7 @@ private fun TodayBlock(
 private fun RowScope.UpcomingEntries(
     model: UpcomingWidgetModel,
     context: Context,
+    minimal: Boolean,
 ) {
     val height = LocalSize.current.height
     val rowHeight = if (height >= ROOMY) 48.dp else 40.dp
@@ -134,7 +151,7 @@ private fun RowScope.UpcomingEntries(
         )
         model.entries.take(fitting).forEachIndexed { index, row ->
             if (index > 0) Spacer(GlanceModifier.height(ROW_GAP))
-            UpcomingRow(row, index, rowHeight, context)
+            UpcomingRow(row, index, rowHeight, context, minimal)
         }
         val footer =
             model.dataEnds ?: context.getString(R.string.upcoming_empty).takeIf { model.entries.isEmpty() }
@@ -154,6 +171,7 @@ private fun UpcomingRow(
     index: Int,
     height: Dp,
     context: Context,
+    minimal: Boolean,
 ) {
     Row(
         modifier =
@@ -176,20 +194,25 @@ private fun UpcomingRow(
                     ),
                 maxLines = 1,
             )
-            Text(
-                text = row.relative,
-                style = TextStyle(color = GlanceTheme.colors.onSurfaceVariant, fontSize = 12.sp),
-                maxLines = 1,
-            )
+            if (!minimal) {
+                Text(
+                    text = row.relative,
+                    style = TextStyle(color = GlanceTheme.colors.onSurfaceVariant, fontSize = 12.sp),
+                    maxLines = 1,
+                )
+            }
         }
     }
 }
 
-private val BLOCK_CHROME = 70.dp
-private val BLOCK_PADDING = 18.dp
+private const val BLOCK_SHARE = 0.32f
+private val MIN_BLOCK = 84.dp
+private val MAX_BLOCK = 132.dp
+private val BLOCK_PADDING = 12.dp
+private val BLOCK_VERTICAL = 28.dp
+private val BLOCK_WIDTH_AT_ONE = 80.dp
 private val MIN_SUNNY = 36.dp
 private val MAX_SUNNY = 112.dp
 private val ROOMY = 170.dp
 private val LIST_CHROME = 40.dp
 private val ROW_GAP = 4.dp
-private val TITHI_HEIGHT = 130.dp

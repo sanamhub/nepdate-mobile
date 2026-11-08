@@ -57,10 +57,22 @@ class NewWidgetsTest {
         }
 
     @Test
+    fun aOneCellDateChipDrawsTheNumeralAlone() =
+        runGlanceAppWidgetUnitTest {
+            setContext(context)
+            setAppWidgetSize(DpSize(60.dp, 60.dp))
+            val model = todayWidgetModel(today, Lang.ENGLISH, Digits.ENGLISH, englishWidgetCopy, false)
+            provideComposable { GlanceTheme { DateChipContent(model, WidgetOpacity.SOLID) } }
+
+            onNode(hasText("25")).assertExists()
+            onNode(hasText("Asoj")).assertDoesNotExist()
+        }
+
+    @Test
     fun theDateChipShowsTheMonthAndOpensTheApp() =
         runGlanceAppWidgetUnitTest {
             setContext(context)
-            setAppWidgetSize(DpSize(70.dp, 70.dp))
+            setAppWidgetSize(DpSize(110.dp, 110.dp))
             val model = todayWidgetModel(today, Lang.ENGLISH, Digits.ENGLISH, englishWidgetCopy, false)
             provideComposable { GlanceTheme { DateChipContent(model, WidgetOpacity.SOLID) } }
 

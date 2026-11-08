@@ -10,12 +10,12 @@ import androidx.glance.GlanceTheme
 import androidx.glance.LocalContext
 import androidx.glance.LocalSize
 import androidx.glance.action.clickable
-import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.action.actionStartActivity
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
 import androidx.glance.layout.Column
 import androidx.glance.layout.Row
+import androidx.glance.layout.Spacer
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.padding
@@ -34,7 +34,7 @@ private data class TodayFace(
     val narrowTop: String,
     val day: String,
     val weekday: String,
-    val detail: String,
+    val details: List<String>,
     val pill: String?,
     val pillIsHoliday: Boolean,
 )
@@ -42,27 +42,52 @@ private data class TodayFace(
 private fun TodayWidgetModel.face(showAd: Boolean): TodayFace {
     val pill = holidayName ?: eventName
     return if (showAd) {
-        TodayFace(adMonthYear, adMonthShort, adDay, weekday, joinDots(bsShortLine, tithi), pill, holidayName != null)
+        TodayFace(adMonthYear, adMonthShort, adDay, weekday, details(bsShortLine, tithi), pill, holidayName != null)
     } else {
-        TodayFace(
-            bsMonthYear,
-            bsMonthYear.substringBeforeLast(" "),
-            bsDay,
-            weekday,
-            joinDots(tithi, adLine),
-            pill,
-            holidayName != null,
-        )
+        TodayFace(bsMonthYear, monthName, bsDay, weekday, details(tithi, adLine), pill, holidayName != null)
     }
 }
 
-private fun joinDots(vararg parts: String): String = parts.filter { it.isNotEmpty() }.joinToString(" · ")
+private fun details(vararg parts: String): List<String> = parts.filter { it.isNotEmpty() }
+
+/** What a face has room for once its fixed lines are placed. */
+private data class FaceExtras(
+    val pill: Boolean,
+    val details: List<String>,
+)
 
 /**
- * W-01 Today. The numeral sits on the marigold Sunny shape on a primary container face, and every
- * size scales its type with the widget: a larger widget gets a larger numeral and weekday, not just
- * more padding. A round button flips the face between the BS and the AD date; the choice is saved
- * per widget by [TodayFaceAction]. The rest of the face opens the app on today.
+ * Picks the optional lines in their order of importance (today's holiday or event, the tithi, the
+ * other calendar's date) while they fit in [height], and only the ones that fit in [width].
+ */
+private fun TodayFace.extras(
+    fit: WidgetFit,
+    width: Dp,
+    height: Dp,
+    scale: Float,
+): FaceExtras {
+    var left = height
+    val showPill = pill != null && fit.pill(PILL_SIZE * scale) <= left
+    if (showPill) left -= fit.pill(PILL_SIZE * scale)
+    val shown = mutableListOf<String>()
+    for (line in details) {
+        val lineHeight = fit.line(DETAIL_SIZE * scale)
+        if (lineHeight > left) break
+        if (fit.fits(line, DETAIL_SIZE * scale, width)) {
+            shown += line
+            left -= lineHeight
+        }
+    }
+    return FaceExtras(showPill, shown)
+}
+
+/**
+ * W-01 Today. The numeral sits on the marigold Sunny shape on a primary container face and the text
+ * is start aligned in one column, so every size reads the same way: weekday first, then the month,
+ * then whatever else fits (today's holiday or event, the tithi, the other calendar's date). The type
+ * grows with the widget but never past what its text column can hold, so nothing is cut with an
+ * ellipsis. A round button flips between the BS and the AD face; [TodayFaceAction] saves the choice
+ * per widget. A minimal widget keeps only the numeral, the weekday and the month.
  *
  * @param showAd true to draw the AD face
  */
@@ -71,6 +96,7 @@ internal fun TodayWidgetContent(
     model: TodayWidgetModel,
     opacity: WidgetOpacity,
     showAd: Boolean = false,
+    minimal: Boolean = false,
 ) {
     val context = LocalContext.current
     val label = context.getString(R.string.widget_today_name)
@@ -85,192 +111,145 @@ internal fun TodayWidgetContent(
                 },
         contentAlignment = Alignment.TopEnd,
     ) {
-        val stacked = LocalSize.current.width < WIDE_FACE
-        if (stacked) TodayFaceStacked(model, face) else TodayFaceWide(model, face)
-        FlipButton(showAd, if (stacked) STACKED_FLIP else WIDE_FLIP)
+        if (LocalSize.current.width < WIDE_FACE) {
+            TodayFaceStacked(model, face, minimal)
+        } else {
+            TodayFaceWide(model, face, minimal)
+        }
+        if (!minimal) FlipButton(showAd)
     }
 }
 
+/** Up to three cells wide: the numeral in the top corner, the text under it. */
 @Composable
 private fun TodayFaceStacked(
     model: TodayWidgetModel,
     face: TodayFace,
+    minimal: Boolean,
 ) {
     val size = LocalSize.current
-    val scale = typeScale(minOf(size.width, size.height))
-    val sunny = (minOf(size.width, size.height) - STACKED_CHROME * scale).coerceIn(MIN_SUNNY, MAX_SUNNY)
-    Column(modifier = GlanceModifier.fillMaxSize().padding(12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(
-            // A narrow face drops the year and, on the AD side, shortens the month, so the line fits
-            // beside the flip button without an ellipsis.
-            text = if (size.width < FULL_DETAIL_WIDTH) face.narrowTop else face.top,
-            modifier = GlanceModifier.fillMaxWidth().padding(end = STACKED_FLIP_CLEARANCE),
-            style = faceStyle(14.sp * scale, FontWeight.Bold),
-            maxLines = 1,
-        )
-        Box(modifier = GlanceModifier.fillMaxWidth().defaultWeight(), contentAlignment = Alignment.Center) {
-            SunnyNumeral(face.day, sunny)
-        }
-        Text(
-            text = face.weekday,
-            modifier = GlanceModifier.fillMaxWidth(),
-            style = TextStyle(color = weekdayColor(model), fontSize = 15.sp * scale, fontWeight = FontWeight.Bold),
-            maxLines = 1,
-        )
-        if (face.pill != null && size.height >= PILL_HEIGHT) {
-            FacePill(face.pill, face.pillIsHoliday, 12.sp * scale)
-        } else {
-            Text(
-                // A narrow face keeps only the first part (the tithi, or the BS date on the AD face),
-                // so a 2x2 widget never cuts a date mid-word.
-                text = if (size.width < FULL_DETAIL_WIDTH) face.detail.substringBefore(" · ") else face.detail,
-                modifier = GlanceModifier.fillMaxWidth(),
-                style = faceStyle(12.sp * scale),
-                maxLines = 1,
+    val fit = widgetFit()
+    val inner = size.width - FACE_PADDING * 2
+    val scale = columnScale(minOf(size.width, size.height), inner, STACKED_WIDTH_AT_ONE).coerceAtMost(MAX_STACKED_SCALE)
+    val text = fit.line(WEEKDAY_SIZE * scale) + fit.line(TOP_SIZE * scale) + STACK_GAP
+    // The numeral gives way first on a short face, so the weekday and the month always fit.
+    val sunny =
+        minOf(minOf(size.width, size.height) * STACKED_SUNNY_SHARE, size.height - FACE_PADDING * 2 - text)
+            .coerceIn(MIN_SUNNY, MAX_STACKED_SUNNY)
+    val top = if (fit.fits(face.top, TOP_SIZE * scale, inner)) face.top else face.narrowTop
+    val fixed = sunny + text
+    val extras =
+        if (minimal) {
+            FaceExtras(
+                false,
+                emptyList(),
             )
+        } else {
+            face.extras(fit, inner, size.height - FACE_PADDING * 2 - fixed, scale)
         }
+    Column(modifier = GlanceModifier.fillMaxSize().padding(FACE_PADDING)) {
+        SunnyNumeral(face.day, sunny)
+        Spacer(GlanceModifier.defaultWeight())
+        FaceText(face.weekday, WEEKDAY_SIZE * scale, weekdayColor(model), FontWeight.Bold)
+        FaceText(top, TOP_SIZE * scale, faceInk(), FontWeight.Medium)
+        FaceExtraLines(face, extras, scale)
     }
 }
 
+/** Four or more cells wide: the numeral on the start side, the text column beside it. */
 @Composable
 private fun TodayFaceWide(
     model: TodayWidgetModel,
     face: TodayFace,
+    minimal: Boolean,
 ) {
     val size = LocalSize.current
-    val scale = typeScale(size.height)
-    val sunny = (size.height - WIDE_CHROME).coerceIn(MIN_SUNNY, MAX_SUNNY * scale)
-    Row(modifier = GlanceModifier.fillMaxSize().padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+    val fit = widgetFit()
+    val sunny = minOf(size.height - FACE_PADDING * 2, size.width * WIDE_SUNNY_SHARE).coerceIn(MIN_SUNNY, MAX_WIDE_SUNNY)
+    val column = size.width - FACE_PADDING * 2 - sunny - COLUMN_GAP
+    val scale = columnScale(size.height, column, WIDE_WIDTH_AT_ONE)
+    // Only the top line shares its row with the flip button, so only it keeps clear of it.
+    val topWidth = column - if (minimal) 0.dp else FLIP_CLEARANCE
+    val top = if (fit.fits(face.top, TOP_SIZE * scale, topWidth)) face.top else face.narrowTop
+    val fixed = fit.line(WEEKDAY_SIZE * WIDE_WEEKDAY * scale) + fit.line(TOP_SIZE * scale)
+    val extras =
+        if (minimal) {
+            FaceExtras(
+                false,
+                emptyList(),
+            )
+        } else {
+            face.extras(fit, column, size.height - FACE_PADDING * 2 - fixed, scale)
+        }
+    Row(modifier = GlanceModifier.fillMaxSize().padding(FACE_PADDING), verticalAlignment = Alignment.CenterVertically) {
         SunnyNumeral(face.day, sunny)
-        Column(modifier = GlanceModifier.defaultWeight().padding(start = 14.dp)) {
-            // Only the top line shares its row with the flip button, so only it keeps clear of it.
+        Column(modifier = GlanceModifier.defaultWeight().padding(start = COLUMN_GAP)) {
             Text(
-                text = face.top,
-                modifier = GlanceModifier.padding(end = FLIP_CLEARANCE),
-                style = faceStyle(14.sp * scale, FontWeight.Bold),
+                text = top,
+                modifier = GlanceModifier.padding(end = if (minimal) 0.dp else FLIP_CLEARANCE),
+                style = faceStyle(TOP_SIZE * scale, FontWeight.Medium),
                 maxLines = 1,
             )
-            Text(
-                text = face.weekday,
-                style = TextStyle(color = weekdayColor(model), fontSize = 24.sp * scale, fontWeight = FontWeight.Bold),
-                maxLines = 1,
-            )
-            WideFooter(model, face, scale, roomy = size.height >= WIDE_PILL_HEIGHT)
+            FaceText(face.weekday, WEEKDAY_SIZE * WIDE_WEEKDAY * scale, weekdayColor(model), FontWeight.Bold)
+            FaceExtraLines(face, extras, scale)
         }
     }
 }
 
-/**
- * The lines under the weekday. A short face has room for one more line: today's holiday or event
- * pill when there is one, otherwise the detail line. A taller face shows the detail and then the
- * pill, or the next holiday.
- */
 @Composable
-private fun WideFooter(
-    model: TodayWidgetModel,
+private fun FaceExtraLines(
     face: TodayFace,
+    extras: FaceExtras,
     scale: Float,
-    roomy: Boolean,
 ) {
-    if (!roomy && face.pill != null) {
-        FacePill(face.pill, face.pillIsHoliday, 12.sp * scale)
-        return
-    }
-    Text(text = face.detail, style = faceStyle(13.sp * scale), maxLines = 1)
-    val next = model.nextHoliday
-    when {
-        !roomy -> Unit
-        face.pill != null -> FacePill(face.pill, face.pillIsHoliday, 12.sp * scale)
-        next != null ->
-            Text(
-                text = "${next.name} · ${next.relative}",
-                modifier = GlanceModifier.padding(top = 2.dp),
-                style = faceStyle(12.sp * scale, FontWeight.Medium),
-                maxLines = 1,
-            )
-    }
+    extras.details.forEach { FaceText(it, DETAIL_SIZE * scale, faceInk(), FontWeight.Normal) }
+    if (extras.pill && face.pill != null) FacePill(face.pill, face.pillIsHoliday, PILL_SIZE * scale)
 }
 
-/** Today's holiday on the holiday container, or today's event on the surface, as a small pill. */
 @Composable
-private fun FacePill(
+private fun FaceText(
     text: String,
-    isHoliday: Boolean,
     fontSize: TextUnit,
+    color: ColorProvider,
+    weight: FontWeight,
 ) {
     Text(
         text = text,
-        modifier =
-            GlanceModifier
-                .padding(top = 4.dp)
-                .shapeBackground(
-                    R.drawable.widget_shape_pill,
-                    if (isHoliday) holidayContainerProvider() else GlanceTheme.colors.surface,
-                ).padding(horizontal = 10.dp, vertical = 3.dp),
-        style =
-            TextStyle(
-                color = if (isHoliday) onHolidayContainerProvider() else GlanceTheme.colors.onSurface,
-                fontSize = fontSize,
-                fontWeight = FontWeight.Bold,
-            ),
+        modifier = GlanceModifier.fillMaxWidth(),
+        style = TextStyle(color = color, fontSize = fontSize, fontWeight = weight),
         maxLines = 1,
     )
 }
 
 @Composable
+private fun faceInk(): ColorProvider = GlanceTheme.colors.onPrimaryContainer
+
+@Composable
 private fun faceStyle(
     fontSize: TextUnit,
     weight: FontWeight = FontWeight.Normal,
-): TextStyle = TextStyle(color = GlanceTheme.colors.onPrimaryContainer, fontSize = fontSize, fontWeight = weight)
+): TextStyle = TextStyle(color = faceInk(), fontSize = fontSize, fontWeight = weight)
 
 @Composable
 private fun weekdayColor(model: TodayWidgetModel): ColorProvider =
     if (model.isHoliday || model.isSaturday) holidayProvider() else GlanceTheme.colors.onPrimaryContainer
 
-/**
- * The flip button: a filled primary circle with the on-primary icon. The old button tinted a white
- * shape with a 12% white tint, which `setColorFilter` blends instead of replacing, so it drew nearly
- * white on the dark face. Primary on primary container keeps the icon above 4.5:1 and the button
- * above 3:1 in light, dark and wallpaper colours.
- */
-@Composable
-private fun FlipButton(
-    showAd: Boolean,
-    width: Dp,
-) {
-    val context = LocalContext.current
-    val description = context.getString(if (showAd) R.string.widget2_show_bs else R.string.widget2_show_ad)
-    Box(modifier = GlanceModifier.padding(4.dp)) {
-        IconControl(
-            spec =
-                ControlSpec(
-                    icon = R.drawable.ic_sym_swap_horiz,
-                    description = description,
-                    tag = "today_flip",
-                    action = actionRunCallback<TodayFaceAction>(),
-                ),
-            style =
-                ControlStyle(
-                    shape = R.drawable.widget_shape_pill,
-                    fill = GlanceTheme.colors.primary,
-                    ink = GlanceTheme.colors.onPrimary,
-                    width = width,
-                    height = width,
-                ),
-        )
-    }
-}
-
 internal val TOUCH_TARGET = 48.dp
 private val WIDE_FACE = 200.dp
-private val PILL_HEIGHT = 150.dp
-private val FLIP_CLEARANCE = 40.dp
-private val STACKED_FLIP_CLEARANCE = 32.dp
-private val WIDE_FLIP = 36.dp
-private val STACKED_FLIP = 28.dp
-private val FULL_DETAIL_WIDTH = 160.dp
-private val WIDE_PILL_HEIGHT = 130.dp
-private val MIN_SUNNY = 40.dp
-private val MAX_SUNNY = 120.dp
-private val STACKED_CHROME = 72.dp
-private val WIDE_CHROME = 24.dp
+private val FACE_PADDING = 14.dp
+private val COLUMN_GAP = 16.dp
+private val STACK_GAP = 6.dp
+private val FLIP_CLEARANCE = 36.dp
+private val MIN_SUNNY = 32.dp
+private val MAX_STACKED_SUNNY = 84.dp
+private val MAX_WIDE_SUNNY = 136.dp
+private const val STACKED_SUNNY_SHARE = 0.34f
+private const val MAX_STACKED_SCALE = 1.25f
+private const val WIDE_SUNNY_SHARE = 0.34f
+private const val WIDE_WEEKDAY = 1.35f
+private val STACKED_WIDTH_AT_ONE = 100.dp
+private val WIDE_WIDTH_AT_ONE = 130.dp
+private val WEEKDAY_SIZE = 18.sp
+private val TOP_SIZE = 13.sp
+private val DETAIL_SIZE = 12.sp
+private val PILL_SIZE = 12.sp

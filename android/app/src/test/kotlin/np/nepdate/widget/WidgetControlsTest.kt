@@ -46,7 +46,36 @@ class WidgetControlsTest {
             onNode(hasTestTag("today_flip")).assert(hasContentDescription("Show the Bikram Sambat date"))
             // A narrow face shortens the AD month so it fits beside the flip button.
             onNode(hasText("Oct")).assertExists()
+        }
+
+    @Test
+    fun aRoomyAdFaceAddsTheBsDateAndAMinimalFaceDropsTheDetails() =
+        runGlanceAppWidgetUnitTest {
+            setContext(context)
+            setAppWidgetSize(DpSize(180.dp, 200.dp))
+            val model =
+                todayWidgetModel(NepaliDate.of(2083, 6, 25), Lang.ENGLISH, Digits.ENGLISH, englishWidgetCopy, false)
+            provideComposable {
+                GlanceTheme { TodayWidgetContent(model, WidgetOpacity.SOLID, showAd = true) }
+            }
+
             onNode(hasText("Asoj 25")).assertExists()
+        }
+
+    @Test
+    fun aMinimalTodayWidgetHasNoFlipButtonOrDetailLines() =
+        runGlanceAppWidgetUnitTest {
+            setContext(context)
+            setAppWidgetSize(DpSize(180.dp, 200.dp))
+            val model =
+                todayWidgetModel(NepaliDate.of(2083, 6, 25), Lang.ENGLISH, Digits.ENGLISH, englishWidgetCopy, false)
+            provideComposable {
+                GlanceTheme { TodayWidgetContent(model, WidgetOpacity.SOLID, minimal = true) }
+            }
+
+            onNode(hasTestTag("today_flip")).assertDoesNotExist()
+            onNode(hasText(model.tithi)).assertDoesNotExist()
+            onNode(hasText(model.weekday)).assertExists()
         }
 
     @Test
@@ -79,7 +108,7 @@ class WidgetControlsTest {
 
         assertTrue("a public holiday is within reach of the arrows", holidayIndex >= 0)
         assertTrue(model.isHoliday)
-        assertEquals("Next public holiday", model.kind)
+        assertEquals("Next holiday", model.kind)
         assertEquals(entries[holidayIndex].daysFromToday.toString(), model.days)
     }
 

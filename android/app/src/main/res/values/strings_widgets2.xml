@@ -7,7 +7,7 @@
     <!-- Next festival widget. -->
     <string name="widget2_next_festival_name">Next festival</string>
     <string name="widget2_next_festival_description">Days left to the next festival or public holiday. Arrows browse the ones after it.</string>
-    <string name="widget2_next_holiday_kind">Next public holiday</string>
+    <string name="widget2_next_holiday_kind">Next holiday</string>
     <string name="widget2_next_festival_kind">Next festival</string>
     <string name="widget2_previous_festival">Previous festival</string>
     <string name="widget2_following_festival">Next festival</string>

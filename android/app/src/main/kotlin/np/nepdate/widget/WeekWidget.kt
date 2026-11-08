@@ -35,9 +35,13 @@ import np.nepdate.R
 internal fun WeekWidgetContent(
     model: WeekWidgetModel,
     opacity: WidgetOpacity,
+    minimal: Boolean = false,
 ) {
     val context = LocalContext.current
-    val tall = LocalSize.current.height >= TALL_WEEK
+    val height = LocalSize.current.height
+    val tall = height >= TALL_WEEK
+    // A one-row strip shorter than the weekday, numeral and mark stack keeps the numerals only.
+    val labels = height >= LABELLED_WEEK
     Column(
         modifier =
             widgetRoot(opacity, GlanceTheme.colors.surface)
@@ -54,10 +58,10 @@ internal fun WeekWidgetContent(
             )
         }
         Row(modifier = GlanceModifier.fillMaxWidth().defaultWeight()) {
-            model.days.forEach { day -> WeekDay(day, tall) }
+            model.days.forEach { day -> WeekDay(day, tall, labels, minimal) }
         }
         val next = model.next
-        if (tall && next != null) NextLine(next)
+        if (tall && !minimal && next != null) NextLine(next)
     }
 }
 
@@ -65,6 +69,8 @@ internal fun WeekWidgetContent(
 private fun RowScope.WeekDay(
     day: WeekDayCell,
     tall: Boolean,
+    labels: Boolean,
+    minimal: Boolean,
 ) {
     val context = LocalContext.current
     val numeral = if (tall) 36.dp else 30.dp
@@ -81,17 +87,7 @@ private fun RowScope.WeekDay(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         val red = day.isHoliday || day.isSaturday
-        Text(
-            text = day.weekdayShort,
-            style =
-                TextStyle(
-                    color = if (red) holidayProvider() else GlanceTheme.colors.onSurfaceVariant,
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center,
-                ),
-            maxLines = 1,
-        )
+        if (labels) WeekdayLabel(day.weekdayShort, red)
         Box(modifier = GlanceModifier.size(numeral), contentAlignment = Alignment.Center) {
             if (day.isToday) SunnyShape(GlanceModifier.size(numeral))
             Text(
@@ -111,8 +107,26 @@ private fun RowScope.WeekDay(
                 maxLines = 1,
             )
         }
-        DayMarker(day.isHoliday, day.hasEvents)
+        if (!minimal) DayMarker(day.isHoliday, day.hasEvents)
     }
+}
+
+@Composable
+private fun WeekdayLabel(
+    text: String,
+    red: Boolean,
+) {
+    Text(
+        text = text,
+        style =
+            TextStyle(
+                color = if (red) holidayProvider() else GlanceTheme.colors.onSurfaceVariant,
+                fontSize = 11.sp,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
+            ),
+        maxLines = 1,
+    )
 }
 
 /** The next day with an event, as one tappable line under the week. */
@@ -140,3 +154,4 @@ private fun NextLine(next: WidgetDayRow) {
 }
 
 private val TALL_WEEK = 100.dp
+private val LABELLED_WEEK = 76.dp

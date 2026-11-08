@@ -28,14 +28,15 @@ class WidgetContentTest {
     fun theDateStripShowsTheWeekdayDateAndTithiInEnglishDigits() =
         runGlanceAppWidgetUnitTest {
             setContext(context)
-            setAppWidgetSize(GlanceAppWidgetSize.ONE_LINE)
+            setAppWidgetSize(DpSize(300.dp, 60.dp))
             provideComposable {
                 GlanceTheme {
                     DateStripContent(todayModel(Digits.ENGLISH, Lang.ENGLISH), WidgetOpacity.SOLID)
                 }
             }
 
-            onNode(hasText("Sunday · Asoj 25, 2083")).assertExists()
+            // The numeral is on the Sunny shape, so the line names the month and year without the day.
+            onNode(hasText("Sunday · Asoj 2083")).assertExists()
             onNode(hasTextEqualTo("25")).assertExists()
             onNode(hasText("२५")).assertDoesNotExist()
             onNode(hasTestTag("strip_widget")).assert(hasStartActivityClickAction(widgetIntent(context)))

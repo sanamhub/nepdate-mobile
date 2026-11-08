@@ -1,6 +1,8 @@
 package np.nepdate.widget
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.glance.GlanceModifier
@@ -60,9 +62,18 @@ internal fun DateChipContent(
             }
         } else {
             val side = minOf(size.width, size.height)
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(text = model.monthName, style = chipStyle(12.sp * typeScale(side), FontWeight.Bold), maxLines = 1)
-                SunnyNumeral(model.bsDay, (side - CHIP_LABEL).coerceIn(28.dp, 120.dp))
+            if (side < CHIP_WITH_MONTH) {
+                // One cell has no room for a legible month, so it draws the numeral alone.
+                SunnyNumeral(model.bsDay, side - 8.dp)
+            } else {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        text = model.monthName,
+                        style = chipStyle(12.sp * typeScale(side), FontWeight.Bold),
+                        maxLines = 1,
+                    )
+                    SunnyNumeral(model.bsDay, (side - CHIP_LABEL * typeScale(side)).coerceIn(28.dp, 120.dp))
+                }
             }
         }
     }
@@ -70,18 +81,28 @@ internal fun DateChipContent(
 
 /**
  * The Date and tithi strip (4x1): today's numeral on the Sunny shape, then the weekday and the BS
- * date on one line and the tithi with the AD date under it. A wide strip adds today's holiday or
- * event as a pill at the end. A tap opens the app on today.
+ * month on one line and the tithi with the AD date under it. A strip too short for two lines keeps
+ * one, and a part that does not fit is left out rather than cut. A wide strip adds today's holiday
+ * or event as a pill at the end; a minimal strip keeps the weekday and the month only. A tap opens
+ * the app on today.
  */
 @Composable
 internal fun DateStripContent(
     model: TodayWidgetModel,
     opacity: WidgetOpacity,
+    minimal: Boolean = false,
 ) {
     val context = LocalContext.current
     val size = LocalSize.current
-    val scale = typeScale(size.height * STRIP_TO_FACE)
-    val pill = model.holidayName ?: model.eventName
+    val fit = widgetFit()
+    val pill = (model.holidayName ?: model.eventName)?.takeIf { !minimal && size.width >= STRIP_PILL_WIDTH }
+    val sunny = (size.height - 12.dp).coerceIn(32.dp, 64.dp)
+    val text = size.width - sunny - STRIP_CHROME - (if (pill != null) fit.width(pill, 12.sp) + 28.dp else 0.dp)
+    val scale = columnScale(size.height * STRIP_TO_FACE, text, STRIP_WIDTH_AT_ONE)
+    val twoLines = !minimal && size.height >= STRIP_TWO_LINES
+    val first = fitted(fit, text, 15.sp * scale, model.weekday, model.bsMonthYear)
+    val second =
+        if (twoLines) fitted(fit, text, 12.sp * scale, model.tithi, model.adLine) else ""
     Row(
         modifier =
             widgetRoot(opacity, GlanceTheme.colors.surface)
@@ -92,21 +113,38 @@ internal fun DateStripContent(
                 }.padding(horizontal = 10.dp, vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        SunnyNumeral(model.bsDay, (size.height - 10.dp).coerceIn(32.dp, 64.dp))
+        SunnyNumeral(model.bsDay, sunny)
         Column(modifier = GlanceModifier.defaultWeight().padding(start = 12.dp)) {
             Text(
-                text = "${model.weekday} · ${model.bsLongLine}",
+                text = first,
                 style = TextStyle(color = weekdayInk(model), fontSize = 15.sp * scale, fontWeight = FontWeight.Bold),
                 maxLines = 1,
             )
-            Text(
-                text = listOf(model.tithi, model.adLine).filter { it.isNotEmpty() }.joinToString(" · "),
-                style = TextStyle(color = GlanceTheme.colors.onSurfaceVariant, fontSize = 12.sp * scale),
-                maxLines = 1,
-            )
+            if (second.isNotEmpty()) {
+                Text(
+                    text = second,
+                    style = TextStyle(color = GlanceTheme.colors.onSurfaceVariant, fontSize = 12.sp * scale),
+                    maxLines = 1,
+                )
+            }
         }
-        if (pill != null && size.width >= STRIP_PILL_WIDTH) StripPill(pill, model.isHoliday)
+        if (pill != null) StripPill(pill, model.isHoliday)
     }
+}
+
+/** [parts] joined with dots, dropping parts from the end until the line fits in [width]. */
+private fun fitted(
+    fit: WidgetFit,
+    width: Dp,
+    fontSize: TextUnit,
+    vararg parts: String,
+): String {
+    val present = parts.filter { it.isNotEmpty() }
+    for (count in present.size downTo 1) {
+        val line = present.take(count).joinToString(" · ")
+        if (fit.fits(line, fontSize, width)) return line
+    }
+    return present.firstOrNull().orEmpty()
 }
 
 @Composable
@@ -136,7 +174,7 @@ private fun StripPill(
 
 @Composable
 private fun chipStyle(
-    fontSize: androidx.compose.ui.unit.TextUnit,
+    fontSize: TextUnit,
     weight: FontWeight,
 ): TextStyle =
     TextStyle(
@@ -152,5 +190,9 @@ private fun weekdayInk(model: TodayWidgetModel): ColorProvider =
 
 private val CHIP_WIDE = 100.dp
 private val CHIP_LABEL = 22.dp
+private val CHIP_WITH_MONTH = 90.dp
 private val STRIP_PILL_WIDTH = 320.dp
+private val STRIP_CHROME = 32.dp
+private val STRIP_TWO_LINES = 50.dp
+private val STRIP_WIDTH_AT_ONE = 190.dp
 private const val STRIP_TO_FACE = 1.6f

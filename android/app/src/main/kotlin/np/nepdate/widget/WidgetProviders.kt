@@ -28,7 +28,12 @@ class TodayGlanceWidget : GlanceAppWidget() {
         id: GlanceId,
     ) = provideNepdateContent(context) { environment, preferences ->
         val model = remember(environment) { environment.todayModel(environment.today) }
-        TodayWidgetContent(model, preferences.opacity(), showAd = preferences[TODAY_SHOW_AD_KEY] ?: false)
+        TodayWidgetContent(
+            model,
+            preferences.opacity(),
+            showAd = preferences[TODAY_SHOW_AD_KEY] ?: false,
+            minimal = preferences.minimal(),
+        )
     }
 
     override suspend fun providePreview(
@@ -50,7 +55,7 @@ class UpcomingGlanceWidget : GlanceAppWidget() {
         id: GlanceId,
     ) = provideNepdateContent(context) { environment, preferences ->
         val model = remember(environment) { environment.upcomingModel(environment.today) }
-        UpcomingWidgetContent(model, preferences.opacity())
+        UpcomingWidgetContent(model, preferences.opacity(), minimal = preferences.minimal())
     }
 
     override suspend fun providePreview(
@@ -107,7 +112,7 @@ class NextFestivalGlanceWidget : GlanceAppWidget() {
     ) = provideNepdateContent(context) { environment, preferences ->
         val index = preferences[FESTIVAL_INDEX_KEY] ?: 0
         val model = remember(environment, index) { environment.nextFestival(context, environment.today, index) }
-        NextFestivalWidgetContent(model, preferences.opacity())
+        NextFestivalWidgetContent(model, preferences.opacity(), minimal = preferences.minimal())
     }
 
     override suspend fun providePreview(

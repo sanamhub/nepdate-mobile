@@ -46,6 +46,7 @@ internal class WidgetPreviewPublisher(
         manager.setWidgetPreviews<DateChipGlanceWidgetReceiver>(homeThenKeyguard)
         manager.setWidgetPreviews<DateStripGlanceWidgetReceiver>(home)
         manager.setWidgetPreviews<WeekGlanceWidgetReceiver>(home)
+        manager.setWidgetPreviews<TextDateGlanceWidgetReceiver>(homeThenKeyguard)
     }
 
     private companion object {

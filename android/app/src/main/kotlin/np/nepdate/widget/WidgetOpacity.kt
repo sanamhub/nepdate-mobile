@@ -4,6 +4,7 @@ import android.os.Build
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.glance.GlanceModifier
 import androidx.glance.LocalContext
@@ -19,7 +20,7 @@ import np.nepdate.ui.theme.TodayDark
 import np.nepdate.ui.theme.TodayLight
 import androidx.glance.color.ColorProvider as dayNightColor
 
-/** The one configuration choice each widget offers (widgets.md, quality bar). */
+/** The background choice every widget offers in its configuration screen. */
 internal enum class WidgetOpacity(
     val key: String,
     val alpha: Float,
@@ -35,6 +36,9 @@ internal enum class WidgetOpacity(
 }
 
 internal val WIDGET_OPACITY_KEY = stringPreferencesKey("widget_opacity")
+
+/** True when the placed widget shows only the date, without its detail lines and controls. */
+internal val WIDGET_MINIMAL_KEY = booleanPreferencesKey("widget_minimal")
 
 private const val SEVENTY_PERCENT_ALPHA = 0.7f
 
