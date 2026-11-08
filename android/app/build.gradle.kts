@@ -130,20 +130,31 @@ play {
     track.set("internal")
 }
 
-// A2-05: widgets must not carry bitmaps. Colours, numerals and marks are all text or shapes.
+// A2-05: widgets must not carry bitmaps. Colours, numerals and marks are text, shapes or vector
+// drawables. A drawable loaded by resource id (ImageProvider(R.drawable.x)) is fine: the launcher
+// inflates it. A bitmap, an Icon or a content Uri travels inside the RemoteViews parcel, which has
+// a size limit, and draws blurred when scaled, so those are what this check refuses.
 tasks.register("checkWidgetBitmaps") {
     group = "verification"
-    description = "Fails when a widget source uses Bitmap or a bitmap ImageProvider."
+    description = "Fails when a widget source uses a Bitmap, an Icon or a Uri image instead of a drawable resource."
     inputs.files(fileTree("src/main/kotlin/np/nepdate/widget") { include("**/*.kt") })
     doLast {
+        val forbidden =
+            listOf(
+                Regex("""\bBitmap\b"""),
+                Regex("""\bcreateBitmap\b|\btoBitmap\b"""),
+                Regex("""import android\.graphics\.drawable\.Icon\b"""),
+                Regex("""\bIcon\.createWith"""),
+                Regex("""import android\.net\.Uri\b"""),
+            )
         val offending =
             inputs.files.files.filter { file ->
                 val source = file.readText()
-                "Bitmap" in source || "ImageProvider(" in source
+                forbidden.any { it.containsMatchIn(source) }
             }
         if (offending.isNotEmpty()) {
             throw GradleException(
-                "checkWidgetBitmaps: bitmap use under widget/: " +
+                "checkWidgetBitmaps: bitmap, Icon or Uri image under widget/: " +
                     offending.joinToString(", ") { it.name },
             )
         }
