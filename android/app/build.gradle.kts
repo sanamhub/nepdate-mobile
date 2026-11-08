@@ -21,7 +21,8 @@ android {
         applicationId = "np.nepdate"
         minSdk = 26
         targetSdk = 37
-        versionCode = 1
+        // Tester builds pass -PversionCode=N so each one installs over the last as an update.
+        versionCode = providers.gradleProperty("versionCode").orNull?.toInt() ?: 1
         versionName = "1.0.0"
         buildConfigField("String", "NEPDATE_VERSION", "\"${libs.versions.nepdate.get()}\"")
 
