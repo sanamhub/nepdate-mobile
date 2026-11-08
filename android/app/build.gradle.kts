@@ -29,6 +29,12 @@ android {
         vectorDrawables.useSupportLibrary = true
     }
 
+    // The app speaks English and Nepali only. Without this filter every AndroidX and Material
+    // library ships its strings in some 80 languages that the app can never show.
+    androidResources {
+        localeFilters += listOf("en", "ne")
+    }
+
     // A3-02: the production environment provides these variables. Without them the release build
     // stays unsigned, which is what the reproducible-build job compares.
     signingConfigs {
