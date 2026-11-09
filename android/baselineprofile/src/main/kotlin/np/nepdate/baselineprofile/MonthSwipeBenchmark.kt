@@ -5,6 +5,9 @@ import androidx.benchmark.macro.FrameTimingMetric
 import androidx.benchmark.macro.StartupMode
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.uiautomator.UiDevice
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -17,6 +20,12 @@ import org.junit.runner.RunWith
 class MonthSwipeBenchmark {
     @get:Rule
     val benchmarkRule = MacrobenchmarkRule()
+
+    /** A fresh install opens on the welcome; the month grid is what the swipes mean to hit. */
+    @Before
+    fun dismissFirstRun() {
+        UiDevice.getInstance(InstrumentationRegistry.getInstrumentation()).prepareForMeasuredLaunch()
+    }
 
     @Test
     fun monthSwipesWithoutProfile() = swipe(withoutProfile())

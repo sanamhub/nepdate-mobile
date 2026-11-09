@@ -25,3 +25,13 @@ internal fun UiDevice.openPastFirstRun() {
     val tabs = wait(Until.hasObject(By.desc(FIRST_TAB).pkg(PACKAGE_NAME)), UI_TIMEOUT_MS)
     assertTrue("The first-run screen did not open the tabs", tabs)
 }
+
+/**
+ * Opens the app once to leave the first-run welcome, then stops it, so a measured start begins on
+ * the month. A managed device with no app data otherwise measures the welcome screen.
+ */
+internal fun UiDevice.prepareForMeasuredLaunch() {
+    executeShellCommand("am start -n $PACKAGE_NAME/.MainActivity")
+    openPastFirstRun()
+    executeShellCommand("am force-stop $PACKAGE_NAME")
+}

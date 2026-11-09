@@ -26,9 +26,7 @@ class BaselineProfileGenerator {
     @Before
     fun dismissFirstRun() {
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-        device.executeShellCommand("am start -n $PACKAGE_NAME/.MainActivity")
-        device.openPastFirstRun()
-        device.executeShellCommand("am force-stop $PACKAGE_NAME")
+        device.prepareForMeasuredLaunch()
     }
 
     /** Cold start to the first drawn month grid. Also written to the startup profile. */
