@@ -1,6 +1,8 @@
 package np.nepdate.ui.month
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -9,6 +11,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
@@ -161,15 +164,15 @@ private fun ColumnScope.MonthBody(
     val bigFont = LocalDensity.current.fontScale >= LIST_FONT_SCALE
     val density = LocalDensity.current
     val bottomBar = LocalBottomBarPadding.current.calculateBottomPadding()
-    // Each row keeps room for its numeral, event mark and two tithi lines. When the hero leaves too
-    // little height for that, the page scrolls instead of squeezing the tithi out of the cells.
-    val gridMin =
-        MONTH_CARD_CHROME + bottomBar +
-            (if (settings.showTithi) ROW_MIN_TITHI else ROW_MIN).plus(if (settings.showAdDates) AD_ROW else 0.dp) *
-            layout.rowCount
+    // A week row is as tall as its numeral, marks, AD day and tithi need, and no taller: stretching
+    // rows to fill the screen left the numbers floating in tall empty cells.
+    val rowHeight = (if (settings.showTithi) ROW_TITHI else ROW).plus(if (settings.showAdDates) AD_ROW else 0.dp)
     var heroHeight by remember { mutableStateOf(0.dp) }
     BoxWithConstraints(modifier = Modifier.weight(1f)) {
-        val cardHeight = maxOf(maxHeight - heroHeight, gridMin)
+        // The card reaches the bottom of the screen, behind the floating bar, even when its content
+        // is shorter; the large-text list keeps the fixed height it scrolls inside.
+        val fill = maxHeight - heroHeight
+        val cardHeight = if (bigFont) maxOf(fill, LIST_CARD_MIN + bottomBar) else null
         Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
             Column(modifier = Modifier.onSizeChanged { heroHeight = with(density) { it.height.toDp() } }) {
                 TodayHeroSlot(
@@ -191,7 +194,9 @@ private fun ColumnScope.MonthBody(
                 onDayClick,
                 onFirstGridDrawn,
                 goTo,
-                cardHeight,
+                rowHeight = rowHeight,
+                height = cardHeight,
+                minHeight = fill,
             )
         }
     }
@@ -210,14 +215,16 @@ private fun MonthCard(
     onDayClick: (NepaliDate) -> Unit,
     onFirstGridDrawn: () -> Unit,
     goTo: (Int) -> Unit,
-    height: Dp,
+    rowHeight: Dp,
+    height: Dp?,
+    minHeight: Dp,
 ) {
     val currentPage = pagerState.settledPage
     val todayPage = monthPage(today.year, today.monthValue)
     Column(
         modifier =
             Modifier
-                .height(height)
+                .then(if (height != null) Modifier.height(height) else Modifier.heightIn(min = minHeight))
                 .padding(start = 8.dp, end = 8.dp, top = 8.dp)
                 .clip(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp))
                 .background(MaterialTheme.colorScheme.surfaceContainerLow)
@@ -243,9 +250,59 @@ private fun MonthCard(
             lang = lang,
             onDayClick = onDayClick,
             onFirstGridDrawn = onFirstGridDrawn,
-            modifier = Modifier.weight(1f),
+            rowHeight = rowHeight,
+            modifier =
+                if (height != null) {
+                    Modifier.weight(1f)
+                } else {
+                    Modifier.height(gridHeight(pagerState, layout, settings, today, rowHeight))
+                },
         )
+        if (height == null) {
+            Crossfade(
+                targetState = layout,
+                animationSpec = MaterialTheme.motionScheme.defaultEffectsSpec(),
+                label = "month highlights",
+            ) { shown ->
+                MonthHighlights(
+                    layout = shown,
+                    lang = lang,
+                    digits = settings.digits,
+                    onDayClick = onDayClick,
+                    modifier =
+                        Modifier.padding(
+                            bottom = LocalBottomBarPadding.current.calculateBottomPadding() + 16.dp,
+                        ),
+                )
+            }
+        }
     }
+}
+
+/**
+ * The pager's height: the rows of the settled month, or of the month being swiped to when it has
+ * more, so a six-row month never shows its last row cut off mid-swipe. It animates between the two.
+ */
+@Composable
+private fun gridHeight(
+    pagerState: PagerState,
+    layout: MonthLayout,
+    settings: Settings,
+    today: NepaliDate,
+    rowHeight: Dp,
+): Dp {
+    val target = pagerState.targetPage
+    val targetRows =
+        remember(target, settings, today) {
+            monthLayout(yearForPage(target), monthForPage(target), settings, today).rowCount
+        }
+    val rows = maxOf(layout.rowCount, targetRows)
+    val height by animateDpAsState(
+        targetValue = rowHeight * rows + ROW_GAP * (rows - 1),
+        animationSpec = MaterialTheme.motionScheme.defaultSpatialSpec(),
+        label = "grid height",
+    )
+    return height
 }
 
 @Composable
@@ -288,6 +345,7 @@ private fun MonthPager(
     lang: Lang,
     onDayClick: (NepaliDate) -> Unit,
     onFirstGridDrawn: () -> Unit,
+    rowHeight: Dp,
     modifier: Modifier = Modifier,
 ) {
     val monthNames = stringArrayResource(R.array.ad_month_long).toList()
@@ -326,6 +384,7 @@ private fun MonthPager(
                 monthNames = monthNames,
                 publicHoliday = publicHoliday,
                 onDayClick = onDayClick,
+                rowHeight = rowHeight,
                 onFirstGridDrawn = if (page == pagerState.currentPage) onFirstGridDrawn else ({}),
             )
         }
@@ -370,8 +429,8 @@ internal fun yearForPage(page: Int): Int = PICKER_FIRST_YEAR + page / MONTHS_PER
 /** The BS month of a pager page, 1..12. */
 internal fun monthForPage(page: Int): Int = page % MONTHS_PER_YEAR + 1
 
-private val MONTH_CARD_CHROME = 140.dp
-private val ROW_MIN = 52.dp
-private val ROW_MIN_TITHI = 76.dp
+private val LIST_CARD_MIN = 320.dp
+private val ROW = 52.dp
+private val ROW_TITHI = 76.dp
 
 private const val SATURDAY_INDEX = 6

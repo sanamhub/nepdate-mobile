@@ -15,6 +15,7 @@
     <string name="month_ad_span_same_year">%1$s – %2$s %3$s</string>
     <string name="month_ad_span_cross_year">%1$s %2$s – %3$s %4$s</string>
     <string name="month_list_weekday_ad">%1$s · %2$s</string>
+    <string name="month_highlights_title">Holidays and events</string>
     <string name="public_holiday">Public holiday</string>
     <string name="public_holiday_label">public holiday</string>
 

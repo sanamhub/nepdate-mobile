@@ -265,8 +265,10 @@ class MonthScreenTest {
             }
         assertTrue("no visible clickable elements found", clickables.isNotEmpty())
         with(Density(density)) {
+            // The layout height, not the visible bounds: a row the screen edge cuts off is still a
+            // full-size target once it scrolls into view.
             clickables.forEach { node ->
-                val height = node.boundsInRoot.height.toDp()
+                val height = node.size.height.toDp()
                 assertTrue("a clickable is $height high, below 48 dp", height >= 48.dp)
             }
         }

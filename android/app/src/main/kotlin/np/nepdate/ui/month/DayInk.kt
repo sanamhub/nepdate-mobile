@@ -94,23 +94,23 @@ internal fun BoxScope.DayCellContent(
     showAdDay: Boolean,
     ink: DayInk,
 ) {
-    // The AD day sits centred above the numeral and the numeral column starts below it, so a
-    // two-digit BS day and its AD day never overlap on a narrow cell, and the pair reads as one
-    // stack instead of a number with a stray digit in the corner.
-    if (showAdDay) {
-        Text(
-            text = cell.adDay.toString().inDigits(digits),
-            modifier = Modifier.align(Alignment.TopCenter),
-            color = ink.secondary,
-            style = MaterialTheme.typography.labelSmall,
-            maxLines = 1,
-            softWrap = false,
-        )
-    }
+    // The AD day, the numeral and the marks are one stack centred in the cell, so the AD day stays
+    // next to its BS day at every row height instead of drifting to the cell's top edge.
     Column(
-        modifier = Modifier.align(Alignment.Center).padding(top = if (showAdDay) AD_ROW else 0.dp),
+        modifier = Modifier.align(Alignment.Center),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+        if (showAdDay) {
+            Box(modifier = Modifier.height(AD_ROW), contentAlignment = Alignment.BottomCenter) {
+                Text(
+                    text = cell.adDay.toString().inDigits(digits),
+                    color = ink.secondary,
+                    style = MaterialTheme.typography.labelSmall.copy(lineHeight = AD_LINE),
+                    maxLines = 1,
+                    softWrap = false,
+                )
+            }
+        }
         DayNumeral(cell, digits, ink.primary, showUnderline = isSelected && cell.isHoliday)
         Box(modifier = Modifier.height(MARK_SLOT), contentAlignment = Alignment.TopCenter) {
             if (cell.hasEvents) {
@@ -305,5 +305,8 @@ private val TODAY_GROWTH = 6.dp
 
 private val MARK_SLOT = 6.dp
 
-/** The room the AD day above the numeral takes at the top of the cell. */
+/** The room the AD day takes above the numeral. */
 internal val AD_ROW = 12.dp
+
+/** The AD day's line height, tight so it sits just above the numeral. */
+private val AD_LINE = 12.sp
