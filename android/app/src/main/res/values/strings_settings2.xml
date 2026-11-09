@@ -32,7 +32,5 @@
 
     <!-- First run. -->
     <string name="firstrun_title">A light, fast patro of your own</string>
-    <string name="firstrun_lead">Change these any time in Settings.</string>
-    <string name="firstrun_lead_look_only">Change it any time in Settings.</string>
     <string name="firstrun_open">Open the patro</string>
 </resources>

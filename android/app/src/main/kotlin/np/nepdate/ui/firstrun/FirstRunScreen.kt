@@ -9,8 +9,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
@@ -30,8 +29,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ButtonGroupDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.ToggleButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -39,6 +40,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -51,6 +53,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -62,6 +65,7 @@ import np.nepdate.data.Look
 import np.nepdate.data.Settings
 import np.nepdate.data.TodayProvider
 import np.nepdate.ui.about.APP_PROMISES
+import np.nepdate.ui.about.PromiseBadge
 import np.nepdate.ui.common.CloverShape
 import np.nepdate.ui.common.CookieShape
 import np.nepdate.ui.common.GroupPosition
@@ -70,7 +74,6 @@ import np.nepdate.ui.common.SunnyShape
 import np.nepdate.ui.common.SymbolIcon
 import np.nepdate.ui.common.bsLong
 import np.nepdate.ui.common.bsLongNepali
-import np.nepdate.ui.common.groupShape
 import np.nepdate.ui.common.inDigits
 import np.nepdate.ui.common.languageFor
 import np.nepdate.ui.common.resolve
@@ -106,8 +109,8 @@ internal fun FirstRunScreen(
                 .testTag("first_run_screen"),
     ) {
         // Only the welcome text scrolls. The choices sit in a fixed block above the button, and the
-        // title and lead keep a fixed number of lines, so switching language never moves the
-        // controls under the finger: English wraps to more lines than Nepali.
+        // title keeps a fixed number of lines, so switching language never moves the controls under
+        // the finger: English wraps to more lines than Nepali.
         Column(modifier = Modifier.weight(1f).verticalScroll(rememberScrollState())) {
             Collage(today, digits)
             Text(
@@ -117,17 +120,7 @@ internal fun FirstRunScreen(
                 style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.ExtraBold),
                 minLines = TITLE_LINES,
             )
-            PromiseChips(modifier = Modifier.padding(top = 12.dp))
-            Text(
-                text =
-                    stringResource(
-                        if (canPickLanguage) R.string.firstrun_lead else R.string.firstrun_lead_look_only,
-                    ),
-                modifier = Modifier.padding(start = 4.dp, end = 4.dp, top = 12.dp),
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                style = MaterialTheme.typography.bodyLarge,
-                minLines = LEAD_LINES,
-            )
+            PromiseChips(modifier = Modifier.padding(start = 4.dp, end = 4.dp, top = 16.dp))
         }
         if (canPickLanguage) {
             LanguageChoice(today, modifier = Modifier.padding(top = 12.dp))
@@ -149,37 +142,41 @@ internal fun FirstRunScreen(
 }
 
 /**
- * The app's promises from About as quiet chips under the title, so a first-time user sees what the
- * app does and does not do before choosing anything. They stay tonal so the button leads.
+ * The app's promises from About as a quiet two-column list under the title: each icon on a small
+ * cookie with its label beside it and no containers, so the promises read as facts and the button
+ * keeps the lead. The columns line up whatever the language; a long label wraps inside its column.
  */
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun PromiseChips(modifier: Modifier = Modifier) {
-    val scheme = MaterialTheme.colorScheme
-    FlowRow(
+    Column(
         modifier = modifier.testTag("first_run_promises"),
-        horizontalArrangement = Arrangement.spacedBy(6.dp),
-        verticalArrangement = Arrangement.spacedBy(6.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
-        APP_PROMISES.forEach { promise ->
-            Row(
-                modifier =
-                    Modifier
-                        .heightIn(min = 28.dp)
-                        .clip(RoundedCornerShape(14.dp))
-                        .background(scheme.surfaceContainerHigh)
-                        .padding(start = 8.dp, end = 10.dp, top = 4.dp, bottom = 4.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                SymbolIcon(promise.icon, tint = scheme.primary, size = 16.dp)
-                Spacer(Modifier.width(4.dp))
-                Text(
-                    text = stringResource(promise.label),
-                    color = scheme.onSurface,
-                    style = MaterialTheme.typography.labelMedium,
-                )
+        APP_PROMISES.chunked(PROMISE_COLUMNS).forEach { row ->
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                row.forEach { promise -> Promise(promise, Modifier.weight(1f)) }
             }
         }
+    }
+}
+
+@Composable
+private fun Promise(
+    promise: PromiseBadge,
+    modifier: Modifier = Modifier,
+) {
+    val scheme = MaterialTheme.colorScheme
+    Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
+        ShapeBadge(CookieShape, scheme.secondaryContainer, PROMISE_BADGE) {
+            SymbolIcon(promise.icon, tint = scheme.onSecondaryContainer, size = PROMISE_ICON)
+        }
+        Spacer(Modifier.width(8.dp))
+        Text(
+            text = stringResource(promise.label),
+            color = scheme.onSurfaceVariant,
+            style = MaterialTheme.typography.labelLarge,
+            maxLines = 2,
+        )
     }
 }
 
@@ -251,7 +248,7 @@ private fun LanguageChoice(
         }
     Row(
         modifier = modifier.fillMaxWidth().selectableGroup(),
-        horizontalArrangement = Arrangement.spacedBy(2.dp),
+        horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween),
     ) {
         LanguageButton(
             name = stringResource(R.string.settings_language_nepali),
@@ -282,24 +279,29 @@ private fun RowScope.LanguageButton(
     position: GroupPosition,
     onClick: () -> Unit,
 ) {
-    val scheme = MaterialTheme.colorScheme
-    val container = if (selected) scheme.primary else scheme.surfaceContainerHighest
-    val content = if (selected) scheme.onPrimary else scheme.onSurface
-    val shape = if (selected) RoundedCornerShape(36.dp) else groupShape(position, outer = 32.dp, inner = 8.dp)
-    Column(
-        modifier =
-            Modifier
-                .weight(1f)
-                .heightIn(min = 72.dp)
-                .clip(shape)
-                .background(container)
-                .selectable(selected = selected, role = Role.RadioButton, onClick = onClick)
-                .padding(8.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(2.dp, Alignment.CenterVertically),
+    ToggleButton(
+        checked = selected,
+        onCheckedChange = { if (!selected) onClick() },
+        modifier = Modifier.weight(1f).heightIn(min = 72.dp).semantics { role = Role.RadioButton },
+        shapes =
+            if (position == GroupPosition.START) {
+                ButtonGroupDefaults.connectedLeadingButtonShapes()
+            } else {
+                ButtonGroupDefaults.connectedTrailingButtonShapes()
+            },
+        contentPadding = PaddingValues(8.dp),
     ) {
-        Text(text = name, color = content, style = MaterialTheme.typography.titleMedium, fontSize = 18.sp)
-        Text(text = sample, color = content.copy(alpha = 0.85f), style = MaterialTheme.typography.bodyMedium)
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(2.dp),
+        ) {
+            Text(text = name, style = MaterialTheme.typography.titleMedium, fontSize = 18.sp)
+            Text(
+                text = sample,
+                modifier = Modifier.alpha(SAMPLE_ALPHA),
+                style = MaterialTheme.typography.bodyMedium,
+            )
+        }
     }
 }
 
@@ -426,6 +428,9 @@ private fun RowScope.LookCard(
 /** The split point of the half Paper, half Dark preview of the phone setting. */
 private const val HALF = 0.5f
 
+/** The sample date under a language name is a little quieter than the name. */
+private const val SAMPLE_ALPHA = 0.85f
+
 /** The widths of the card and the text line in a look preview, as fractions of the page. */
 private const val PREVIEW_CARD_WIDTH = 0.7f
 private const val PREVIEW_LINE_WIDTH = 0.45f
@@ -433,6 +438,10 @@ private const val PREVIEW_LINE_WIDTH = 0.45f
 private const val NEPALI = "ne"
 private const val ENGLISH = "en"
 
-/** The lines the welcome title and lead always take, so the screen does not jump between languages. */
+/** The lines the welcome title always takes, so the screen does not jump between languages. */
 private const val TITLE_LINES = 2
-private const val LEAD_LINES = 1
+
+/** A promise's cookie and the icon on it. */
+private val PROMISE_BADGE = 26.dp
+private val PROMISE_ICON = 14.dp
+private const val PROMISE_COLUMNS = 2
