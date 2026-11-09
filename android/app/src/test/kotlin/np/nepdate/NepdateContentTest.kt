@@ -36,7 +36,7 @@ class NepdateContentTest {
         composeRule.onNodeWithTag("nav_upcoming").performClick()
         composeRule.onNodeWithTag("upcoming_list").assertExists()
         composeRule.onNodeWithTag("nav_converter").performClick()
-        composeRule.onNodeWithTag("converter_bs_input").assertExists()
+        composeRule.onNodeWithTag("converter_wheel_year").assertExists()
         composeRule.onNodeWithTag("nav_month").performClick()
         composeRule.onNodeWithText("Asoj 2083").assertExists()
     }

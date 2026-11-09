@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Day sheet -->
+    <string name="day_previous">Previous day</string>
+    <string name="day_next">Next day</string>
+    <string name="day_event_label">Event</string>
+    <string name="day_share">Share</string>
+    <string name="day_share_chooser">Share this date</string>
+    <string name="day_yesterday">Yesterday</string>
+    <plurals name="day_days_ago">
+        <item quantity="one">%1$d day ago</item>
+        <item quantity="other">%1$d days ago</item>
+    </plurals>
+
+    <!-- Festivals screen -->
+    <string name="parva_title">Festivals and holidays</string>
+    <string name="parva_search_hint">Search festivals</string>
+    <string name="parva_clear_search">Clear search</string>
+    <string name="parva_filter_all">All</string>
+    <string name="parva_filter_holidays">Public holidays</string>
+    <string name="parva_next_holiday">Next public holiday</string>
+    <string name="parva_no_results">No festival matches \"%1$s\"</string>
+    <plurals name="parva_days_left">
+        <item quantity="one">day to go</item>
+        <item quantity="other">days to go</item>
+    </plurals>
+
+    <!-- Search screen -->
+    <string name="search_back">Back</string>
+    <string name="search_recent">Recent searches</string>
+    <string name="search_jump_title">Type a date to jump to it</string>
+    <string name="search_jump_example" tools:ignore="TypographyDashes">For example %1$s (BS) or %2$s (AD)</string>
+    <string name="search_jump_open">Go to %1$s</string>
+    <plurals name="search_results">
+        <item quantity="one">%1$d result</item>
+        <item quantity="other">%1$d results</item>
+    </plurals>
+    <string name="parva_holiday_today">Public holiday today</string>
+</resources>

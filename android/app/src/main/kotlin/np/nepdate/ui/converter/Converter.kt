@@ -91,7 +91,8 @@ internal fun ConverterState.compareWithBs(text: String): ConverterState {
     }
 }
 
-private fun conversionOf(
+/** The conversion of a BS date picked on the wheel; a picked date is always valid. */
+internal fun conversionOf(
     bs: NepaliDate,
     today: NepaliDate,
 ): Conversion =
@@ -100,6 +101,12 @@ private fun conversionOf(
         ad = bs.toLocalDate(),
         daysFromToday = today.daysUntil(bs).toInt(),
     )
+
+/** The calendar distance between two picked BS dates (MR-04 AC3). */
+internal fun comparisonOf(
+    from: NepaliDate,
+    to: NepaliDate,
+): Comparison = Comparison(from, to, from.until(to))
 
 private fun NepDateException.toConverterError(text: String?): ConverterError =
     when (kind) {

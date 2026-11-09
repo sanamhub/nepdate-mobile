@@ -1,27 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- The static Month preview for Android 12 to 14 pickers. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/nepdate_background"
+    android:background="@drawable/widget_shape_28"
+    android:backgroundTint="@color/nepdate_background"
     android:orientation="vertical"
-    android:padding="10dp"
-    tools:ignore="Overdraw">
+    android:padding="12dp"
+    tools:ignore="Overdraw,HardcodedText">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/widget_preview_month"
         android:textColor="@color/widget_preview_text"
-        android:textSize="14sp"
+        android:textSize="18sp"
         android:textStyle="bold" />
 
     <TextView
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
-        android:lineSpacingExtra="2dp"
+        android:layout_marginTop="8dp"
+        android:fontFamily="monospace"
+        android:lineSpacingExtra="10dp"
         android:text="@string/widget_preview_grid"
         android:textColor="@color/widget_preview_text"
-        android:textSize="11sp" />
+        android:textSize="13sp" />
 </LinearLayout>

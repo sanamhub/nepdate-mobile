@@ -6,4 +6,11 @@
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:windowLightStatusBar">true</item>
     </style>
+
+    <!-- Launcher activity theme on Android 8 to 11: the window shows the icon on the surface colour
+         until the first frame. MainActivity calls setTheme(Theme.Nepdate) before super.onCreate,
+         so the app itself draws on the normal background. Android 12+ uses values-v31. -->
+    <style name="Theme.Nepdate.Launch">
+        <item name="android:windowBackground">@drawable/splash_window_background</item>
+    </style>
 </resources>

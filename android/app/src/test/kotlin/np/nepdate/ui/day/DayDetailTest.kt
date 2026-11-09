@@ -39,10 +39,10 @@ class DayDetailTest {
         composeRule.onNodeWithText("Chaturdashi").assertExists()
         composeRule.onNodeWithText("Public holiday").assertExists()
         composeRule
-            .onNodeWithTag("day_event_0")
+            .onNodeWithTag("day_event_0", useUnmergedTree = true)
             .assertTextEquals("Indra Jatra (Kathmandu Valley Holiday)")
-        composeRule.onNodeWithTag("day_event_1").assertTextEquals("Ananta Chaturdashi Brata")
-        composeRule.onNodeWithTag("day_event_2").assertTextEquals("World Pharmacist Day")
+        composeRule.onNodeWithTag("day_event_1", useUnmergedTree = true).assertTextEquals("Ananta Chaturdashi Brata")
+        composeRule.onNodeWithTag("day_event_2", useUnmergedTree = true).assertTextEquals("World Pharmacist Day")
         composeRule.onNodeWithText("Add to calendar").assertExists()
         composeRule.onNodeWithText("Copy date").assertExists()
     }
@@ -80,7 +80,7 @@ class DayDetailTest {
     fun mr02Ac3CopyDateUsesTheNepaliCopy() {
         setDayDetail(NepaliDate.of(2083, 6, 9), Settings(digits = Digits.NEPALI))
 
-        composeRule.onNodeWithText("मिति प्रतिलिपि गर्नुहोस्").performClick()
+        composeRule.onNodeWithText("प्रतिलिपि").performClick()
 
         assertClipboard("असोज ९, २०८३")
     }
