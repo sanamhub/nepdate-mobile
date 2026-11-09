@@ -2,8 +2,8 @@
 """Prints a Markdown table from Macrobenchmark benchmarkData.json files.
 
 One row per test and metric: minimum, median and maximum over the iterations. Frame timing is
-reported by percentile (P50, P90, P95, P99), each with its median and worst value over the
-iterations.
+reported by percentile (P50, P90, P95, P99); the benchmark gives each percentile as one number,
+so that number fills the median column and the minimum and maximum are left out.
 """
 
 import json
@@ -11,6 +11,8 @@ import sys
 
 
 def stat(entry):
+    if isinstance(entry, (int, float)):
+        return "-", f"{entry:.1f}", "-"
     return f"{entry['minimum']:.1f}", f"{entry['median']:.1f}", f"{entry['maximum']:.1f}"
 
 
