@@ -1,5 +1,6 @@
 import CalendarUI
 import Foundation
+import SwiftUI
 import Testing
 import UIKit
 
