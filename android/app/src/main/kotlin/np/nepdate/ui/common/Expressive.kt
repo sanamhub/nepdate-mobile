@@ -100,3 +100,27 @@ internal fun ShapeBadge(
         content = content,
     )
 }
+
+/**
+ * The holiday or event mark in an icon's place: the soft burst for a public holiday and the diamond
+ * for an event, the same marks the month grid and the today card draw. [size] is the icon slot; the
+ * mark sits centred in it so text beside it lines up as it would beside an icon.
+ */
+@Composable
+internal fun DayMark(
+    holiday: Boolean,
+    color: Color,
+    modifier: Modifier = Modifier,
+    size: Dp = 18.dp,
+) {
+    Box(modifier = modifier.size(size), contentAlignment = Alignment.Center) {
+        if (holiday) {
+            Box(Modifier.size(size * HOLIDAY_MARK).clip(SoftBurstShape).background(color))
+        } else {
+            Box(Modifier.size(size * EVENT_MARK).clip(DiamondShape).background(color))
+        }
+    }
+}
+
+private const val HOLIDAY_MARK = 0.8f
+private const val EVENT_MARK = 0.55f

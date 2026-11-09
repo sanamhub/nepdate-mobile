@@ -46,6 +46,7 @@ import io.github.sanamhub.nepdate.NepaliDate
 import io.github.sanamhub.nepdate.patro.Patro
 import np.nepdate.R
 import np.nepdate.data.Digits
+import np.nepdate.ui.common.DayMark
 import np.nepdate.ui.common.FlowerShape
 import np.nepdate.ui.common.ShapeBadge
 import np.nepdate.ui.common.SoftBurstShape
@@ -224,15 +225,11 @@ private fun HeroChips(
                     container = colors.holidayContainer,
                     content = colors.onHolidayContainer,
                 ) {
-                    SymbolIcon(
-                        icon = R.drawable.ic_sym_celebration_filled,
-                        tint = colors.onHolidayContainer,
-                        size = 18.dp,
-                    )
+                    DayMark(holiday = true, color = colors.onHolidayContainer)
                 }
             } else {
                 HeroChip(text = name.inDigits(digits), container = chip, content = onContainer) {
-                    SymbolIcon(icon = R.drawable.ic_sym_celebration_filled, tint = onContainer, size = 18.dp)
+                    DayMark(holiday = false, color = onContainer)
                 }
             }
         }
