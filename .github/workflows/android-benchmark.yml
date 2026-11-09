@@ -66,6 +66,7 @@ jobs:
       - name: Summarise the results
         if: always()
         run: |
+          set -o pipefail
           find android/baselineprofile/build -name '*benchmarkData.json' -o -name '*.perfetto-trace' | sort
           files="$(find android/baselineprofile/build -name '*benchmarkData.json')"
           test -n "$files"
@@ -79,5 +80,6 @@ jobs:
           path: |
             android/baselineprofile/build/outputs
             android/baselineprofile/build/reports
+            android/baselineprofile/build/intermediates/managed_device_android_test_additional_output
           if-no-files-found: warn
           retention-days: 30

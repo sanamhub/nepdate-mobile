@@ -2,18 +2,25 @@
 """Prints a Markdown table from Macrobenchmark benchmarkData.json files.
 
 One row per test and metric: minimum, median and maximum over the iterations. Frame timing is
-reported by percentile (P50, P90, P95, P99); the benchmark gives each percentile as one number,
-so that number fills the median column and the minimum and maximum are left out.
+reported by percentile (P50, P90, P95, P99); the benchmark gives each percentile as one number, so
+that number fills the median column and the minimum and maximum are left out. A percentile that
+carries the raw samples instead is summarised across them.
 """
 
 import json
+import statistics
 import sys
 
 
 def stat(entry):
     if isinstance(entry, (int, float)):
         return "-", f"{entry:.1f}", "-"
-    return f"{entry['minimum']:.1f}", f"{entry['median']:.1f}", f"{entry['maximum']:.1f}"
+    if isinstance(entry, list) and entry:
+        values = sorted(entry)
+        return f"{values[0]:.1f}", f"{statistics.median(values):.1f}", f"{values[-1]:.1f}"
+    if isinstance(entry, dict) and {"minimum", "median", "maximum"} <= set(entry):
+        return f"{entry['minimum']:.1f}", f"{entry['median']:.1f}", f"{entry['maximum']:.1f}"
+    raise SystemExit(f"a metric is in an unexpected shape: {entry!r}")
 
 
 def main(paths):
