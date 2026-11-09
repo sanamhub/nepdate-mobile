@@ -10,7 +10,7 @@ XCODEGEN_URL="https://github.com/yonaskolb/XcodeGen/releases/download/${XCODEGEN
 SIMULATOR="platform=iOS Simulator,name=iPhone 17,OS=26.5"
 DERIVED_DATA="build/DerivedData"
 PROJECT="NepDate.xcodeproj"
-SNAPSHOT_COUNT=20
+SNAPSHOT_COUNT=22
 SNAPSHOT_REFERENCE_COUNT=43
 SNAPSHOT_RECORD="${SNAPSHOT_TESTING_RECORD:-never}"
 COVERAGE_MIN=80
