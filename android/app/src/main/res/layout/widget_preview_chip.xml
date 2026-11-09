@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The static Date chip preview for Android 12 to 14 pickers. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_shape_28"
+    android:backgroundTint="@color/nepdate_background"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:padding="6dp"
+    tools:ignore="Overdraw,HardcodedText">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/widget3_preview_month"
+        android:textColor="@color/widget_preview_text"
+        android:textSize="12sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:background="@drawable/widget_sunny"
+        android:gravity="center"
+        android:text="@string/widget3_preview_day"
+        android:textColor="#271900"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+</LinearLayout>

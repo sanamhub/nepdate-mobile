@@ -34,15 +34,17 @@ class LaunchSmokeTest {
     @Test
     fun everyTabAndTheSettingsScreenOpen() {
         launch()
-        for (tab in listOf("Upcoming", "Converter", "Month")) {
-            tap(tab, "the $tab tab")
-        }
+        // The settings button sits inside the tab pager, and a tap during a tab change stops the
+        // pager instead of pressing the button, so open it before the tabs move.
         tap("Settings", "the settings button")
         assertTrue(
             "The settings screen did not open",
             device.wait(Until.hasObject(By.text("Settings").pkg(PACKAGE_NAME)), UI_TIMEOUT_MS),
         )
         device.pressBack()
+        for (tab in listOf("Festivals", "Converter", "Patro")) {
+            tap(tab, "the $tab tab")
+        }
         assertNoCrash("tabs and settings")
     }
 
@@ -66,6 +68,7 @@ class LaunchSmokeTest {
         device.executeShellCommand("am start -n $PACKAGE_NAME/.MainActivity")
         val shown = device.wait(Until.hasObject(By.pkg(PACKAGE_NAME).depth(0)), LAUNCH_TIMEOUT_MS)
         assertTrue("The app did not show a window", shown)
+        device.openPastFirstRun()
     }
 
     /** A Compose item may expose its label as a description or as text, so try both. */

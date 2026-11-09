@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Converter: direction, wheel and live result. -->
+    <string name="converter_direction">रूपान्तरको दिशा</string>
+    <string name="converter_bs_to_ad">वि.सं. देखि ई.सं.</string>
+    <string name="converter_ad_to_bs">ई.सं. देखि वि.सं.</string>
+    <string name="converter_wheel_day">गते</string>
+    <string name="converter_wheel_next">अर्को</string>
+    <string name="converter_wheel_previous">अघिल्लो</string>
+    <string name="converter_in_ad">ईस्वी संवत्‌मा</string>
+    <string name="converter_in_bs">विक्रम संवत्‌मा</string>
+    <string name="converter_relative_today">आज</string>
+    <string name="converter_relative_tomorrow">भोलि</string>
+    <string name="converter_relative_yesterday">हिजो</string>
+    <string name="converter_show_in_patro">पात्रोमा हेर्नुहोस्</string>
+
+    <!-- Converter: the distance between two dates. -->
+    <string name="converter_between_title">दुई मितिबीच कति?</string>
+    <string name="converter_between_from">देखि</string>
+    <string name="converter_between_to">सम्म</string>
+    <string name="converter_between_to_today">सम्म (आज)</string>
+    <string name="converter_choose_first">पहिलो मिति छान्नुहोस्</string>
+    <string name="converter_choose_second">दोस्रो मिति छान्नुहोस्</string>
+    <string name="converter_done">ठीक छ</string>
+
+    <!-- Year at a glance. -->
+    <string name="year_back">महिनामा फर्कनुहोस्</string>
+    <string name="year_previous">अघिल्लो वर्ष</string>
+    <string name="year_next">अर्को वर्ष</string>
+    <string name="year_month_tile">%1$s, %2$s</string>
+    <plurals name="year_month_holidays">
+        <item quantity="one">%1$d सार्वजनिक बिदा</item>
+        <item quantity="other">%1$d सार्वजनिक बिदा</item>
+    </plurals>
+    <string name="converter_reset">रिसेट</string>
+</resources>

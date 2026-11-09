@@ -84,12 +84,13 @@ class MonthScreenTest {
     fun mr01Ac5TodayButtonOnlyAppearsOffTheCurrentMonth() {
         setMonthScreen()
 
-        composeRule.onNodeWithText("Today").assertDoesNotExist()
+        // The today hero also says "Today", so the button is found by its tag.
+        composeRule.onNodeWithTag("month_today_button").assertDoesNotExist()
         composeRule.onNodeWithContentDescription("Next month").performClick()
         waitForText("Kartik 2083")
-        composeRule.onNodeWithText("Today").assertExists().performClick()
+        composeRule.onNodeWithTag("month_today_button").assertExists().performClick()
         waitForText("Asoj 2083")
-        composeRule.onNodeWithText("Today").assertDoesNotExist()
+        composeRule.onNodeWithTag("month_today_button").assertDoesNotExist()
     }
 
     @Test
@@ -264,8 +265,10 @@ class MonthScreenTest {
             }
         assertTrue("no visible clickable elements found", clickables.isNotEmpty())
         with(Density(density)) {
+            // The layout height, not the visible bounds: a row the screen edge cuts off is still a
+            // full-size target once it scrolls into view.
             clickables.forEach { node ->
-                val height = node.boundsInRoot.height.toDp()
+                val height = node.size.height.toDp()
                 assertTrue("a clickable is $height high, below 48 dp", height >= 48.dp)
             }
         }

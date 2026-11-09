@@ -15,6 +15,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -123,6 +125,7 @@ internal fun MonthYearPicker(
     }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun PickerButtons(
     enabled: Boolean,
@@ -133,10 +136,10 @@ private fun PickerButtons(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.End,
     ) {
-        TextButton(onClick = onDismiss) {
+        TextButton(onClick = onDismiss, shapes = ButtonDefaults.shapes()) {
             Text(stringResource(R.string.month_picker_cancel))
         }
-        TextButton(onClick = onGo, enabled = enabled) {
+        TextButton(onClick = onGo, shapes = ButtonDefaults.shapes(), enabled = enabled) {
             Text(stringResource(R.string.month_picker_go))
         }
     }

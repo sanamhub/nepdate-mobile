@@ -3,14 +3,13 @@ package np.nepdate.ui.converter
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
-import androidx.compose.ui.test.assertTextEquals
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performTextReplacement
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import io.github.sanamhub.nepdate.NepaliDate
 import np.nepdate.data.Digits
@@ -38,11 +37,7 @@ class PluralDigitsTest {
     fun englishDigitsInNepaliKeepTheCountsAscii() {
         setConverter(Digits.ENGLISH)
 
-        convert("2083-06-25")
-        composeRule.onNodeWithText("5 दिन पछि").assertExists()
-
-        convert("2083-01-01")
-        compare("2084-01-01")
+        composeRule.onNode(hasText("5 दिन पछि", substring = true)).assertExists()
         composeRule.onNodeWithText("1 वर्ष, 0 महिना, 0 दिन").assertExists()
     }
 
@@ -50,21 +45,17 @@ class PluralDigitsTest {
     fun followLanguageInNepaliWritesTheCountsInDevanagari() {
         setConverter(Digits.FOLLOW_LANGUAGE)
 
-        convert("2083-06-25")
-        composeRule.onNodeWithText("५ दिन पछि").assertExists()
-
-        convert("2083-01-01")
-        compare("2084-01-01")
+        composeRule.onNode(hasText("५ दिन पछि", substring = true)).assertExists()
         composeRule.onNodeWithText("१ वर्ष, ० महिना, ० दिन").assertExists()
     }
 
     @Test
-    fun invalidDayMessageUsesTheDigitsSetting() {
+    fun wheelValuesUseTheDigitsSetting() {
         setConverter(Digits.ENGLISH)
 
-        convert("2083-06-32")
-
-        composeRule.onNodeWithTag("converter_error").assertTextEquals("असोज 2083 मा 31 दिन छ")
+        composeRule
+            .onNodeWithTag("converter_wheel_year")
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "2083"))
     }
 
     @Test
@@ -80,21 +71,17 @@ class PluralDigitsTest {
     }
 
     private fun setConverter(digits: Digits) {
+        val comparison = ConverterState().fromBs("2083-01-01", today).compareWithBs("2084-01-01")
         composeRule.setContent {
             NepdateTheme(darkTheme = false, dynamicColor = false) {
-                ConverterScreen(today = today, settings = Settings(digits = digits))
+                ConverterScreen(
+                    today = today,
+                    settings = Settings(digits = digits),
+                    initialBs = "2083-06-25",
+                    initialState = comparison,
+                )
             }
         }
-    }
-
-    private fun convert(text: String) {
-        composeRule.onNodeWithTag("converter_bs_input").performTextReplacement(text)
-        composeRule.onNodeWithTag("converter_convert").performClick()
-    }
-
-    private fun compare(text: String) {
-        composeRule.onNodeWithTag("converter_compare_input").performTextReplacement(text)
-        composeRule.onNodeWithTag("converter_compare").performClick()
     }
 
     private fun textMatches(regex: Regex) =

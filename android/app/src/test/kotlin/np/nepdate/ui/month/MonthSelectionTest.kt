@@ -3,6 +3,7 @@ package np.nepdate.ui.month
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import io.github.sanamhub.nepdate.Lang
 import io.github.sanamhub.nepdate.NepaliDate
@@ -35,6 +36,7 @@ class MonthSelectionTest {
                     monthNames = monthNames,
                     publicHoliday = "public holiday",
                     onDayClick = {},
+                    rowHeight = 64.dp,
                 )
             }
         }

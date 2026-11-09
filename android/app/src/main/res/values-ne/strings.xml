@@ -1,5 +1,5 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <string name="app_name">नेपडेट</string>
+    <string name="app_name">नेपडेट पात्रो</string>
 
     <string name="month_previous">अघिल्लो महिना</string>
     <string name="month_next">अर्को महिना</string>
@@ -15,13 +15,13 @@
     <string name="month_ad_span_same_year">%1$s – %2$s %3$s</string>
     <string name="month_ad_span_cross_year">%1$s %2$s – %3$s %4$s</string>
     <string name="month_list_weekday_ad">%1$s · %2$s</string>
+    <string name="month_highlights_title">बिदा र पर्वहरू</string>
     <string name="public_holiday">सार्वजनिक बिदा</string>
     <string name="public_holiday_label">सार्वजनिक बिदा</string>
 
     <string name="day_tithi">तिथि</string>
-    <string name="day_events">कार्यक्रमहरू</string>
-    <string name="day_add_to_calendar">पात्रोमा थप्नुहोस्</string>
-    <string name="day_copy_date">मिति प्रतिलिपि गर्नुहोस्</string>
+    <string name="day_add_to_calendar">क्यालेन्डरमा थप्नुहोस्</string>
+    <string name="day_copy_date">प्रतिलिपि</string>
     <string name="day_copied">मिति प्रतिलिपि गरियो</string>
     <string name="day_copy_label">नेपाली मिति</string>
     <string name="day_no_data">यो मितिको बिदा वा तिथिको जानकारी अझै छैन</string>
@@ -29,9 +29,9 @@
     <string name="day_close">बन्द गर्नुहोस्</string>
     <string name="day_weekday_ad">%1$s, %2$s</string>
 
-    <string name="nav_month">महिना</string>
-    <string name="nav_upcoming">आउँदो</string>
-    <string name="nav_converter">परिवर्तक</string>
+    <string name="nav_month">पात्रो</string>
+    <string name="nav_upcoming">पर्व</string>
+    <string name="nav_converter">रूपान्तर</string>
     <string name="settings_title">सेटिङ</string>
     <string name="settings_language">भाषा</string>
     <string name="settings_language_system">प्रणाली</string>
@@ -49,9 +49,8 @@
     <string name="settings_app_version">एप संस्करण</string>
     <string name="settings_library_version">लाइब्रेरी संस्करण</string>
     <string name="settings_coverage">बिदाको जानकारी</string>
-    <string name="settings_coverage_value">%1$s – %2$s</string>
     <string name="settings_data_source">जानकारीको स्रोत</string>
-    <string name="settings_data_source_value">हबमार्फत C# NepDate (MIT)</string>
+    <string name="settings_data_source_value">nepdate.com, खुला स्रोत (MIT)</string>
     <string name="settings_official_sources">आधिकारिक स्रोत</string>
     <string name="settings_official_sources_value">गृह मन्त्रालयको बिदा सूचना; नेपाल पञ्चाङ्ग निर्णायक समिति</string>
     <string name="settings_known_data">जानकारीका ज्ञात प्रश्नहरू</string>
@@ -100,7 +99,6 @@
     <string name="diagnostic_digits_nepali">नेपाली</string>
     <string name="diagnostic_digits_english">अंग्रेजी</string>
 
-    <string name="upcoming_title">आउँदो</string>
     <string name="upcoming_empty">अझै आउँदो बिदा वा कार्यक्रम छैन</string>
     <string name="upcoming_data_ends">बिदा र कार्यक्रमको जानकारी %1$s मा सकिन्छ</string>
     <string name="upcoming_tomorrow">भोलि</string>
@@ -112,28 +110,7 @@
     </plurals>
 
     <string name="converter_title">मिति परिवर्तक</string>
-    <string name="converter_bs_label">नेपाली मिति</string>
-    <string name="converter_bs_hint" tools:ignore="TypographyDashes">२०८३-०६-२० वा २०८३ असोज २०</string>
-    <string name="converter_convert">बदल्नुहोस्</string>
-    <string name="converter_choose_ad">ईस्वी मिति छान्नुहोस्</string>
-    <string name="converter_ad_picker_title">ईस्वी मिति छान्नुहोस्</string>
-    <string name="converter_result">नतिजा</string>
-    <string name="converter_compare_label">यससँग तुलना गर्नुहोस्</string>
-    <string name="converter_compare_hint" tools:ignore="TypographyDashes">२०८२-०१-०१</string>
-    <string name="converter_compare">तुलना गर्नुहोस्</string>
-    <string name="converter_compare_range">%1$s देखि %2$s</string>
     <string name="converter_weekday_ad">%1$s, %2$s</string>
-    <string name="converter_today">आज</string>
-    <string name="converter_tomorrow">भोलि</string>
-    <string name="converter_error_invalid_month">महिना १ देखि १२ सम्म हुनुपर्छ</string>
-    <string name="converter_error_out_of_range">यो मिति नेपाली मितिको दायराबाहिर छ</string>
-    <string name="converter_error_unreadable" tools:ignore="TypographyDashes">२०८३-०६-२० जस्तो नेपाली मिति लेख्नुहोस्</string>
-    <string name="converter_error_no_first_date">पहिले मिति बदल्नुहोस्</string>
-
-    <plurals name="converter_error_invalid_day">
-        <item quantity="one">%1$s %3$d मा %2$d दिन छ</item>
-        <item quantity="other">%1$s %3$d मा %2$d दिन छ</item>
-    </plurals>
 
     <plurals name="converter_days_from_today">
         <item quantity="one">%1$d दिन पछि</item>
@@ -200,4 +177,5 @@
         <item>नोभेम्बर</item>
         <item>डिसेम्बर</item>
     </string-array>
+    <string name="home_today_holiday">सार्वजनिक बिदा: %1$s</string>
 </resources>

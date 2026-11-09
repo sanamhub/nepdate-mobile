@@ -1,5 +1,5 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <string name="app_name">Nepdate</string>
+    <string name="app_name">NepDate Patro</string>
 
     <string name="month_previous">Previous month</string>
     <string name="month_next">Next month</string>
@@ -15,11 +15,11 @@
     <string name="month_ad_span_same_year">%1$s – %2$s %3$s</string>
     <string name="month_ad_span_cross_year">%1$s %2$s – %3$s %4$s</string>
     <string name="month_list_weekday_ad">%1$s · %2$s</string>
+    <string name="month_highlights_title">Holidays and events</string>
     <string name="public_holiday">Public holiday</string>
     <string name="public_holiday_label">public holiday</string>
 
     <string name="day_tithi">Tithi</string>
-    <string name="day_events">Events</string>
     <string name="day_add_to_calendar">Add to calendar</string>
     <string name="day_copy_date">Copy date</string>
     <string name="day_copied">Date copied</string>
@@ -29,8 +29,8 @@
     <string name="day_close">Close</string>
     <string name="day_weekday_ad">%1$s, %2$s</string>
 
-    <string name="nav_month">Month</string>
-    <string name="nav_upcoming">Upcoming</string>
+    <string name="nav_month">Patro</string>
+    <string name="nav_upcoming">Festivals</string>
     <string name="nav_converter">Converter</string>
     <string name="settings_title">Settings</string>
     <string name="settings_language">Language</string>
@@ -49,9 +49,8 @@
     <string name="settings_app_version">App version</string>
     <string name="settings_library_version">Library version</string>
     <string name="settings_coverage">Holiday data</string>
-    <string name="settings_coverage_value">%1$s – %2$s</string>
     <string name="settings_data_source">Data source</string>
-    <string name="settings_data_source_value">C# NepDate via the hub (MIT)</string>
+    <string name="settings_data_source_value">nepdate.com, open source (MIT)</string>
     <string name="settings_official_sources">Official sources</string>
     <string name="settings_official_sources_value">Ministry of Home Affairs holiday notice; Nepal Panchanga Nirnayak Samiti</string>
     <string name="settings_known_data">Known data questions</string>
@@ -100,7 +99,6 @@
     <string name="diagnostic_digits_nepali">Nepali</string>
     <string name="diagnostic_digits_english">English</string>
 
-    <string name="upcoming_title">Upcoming</string>
     <string name="upcoming_empty">No upcoming holidays or events yet</string>
     <string name="upcoming_data_ends">Holiday data ends on %1$s</string>
     <string name="upcoming_tomorrow">Tomorrow</string>
@@ -112,28 +110,7 @@
     </plurals>
 
     <string name="converter_title">Converter</string>
-    <string name="converter_bs_label">BS date</string>
-    <string name="converter_bs_hint" tools:ignore="TypographyDashes">2083-06-20 or २०८३ असोज २०</string>
-    <string name="converter_convert">Convert</string>
-    <string name="converter_choose_ad">Choose an AD date</string>
-    <string name="converter_ad_picker_title">Choose an AD date</string>
-    <string name="converter_result">Result</string>
-    <string name="converter_compare_label">Compare with</string>
-    <string name="converter_compare_hint" tools:ignore="TypographyDashes">2082-01-01</string>
-    <string name="converter_compare">Compare</string>
-    <string name="converter_compare_range">%1$s to %2$s</string>
     <string name="converter_weekday_ad">%1$s, %2$s</string>
-    <string name="converter_today">Today</string>
-    <string name="converter_tomorrow">Tomorrow</string>
-    <string name="converter_error_invalid_month">Month must be 1 to 12</string>
-    <string name="converter_error_out_of_range">That date is outside the BS range</string>
-    <string name="converter_error_unreadable" tools:ignore="TypographyDashes">Enter a BS date like 2083-06-20</string>
-    <string name="converter_error_no_first_date">Convert a date before comparing</string>
-
-    <plurals name="converter_error_invalid_day">
-        <item quantity="one">%1$s has %2$d day in %3$d</item>
-        <item quantity="other">%1$s has %2$d days in %3$d</item>
-    </plurals>
 
     <plurals name="converter_days_from_today">
         <item quantity="one">%1$d day from today</item>
@@ -200,4 +177,5 @@
         <item>November</item>
         <item>December</item>
     </string-array>
+    <string name="home_today_holiday">Public holiday: %1$s</string>
 </resources>

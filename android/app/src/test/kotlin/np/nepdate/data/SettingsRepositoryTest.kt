@@ -45,6 +45,40 @@ class SettingsRepositoryTest {
         }
 
     @Test
+    fun displayPreferencesDefaultAndWrite() =
+        runBlocking {
+            val repository = SettingsRepository(FakePreferencesDataStore())
+            val fresh = repository.settings.first()
+            assertTrue(fresh.showAdDates)
+            assertTrue(fresh.haptics)
+            assertEquals(StartTab.PATRO, fresh.startTab)
+
+            repository.setShowAdDates(false)
+            repository.setHaptics(false)
+            repository.setStartTab(StartTab.CONVERTER)
+
+            val settings = repository.settings.first()
+            assertFalse(settings.showAdDates)
+            assertFalse(settings.haptics)
+            assertEquals(StartTab.CONVERTER, settings.startTab)
+        }
+
+    @Test
+    fun recentSearchesKeepTheNewestFiveWithoutDuplicates() =
+        runBlocking {
+            val recent = SettingsRepository(FakePreferencesDataStore()).recentSearches
+            assertEquals(emptyList<String>(), recent.queries.first())
+
+            listOf("Dashain", "Tihar", "dashain", " ", "Holi", "Teej", "Chhath", "Losar").forEach {
+                recent.remember(it)
+            }
+
+            assertEquals(listOf("Losar", "Chhath", "Teej", "Holi", "dashain"), recent.queries.first())
+            recent.clear()
+            assertEquals(emptyList<String>(), recent.queries.first())
+        }
+
+    @Test
     fun unknownStoredValuesFallBackToTheDefaults() =
         runBlocking {
             val store =

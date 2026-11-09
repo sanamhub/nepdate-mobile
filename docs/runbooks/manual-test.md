@@ -17,9 +17,12 @@ by R8, not debuggable, with the Baseline Profile, so it starts and scrolls like 
 `debug-apk` is for debugging only and is slower; do not judge speed with it.
 
 Both use the package name `np.nepdate`, so they replace each other and cannot sit side by side.
-Each CI run signs with a new throwaway key, so Android refuses to install a build over one from
-another run, or over a debug build from your own machine: uninstall the old one first
-(`adb uninstall np.nepdate` or long-press the icon). Uninstalling clears the app's settings.
+When the repository has the tester key secrets, every `tester-apk` is signed with the same key and
+installs over the last one, settings kept. The job log says "A stable tester key is in use". Without
+them (a fork, or before the owner adds them) each run signs with a new throwaway key, and Android
+refuses to install it over a build from another run or over a debug build from your own machine:
+uninstall the old one first (`adb uninstall np.nepdate` or long-press the icon). Uninstalling clears
+the app's settings. Moving from a throwaway-key build to the stable key needs one uninstall too.
 
 If the app crashes, send the `adb logcat` lines from the crash. The run also has a
 `tester-apk-mapping` artifact: it holds the R8 mapping for that run's `tester-apk`, and the

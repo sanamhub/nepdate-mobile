@@ -9,15 +9,16 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.selection.selectable
-import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -30,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.datastore.preferences.core.Preferences
 import androidx.glance.appwidget.GlanceAppWidgetManager
@@ -44,9 +46,14 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import np.nepdate.NepdateApplication
 import np.nepdate.R
+import np.nepdate.ui.settings.Choice
+import np.nepdate.ui.settings.ConnectedToggleGroup
 import np.nepdate.ui.theme.NepdateTheme
 
-/** The configuration activity every widget offers: one background-opacity choice (A2-04). */
+/**
+ * The configuration activity every widget offers: the background, and for the widgets that have
+ * detail lines or controls, whether to show them (a minimal widget shows the date only).
+ */
 class WidgetConfigActivity : ComponentActivity() {
     private val appWidgetId: Int by lazy {
         intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID)
@@ -63,12 +70,21 @@ class WidgetConfigActivity : ComponentActivity() {
         setResult(RESULT_CANCELED, resultIntent())
         val manager = GlanceAppWidgetManager(this)
         val glanceId = manager.getGlanceIdBy(appWidgetId)
+        val provider =
+            AppWidgetManager
+                .getInstance(this)
+                .getAppWidgetInfo(appWidgetId)
+                ?.provider
+                ?.className
+                .orEmpty()
+        val kind = WidgetKind.of(provider)
         setContent {
             NepdateTheme {
                 WidgetConfigScreen(
                     glanceIdValue = glanceId,
+                    kind = kind,
                     onCancel = { finish() },
-                    onSave = { opacity -> save(opacity) },
+                    onSave = { choice -> save(choice) },
                 )
             }
         }
@@ -79,11 +95,12 @@ class WidgetConfigActivity : ComponentActivity() {
         super.onDestroy()
     }
 
-    private fun save(opacity: WidgetOpacity) {
+    private fun save(choice: WidgetChoice) {
         val glanceId = GlanceAppWidgetManager(this).getGlanceIdBy(appWidgetId)
         activityScope.launch {
             updateAppWidgetState(this@WidgetConfigActivity, glanceId) { preferences ->
-                preferences[WIDGET_OPACITY_KEY] = opacity.key
+                preferences[WIDGET_OPACITY_KEY] = choice.opacity.key
+                preferences[WIDGET_MINIMAL_KEY] = !choice.details
             }
             val container = (application as NepdateApplication).container
             container.widgetRefresh.refresh(container.settingsRepository.settings.first(), resetMonth = false)
@@ -107,14 +124,50 @@ class WidgetConfigActivity : ComponentActivity() {
     private fun resultIntent(): Intent = Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
 }
 
+/** What one widget's configuration screen offers, from its provider class. */
+internal data class WidgetKind(
+    val defaultOpacity: WidgetOpacity,
+    val hasDetails: Boolean,
+) {
+    companion object {
+        private val WITH_DETAILS =
+            setOf(
+                TodayGlanceWidgetReceiver::class.java.name,
+                UpcomingGlanceWidgetReceiver::class.java.name,
+                NextFestivalGlanceWidgetReceiver::class.java.name,
+                DateStripGlanceWidgetReceiver::class.java.name,
+                WeekGlanceWidgetReceiver::class.java.name,
+                TextDateGlanceWidgetReceiver::class.java.name,
+            )
+
+        fun of(providerClass: String): WidgetKind =
+            WidgetKind(
+                defaultOpacity =
+                    if (providerClass == TextDateGlanceWidgetReceiver::class.java.name) {
+                        TEXT_DATE_OPACITY
+                    } else {
+                        WidgetOpacity.SOLID
+                    },
+                hasDetails = providerClass in WITH_DETAILS,
+            )
+    }
+}
+
+/** The choices the configuration screen saves. */
+internal data class WidgetChoice(
+    val opacity: WidgetOpacity,
+    val details: Boolean,
+)
+
 @Composable
 private fun WidgetConfigScreen(
     glanceIdValue: androidx.glance.GlanceId,
+    kind: WidgetKind,
     onCancel: () -> Unit,
-    onSave: (WidgetOpacity) -> Unit,
+    onSave: (WidgetChoice) -> Unit,
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
-    var opacity by remember { mutableStateOf(WidgetOpacity.SOLID) }
+    var choice by remember { mutableStateOf(WidgetChoice(kind.defaultOpacity, details = true)) }
     LaunchedEffect(glanceIdValue) {
         val preferences =
             getAppWidgetState<Preferences>(
@@ -122,18 +175,27 @@ private fun WidgetConfigScreen(
                 PreferencesGlanceStateDefinition,
                 glanceIdValue,
             )
-        opacity = WidgetOpacity.fromKey(preferences[WIDGET_OPACITY_KEY])
+        choice = WidgetChoice(preferences.opacity(kind.defaultOpacity), details = !preferences.minimal())
     }
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(
-            modifier = Modifier.fillMaxSize().padding(24.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+            modifier = Modifier.fillMaxSize().safeDrawingPadding().padding(24.dp),
+            verticalArrangement = Arrangement.spacedBy(20.dp),
         ) {
             Text(
                 text = stringResource(R.string.widget_configuration_title),
                 style = MaterialTheme.typography.headlineSmall,
             )
-            OpacityChoices(opacity) { opacity = it }
+            Text(
+                text = stringResource(R.string.widget_background_title),
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.primary,
+            )
+            OpacityChoices(choice.opacity) { choice = choice.copy(opacity = it) }
+            if (kind.hasDetails) {
+                DetailsSwitch(choice.details) { choice = choice.copy(details = it) }
+            }
+            Spacer(Modifier.weight(1f))
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.End,
@@ -142,7 +204,7 @@ private fun WidgetConfigScreen(
                     Text(stringResource(R.string.widget_cancel))
                 }
                 Button(
-                    onClick = { onSave(opacity) },
+                    onClick = { onSave(choice) },
                     modifier = Modifier.padding(start = 8.dp).testTag("widget_config_save"),
                 ) {
                     Text(stringResource(R.string.widget_save))
@@ -152,32 +214,44 @@ private fun WidgetConfigScreen(
     }
 }
 
+/** The background as a connected button group: one tap, every option visible at once. */
 @Composable
 private fun OpacityChoices(
     opacity: WidgetOpacity,
     onSelect: (WidgetOpacity) -> Unit,
 ) {
-    Column(modifier = Modifier.selectableGroup()) {
-        WidgetOpacity.entries.forEach { option ->
-            Row(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .selectable(
-                            selected = opacity == option,
-                            onClick = { onSelect(option) },
-                        ).padding(vertical = 8.dp)
-                        .testTag("widget_opacity_${option.key}"),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                RadioButton(selected = opacity == option, onClick = { onSelect(option) })
-                Text(
-                    text = stringResource(option.label),
-                    modifier = Modifier.padding(start = 12.dp),
-                    style = MaterialTheme.typography.bodyLarge,
-                )
-            }
+    ConnectedToggleGroup(
+        options = WidgetOpacity.entries.map { Choice(it, stringResource(it.label)) },
+        selected = opacity,
+        onSelect = onSelect,
+        haptics = null,
+        tags = WidgetOpacity.entries.map { "widget_opacity_${it.key}" },
+    )
+}
+
+@Composable
+private fun DetailsSwitch(
+    details: Boolean,
+    onChange: (Boolean) -> Unit,
+) {
+    Row(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .toggleable(value = details, role = Role.Switch, onValueChange = onChange)
+                .padding(vertical = 8.dp)
+                .testTag("widget_details"),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(modifier = Modifier.weight(1f).padding(end = 16.dp)) {
+            Text(stringResource(R.string.widget_details_title), style = MaterialTheme.typography.bodyLarge)
+            Text(
+                stringResource(R.string.widget_details_summary),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
         }
+        Switch(checked = details, onCheckedChange = null)
     }
 }
 
