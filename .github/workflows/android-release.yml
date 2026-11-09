@@ -1,8 +1,8 @@
 name: Android release
 
-# A3-02: this workflow is written and statically tested in A3. It is not run in this phase.
-# A human creates the tag and approves the production environment. Promotion from the internal
-# track stays manual in Play Console.
+# A tag builds the signed APK and AAB, attests them, uploads the AAB to the Play internal track
+# when a service account is set, and creates a draft GitHub Release. A human publishes the draft.
+# A versionName with a pre-release suffix (1.0.0-beta.1) marks the GitHub release as a pre-release.
 
 on:
   push:
@@ -258,8 +258,8 @@ jobs:
         run: |
           set -euo pipefail
           if [[ -z "$ANDROID_PUBLISHER_CREDENTIALS" ]]; then
-            echo "::error::PLAY_SERVICE_ACCOUNT_JSON is empty in the production environment"
-            exit 1
+            echo "::warning::PLAY_SERVICE_ACCOUNT_JSON is empty; skipping the Play upload. This release is GitHub only."
+            exit 0
           fi
           ./gradlew :app:publishReleaseBundle --artifact-dir="$GITHUB_WORKSPACE/artifacts" --track=internal --no-daemon
 
@@ -346,7 +346,7 @@ jobs:
         with:
           body_path: notes.md
           draft: true
-          prerelease: false
+          prerelease: ${{ contains(needs.preflight.outputs.version, '-') }}
           files: |
             artifacts/*.apk
             artifacts/*.aab
