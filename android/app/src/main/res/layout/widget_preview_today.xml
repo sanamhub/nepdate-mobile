@@ -10,7 +10,7 @@
     android:gravity="center"
     android:orientation="vertical"
     android:padding="8dp"
-    tools:ignore="Overdraw">
+    tools:ignore="Overdraw,UnusedAttribute">
 
     <FrameLayout
         android:layout_width="48dp"

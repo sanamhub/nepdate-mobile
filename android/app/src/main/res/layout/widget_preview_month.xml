@@ -10,7 +10,7 @@
     android:backgroundTint="@color/nepdate_background"
     android:orientation="vertical"
     android:padding="12dp"
-    tools:ignore="Overdraw">
+    tools:ignore="Overdraw,UnusedAttribute">
 
     <LinearLayout
         android:layout_width="match_parent"

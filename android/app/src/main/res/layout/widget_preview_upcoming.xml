@@ -10,7 +10,7 @@
     android:baselineAligned="false"
     android:orientation="horizontal"
     android:padding="8dp"
-    tools:ignore="Overdraw">
+    tools:ignore="Overdraw,UnusedAttribute,NestedWeights">
 
     <LinearLayout
         android:layout_width="84dp"
@@ -98,6 +98,7 @@
             android:layout_height="0dp"
             android:layout_marginTop="4dp"
             android:layout_weight="1"
+            android:baselineAligned="false"
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
@@ -123,7 +124,7 @@
                     android:text="@string/widget3_preview_week_mon"
                     android:textColor="@color/widget_preview_on_holiday"
                     android:textFontWeight="500"
-                    android:textSize="10sp" />
+                    android:textSize="11sp" />
             </LinearLayout>
 
             <LinearLayout

@@ -7,11 +7,12 @@
     android:layout_height="match_parent"
     android:background="@drawable/widget_shape_28"
     android:backgroundTint="@color/nepdate_background"
+    android:baselineAligned="false"
     android:gravity="center_vertical"
     android:orientation="horizontal"
     android:paddingHorizontal="10dp"
     android:paddingVertical="4dp"
-    tools:ignore="Overdraw">
+    tools:ignore="Overdraw,UnusedAttribute">
 
     <FrameLayout
         android:layout_width="40dp"

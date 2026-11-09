@@ -9,7 +9,7 @@
     android:backgroundTint="@color/widget_preview_holiday_container"
     android:orientation="vertical"
     android:padding="10dp"
-    tools:ignore="Overdraw">
+    tools:ignore="Overdraw,UnusedAttribute">
 
     <TextView
         android:layout_width="wrap_content"

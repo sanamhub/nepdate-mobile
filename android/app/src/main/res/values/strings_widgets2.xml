@@ -29,6 +29,4 @@
     <!-- Static previews for launchers before Android 15. -->
     <string name="widget2_preview_days">5</string>
     <string name="widget2_preview_festival">Ghatasthapana</string>
-    <string name="widget2_preview_festival_date">Sunday, Asoj 25</string>
-    <string name="widget2_preview_list">Dwadashi Shraddha · Tomorrow\nPitri Visarjan · in 4 days\nGhatasthapana · in 5 days</string>
 </resources>
