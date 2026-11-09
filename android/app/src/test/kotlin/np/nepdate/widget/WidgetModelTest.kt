@@ -118,6 +118,32 @@ class WidgetModelTest {
     }
 
     @Test
+    fun w02NamesTodaysOwnHolidaysAndEventsApartFromTheUpcomingDays() {
+        val festive =
+            upcomingWidgetModel(NepaliDate.of(2083, 6, 20), Lang.ENGLISH, Digits.ENGLISH, english, showNepal = false)
+                .entries
+                .first()
+                .date
+        val model = upcomingWidgetModel(festive, Lang.ENGLISH, Digits.ENGLISH, english, showNepal = false)
+        assertNotNull(model.todayRow)
+        val today = model.todayRow!!
+        assertEquals(festive, today.date)
+        assertEquals("Today", today.relative)
+        assertTrue(today.names.isNotEmpty())
+        assertTrue("today is not repeated in the list", model.entries.all { it.date > festive })
+
+        val quiet =
+            generateSequence(NepaliDate.of(2083, 6, 1)) { it.plusDays(1) }
+                .first { day ->
+                    upcomingDays(day, holidaysOnly = false, Lang.ENGLISH, Digits.ENGLISH, english, maxRows = 1)
+                        .rows
+                        .firstOrNull()
+                        ?.date != day
+                }
+        assertNull(upcomingWidgetModel(quiet, Lang.ENGLISH, Digits.ENGLISH, english, showNepal = false).todayRow)
+    }
+
+    @Test
     fun w03Jestha2083HasSixWeeksAndMarksTheHolidayAndToday() {
         val model =
             monthWidgetModel(

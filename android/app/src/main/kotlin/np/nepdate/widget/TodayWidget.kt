@@ -32,8 +32,9 @@ import np.nepdate.R
 
 /**
  * W-02 Today and upcoming. Today sits in a primary container block on the left, with the numeral on
- * the Sunny shape; the right side lists the next days that have a holiday or an event, one row per
- * day. Every part opens the app: the block and the empty space on today, a row on its own day.
+ * the Sunny shape; the right side names today's own holidays and events first, in a tinted note,
+ * then lists the next days that have a holiday or an event, one row per day. Every part opens the
+ * app: the block, the note and the empty space on today, a row on its own day.
  */
 @Composable
 internal fun UpcomingWidgetContent(
@@ -136,20 +137,24 @@ private fun RowScope.UpcomingEntries(
 ) {
     val height = LocalSize.current.height
     val rowHeight = if (height >= ROOMY) 48.dp else 40.dp
-    val fitting = ((height - LIST_CHROME) / (rowHeight + ROW_GAP)).toInt().coerceIn(1, UPCOMING_MAX_ROWS)
+    val layout = upcomingLayout(height, rowHeight, model.todayRow.takeUnless { minimal }, widgetFit())
     Column(modifier = GlanceModifier.defaultWeight().fillMaxHeight().padding(start = 10.dp, end = 4.dp)) {
-        Text(
-            text = context.getString(R.string.widget3_upcoming_title),
-            modifier = GlanceModifier.padding(start = 2.dp, top = 2.dp, bottom = 4.dp),
-            style =
-                TextStyle(
-                    color = GlanceTheme.colors.onSurfaceVariant,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Bold,
-                ),
-            maxLines = 1,
-        )
-        model.entries.take(fitting).forEachIndexed { index, row ->
+        model.todayRow.takeUnless { minimal }?.let { TodayNote(it, layout, context) }
+        if (layout.title) {
+            Text(
+                text = context.getString(R.string.widget3_upcoming_title),
+                modifier = GlanceModifier.padding(start = 2.dp, top = 2.dp, bottom = 4.dp),
+                style =
+                    TextStyle(
+                        color = GlanceTheme.colors.onSurfaceVariant,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                    ),
+                maxLines = 1,
+            )
+        }
+        if (layout.rows == 0) return@Column
+        model.entries.take(layout.rows).forEachIndexed { index, row ->
             if (index > 0) Spacer(GlanceModifier.height(ROW_GAP))
             UpcomingRow(row, index, rowHeight, context, minimal)
         }
@@ -163,6 +168,100 @@ private fun RowScope.UpcomingEntries(
             )
         }
     }
+}
+
+/** How today's note is drawn: over two lines with a caption, or as one line. */
+private enum class NoteStyle { FULL, COMPACT }
+
+/** The right side's plan: the note's style, whether the list has its title, and how many rows fit. */
+private data class UpcomingLayout(
+    val note: NoteStyle,
+    val title: Boolean,
+    val rows: Int,
+)
+
+/**
+ * Today's holidays come first. A tall widget gives them the two-line note and keeps the list with
+ * its title; a short one gives them one line and drops the title, since each row already says how
+ * far away it is. Without anything today the list has the whole side, as before.
+ */
+private fun upcomingLayout(
+    height: Dp,
+    rowHeight: Dp,
+    todayRow: WidgetDayRow?,
+    fit: WidgetFit,
+): UpcomingLayout {
+    val room = height - ROOT_PADDING
+    val slot = rowHeight + ROW_GAP
+    val full = fit.line(NOTE_CAPTION) + fit.line(NOTE_NAMES) * NOTE_LINES + NOTE_CHROME
+    val compact = fit.line(NOTE_NAMES) + COMPACT_NOTE_CHROME
+
+    fun rows(
+        space: Dp,
+        min: Int,
+    ) = (space / slot).toInt().coerceIn(min, UPCOMING_MAX_ROWS)
+    return when {
+        todayRow == null -> UpcomingLayout(NoteStyle.FULL, title = true, rows = rows(room - TITLE_HEIGHT, 1))
+        room - full - TITLE_HEIGHT >= slot ->
+            UpcomingLayout(NoteStyle.FULL, title = true, rows = rows(room - full - TITLE_HEIGHT, 1))
+        else -> UpcomingLayout(NoteStyle.COMPACT, title = false, rows = rows(room - compact, 0))
+    }
+}
+
+/**
+ * Today's holidays and events on a tinted rounded block, so they read as part of today and not as
+ * one more upcoming day: "Today" over up to two lines of names, or "Today" beside them when the
+ * widget is short. A holiday's names take the holiday ink.
+ */
+@Composable
+private fun TodayNote(
+    row: WidgetDayRow,
+    layout: UpcomingLayout,
+    context: Context,
+) {
+    val ink = GlanceTheme.colors.onSecondaryContainer
+    val names =
+        TextStyle(
+            color = if (row.isHoliday) holidayProvider() else ink,
+            fontSize = NOTE_NAMES,
+            fontWeight = FontWeight.Bold,
+        )
+    val modifier =
+        GlanceModifier
+            .fillMaxWidth()
+            .shapeBackground(R.drawable.widget_shape_12, GlanceTheme.colors.secondaryContainer)
+            .clickable(actionStartActivity(widgetIntent(context, row.date)))
+            .semantics { testTag = "upcoming_today_note" }
+    when (layout.note) {
+        NoteStyle.FULL ->
+            Column(modifier = modifier.padding(horizontal = 10.dp, vertical = 6.dp)) {
+                Text(
+                    text = row.relative,
+                    style = TextStyle(color = ink, fontSize = NOTE_CAPTION, fontWeight = FontWeight.Bold),
+                    maxLines = 1,
+                )
+                Text(text = row.names, style = names, maxLines = NOTE_LINES)
+            }
+        NoteStyle.COMPACT ->
+            Row(
+                modifier = modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = row.relative,
+                    modifier = GlanceModifier.padding(end = 6.dp),
+                    style = TextStyle(color = ink, fontSize = NOTE_CAPTION, fontWeight = FontWeight.Bold),
+                    maxLines = 1,
+                )
+                Text(
+                    text = row.names,
+                    modifier = GlanceModifier.defaultWeight(),
+                    style = names,
+                    maxLines = 1,
+                )
+            }
+    }
+    Spacer(GlanceModifier.height(NOTE_GAP))
 }
 
 @Composable
@@ -214,5 +313,14 @@ private val BLOCK_WIDTH_AT_ONE = 80.dp
 private val MIN_SUNNY = 36.dp
 private val MAX_SUNNY = 112.dp
 private val ROOMY = 170.dp
-private val LIST_CHROME = 40.dp
+private val ROOT_PADDING = 16.dp
+private val TITLE_HEIGHT = 24.dp
 private val ROW_GAP = 4.dp
+private val NOTE_CAPTION = 11.sp
+private val NOTE_NAMES = 13.sp
+private const val NOTE_LINES = 2
+private val NOTE_GAP = 6.dp
+
+/** The note's vertical padding and the gap under it, over two lines and on one. */
+private val NOTE_CHROME = 18.dp
+private val COMPACT_NOTE_CHROME = 14.dp

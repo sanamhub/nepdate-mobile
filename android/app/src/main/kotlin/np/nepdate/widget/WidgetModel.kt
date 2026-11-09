@@ -50,11 +50,15 @@ internal data class TodayWidgetModel(
     val bsLongLine: String = "",
 )
 
-/** The W-02 model: today on the left and the next days with a holiday or event on the right. */
+/**
+ * The W-02 model: today on the left and the next days with a holiday or event on the right.
+ * [todayRow] holds today's own holidays and events, or null on a day without any.
+ */
 internal data class UpcomingWidgetModel(
     val today: TodayWidgetModel,
     val entries: List<WidgetDayRow>,
     val dataEnds: String?,
+    val todayRow: WidgetDayRow? = null,
 )
 
 /** One of the 35 or 42 day cells in W-03. */
@@ -176,6 +180,7 @@ internal fun upcomingWidgetModel(
     return UpcomingWidgetModel(
         today = todayWidgetModel(date, lang, digits, copy, showNepal),
         entries = entries,
+        todayRow = list.rows.firstOrNull { it.date == date },
         dataEnds =
             list.dataEndsOn?.takeIf { entries.size < UPCOMING_MAX_ROWS }?.let { end ->
                 copy.dataEndsOn(bsDate(end, copy, digits)).inDigits(digits)

@@ -99,6 +99,31 @@ class WidgetContentTest {
         }
 
     @Test
+    fun w02ShowsTodaysHolidaysInANoteThatMinimalLeavesOut() {
+        val base = upcomingModel(Digits.ENGLISH, Lang.ENGLISH)
+        val festive = base.entries.first().date
+        val model = upcomingWidgetModel(festive, Lang.ENGLISH, Digits.ENGLISH, englishCopy, showNepal = false)
+        for (minimal in listOf(false, true)) {
+            runGlanceAppWidgetUnitTest {
+                setContext(context)
+                setAppWidgetSize(GlanceAppWidgetSize.WIDE)
+                provideComposable {
+                    GlanceTheme {
+                        UpcomingWidgetContent(model, WidgetOpacity.SOLID, minimal = minimal)
+                    }
+                }
+                if (minimal) {
+                    onNode(hasTestTag("upcoming_today_note")).assertDoesNotExist()
+                } else {
+                    onNode(hasTestTag("upcoming_today_note"))
+                        .assert(hasStartActivityClickAction(widgetIntent(context, festive)))
+                    onNode(hasText(model.todayRow!!.names)).assertExists()
+                }
+            }
+        }
+    }
+
+    @Test
     fun w02EndsWithTheCoverageFooter() =
         runGlanceAppWidgetUnitTest {
             setContext(context)
