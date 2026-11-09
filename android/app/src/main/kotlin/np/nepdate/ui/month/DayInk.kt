@@ -94,12 +94,13 @@ internal fun BoxScope.DayCellContent(
     showAdDay: Boolean,
     ink: DayInk,
 ) {
-    // The AD day sits in the cell's top corner and the numeral column starts below it, so a
-    // two-digit BS day and its AD day never overlap on a narrow cell.
+    // The AD day sits centred above the numeral and the numeral column starts below it, so a
+    // two-digit BS day and its AD day never overlap on a narrow cell, and the pair reads as one
+    // stack instead of a number with a stray digit in the corner.
     if (showAdDay) {
         Text(
             text = cell.adDay.toString().inDigits(digits),
-            modifier = Modifier.align(Alignment.TopEnd),
+            modifier = Modifier.align(Alignment.TopCenter),
             color = ink.secondary,
             style = MaterialTheme.typography.labelSmall,
             maxLines = 1,
@@ -304,5 +305,5 @@ private val TODAY_GROWTH = 6.dp
 
 private val MARK_SLOT = 6.dp
 
-/** The room the AD day in the corner takes above the numeral column. */
+/** The room the AD day above the numeral takes at the top of the cell. */
 internal val AD_ROW = 12.dp
