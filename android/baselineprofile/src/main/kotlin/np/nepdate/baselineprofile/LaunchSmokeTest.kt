@@ -66,6 +66,7 @@ class LaunchSmokeTest {
         device.executeShellCommand("am start -n $PACKAGE_NAME/.MainActivity")
         val shown = device.wait(Until.hasObject(By.pkg(PACKAGE_NAME).depth(0)), LAUNCH_TIMEOUT_MS)
         assertTrue("The app did not show a window", shown)
+        device.openPastFirstRun()
     }
 
     /** A Compose item may expose its label as a description or as text, so try both. */

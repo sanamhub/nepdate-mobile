@@ -2,6 +2,9 @@ package np.nepdate.baselineprofile
 
 import androidx.benchmark.macro.junit4.BaselineProfileRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.uiautomator.UiDevice
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -15,6 +18,18 @@ import org.junit.runner.RunWith
 class BaselineProfileGenerator {
     @get:Rule
     val rule = BaselineProfileRule()
+
+    /**
+     * A fresh install opens on the first-run welcome, which is not the screen the profile is for.
+     * Open it once, then stop the app so every measured start begins from the same place.
+     */
+    @Before
+    fun dismissFirstRun() {
+        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+        device.executeShellCommand("am start -n $PACKAGE_NAME/.MainActivity")
+        device.openPastFirstRun()
+        device.executeShellCommand("am force-stop $PACKAGE_NAME")
+    }
 
     /** Cold start to the first drawn month grid. Also written to the startup profile. */
     @Test
