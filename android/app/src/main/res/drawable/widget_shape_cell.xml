@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- A month or week day tile, inset by 1 dp so neighbouring tiles keep a gap without an extra view.
+     It is drawn white and tinted in code with a theme colour. -->
+<inset xmlns:android="http://schemas.android.com/apk/res/android" android:inset="1dp">
+    <shape android:shape="rectangle">
+        <solid android:color="#FFFFFFFF" />
+        <corners android:radius="12dp" />
+    </shape>
+</inset>

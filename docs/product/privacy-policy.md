@@ -9,6 +9,9 @@ NepDate (the app) does not collect, store, send or share any personal data.
 - It has no account, no analytics, no advertising, no crash-reporting service and no tracking.
 - Your settings (language, digits, time zone choice, tithi display) stay on your device. They are
   shared only with the app's own widgets on the same device.
+- On Android you can turn on "Day in status bar" or "Date in notifications". Only then does the app
+  ask for the notification permission, and the notification it shows is drawn on your phone from
+  the app's own data. Turn both off, or refuse the permission, and the app shows no notification.
 - "Add to calendar" opens your phone's calendar app with the event filled in. You decide whether to
   save it; NepDate never reads your calendar.
 - "Subscribe to Nepal holidays" hands a public calendar address to your calendar app. Your calendar

@@ -1,7 +1,6 @@
 package np.nepdate.ui.month
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -10,18 +9,19 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.Hyphens
 import androidx.compose.ui.text.style.TextAlign
@@ -34,6 +34,8 @@ import androidx.compose.ui.unit.sp
 import io.github.sanamhub.nepdate.Lang
 import io.github.sanamhub.nepdate.patro.Named
 import np.nepdate.data.Digits
+import np.nepdate.ui.common.DiamondShape
+import np.nepdate.ui.common.SunnyShape
 import np.nepdate.ui.common.inDigits
 import np.nepdate.ui.theme.LocalNepdateColors
 import np.nepdate.ui.theme.holidayFillOn
@@ -53,13 +55,14 @@ internal fun dayInk(
 ): DayInk {
     val colors = LocalNepdateColors.current
     val background = MaterialTheme.colorScheme.background
-    val selection = MaterialTheme.colorScheme.surfaceContainerHigh
+    val selection = MaterialTheme.colorScheme.surfaceContainerHighest
     val holidayInk = cell.isInMonth && (cell.isHoliday || cell.isSaturday)
+    // A plain day draws no tile, so the month reads as numbers on the card, not a wall of boxes.
     val fill =
         when {
             isSelected -> selection
             cell.isHoliday -> colors.holidayFillOn(background)
-            else -> background
+            else -> Color.Transparent
         }
     val primary =
         when {
@@ -88,19 +91,26 @@ internal fun BoxScope.DayCellContent(
     digits: Digits,
     lang: Lang,
     showTithi: Boolean,
+    showAdDay: Boolean,
     ink: DayInk,
 ) {
-    Text(
-        text = cell.adDay.toString().inDigits(digits),
-        modifier = Modifier.align(Alignment.TopEnd),
-        color = ink.secondary,
-        style = MaterialTheme.typography.labelSmall,
-        maxLines = 1,
-    )
+    // The AD day, the numeral and the marks are one stack centred in the cell, so the AD day stays
+    // next to its BS day at every row height instead of drifting to the cell's top edge.
     Column(
         modifier = Modifier.align(Alignment.Center),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+        if (showAdDay) {
+            Box(modifier = Modifier.height(AD_ROW), contentAlignment = Alignment.BottomCenter) {
+                Text(
+                    text = cell.adDay.toString().inDigits(digits),
+                    color = ink.secondary,
+                    style = MaterialTheme.typography.labelSmall.copy(lineHeight = AD_LINE),
+                    maxLines = 1,
+                    softWrap = false,
+                )
+            }
+        }
         DayNumeral(cell, digits, ink.primary, showUnderline = isSelected && cell.isHoliday)
         Box(modifier = Modifier.height(MARK_SLOT), contentAlignment = Alignment.TopCenter) {
             if (cell.hasEvents) {
@@ -136,17 +146,24 @@ private fun DayNumeral(
     color: Color,
     showUnderline: Boolean,
 ) {
-    val today = LocalNepdateColors.current.today
+    val colors = LocalNepdateColors.current
     Box(
         modifier =
             Modifier
-                .size(numeralSlot())
-                .then(if (cell.isToday) Modifier.border(2.dp, today, CircleShape) else Modifier),
+                .size(numeralSlot() + TODAY_GROWTH)
+                .then(
+                    if (cell.isToday) {
+                        Modifier.clip(SunnyShape).background(colors.today)
+                    } else {
+                        Modifier
+                    },
+                ),
         contentAlignment = Alignment.Center,
     ) {
         Text(
             text = cell.bsDay.toString().inDigits(digits),
-            color = color,
+            color = if (cell.isToday) colors.onToday else color,
+            fontWeight = if (cell.isToday) FontWeight.ExtraBold else null,
             style = MaterialTheme.typography.titleLarge,
             maxLines = 1,
         )
@@ -182,15 +199,16 @@ internal fun HolidayUnderline(
     )
 }
 
+/** The event-day marker: a small diamond, so it never reads as a stray full stop. */
 @Composable
 private fun EventDot(holidayInk: Boolean) {
     val colors = LocalNepdateColors.current
     Box(
         modifier =
             Modifier
-                .padding(top = 2.dp)
-                .size(4.dp)
-                .background(if (holidayInk) colors.holiday else colors.event, CircleShape),
+                .padding(top = 1.dp)
+                .size(5.dp)
+                .background(if (holidayInk) colors.holiday else colors.event, DiamondShape),
     )
 }
 
@@ -209,7 +227,7 @@ internal fun TithiLine(
     modifier: Modifier = Modifier,
     onTextLayout: (TextLayoutResult) -> Unit = {},
 ) {
-    val text = tithi.name(lang)
+    val text = withTithiBreaks(tithi.name(lang))
     val style =
         MaterialTheme.typography.labelSmall.copy(
             hyphens = Hyphens.Auto,
@@ -230,6 +248,20 @@ internal fun TithiLine(
         )
     }
 }
+
+/**
+ * Soft hyphens at the joins of the long Latin tithi names (Ekadashi, Chaturdashi, Shashthi and the like), so a
+ * two-line name breaks as "Eka-dashi" with a hyphen rather than mid-syllable without one.
+ * Devanagari names are left alone.
+ */
+internal fun withTithiBreaks(name: String): String =
+    name
+        .replace("Chatur", "Chatur$SOFT_HYPHEN")
+        .replace("Shashthi", "Shash${SOFT_HYPHEN}thi")
+        .replace("Dashami", "Da${SOFT_HYPHEN}shami")
+        .replace(Regex("(?<=[a-z])dashi"), "${SOFT_HYPHEN}dashi")
+
+private val SOFT_HYPHEN = Char(0xAD)
 
 /** The size and line count a tithi name is drawn with. */
 private data class TithiFit(
@@ -267,6 +299,14 @@ private const val TITHI_SIZE_STEP = 0.5f
 
 private val TITHI_LINE_HEIGHT = 1.15.em
 
-private val NUMERAL_BOX = 32.dp
+private val NUMERAL_BOX = 34.dp
+
+private val TODAY_GROWTH = 6.dp
 
 private val MARK_SLOT = 6.dp
+
+/** The room the AD day takes above the numeral. */
+internal val AD_ROW = 12.dp
+
+/** The AD day's line height, tight so it sits just above the numeral. */
+private val AD_LINE = 12.sp

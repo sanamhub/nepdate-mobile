@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Day sheet -->
+    <string name="day_previous">अघिल्लो दिन</string>
+    <string name="day_next">पछिल्लो दिन</string>
+    <string name="day_event_label">पर्व</string>
+    <string name="day_share">सेयर</string>
+    <string name="day_share_chooser">यो मिति सेयर गर्नुहोस्</string>
+    <string name="day_yesterday">हिजो</string>
+    <plurals name="day_days_ago">
+        <item quantity="one">%1$d दिनअघि</item>
+        <item quantity="other">%1$d दिनअघि</item>
+    </plurals>
+
+    <!-- Festivals screen -->
+    <string name="parva_title">पर्व र बिदा</string>
+    <string name="parva_search_hint">पर्वको नाम खोज्नुहोस्</string>
+    <string name="parva_clear_search">खोज हटाउनुहोस्</string>
+    <string name="parva_filter_all">सबै</string>
+    <string name="parva_filter_holidays">सार्वजनिक बिदा</string>
+    <string name="parva_next_holiday">अर्को सार्वजनिक बिदा</string>
+    <string name="parva_no_results">\"%1$s\" नामको पर्व भेटिएन</string>
+    <plurals name="parva_days_left">
+        <item quantity="one">दिन बाँकी</item>
+        <item quantity="other">दिन बाँकी</item>
+    </plurals>
+
+    <!-- Search screen -->
+    <string name="search_back">पछाडि</string>
+    <string name="search_recent">हालै खोजिएका</string>
+    <string name="search_jump_title">मिति टाइप गर्नुहोस्, सिधै जानुहोस्</string>
+    <string name="search_jump_example" tools:ignore="TypographyDashes">जस्तै %1$s (वि.सं.) वा %2$s (ई.सं.)</string>
+    <string name="search_jump_open">%1$s मा जानुहोस्</string>
+    <plurals name="search_results">
+        <item quantity="one">%1$d नतिजा</item>
+        <item quantity="other">%1$d नतिजा</item>
+    </plurals>
+    <string name="parva_holiday_today">आज सार्वजनिक बिदा</string>
+</resources>

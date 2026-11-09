@@ -14,17 +14,28 @@ internal const val PRIVACY_URL =
     "https://github.com/sanamhub/nepdate-mobile/blob/main/docs/product/privacy-policy.md"
 internal const val SOURCE_URL = "https://github.com/sanamhub/nepdate-mobile"
 
+/** The NepDate site that powers the app's data, and its web patro that runs in any browser. */
+internal const val NEPDATE_SITE_URL = "https://nepdate.com"
+internal const val WEB_PATRO_URL = "https://patro.nepdate.com"
+
 /** Empty until the hub publishes `holidays.ics` (hub task H4; ADR-0003). */
 internal const val HOLIDAYS_ICS_URL = ""
 
 /** Only repositories whose pages are public today; a dead data-questions link may not ship. */
 internal val ALLOWED_ABOUT_REPOSITORIES = setOf("sanamhub/nepdate-mobile")
 
+/** The project's own sites, which About may link to at any path. */
+internal val ALLOWED_ABOUT_SITES = setOf("nepdate.com", "patro.nepdate.com")
+
 private const val HTTPS_PORT = 443
 
-/** Returns why [url] may not appear in About, or null when it is a public GitHub repository page. */
+/**
+ * Returns why [url] may not appear in About, or null when it is a public GitHub repository page or
+ * one of the project's own sites.
+ */
 internal fun aboutUrlProblem(url: String): String? {
     val uri = runCatching { URI(url) }.getOrNull()
+    if (uri != null && uri.isProjectSite()) return null
     val segments =
         uri
             ?.path
@@ -44,6 +55,9 @@ internal fun aboutUrlProblem(url: String): String? {
         else -> null
     }
 }
+
+/** True for an https page on one of [ALLOWED_ABOUT_SITES] at the default port. */
+private fun URI.isProjectSite(): Boolean = scheme == "https" && port == -1 && host in ALLOWED_ABOUT_SITES
 
 /** A share intent that hands the subscription URL to a calendar app; the app itself never fetches it. */
 internal fun holidayShareIntent(url: String): Intent =

@@ -47,8 +47,8 @@ class HolidayCellContrastTest {
                 "holiday on the selection" to contrastRatio(colors.holiday, selection),
                 "onSurface on the background" to contrastRatio(scheme.onSurface, background),
                 "onSurface on the selection" to contrastRatio(scheme.onSurface, selection),
-                "today on the background" to contrastRatio(colors.today, background),
-                "today on the selection" to contrastRatio(colors.today, selection),
+                // Today is a filled Sunny marker, so its numeral is read against the fill, not the background.
+                "onToday on the today fill" to contrastRatio(colors.onToday, colors.today),
                 "dimmed on the background" to contrastRatio(colors.dimmed, background),
                 "dimmed on the selection" to contrastRatio(colors.dimmed, selection),
                 "event on the background" to contrastRatio(colors.event, background),

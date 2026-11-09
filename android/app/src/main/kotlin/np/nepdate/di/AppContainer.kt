@@ -7,6 +7,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStoreFile
 import np.nepdate.data.SettingsRepository
 import np.nepdate.data.TodayProvider
+import np.nepdate.notify.DateNotification
 import np.nepdate.schedule.AndroidMidnightAlarm
 import np.nepdate.schedule.GlanceWidgetUpdater
 import np.nepdate.schedule.MidnightScheduler
@@ -38,6 +39,7 @@ class AppContainer(
         WidgetRefresh(
             updater = GlanceWidgetUpdater(context.applicationContext),
             scheduler = MidnightScheduler(todayProvider, AndroidMidnightAlarm(context)),
+            notifier = DateNotification(context.applicationContext),
         )
     }
 

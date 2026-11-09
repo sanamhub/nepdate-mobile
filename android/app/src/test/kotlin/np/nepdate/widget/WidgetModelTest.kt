@@ -96,17 +96,13 @@ class WidgetModelTest {
     }
 
     @Test
-    fun w02ListsThreeEntriesAndUsesTheCoverageFooterAtTheEnd() {
-        val model =
-            upcomingWidgetModel(
-                NepaliDate.of(2083, 6, 20),
-                Lang.ENGLISH,
-                Digits.ENGLISH,
-                english,
-                showNepal = false,
-            )
-        assertEquals(3, model.entries.size)
-        assertEquals("Indira Ekadashi Brata", model.entries.first().name)
+    fun w02ListsTheNextDaysAfterTodayAndUsesTheCoverageFooterAtTheEnd() {
+        val today = NepaliDate.of(2083, 6, 20)
+        val model = upcomingWidgetModel(today, Lang.ENGLISH, Digits.ENGLISH, english, showNepal = false)
+        assertEquals(UPCOMING_MAX_ROWS, model.entries.size)
+        assertTrue(model.entries.all { it.date > today })
+        assertEquals(model.entries, model.entries.sortedBy { it.date })
+        assertEquals(model.entries.size, model.entries.distinctBy { it.date }.size)
         assertNull(model.dataEnds)
 
         val last =
@@ -119,6 +115,32 @@ class WidgetModelTest {
             )
         assertNotNull(last.dataEnds)
         assertTrue(last.dataEnds!!.startsWith("Holiday data ends on Mangsir 20, 2084"))
+    }
+
+    @Test
+    fun w02NamesTodaysOwnHolidaysAndEventsApartFromTheUpcomingDays() {
+        val festive =
+            upcomingWidgetModel(NepaliDate.of(2083, 6, 20), Lang.ENGLISH, Digits.ENGLISH, english, showNepal = false)
+                .entries
+                .first()
+                .date
+        val model = upcomingWidgetModel(festive, Lang.ENGLISH, Digits.ENGLISH, english, showNepal = false)
+        assertNotNull(model.todayRow)
+        val today = model.todayRow!!
+        assertEquals(festive, today.date)
+        assertEquals("Today", today.relative)
+        assertTrue(today.names.isNotEmpty())
+        assertTrue("today is not repeated in the list", model.entries.all { it.date > festive })
+
+        val quiet =
+            generateSequence(NepaliDate.of(2083, 6, 1)) { it.plusDays(1) }
+                .first { day ->
+                    upcomingDays(day, holidaysOnly = false, Lang.ENGLISH, Digits.ENGLISH, english, maxRows = 1)
+                        .rows
+                        .firstOrNull()
+                        ?.date != day
+                }
+        assertNull(upcomingWidgetModel(quiet, Lang.ENGLISH, Digits.ENGLISH, english, showNepal = false).todayRow)
     }
 
     @Test
@@ -164,18 +186,15 @@ class WidgetModelTest {
     }
 
     @Test
-    fun w02HolidayEntriesKeepTheHolidayFlag() {
-        val model =
-            upcomingWidgetModel(
-                NepaliDate.of(2083, 6, 25),
-                Lang.ENGLISH,
-                Digits.ENGLISH,
-                english,
-                showNepal = false,
-            )
-        assertEquals("Ghatasthapana Brata", model.entries.first().name)
-        assertTrue(model.entries.first().isHoliday)
-        assertEquals("Today", model.entries.first().relative)
+    fun dayRowsJoinADaysEventsAndKeepTheHolidayFlag() {
+        val rows =
+            upcomingDays(NepaliDate.of(2083, 6, 25), holidaysOnly = false, Lang.ENGLISH, Digits.ENGLISH, english).rows
+        val first = rows.first()
+        assertEquals(NepaliDate.of(2083, 6, 25), first.date)
+        assertTrue(first.names.startsWith("Ghatasthapana Brata"))
+        assertTrue(first.isHoliday)
+        assertEquals("Today", first.relative)
+        assertEquals("Sun", first.weekdayShort)
     }
 
     @Test

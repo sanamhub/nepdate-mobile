@@ -12,6 +12,7 @@ import io.github.sanamhub.nepdate.NepaliDate
 import np.nepdate.data.Digits
 import np.nepdate.data.Settings
 import np.nepdate.ui.theme.NepdateTheme
+import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -33,7 +34,7 @@ class UpcomingScreenTest {
         composeRule.onNodeWithText("Asoj 2083").assertExists()
         composeRule.onNodeWithText("Indira Ekadashi Brata").assertExists()
         composeRule.onNodeWithText("Ekadashi Shraddha").assertExists()
-        composeRule.onAllNodesWithText("Asoj 20, 2083 · 6 October 2026").onFirst().assertExists()
+        composeRule.onAllNodesWithText("6 October 2026").onFirst().assertExists()
         composeRule.onNodeWithTag("upcoming_entry_0").assertExists()
     }
 
@@ -45,7 +46,26 @@ class UpcomingScreenTest {
 
         composeRule.onNodeWithTag("day_detail").assertExists()
         composeRule.onNodeWithText("Asoj 20, 2083").assertExists()
-        composeRule.onNodeWithTag("day_event_0").assertTextEquals("Indira Ekadashi Brata")
+        composeRule.onNodeWithTag("day_event_0", useUnmergedTree = true).assertTextEquals("Indira Ekadashi Brata")
+    }
+
+    @Test
+    fun theHolidayFilterAndTheMonthButtonWork() {
+        var opened: Pair<Int, Int>? = null
+        composeRule.setContent {
+            NepdateTheme(darkTheme = false, dynamicColor = false) {
+                UpcomingScreen(
+                    today = NepaliDate.of(2083, 6, 20),
+                    settings = settings,
+                    onOpenMonth = { year, month -> opened = year to month },
+                )
+            }
+        }
+
+        composeRule.onNodeWithTag("parva_filter_holidays").performClick()
+        composeRule.onNodeWithText("Ekadashi Shraddha").assertDoesNotExist()
+        composeRule.onNodeWithTag("parva_open_month_2083_6").performClick()
+        assertEquals(2083 to 6, opened)
     }
 
     @Test

@@ -85,6 +85,15 @@ class MonthScreenshotTest {
     }
 
     @Test
+    fun anotherMonthListsItsHolidaysAndEvents() {
+        capture(
+            name = "a1-month-next-highlights",
+            settings = Settings(digits = Digits.ENGLISH),
+            month = 7,
+        )
+    }
+
+    @Test
     fun nepalTimeAndSettingsIcon() {
         capture(
             name = "a1-month-nepal-time",

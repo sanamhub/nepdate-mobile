@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The static widget picker image for launchers before Android 12. Shapes and the Sunny vector
+     only: no bitmap. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:width="300dp" android:height="64dp">
+        <shape android:shape="rectangle">
+            <solid android:color="#FFFFF8F3" />
+            <corners android:radius="24dp" />
+        </shape>
+    </item>
+    <item android:left="10dp" android:top="8dp" android:width="48dp" android:height="48dp" android:gravity="top|start"
+        android:drawable="@drawable/widget_sunny" />
+    <item android:left="72dp" android:top="18dp" android:width="160dp" android:height="10dp" android:gravity="top|start">
+        <shape android:shape="rectangle">
+            <solid android:color="#FF1F1B16" />
+            <corners android:radius="4dp" />
+        </shape>
+    </item>
+    <item android:left="72dp" android:top="36dp" android:width="110dp" android:height="8dp" android:gravity="top|start">
+        <shape android:shape="rectangle">
+            <solid android:color="#FF9C8F80" />
+            <corners android:radius="4dp" />
+        </shape>
+    </item>
+</layer-list>

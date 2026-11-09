@@ -9,6 +9,7 @@ import androidx.glance.appwidget.testing.unit.hasStartActivityClickAction
 import androidx.glance.appwidget.testing.unit.runGlanceAppWidgetUnitTest
 import androidx.glance.testing.unit.hasTestTag
 import androidx.glance.testing.unit.hasText
+import androidx.glance.testing.unit.hasTextEqualTo
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import io.github.sanamhub.nepdate.Lang
@@ -24,22 +25,21 @@ class WidgetContentTest {
     private val context: Context = ApplicationProvider.getApplicationContext()
 
     @Test
-    fun w01EnglishDigitsAt4x1() =
+    fun theDateStripShowsTheWeekdayDateAndTithiInEnglishDigits() =
         runGlanceAppWidgetUnitTest {
             setContext(context)
-            setAppWidgetSize(GlanceAppWidgetSize.ONE_LINE)
+            setAppWidgetSize(DpSize(300.dp, 60.dp))
             provideComposable {
                 GlanceTheme {
-                    TodayWidgetContent(
-                        todayModel(Digits.ENGLISH, Lang.ENGLISH),
-                        WidgetOpacity.SOLID,
-                    )
+                    DateStripContent(todayModel(Digits.ENGLISH, Lang.ENGLISH), WidgetOpacity.SOLID)
                 }
             }
 
-            onNode(hasText("Asoj 25 Sunday, Ghatasthapana Brata")).assertExists()
-            onNode(hasText("25")).assertExists()
+            // The numeral is on the Sunny shape, so the line names the month and year without the day.
+            onNode(hasText("Sunday · Asoj 2083")).assertExists()
+            onNode(hasTextEqualTo("25")).assertExists()
             onNode(hasText("२५")).assertDoesNotExist()
+            onNode(hasTestTag("strip_widget")).assert(hasStartActivityClickAction(widgetIntent(context)))
         }
 
     @Test
@@ -57,7 +57,7 @@ class WidgetContentTest {
             }
 
             onNode(hasText("२५")).assertExists()
-            onNode(hasText("असोज · आइत")).assertExists()
+            onNode(hasText("असोज")).assertExists()
             onAllNodes(hasText("25")).assertCountEquals(0)
         }
 
@@ -97,6 +97,31 @@ class WidgetContentTest {
                     ),
                 )
         }
+
+    @Test
+    fun w02ShowsTodaysHolidaysInANoteThatMinimalLeavesOut() {
+        val base = upcomingModel(Digits.ENGLISH, Lang.ENGLISH)
+        val festive = base.entries.first().date
+        val model = upcomingWidgetModel(festive, Lang.ENGLISH, Digits.ENGLISH, englishCopy, showNepal = false)
+        for (minimal in listOf(false, true)) {
+            runGlanceAppWidgetUnitTest {
+                setContext(context)
+                setAppWidgetSize(GlanceAppWidgetSize.WIDE)
+                provideComposable {
+                    GlanceTheme {
+                        UpcomingWidgetContent(model, WidgetOpacity.SOLID, minimal = minimal)
+                    }
+                }
+                if (minimal) {
+                    onNode(hasTestTag("upcoming_today_note")).assertDoesNotExist()
+                } else {
+                    onNode(hasTestTag("upcoming_today_note"))
+                        .assert(hasStartActivityClickAction(widgetIntent(context, festive)))
+                    onNode(hasText(model.todayRow!!.names)).assertExists()
+                }
+            }
+        }
+    }
 
     @Test
     fun w02EndsWithTheCoverageFooter() =
@@ -266,7 +291,7 @@ class WidgetContentTest {
 
 private object GlanceAppWidgetSize {
     val SMALL = DpSize(110.dp, 110.dp)
-    val ONE_LINE = DpSize(250.dp, 70.dp)
+    val ONE_LINE = DpSize(330.dp, 64.dp)
     val WIDE = DpSize(250.dp, 110.dp)
     val MONTH = DpSize(250.dp, 250.dp)
 }

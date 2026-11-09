@@ -1,20 +1,22 @@
 package np.nepdate.widget
 
+import android.content.Context
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
 import androidx.glance.LocalContext
+import androidx.glance.LocalSize
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.action.actionStartActivity
-import androidx.glance.background
 import androidx.glance.layout.Alignment
-import androidx.glance.layout.Box
 import androidx.glance.layout.Column
 import androidx.glance.layout.Row
+import androidx.glance.layout.RowScope
+import androidx.glance.layout.Spacer
 import androidx.glance.layout.fillMaxHeight
-import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
 import androidx.glance.layout.padding
@@ -29,378 +31,313 @@ import androidx.glance.text.TextStyle
 import np.nepdate.R
 
 /**
- * W-01 Today. The 2x2 layout stacks the hero numeral and the date; 4x2 puts the next holiday on
- * the right; 4x1 becomes one line. The holiday mark is a fill plus an underline at every opacity
- * (design-system H1).
- */
-@Composable
-internal fun TodayWidgetContent(
-    model: TodayWidgetModel,
-    opacity: WidgetOpacity,
-) {
-    val context = LocalContext.current
-    val tap = actionStartActivity(widgetIntent(context))
-    val label = context.getString(R.string.widget_today_name)
-    Box(
-        modifier =
-            widgetRootOpacity(opacity)
-                .clickable(tap)
-                .semantics {
-                    contentDescription = label
-                    testTag = "today_widget"
-                },
-    ) {
-        when {
-            isOneLineSize() -> TodayOneLine(model)
-            isSmallSize() -> TodayStacked(model, compact = true)
-            else -> TodaySideBySide(model, compact = false, showNext = true)
-        }
-    }
-}
-
-@Composable
-private fun TodayOneLine(model: TodayWidgetModel) {
-    Box(
-        modifier =
-            GlanceModifier
-                .fillMaxSize()
-                .padding(horizontal = 12.dp, vertical = 6.dp),
-        contentAlignment = Alignment.Center,
-    ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(
-                text = model.oneLine,
-                style =
-                    TextStyle(
-                        color =
-                            if (model.isHoliday ||
-                                model.isSaturday
-                            ) {
-                                holidayProvider()
-                            } else {
-                                GlanceTheme.colors.onSurface
-                            },
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.Medium,
-                        textAlign = TextAlign.Center,
-                    ),
-                maxLines = 1,
-            )
-            if (model.isHoliday) {
-                HolidayMark()
-            }
-        }
-    }
-}
-
-@Composable
-private fun TodaySideBySide(
-    model: TodayWidgetModel,
-    compact: Boolean,
-    showNext: Boolean,
-    tiny: Boolean = false,
-) {
-    Row(
-        modifier =
-            GlanceModifier
-                .fillMaxSize()
-                .padding(if (compact) 6.dp else 10.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Hero(model, compact, tiny)
-        Column(
-            modifier =
-                GlanceModifier
-                    .defaultWeight()
-                    .padding(start = if (compact) 6.dp else 10.dp, end = 4.dp),
-        ) {
-            Text(
-                text = model.monthName,
-                style =
-                    TextStyle(
-                        color = GlanceTheme.colors.onSurface,
-                        fontSize = if (compact) 11.sp else 14.sp,
-                        fontWeight = FontWeight.Medium,
-                    ),
-                maxLines = 1,
-            )
-            Text(
-                text = if (compact) model.weekdayShort else model.weekday,
-                style = TextStyle(color = GlanceTheme.colors.onSurfaceVariant, fontSize = if (compact) 9.sp else 12.sp),
-                maxLines = 1,
-            )
-            DateOrHoliday(model, compact = compact, short = true, tiny = tiny)
-        }
-        if (showNext) {
-            model.nextHoliday?.let { next ->
-                Column(
-                    modifier = GlanceModifier.width(72.dp),
-                    horizontalAlignment = Alignment.End,
-                ) {
-                    Text(
-                        text = next.name,
-                        style = TextStyle(color = holidayProvider(), fontSize = 9.sp, fontWeight = FontWeight.Medium),
-                        maxLines = 2,
-                    )
-                    Text(
-                        text = next.relative,
-                        style = TextStyle(color = GlanceTheme.colors.onSurfaceVariant, fontSize = 8.sp),
-                        maxLines = 1,
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun TodayStacked(
-    model: TodayWidgetModel,
-    compact: Boolean,
-    showNext: Boolean = true,
-    tiny: Boolean = false,
-) {
-    Column(
-        modifier =
-            GlanceModifier
-                .fillMaxSize()
-                .padding(4.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Hero(model, compact, tiny)
-        Text(
-            text = "${model.monthName} · ${model.weekdayShort}",
-            style =
-                TextStyle(
-                    color = GlanceTheme.colors.onSurface,
-                    fontSize =
-                        if (compact) {
-                            9.sp
-                        } else {
-                            13.sp
-                        },
-                    fontWeight = FontWeight.Medium,
-                ),
-            maxLines = 1,
-        )
-        DateOrHoliday(model, compact = compact, short = true, tiny = tiny)
-        if (showNext) {
-            model.nextHoliday?.let { next ->
-                Text(
-                    text = "${next.name}\n${next.relative}",
-                    style = TextStyle(color = holidayProvider(), fontSize = 6.5.sp, fontWeight = FontWeight.Medium),
-                    maxLines = 2,
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun Hero(
-    model: TodayWidgetModel,
-    compact: Boolean,
-    tiny: Boolean = false,
-) {
-    val holiday = model.isHoliday
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Box(
-            modifier =
-                GlanceModifier
-                    .then(
-                        if (holiday) {
-                            GlanceModifier.background(holidayColor().copy(alpha = HOLIDAY_FILL_ALPHA))
-                        } else {
-                            GlanceModifier
-                        },
-                    ).padding(horizontal = 4.dp),
-            contentAlignment = Alignment.Center,
-        ) {
-            Text(
-                text = model.bsDay,
-                style =
-                    TextStyle(
-                        color = if (holiday || model.isSaturday) holidayProvider() else GlanceTheme.colors.onSurface,
-                        fontSize =
-                            if (tiny) {
-                                28.sp
-                            } else if (compact) {
-                                32.sp
-                            } else {
-                                52.sp
-                            },
-                        fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Center,
-                    ),
-                maxLines = 1,
-            )
-        }
-        if (holiday) HolidayMark()
-        model.nepalLabel?.let {
-            Text(
-                text = it,
-                style =
-                    TextStyle(
-                        color = todayProvider(),
-                        fontSize =
-                            if (tiny) {
-                                6.sp
-                            } else if (compact) {
-                                7.sp
-                            } else {
-                                8.sp
-                            },
-                        fontWeight = FontWeight.Medium,
-                    ),
-                maxLines = 1,
-            )
-        }
-    }
-}
-
-@Composable
-private fun DateOrHoliday(
-    model: TodayWidgetModel,
-    compact: Boolean = false,
-    short: Boolean = false,
-    tiny: Boolean = false,
-) {
-    Text(
-        text = model.holidayName ?: if (short) model.adShortLine else model.adLine,
-        style =
-            TextStyle(
-                color = if (model.holidayName != null) holidayProvider() else GlanceTheme.colors.onSurfaceVariant,
-                fontSize =
-                    if (tiny) {
-                        7.sp
-                    } else if (compact) {
-                        8.sp
-                    } else {
-                        8.5.sp
-                    },
-                textAlign = TextAlign.Center,
-            ),
-        maxLines = if (model.holidayName != null) 2 else 1,
-    )
-}
-
-@Composable
-private fun HolidayMark() {
-    Box(
-        modifier =
-            GlanceModifier
-                .padding(top = 1.dp)
-                .width(24.dp)
-                .height(2.dp)
-                .background(holidayColor()),
-    ) {}
-}
-
-/**
- * W-02 Today and upcoming. The left half is W-01, the right half the next three entries. If fewer
- * than three remain, the coverage footer ends the right side (W-02 AC2).
+ * W-02 Today and upcoming. Today sits in a primary container block on the left, with the numeral on
+ * the Sunny shape; the right side names today's own holidays and events first, in a tinted note,
+ * then lists the next days that have a holiday or an event, one row per day. Every part opens the
+ * app: the block, the note and the empty space on today, a row on its own day.
  */
 @Composable
 internal fun UpcomingWidgetContent(
     model: UpcomingWidgetModel,
     opacity: WidgetOpacity,
+    minimal: Boolean = false,
 ) {
     val context = LocalContext.current
-    if (isOneLineSize() || isSmallSize()) {
-        Box(
-            modifier =
-                widgetRootOpacity(opacity)
-                    .clickable(actionStartActivity(widgetIntent(context)))
-                    .semantics { testTag = "upcoming_widget" },
-        ) {
-            if (isOneLineSize()) TodayOneLine(model.today) else TodayStacked(model.today, compact = true)
-        }
-        return
-    }
+    val label = context.getString(R.string.widget_upcoming_name)
     Row(
         modifier =
-            widgetRootOpacity(opacity)
-                .padding(10.dp),
+            widgetRoot(opacity, GlanceTheme.colors.surface)
+                .clickable(actionStartActivity(widgetIntent(context)))
+                .semantics {
+                    contentDescription = label
+                    testTag = "upcoming_widget"
+                }.padding(8.dp),
     ) {
-        Box(
-            modifier =
-                GlanceModifier
-                    .width(104.dp)
-                    .fillMaxHeight()
-                    .clickable(actionStartActivity(widgetIntent(context)))
-                    .semantics { testTag = "upcoming_today" },
-        ) {
-            TodayStacked(model.today, compact = true, showNext = false, tiny = true)
+        TodayBlock(model.today, context, minimal)
+        UpcomingEntries(model, context, minimal)
+    }
+}
+
+/**
+ * The left block: month, numeral, weekday and tithi. Its width is a share of the widget, and its
+ * type grows with the height only as far as that width holds, so the weekday is never cut.
+ */
+@Composable
+private fun TodayBlock(
+    today: TodayWidgetModel,
+    context: Context,
+    minimal: Boolean,
+) {
+    val size = LocalSize.current
+    val fit = widgetFit()
+    val width = (size.width * BLOCK_SHARE).coerceIn(MIN_BLOCK, MAX_BLOCK)
+    val text = width - BLOCK_PADDING
+    val scale = columnScale(size.height, text, BLOCK_WIDTH_AT_ONE)
+    val chrome = fit.line(12.sp * scale) + fit.line(13.sp * scale) + BLOCK_VERTICAL
+    val showTithi =
+        !minimal &&
+            today.tithi.isNotEmpty() &&
+            fit.fits(today.tithi, 11.sp * scale, text) &&
+            size.height - chrome - fit.line(11.sp * scale) >= MIN_SUNNY + BLOCK_PADDING
+    val sunny =
+        (size.height - chrome - (if (showTithi) fit.line(11.sp * scale) else 0.dp) - BLOCK_PADDING)
+            .coerceIn(MIN_SUNNY, minOf(MAX_SUNNY, text))
+    val ink = GlanceTheme.colors.onPrimaryContainer
+    Column(
+        modifier =
+            GlanceModifier
+                .width(width)
+                .fillMaxHeight()
+                .shapeBackground(R.drawable.widget_shape_20, GlanceTheme.colors.primaryContainer)
+                .clickable(actionStartActivity(widgetIntent(context)))
+                .semantics { testTag = "upcoming_today" }
+                .padding(horizontal = 6.dp, vertical = 8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            // The block is only as wide as the numeral, so it names the month without the year.
+            text = today.monthName,
+            style =
+                TextStyle(
+                    color = ink,
+                    fontSize = 12.sp * scale,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center,
+                ),
+            maxLines = 1,
+        )
+        SunnyNumeral(today.bsDay, sunny)
+        Text(
+            text = if (fit.fits(today.weekday, 13.sp * scale, text)) today.weekday else today.weekdayShort,
+            style =
+                TextStyle(
+                    color = if (today.isHoliday || today.isSaturday) holidayProvider() else ink,
+                    fontSize = 13.sp * scale,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center,
+                ),
+            maxLines = 1,
+        )
+        if (showTithi) {
+            Text(
+                text = today.tithi,
+                style = TextStyle(color = ink, fontSize = 11.sp * scale, textAlign = TextAlign.Center),
+                maxLines = 1,
+            )
         }
-        Box(
-            modifier =
-                GlanceModifier
-                    .padding(start = 10.dp, end = 8.dp)
-                    .width(1.dp)
-                    .fillMaxHeight()
-                    .background(GlanceTheme.colors.outline),
-        ) {}
-        UpcomingEntries(model, context)
     }
 }
 
 @Composable
-private fun androidx.glance.layout.RowScope.UpcomingEntries(
+private fun RowScope.UpcomingEntries(
     model: UpcomingWidgetModel,
-    context: android.content.Context,
+    context: Context,
+    minimal: Boolean,
 ) {
-    Column(modifier = GlanceModifier.defaultWeight().padding(start = 10.dp)) {
-        model.entries.forEachIndexed { index, entry ->
-            Column(
-                modifier =
-                    GlanceModifier
-                        .fillMaxWidth()
-                        .clickable(actionStartActivity(widgetIntent(context, entry.date)))
-                        .padding(vertical = 1.dp)
-                        .semantics { testTag = "upcoming_entry_$index" },
-            ) {
-                Text(
-                    text = entry.name,
-                    style =
-                        TextStyle(
-                            color = if (entry.isHoliday) holidayProvider() else GlanceTheme.colors.onSurface,
-                            fontSize = 9.sp,
-                            fontWeight = FontWeight.Medium,
-                        ),
-                    maxLines = 1,
-                )
-                if (entry.isHoliday) {
-                    Box(
-                        modifier =
-                            GlanceModifier
-                                .padding(top = 1.dp)
-                                .width(16.dp)
-                                .height(1.dp)
-                                .background(holidayColor()),
-                    ) {}
-                }
-                Text(
-                    text = entry.relative,
-                    style = TextStyle(color = GlanceTheme.colors.onSurfaceVariant, fontSize = 7.sp),
-                    maxLines = 1,
-                )
-            }
-        }
-        if (model.entries.isEmpty() && model.dataEnds == null) {
+    val height = LocalSize.current.height
+    val layout = upcomingLayout(height, model.todayRow.takeUnless { minimal }, widgetFit())
+    val rowHeight = layout.rowHeight
+    Column(modifier = GlanceModifier.defaultWeight().fillMaxHeight().padding(start = 10.dp, end = 4.dp)) {
+        model.todayRow.takeUnless { minimal }?.let { TodayNote(it, layout, context) }
+        if (layout.title) {
             Text(
-                text = context.getString(R.string.upcoming_empty),
-                style = TextStyle(color = GlanceTheme.colors.onSurfaceVariant, fontSize = 8.sp),
-                maxLines = 2,
+                text = context.getString(R.string.widget3_upcoming_title),
+                modifier = GlanceModifier.padding(start = 2.dp, top = 2.dp, bottom = 4.dp),
+                style =
+                    TextStyle(
+                        color = GlanceTheme.colors.onSurfaceVariant,
+                        fontSize = WidgetType.label,
+                        fontWeight = WidgetType.labelWeight,
+                    ),
+                maxLines = 1,
             )
         }
-        model.dataEnds?.let { footer ->
+        if (layout.rows == 0) return@Column
+        model.entries.take(layout.rows).forEachIndexed { index, row ->
+            if (index > 0) Spacer(GlanceModifier.height(ROW_GAP))
+            UpcomingRow(row, index, rowHeight, context, minimal, nameLines = if (rowHeight >= TWO_LINE_ROW) 2 else 1)
+        }
+        val footer =
+            model.dataEnds ?: context.getString(R.string.upcoming_empty).takeIf { model.entries.isEmpty() }
+        footer?.let {
             Text(
-                text = footer,
-                style = TextStyle(color = GlanceTheme.colors.onSurfaceVariant, fontSize = 7.sp),
+                text = it,
+                style = TextStyle(color = GlanceTheme.colors.onSurfaceVariant, fontSize = 11.sp),
                 maxLines = 2,
             )
         }
     }
 }
 
-private const val HOLIDAY_FILL_ALPHA = 0.16f
+/** How today's note is drawn: over two lines with a caption, or as one line. */
+private enum class NoteStyle { FULL, COMPACT }
+
+/**
+ * The right side's plan: the note's style, whether the list has its title, how many rows fit and
+ * how tall each is. Rows grow to share the height, so a tall widget leaves no empty band at the end.
+ */
+private data class UpcomingLayout(
+    val note: NoteStyle,
+    val title: Boolean,
+    val rows: Int,
+    val rowHeight: Dp,
+)
+
+/**
+ * Today's holidays come first. A tall widget gives them the two-line note and keeps the list with
+ * its title; a short one gives them one line and drops the title, since each row already says how
+ * far away it is. Without anything today the list has the whole side, as before.
+ */
+private fun upcomingLayout(
+    height: Dp,
+    todayRow: WidgetDayRow?,
+    fit: WidgetFit,
+): UpcomingLayout {
+    val room = height - ROOT_PADDING
+    val minRow = if (height >= ROOMY) MIN_ROOMY_ROW else MIN_ROW
+    val slot = minRow + ROW_GAP
+    val full = fit.line(NOTE_CAPTION) + fit.line(NOTE_NAMES) * NOTE_LINES + NOTE_CHROME
+    val compact = fit.line(NOTE_NAMES) + COMPACT_NOTE_CHROME
+
+    // The last row needs no gap after it, so the space gets one gap back before dividing.
+    fun plan(
+        note: NoteStyle,
+        title: Boolean,
+        space: Dp,
+        min: Int,
+    ): UpcomingLayout {
+        val rows = ((space + ROW_GAP) / slot).toInt().coerceIn(min, UPCOMING_MAX_ROWS)
+        val share = if (rows > 0) (space + ROW_GAP) / rows - ROW_GAP else minRow
+        return UpcomingLayout(note, title, rows, share.coerceIn(minRow, MAX_ROW))
+    }
+    return when {
+        todayRow == null -> plan(NoteStyle.FULL, title = true, space = room - TITLE_HEIGHT, min = 1)
+        room - full - TITLE_HEIGHT >= minRow ->
+            plan(NoteStyle.FULL, title = true, space = room - full - TITLE_HEIGHT, min = 1)
+        else -> plan(NoteStyle.COMPACT, title = false, space = room - compact, min = 0)
+    }
+}
+
+/**
+ * Today's holidays and events on a tinted rounded block, so they read as part of today and not as
+ * one more upcoming day: "Today" over up to two lines of names, or "Today" beside them when the
+ * widget is short. A holiday's names take the holiday ink.
+ */
+@Composable
+private fun TodayNote(
+    row: WidgetDayRow,
+    layout: UpcomingLayout,
+    context: Context,
+) {
+    val ink = GlanceTheme.colors.onSecondaryContainer
+    val names =
+        TextStyle(
+            color = if (row.isHoliday) holidayProvider() else ink,
+            fontSize = NOTE_NAMES,
+            fontWeight = WidgetType.emphasisWeight,
+        )
+    val modifier =
+        GlanceModifier
+            .fillMaxWidth()
+            .shapeBackground(R.drawable.widget_shape_12, GlanceTheme.colors.secondaryContainer)
+            .clickable(actionStartActivity(widgetIntent(context, row.date)))
+            .semantics { testTag = "upcoming_today_note" }
+    when (layout.note) {
+        NoteStyle.FULL ->
+            Column(modifier = modifier.padding(horizontal = 10.dp, vertical = 6.dp)) {
+                Text(
+                    text = row.relative,
+                    style = TextStyle(color = ink, fontSize = NOTE_CAPTION, fontWeight = FontWeight.Bold),
+                    maxLines = 1,
+                )
+                Text(text = row.names, style = names, maxLines = NOTE_LINES)
+            }
+        NoteStyle.COMPACT ->
+            Row(
+                modifier = modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = row.relative,
+                    modifier = GlanceModifier.padding(end = 6.dp),
+                    style = TextStyle(color = ink, fontSize = NOTE_CAPTION, fontWeight = FontWeight.Bold),
+                    maxLines = 1,
+                )
+                Text(
+                    text = row.names,
+                    modifier = GlanceModifier.defaultWeight(),
+                    style = names,
+                    maxLines = 1,
+                )
+            }
+    }
+    Spacer(GlanceModifier.height(NOTE_GAP))
+}
+
+@Composable
+private fun UpcomingRow(
+    row: WidgetDayRow,
+    index: Int,
+    height: Dp,
+    context: Context,
+    minimal: Boolean,
+    nameLines: Int,
+) {
+    Row(
+        modifier =
+            GlanceModifier
+                .fillMaxWidth()
+                .height(height)
+                .clickable(actionStartActivity(widgetIntent(context, row.date)))
+                .semantics { testTag = "upcoming_entry_$index" },
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        DateBadge(row, minOf(height - 4.dp, MAX_BADGE))
+        Column(modifier = GlanceModifier.defaultWeight().padding(start = 10.dp)) {
+            Text(
+                text = row.names,
+                style =
+                    TextStyle(
+                        color = if (row.isHoliday) holidayProvider() else GlanceTheme.colors.onSurface,
+                        fontSize = WidgetType.body,
+                        fontWeight = WidgetType.emphasisWeight,
+                    ),
+                maxLines = nameLines,
+            )
+            if (!minimal) {
+                Text(
+                    text = row.relative,
+                    style = TextStyle(color = GlanceTheme.colors.onSurfaceVariant, fontSize = 12.sp),
+                    maxLines = 1,
+                )
+            }
+        }
+    }
+}
+
+private const val BLOCK_SHARE = 0.32f
+private val MIN_BLOCK = 84.dp
+private val MAX_BLOCK = 132.dp
+private val BLOCK_PADDING = 12.dp
+private val BLOCK_VERTICAL = 28.dp
+private val BLOCK_WIDTH_AT_ONE = 80.dp
+private val MIN_SUNNY = 36.dp
+private val MAX_SUNNY = 112.dp
+private val ROOMY = 170.dp
+private val ROOT_PADDING = 16.dp
+private val TITLE_HEIGHT = 24.dp
+private val ROW_GAP = 4.dp
+private val MIN_ROW = 40.dp
+private val MIN_ROOMY_ROW = 44.dp
+private val MAX_ROW = 60.dp
+private val TWO_LINE_ROW = 56.dp
+private val MAX_BADGE = 48.dp
+private val NOTE_CAPTION = 11.sp
+private val NOTE_NAMES = 13.sp
+private const val NOTE_LINES = 2
+private val NOTE_GAP = 6.dp
+
+/** The note's vertical padding and the gap under it, over two lines and on one. */
+private val NOTE_CHROME = 18.dp
+private val COMPACT_NOTE_CHROME = 14.dp

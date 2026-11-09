@@ -101,9 +101,10 @@ jobs:
 
   # Testers install THIS one, not debug-apk. It is the release build (R8 and resource shrinking, not
   # debuggable, Baseline Profile and startup profile included), so it runs like the store build.
-  # It is signed with a throwaway debug-style key made in this job, never the upload key. The
-  # package name is np.nepdate, the same as debug-apk, and every run signs with a new key, so
-  # Android will not install it over a build from another run: uninstall the old one first.
+  # It is signed with the TESTER_* repository secrets when they exist, so each build installs over
+  # the last one. Without them (forks, or before they are added) it uses a throwaway key made in this
+  # job, and Android will not install it over a build from another run: uninstall the old one first.
+  # Never the upload key. The package name is np.nepdate, the same as debug-apk.
   tester-apk:
     name: Tester APK
     runs-on: ubuntu-latest
@@ -127,18 +128,41 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
 
-      - name: Make a throwaway debug-style key
+      # TESTER_* secrets hold a key made for testers only. It is never the upload key and is never
+      # kept in a file in the repository. Forks, and runs before the secrets exist, get no secrets,
+      # so they fall back to a throwaway key made here.
+      - name: Choose the signing key
+        id: key
+        env:
+          TESTER_KEYSTORE_BASE64: ${{ secrets.TESTER_KEYSTORE_BASE64 }}
+          TESTER_KEYSTORE_PASSWORD: ${{ secrets.TESTER_KEYSTORE_PASSWORD }}
+          TESTER_KEY_ALIAS: ${{ secrets.TESTER_KEY_ALIAS }}
+          TESTER_KEY_PASSWORD: ${{ secrets.TESTER_KEY_PASSWORD }}
         run: |
-          keytool -genkeypair -keystore "$RUNNER_TEMP/tester.jks" -storepass android -keypass android             -alias androiddebugkey -keyalg RSA -keysize 2048 -validity 10000             -dname "CN=Android Debug,O=Android,C=US"
+          set -euo pipefail
+          store="$RUNNER_TEMP/tester.jks"
+          if [ -n "$TESTER_KEYSTORE_BASE64" ] && [ -n "$TESTER_KEYSTORE_PASSWORD" ]              && [ -n "$TESTER_KEY_ALIAS" ] && [ -n "$TESTER_KEY_PASSWORD" ]; then
+            printf '%s' "$TESTER_KEYSTORE_BASE64" | base64 --decode > "$store"
+            echo "kind=stable" >> "$GITHUB_OUTPUT"
+            echo "A stable tester key is in use: an update installs over the last build."
+          else
+            keytool -genkeypair -keystore "$store" -storepass android -keypass android               -alias androiddebugkey -keyalg RSA -keysize 2048 -validity 10000               -dname "CN=Android Debug,O=Android,C=US"
+            echo "kind=throwaway" >> "$GITHUB_OUTPUT"
+            echo "::notice::No tester key secrets here, so this build uses a throwaway key. Uninstall the old build before installing it."
+          fi
 
       - name: Build the release APK signed with that key
         working-directory: android
         env:
           ANDROID_KEYSTORE_PATH: ${{ runner.temp }}/tester.jks
-          ANDROID_KEYSTORE_PASSWORD: android
-          ANDROID_KEY_ALIAS: androiddebugkey
-          ANDROID_KEY_PASSWORD: android
+          ANDROID_KEYSTORE_PASSWORD: ${{ steps.key.outputs.kind == 'stable' && secrets.TESTER_KEYSTORE_PASSWORD || 'android' }}
+          ANDROID_KEY_ALIAS: ${{ steps.key.outputs.kind == 'stable' && secrets.TESTER_KEY_ALIAS || 'androiddebugkey' }}
+          ANDROID_KEY_PASSWORD: ${{ steps.key.outputs.kind == 'stable' && secrets.TESTER_KEY_PASSWORD || 'android' }}
         run: ./gradlew :app:assembleRelease --no-daemon
+
+      - name: Remove the key
+        if: always()
+        run: rm -f "$RUNNER_TEMP/tester.jks"
 
       - name: Check the APK
         run: |
