@@ -30,8 +30,8 @@
     <string name="about_android_version">एन्ड्रोइड संस्करण</string>
 
     <!-- First run. -->
-    <string name="firstrun_title">हल्का, छिटो, आफ्नै पात्रो</string>
-    <string name="firstrun_lead">इन्टरनेट नचाहिने, विज्ञापन नभएको नेपाली पात्रो। भाषा र रूप छान्नुहोस्; पछि सेटिङमा फेर्न सकिन्छ।</string>
-    <string name="firstrun_lead_look_only">इन्टरनेट नचाहिने, विज्ञापन नभएको नेपाली पात्रो। रूप छान्नुहोस्; पछि सेटिङमा फेर्न सकिन्छ।</string>
+    <string name="firstrun_title">हल्का, छिटो, तपाईंको आफ्नै पात्रो</string>
+    <string name="firstrun_lead">यी जुनसुकै बेला सेटिङमा फेर्न सकिन्छ।</string>
+    <string name="firstrun_lead_look_only">यो जुनसुकै बेला सेटिङमा फेर्न सकिन्छ।</string>
     <string name="firstrun_open">पात्रो खोल्नुहोस्</string>
 </resources>

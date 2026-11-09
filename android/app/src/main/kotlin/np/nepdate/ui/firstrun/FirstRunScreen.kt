@@ -9,6 +9,8 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
@@ -20,6 +22,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
@@ -58,6 +61,7 @@ import np.nepdate.data.Digits
 import np.nepdate.data.Look
 import np.nepdate.data.Settings
 import np.nepdate.data.TodayProvider
+import np.nepdate.ui.about.APP_PROMISES
 import np.nepdate.ui.common.CloverShape
 import np.nepdate.ui.common.CookieShape
 import np.nepdate.ui.common.GroupPosition
@@ -113,12 +117,13 @@ internal fun FirstRunScreen(
                 style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.ExtraBold),
                 minLines = TITLE_LINES,
             )
+            PromiseChips(modifier = Modifier.padding(top = 12.dp))
             Text(
                 text =
                     stringResource(
                         if (canPickLanguage) R.string.firstrun_lead else R.string.firstrun_lead_look_only,
                     ),
-                modifier = Modifier.padding(start = 4.dp, end = 4.dp, top = 6.dp),
+                modifier = Modifier.padding(start = 4.dp, end = 4.dp, top = 12.dp),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.bodyLarge,
                 minLines = LEAD_LINES,
@@ -143,6 +148,41 @@ internal fun FirstRunScreen(
     }
 }
 
+/**
+ * The app's promises from About as quiet chips under the title, so a first-time user sees what the
+ * app does and does not do before choosing anything. They stay tonal so the button leads.
+ */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun PromiseChips(modifier: Modifier = Modifier) {
+    val scheme = MaterialTheme.colorScheme
+    FlowRow(
+        modifier = modifier.testTag("first_run_promises"),
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+        verticalArrangement = Arrangement.spacedBy(6.dp),
+    ) {
+        APP_PROMISES.forEach { promise ->
+            Row(
+                modifier =
+                    Modifier
+                        .heightIn(min = 28.dp)
+                        .clip(RoundedCornerShape(14.dp))
+                        .background(scheme.surfaceContainerHigh)
+                        .padding(start = 8.dp, end = 10.dp, top = 4.dp, bottom = 4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                SymbolIcon(promise.icon, tint = scheme.primary, size = 16.dp)
+                Spacer(Modifier.width(4.dp))
+                Text(
+                    text = stringResource(promise.label),
+                    color = scheme.onSurface,
+                    style = MaterialTheme.typography.labelMedium,
+                )
+            }
+        }
+    }
+}
+
 /** Decoration: today's BS day and month on Sunny, with Cookie and Clover shapes around it. */
 @Composable
 private fun Collage(
@@ -156,30 +196,30 @@ private fun Collage(
         modifier =
             Modifier
                 .fillMaxWidth()
-                .height(236.dp)
+                .height(160.dp)
                 .padding(top = 8.dp, bottom = 4.dp)
                 .clearAndSetSemantics {},
     ) {
-        ShapeBadge(CookieShape, scheme.tertiaryContainer, 120.dp, Modifier.offset(x = 6.dp, y = 18.dp)) {}
+        ShapeBadge(CookieShape, scheme.tertiaryContainer, 88.dp, Modifier.offset(x = 12.dp, y = 8.dp)) {}
         ShapeBadge(
             CloverShape,
             colors.holidayContainer,
-            96.dp,
-            Modifier.align(Alignment.TopEnd).offset(x = (-10).dp),
+            74.dp,
+            Modifier.align(Alignment.TopEnd).offset(x = (-16).dp),
         ) {}
         ShapeBadge(
             CookieShape,
             scheme.secondaryContainer,
-            78.dp,
-            Modifier.align(Alignment.BottomEnd).offset(x = (-36).dp, y = (-6).dp),
+            60.dp,
+            Modifier.align(Alignment.BottomEnd).offset(x = (-44).dp, y = (-4).dp),
         ) {}
-        ShapeBadge(SunnyShape, colors.today, 176.dp, Modifier.align(Alignment.Center)) {
+        ShapeBadge(SunnyShape, colors.today, 136.dp, Modifier.align(Alignment.Center)) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
                     text = today.dayOfMonth.toString().inDigits(digits),
                     color = colors.onToday,
-                    fontSize = 64.sp,
-                    lineHeight = 64.sp,
+                    fontSize = 48.sp,
+                    lineHeight = 48.sp,
                     fontWeight = FontWeight.ExtraBold,
                 )
                 Text(
@@ -395,4 +435,4 @@ private const val ENGLISH = "en"
 
 /** The lines the welcome title and lead always take, so the screen does not jump between languages. */
 private const val TITLE_LINES = 2
-private const val LEAD_LINES = 3
+private const val LEAD_LINES = 1
