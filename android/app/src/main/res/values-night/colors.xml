@@ -3,6 +3,16 @@
     <color name="nepdate_background">#17130E</color>
     <color name="widget_preview_text">#E6E1E5</color>
     <color name="widget_preview_holiday">#FF6B7A</color>
+    <!-- The widget containers a static preview draws, from the app's dark scheme. -->
+    <color name="widget_preview_today">#5E4200</color>
+    <color name="widget_preview_on_today">#FFDEA8</color>
+    <color name="widget_preview_holiday_container">#8C1D18</color>
+    <color name="widget_preview_on_holiday">#FFDAD6</color>
+    <color name="widget_preview_note">#4F4532</color>
+    <color name="widget_preview_on_note">#F6E0BB</color>
+    <color name="widget_preview_surface">#231F1A</color>
+    <color name="widget_preview_soft">#CAC4D0</color>
+    <color name="widget_preview_event">#A4C9F0</color>
     <color name="splash_background">#17130E</color>
     <color name="notify_accent">#FF8A95</color>
 </resources>

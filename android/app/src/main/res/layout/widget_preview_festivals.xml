@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- The static Festivals and holidays preview for Android 12 to 14 pickers. -->
+<!-- The static Festivals and holidays preview for Android 12 to 14 pickers: the title, the
+     holidays-only filter and a day's names on the note container with today on the Sunny shape. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -7,23 +8,81 @@
     android:background="@drawable/widget_shape_28"
     android:backgroundTint="@color/nepdate_background"
     android:orientation="vertical"
-    android:padding="14dp"
-    tools:ignore="Overdraw,HardcodedText">
+    android:padding="12dp"
+    tools:ignore="Overdraw">
 
-    <TextView
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/widget3_festivals_title"
-        android:textColor="@color/widget_preview_text"
-        android:textSize="17sp"
-        android:textStyle="bold" />
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
 
-    <TextView
-        android:layout_width="wrap_content"
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/widget3_festivals_title"
+            android:textColor="@color/widget_preview_text"
+            android:textFontWeight="500"
+            android:textSize="18sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/widget_shape_chip_outline"
+            android:backgroundTint="@color/widget_preview_soft"
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="4dp"
+            android:text="@string/widget2_holidays_only"
+            android:textColor="@color/widget_preview_soft"
+            android:textFontWeight="500"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
-        android:lineSpacingExtra="10dp"
-        android:text="@string/widget2_preview_list"
-        android:textColor="@color/widget_preview_text"
-        android:textSize="14sp" />
+        android:background="@drawable/widget_shape_pill"
+        android:backgroundTint="@color/widget_preview_note"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="10dp"
+        android:paddingVertical="6dp">
+
+        <FrameLayout
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:background="@drawable/widget_sunny">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="@string/widget3_preview_day"
+                android:textColor="@color/widget_preview_on_today"
+                android:textFontWeight="700"
+                android:textSize="15sp" />
+        </FrameLayout>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="@string/widget3_preview_festivals_names"
+            android:textColor="@color/widget_preview_holiday"
+            android:textFontWeight="500"
+            android:textSize="14sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/widget3_today_name"
+            android:textColor="@color/widget_preview_on_note"
+            android:textFontWeight="500"
+            android:textSize="12sp" />
+    </LinearLayout>
 </LinearLayout>

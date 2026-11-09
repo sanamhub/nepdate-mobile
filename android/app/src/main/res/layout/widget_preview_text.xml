@@ -1,24 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- The static Date text preview for Android 12 to 14 pickers. -->
+<!-- The static Date text preview for Android 12 to 14 pickers: today's BS date as plain type on a
+     flat surface, the weekday and the tithi under it. No card shape, like the widget. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/nepdate_background"
     android:gravity="center_vertical"
     android:orientation="vertical"
-    android:padding="12dp">
+    android:padding="6dp"
+    tools:ignore="Overdraw">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:maxLines="1"
         android:text="@string/widget4_preview_text_title"
-        android:textColor="#FFFFFF"
-        android:textSize="26sp"
-        android:textStyle="bold" />
+        android:textColor="@color/widget_preview_text"
+        android:textFontWeight="700"
+        android:textSize="22sp" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:maxLines="1"
         android:text="@string/widget4_preview_text_detail"
-        android:textColor="#E6FFFFFF"
-        android:textSize="14sp" />
+        android:textColor="@color/widget_preview_soft"
+        android:textFontWeight="400"
+        android:textSize="12sp" />
 </LinearLayout>

@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- The static Month preview for Android 12 to 14 pickers. -->
+<!-- The static Month preview for Android 12 to 14 pickers: the month and the AD span with the
+     previous and next controls, then the weekday row and the days as one aligned monospace grid,
+     like the widget's seven columns. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -8,23 +10,75 @@
     android:backgroundTint="@color/nepdate_background"
     android:orientation="vertical"
     android:padding="12dp"
-    tools:ignore="Overdraw,HardcodedText">
+    tools:ignore="Overdraw">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="@string/widget_preview_month"
+                android:textColor="@color/widget_preview_text"
+                android:textFontWeight="500"
+                android:textSize="18sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="@string/widget3_preview_ad_span"
+                android:textColor="@color/widget_preview_soft"
+                android:textFontWeight="400"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="32dp"
+            android:layout_height="30dp"
+            android:background="@drawable/widget_shape_pill"
+            android:backgroundTint="@color/widget_preview_surface"
+            android:gravity="center"
+            android:text="&lt;"
+            android:textColor="@color/widget_preview_text"
+            android:textFontWeight="500"
+            android:textSize="16sp"
+            tools:ignore="HardcodedText" />
+
+        <TextView
+            android:layout_width="32dp"
+            android:layout_height="30dp"
+            android:layout_marginStart="4dp"
+            android:background="@drawable/widget_shape_pill"
+            android:backgroundTint="@color/widget_preview_surface"
+            android:gravity="center"
+            android:text="&gt;"
+            android:textColor="@color/widget_preview_text"
+            android:textFontWeight="500"
+            android:textSize="16sp"
+            tools:ignore="HardcodedText" />
+    </LinearLayout>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/widget_preview_month"
-        android:textColor="@color/widget_preview_text"
-        android:textSize="18sp"
-        android:textStyle="bold" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="6dp"
         android:fontFamily="monospace"
-        android:lineSpacingExtra="10dp"
+        android:lineSpacingExtra="8dp"
         android:text="@string/widget_preview_grid"
         android:textColor="@color/widget_preview_text"
+        android:textFontWeight="400"
         android:textSize="13sp" />
 </LinearLayout>

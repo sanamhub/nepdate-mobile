@@ -20,5 +20,21 @@
     <string name="widget3_preview_month">Asoj</string>
     <string name="widget3_preview_weekday">Sunday</string>
     <string name="widget3_preview_strip_detail">Pratipada · Ghatasthapana</string>
-    <string name="widget3_preview_week">Sun  Mon  Tue  Wed  Thu  Fri  Sat\n 25   26   27   28   29   30   31</string>
+    <string name="widget3_preview_week_sun">Sun</string>
+    <string name="widget3_preview_week_mon">Mon</string>
+    <string name="widget3_preview_week_tue">Tue</string>
+    <string name="widget3_preview_week_wed">Wed</string>
+    <string name="widget3_preview_week_thu">Thu</string>
+    <string name="widget3_preview_week_fri">Fri</string>
+    <string name="widget3_preview_week_sat">Sat</string>
+    <string name="widget3_preview_day_29">29</string>
+    <string name="widget3_preview_day_30">30</string>
+    <string name="widget3_preview_day_31">31</string>
+    <string name="widget3_preview_day_26">26</string>
+    <string name="widget3_preview_day_27">27</string>
+    <string name="widget3_preview_day_28">28</string>
+    <string name="widget3_preview_agenda">Govardhan Puja, Mha Puja and more</string>
+    <string name="widget3_preview_upcoming_names">Navaratri Start</string>
+    <string name="widget3_preview_festivals_names">Gai Puja, World Environment Day</string>
+    <string name="widget3_preview_ad_span">Sep to Oct 2026</string>
 </resources>
