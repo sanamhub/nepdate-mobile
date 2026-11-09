@@ -1,6 +1,5 @@
 package np.nepdate.ui.year
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -80,7 +79,6 @@ internal fun YearScreen(
     val digits = settings.digits.resolve(lang)
     var year by rememberSaveable { mutableIntStateOf(initialYear.coerceIn(PICKER_FIRST_YEAR, PICKER_LAST_YEAR)) }
     val haptics = rememberHaptics(settings.haptics)
-    BackHandler(onBack = onBack)
     Column(
         modifier =
             modifier

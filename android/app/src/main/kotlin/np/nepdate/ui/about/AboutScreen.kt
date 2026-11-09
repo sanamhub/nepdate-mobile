@@ -3,7 +3,6 @@ package np.nepdate.ui.about
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -66,7 +65,6 @@ internal fun AboutScreen(
     modifier: Modifier = Modifier,
     digits: Digits = Digits.FOLLOW_LANGUAGE,
 ) {
-    BackHandler { onBack() }
     val scroll = TopAppBarDefaults.pinnedScrollBehavior()
     Scaffold(
         modifier =

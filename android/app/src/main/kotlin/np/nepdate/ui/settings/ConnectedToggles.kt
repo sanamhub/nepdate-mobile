@@ -33,6 +33,7 @@ import np.nepdate.ui.common.SymbolIcon
  * inner corners round out when pressed and that turn into a full pill when chosen. The chosen one
  * shows a check that grows in with the motion scheme's spring.
  *
+ * @param haptics the settings' haptics, or null where the app's settings are not at hand
  * @param tags optional test tags, one per option
  */
 @Composable
@@ -40,7 +41,7 @@ internal fun <T> ConnectedToggleGroup(
     options: List<Choice<T>>,
     selected: T,
     onSelect: (T) -> Unit,
-    haptics: Haptics,
+    haptics: Haptics?,
     modifier: Modifier = Modifier,
     label: String? = null,
     tags: List<String> = emptyList(),
@@ -59,7 +60,7 @@ internal fun <T> ConnectedToggleGroup(
                 checked = checked,
                 onCheckedChange = {
                     if (!checked) {
-                        haptics.toggle(true)
+                        haptics?.toggle(true)
                         onSelect(option.value)
                     }
                 },

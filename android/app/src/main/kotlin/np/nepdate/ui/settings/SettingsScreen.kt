@@ -2,7 +2,6 @@ package np.nepdate.ui.settings
 
 import android.content.ClipData
 import android.content.ClipboardManager
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -64,7 +63,6 @@ internal fun SettingsScreen(
     onNotificationDate: ((Boolean) -> Unit)? = null,
     onStartTab: ((StartTab) -> Unit)? = null,
 ) {
-    BackHandler { onClose() }
     val scroll = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     CompositionLocalProvider(LocalSettingsHaptics provides rememberHaptics(settings.haptics)) {
         Scaffold(

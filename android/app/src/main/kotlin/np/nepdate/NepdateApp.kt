@@ -4,17 +4,8 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedContentTransitionScope
-import androidx.compose.animation.ContentTransform
 import androidx.compose.animation.core.FiniteAnimationSpec
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -41,7 +32,6 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.unit.IntOffset
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.LifecycleStartEffect
@@ -106,13 +96,9 @@ fun NepdateApp(
         if (initialDate != null) navigation.showDate(initialDate)
     }
     StartTabEffect(repository, navigation, opensToDate = initialDate != null)
-    BackHandler(enabled = navigation.overlay != Overlay.NONE) { navigation.back() }
-
-    AnimatedContent(
-        targetState = ShellScreen(firstRunDone, navigation.overlay),
+    rememberShellTransition(firstRunDone, navigation).AnimatedContent(
         modifier = modifier,
         transitionSpec = shellTransition(),
-        label = "shell",
     ) { screen ->
         when {
             !screen.firstRunDone ->
@@ -443,51 +429,3 @@ private fun StartTab.destination(): NepdateDestination =
         StartTab.FESTIVALS -> NepdateDestination.UPCOMING
         StartTab.CONVERTER -> NepdateDestination.CONVERTER
     }
-
-/** What the app shell shows: the first-run screen, an overlay, or the tabs (overlay NONE). */
-private data class ShellScreen(
-    val firstRunDone: Boolean,
-    val overlay: Overlay,
-) {
-    /** How deep the screen sits: the tabs, then Settings, Search and Year, then About. */
-    val depth: Int
-        get() =
-            when {
-                !firstRunDone -> -1
-                overlay == Overlay.NONE -> 0
-                overlay == Overlay.ABOUT -> 2
-                else -> 1
-            }
-}
-
-/**
- * Material's shared X axis between the tabs and the screens above them: the deeper screen comes in
- * from the end and the shallower one returns from the start, both fading over a short slide. Leaving
- * the first-run screen fades through instead, since the tabs are not "deeper" than it.
- */
-@Composable
-private fun shellTransition(): AnimatedContentTransitionScope<ShellScreen>.() -> ContentTransform {
-    val slide = MaterialTheme.motionScheme.defaultSpatialSpec<IntOffset>()
-    val fade = MaterialTheme.motionScheme.defaultEffectsSpec<Float>()
-    val fastFade = MaterialTheme.motionScheme.fastEffectsSpec<Float>()
-    val scale = MaterialTheme.motionScheme.defaultSpatialSpec<Float>()
-    return {
-        val from = initialState.depth
-        val to = targetState.depth
-        when {
-            from < 0 ->
-                (fadeIn(fade) + scaleIn(scale, initialScale = FADE_THROUGH_SCALE)) togetherWith fadeOut(fastFade)
-            to > from ->
-                (slideInHorizontally(slide) { it / SLIDE_SHARE } + fadeIn(fade)) togetherWith
-                    (slideOutHorizontally(slide) { -it / SLIDE_SHARE } + fadeOut(fastFade))
-            else ->
-                (slideInHorizontally(slide) { -it / SLIDE_SHARE } + fadeIn(fade)) togetherWith
-                    (slideOutHorizontally(slide) { it / SLIDE_SHARE } + fadeOut(fastFade))
-        }
-    }
-}
-
-/** The shared-axis slide covers this fraction of the width (one fifth). */
-private const val SLIDE_SHARE = 5
-
-private const val FADE_THROUGH_SCALE = 0.94f
