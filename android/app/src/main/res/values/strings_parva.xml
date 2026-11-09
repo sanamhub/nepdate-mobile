@@ -30,7 +30,8 @@
     <string name="search_recent">Recent searches</string>
     <string name="search_jump_title">Type a date to jump to it</string>
     <string name="search_jump_example" tools:ignore="TypographyDashes">For example %1$s (BS) or %2$s (AD)</string>
-    <string name="search_jump_open">Go to %1$s</string>
+    <string name="search_jump_open_bs">Go to BS %1$s</string>
+    <string name="search_jump_open_ad">Go to AD %1$s</string>
     <plurals name="search_results">
         <item quantity="one">%1$d result</item>
         <item quantity="other">%1$d results</item>
