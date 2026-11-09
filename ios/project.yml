@@ -48,6 +48,8 @@ targets:
         PRODUCT_MODULE_NAME: NepDateApp
         INFOPLIST_FILE: Config/NepDateApp-Info.plist
         CODE_SIGN_ENTITLEMENTS: Config/NepDateApp.entitlements
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
     dependencies:
       - package: CalendarKit
       - package: CalendarUI

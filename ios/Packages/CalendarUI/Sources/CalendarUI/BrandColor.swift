@@ -2,25 +2,37 @@ import CalendarKit
 import SwiftUI
 import UIKit
 
-/// The two brand colours of the design system, as dynamic light and dark colours.
+/// The brand colours of the design system, as colour sets in `ios/Resources/Assets.xcassets`
+/// (ADR-0015).
+///
+/// Every role has a light, a dark and a high-contrast value, so the palette can be read on Windows
+/// in a diff and does not depend on code to change an appearance. The values are the shipped
+/// marigold palette: holiday is sindoor red, today is marigold on a filled Sunny mark. Surfaces are
+/// the system's own colours, never these.
+///
+/// `BrandColorTests` measures every pair that carries text at 4.5:1 in all four appearances.
 public enum BrandColor {
-  /// The holiday and Saturday red: `#C8102E` in light, `#FF6B7A` in dark.
-  public static let holiday = Color(
-    uiColor: UIColor { traits in
-      traits.userInterfaceStyle == .dark
-        ? UIColor(red: 1.0, green: 0.4196, blue: 0.4784, alpha: 1.0)
-        : UIColor(red: 0.7843, green: 0.0627, blue: 0.1804, alpha: 1.0)
-    }
-  )
+  /// The holiday and Saturday red.
+  public static let holiday = Color("Holiday", bundle: .main)
 
-  /// The holiday fill behind a holiday numeral, at the design system's alpha.
-  public static let holidayFill = Color(
-    uiColor: UIColor { traits in
-      traits.userInterfaceStyle == .dark
-        ? UIColor(red: 1.0, green: 0.4196, blue: 0.4784, alpha: 0.16)
-        : UIColor(red: 0.7843, green: 0.0627, blue: 0.1804, alpha: 0.10)
-    }
-  )
+  /// The holiday red behind a holiday numeral, already at the design system's alpha (10 % light,
+  /// 16 % dark).
+  public static let holidayFill = Color("HolidayFill", bundle: .main)
+
+  /// The stronger holiday tile behind a holiday date in lists, sheets and widgets.
+  public static let holidayContainer = Color("HolidayContainer", bundle: .main)
+
+  /// Text and numerals drawn on `holidayContainer`.
+  public static let onHolidayContainer = Color("OnHolidayContainer", bundle: .main)
+
+  /// The marigold of the Sunny mark, which is the "today" marker everywhere.
+  public static let today = Color("Today", bundle: .main)
+
+  /// The ink drawn on the Sunny mark.
+  public static let onToday = Color("OnToday", bundle: .main)
+
+  /// The app accent, from the Material primary.
+  public static let accent = Color("AccentColor", bundle: .main)
 
   /// Secondary text (AD numerals, dimmed days, tithi and event lines). The system secondary label
   /// is below 4.5:1 in light mode, so the month screen uses this pair. Measured (WCAG relative
@@ -37,13 +49,4 @@ public enum BrandColor {
 
   /// The fill behind the selected day (MR-01 AC4).
   public static let selection = Color(uiColor: .secondarySystemFill)
-
-  /// The today ring and "Today" button blue: `#003893` in light, `#8FB3FF` in dark.
-  public static let today = Color(
-    uiColor: UIColor { traits in
-      traits.userInterfaceStyle == .dark
-        ? UIColor(red: 0.5608, green: 0.7020, blue: 1.0, alpha: 1.0)
-        : UIColor(red: 0.0, green: 0.2196, blue: 0.5765, alpha: 1.0)
-    }
-  )
 }

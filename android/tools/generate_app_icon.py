@@ -259,8 +259,68 @@ def write_rasters() -> None:
     raster(128, tile, background=True, mask="squircle").save(ASSETS / "nepdate-mobile-128.png", optimize=True)
 
 
+# iOS takes one 1024 square per appearance (iOS 18 and later). Light is opaque and full bleed; dark
+# is the same artwork on a transparent ground, because the system supplies the dark background;
+# tinted is grayscale, which the system then tints.
+IOS_ICON_SET = ROOT / "ios/Resources/Assets.xcassets/AppIcon.appiconset"
+
+IOS_CONTENTS = """{
+  "images" : [
+    {
+      "filename" : "AppIcon-Light.png",
+      "idiom" : "universal",
+      "platform" : "ios",
+      "size" : "1024x1024"
+    },
+    {
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "dark"
+        }
+      ],
+      "filename" : "AppIcon-Dark.png",
+      "idiom" : "universal",
+      "platform" : "ios",
+      "size" : "1024x1024"
+    },
+    {
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "tinted"
+        }
+      ],
+      "filename" : "AppIcon-Tinted.png",
+      "idiom" : "universal",
+      "platform" : "ios",
+      "size" : "1024x1024"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}
+"""
+
+
+def write_ios_icons() -> None:
+    IOS_ICON_SET.mkdir(parents=True, exist_ok=True)
+    # An iOS icon is full bleed, with no adaptive safe area, so it uses the same crop as the store tile.
+    tile = (17.0, 17.0, 91.0, 91.0)
+    raster(1024, tile, background=True, mask=None).convert("RGB").save(
+        IOS_ICON_SET / "AppIcon-Light.png", optimize=True
+    )
+    raster(1024, tile, background=False, mask=None).save(IOS_ICON_SET / "AppIcon-Dark.png", optimize=True)
+    tinted = raster(1024, tile, background=True, mask=None).convert("L").convert("RGBA")
+    tinted.save(IOS_ICON_SET / "AppIcon-Tinted.png", optimize=True)
+    (IOS_ICON_SET / "Contents.json").write_text(IOS_CONTENTS, encoding="utf-8")
+
+
 if __name__ == "__main__":
     shapes = layers()
     write_svg(shapes)
     write_vectors(shapes)
     write_rasters()
+    write_ios_icons()
