@@ -132,8 +132,10 @@ private extension CGPoint {
 
 /// The Sunny shape: the marigold "today" mark, an eight-point star with a soft rounding.
 public struct SunnyShape: Shape {
+  /// Creates the Sunny mark.
   public init() {}
 
+  /// The Sunny mark, mapped onto `rect`.
   public func path(in rect: CGRect) -> Path {
     MarkPolygon.star(points: 8, innerRadius: 0.8, rounding: 0.15).path(in: rect)
   }
@@ -141,8 +143,10 @@ public struct SunnyShape: Shape {
 
 /// The SoftBurst shape: the next-holiday mark on the today card.
 public struct SoftBurstShape: Shape {
+  /// Creates the SoftBurst mark.
   public init() {}
 
+  /// The SoftBurst mark, mapped onto `rect`.
   public func path(in rect: CGRect) -> Path {
     MarkPolygon.repeated(
       [
@@ -156,8 +160,10 @@ public struct SoftBurstShape: Shape {
 
 /// The Diamond shape: the small event marker under a day's numeral.
 public struct DiamondShape: Shape {
+  /// Creates the Diamond mark.
   public init() {}
 
+  /// The Diamond mark, mapped onto `rect`.
   public func path(in rect: CGRect) -> Path {
     MarkPolygon.repeated(
       [
@@ -171,8 +177,10 @@ public struct DiamondShape: Shape {
 
 /// The Cookie shape: the nine-sided tile of the day sheet's header.
 public struct CookieShape: Shape {
+  /// Creates the Cookie mark.
   public init() {}
 
+  /// The Cookie mark, mapped onto `rect`.
   public func path(in rect: CGRect) -> Path {
     MarkPolygon.star(points: 9, innerRadius: 0.8, rounding: 0.5).path(in: rect)
   }
