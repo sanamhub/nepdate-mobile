@@ -35,16 +35,17 @@ private data class TodayFace(
     val day: String,
     val weekday: String,
     val details: List<String>,
-    val pill: String?,
-    val pillIsHoliday: Boolean,
+    val events: List<String>,
+    val firstIsHoliday: Boolean,
 )
 
 private fun TodayWidgetModel.face(showAd: Boolean): TodayFace {
-    val pill = holidayName ?: eventName
+    // A holiday without a named event still gets its pill.
+    val events = eventNames.ifEmpty { listOfNotNull(holidayName) }
     return if (showAd) {
-        TodayFace(adMonthYear, adMonthShort, adDay, weekday, details(bsShortLine, tithi), pill, holidayName != null)
+        TodayFace(adMonthYear, adMonthShort, adDay, weekday, details(bsShortLine, tithi), events, isHoliday)
     } else {
-        TodayFace(bsMonthYear, monthName, bsDay, weekday, details(tithi, adLine), pill, holidayName != null)
+        TodayFace(bsMonthYear, monthName, bsDay, weekday, details(tithi, adLine), events, isHoliday)
     }
 }
 
@@ -52,23 +53,29 @@ private fun details(vararg parts: String): List<String> = parts.filter { it.isNo
 
 /** What a face has room for once its fixed lines are placed. */
 private data class FaceExtras(
-    val pill: Boolean,
+    val pills: List<List<EventPill>>,
     val details: List<String>,
 )
 
+private val NO_EXTRAS = FaceExtras(emptyList(), emptyList())
+
 /**
- * Picks the optional lines in their order of importance (today's holiday or event, the tithi, the
- * other calendar's date) while they fit in [height], and only the ones that fit in [width].
+ * Picks the optional lines in their order of importance (today's holidays and events, the tithi,
+ * the other calendar's date) while they fit in [height], and only the ones that fit in [width].
+ * The first row of pills comes before the details; any height left after them takes more rows of
+ * pills, up to [MAX_PILL_ROWS], and names that still do not fit become a "+N" pill.
  */
 private fun TodayFace.extras(
+    model: TodayWidgetModel,
     fit: WidgetFit,
     width: Dp,
     height: Dp,
     scale: Float,
 ): FaceExtras {
     var left = height
-    val showPill = pill != null && fit.pill(PILL_SIZE * scale) <= left
-    if (showPill) left -= fit.pill(PILL_SIZE * scale)
+    val pillRow = fit.pill(PILL_SIZE * scale)
+    var pillRows = if (events.isNotEmpty() && pillRow <= left) 1 else 0
+    left -= pillRow * pillRows
     val shown = mutableListOf<String>()
     for (line in details) {
         val lineHeight = fit.line(DETAIL_SIZE * scale)
@@ -78,7 +85,9 @@ private fun TodayFace.extras(
             left -= lineHeight
         }
     }
-    return FaceExtras(showPill, shown)
+    if (pillRows > 0) pillRows += ((left / pillRow).toInt()).coerceIn(0, MAX_PILL_ROWS - 1)
+    val pills = packEventPills(events, firstIsHoliday, fit, PILL_SIZE * scale, width, pillRows, model::more)
+    return FaceExtras(pills, shown)
 }
 
 /**
@@ -139,20 +148,13 @@ private fun TodayFaceStacked(
     val top = if (fit.fits(face.top, TOP_SIZE * scale, inner)) face.top else face.narrowTop
     val fixed = sunny + text
     val extras =
-        if (minimal) {
-            FaceExtras(
-                false,
-                emptyList(),
-            )
-        } else {
-            face.extras(fit, inner, size.height - FACE_PADDING * 2 - fixed, scale)
-        }
+        if (minimal) NO_EXTRAS else face.extras(model, fit, inner, size.height - FACE_PADDING * 2 - fixed, scale)
     Column(modifier = GlanceModifier.fillMaxSize().padding(FACE_PADDING)) {
         SunnyNumeral(face.day, sunny)
         Spacer(GlanceModifier.defaultWeight())
         FaceText(face.weekday, WEEKDAY_SIZE * scale, weekdayColor(model), FontWeight.Bold)
         FaceText(top, TOP_SIZE * scale, faceInk(), FontWeight.Medium)
-        FaceExtraLines(face, extras, scale)
+        FaceExtraLines(extras, scale)
     }
 }
 
@@ -173,14 +175,7 @@ private fun TodayFaceWide(
     val top = if (fit.fits(face.top, TOP_SIZE * scale, topWidth)) face.top else face.narrowTop
     val fixed = fit.line(WEEKDAY_SIZE * WIDE_WEEKDAY * scale) + fit.line(TOP_SIZE * scale)
     val extras =
-        if (minimal) {
-            FaceExtras(
-                false,
-                emptyList(),
-            )
-        } else {
-            face.extras(fit, column, size.height - FACE_PADDING * 2 - fixed, scale)
-        }
+        if (minimal) NO_EXTRAS else face.extras(model, fit, column, size.height - FACE_PADDING * 2 - fixed, scale)
     Row(modifier = GlanceModifier.fillMaxSize().padding(FACE_PADDING), verticalAlignment = Alignment.CenterVertically) {
         SunnyNumeral(face.day, sunny)
         Column(modifier = GlanceModifier.defaultWeight().padding(start = COLUMN_GAP)) {
@@ -191,19 +186,18 @@ private fun TodayFaceWide(
                 maxLines = 1,
             )
             FaceText(face.weekday, WEEKDAY_SIZE * WIDE_WEEKDAY * scale, weekdayColor(model), FontWeight.Bold)
-            FaceExtraLines(face, extras, scale)
+            FaceExtraLines(extras, scale)
         }
     }
 }
 
 @Composable
 private fun FaceExtraLines(
-    face: TodayFace,
     extras: FaceExtras,
     scale: Float,
 ) {
     extras.details.forEach { FaceText(it, DETAIL_SIZE * scale, faceInk(), FontWeight.Normal) }
-    if (extras.pill && face.pill != null) FacePill(face.pill, face.pillIsHoliday, PILL_SIZE * scale)
+    EventPillRows(extras.pills, PILL_SIZE * scale)
 }
 
 @Composable
@@ -253,3 +247,4 @@ private val WEEKDAY_SIZE = 18.sp
 private val TOP_SIZE = 13.sp
 private val DETAIL_SIZE = 12.sp
 private val PILL_SIZE = 12.sp
+private const val MAX_PILL_ROWS = 3

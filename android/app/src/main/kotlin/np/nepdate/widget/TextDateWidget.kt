@@ -2,6 +2,8 @@ package np.nepdate.widget
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.glance.GlanceTheme
@@ -23,7 +25,8 @@ import np.nepdate.R
 
 /**
  * The Date text widget: today's BS date as plain type with no card or shape, for a clean home
- * screen. The month and day are the large line, the weekday and the tithi the small one. It starts
+ * screen. The month and day are the large line, the weekday and the tithi the small one, and a taller
+ * widget adds today's holidays and events as a third line, with "+N" for any that do not fit. It starts
  * with no background, so its ink is white like a launcher clock; with a background it uses the
  * surface colours. A minimal widget keeps the large line only.
  */
@@ -49,6 +52,8 @@ internal fun TextDateContent(
             parts.firstOrNull().orEmpty()
         }
     val roomForDetail = size.height - TEXT_VERTICAL * 2 - fit.line(TITLE * scale) >= fit.line(DETAIL * scale)
+    val eventLines = if (minimal || !roomForDetail) 0 else eventLines(size.height, fit, scale)
+    val events = textEvents(model, fit, DETAIL * scale, inner, eventLines)
     Column(
         modifier =
             widgetRoot(opacity, GlanceTheme.colors.surface)
@@ -76,7 +81,42 @@ internal fun TextDateContent(
                 maxLines = 1,
             )
         }
+        if (events.isNotEmpty()) {
+            Text(
+                text = events,
+                style =
+                    TextStyle(
+                        color = if (model.isHoliday) holidayOn(onWallpaper) else soft,
+                        fontSize = DETAIL * scale,
+                        fontWeight = FontWeight.Normal,
+                    ),
+                maxLines = eventLines,
+            )
+        }
     }
+}
+
+/** How many lines today's holidays and events get under the title and the detail line. */
+private fun eventLines(
+    height: Dp,
+    fit: WidgetFit,
+    scale: Float,
+): Int =
+    ((height - TEXT_VERTICAL * 2 - fit.line(TITLE * scale) - fit.line(DETAIL * scale)) / fit.line(DETAIL * scale))
+        .toInt()
+        .coerceIn(0, MAX_EVENT_LINES)
+
+/** Today's holidays and events on [lines] lines, with "+N" for the rest; empty without room. */
+private fun textEvents(
+    model: TodayWidgetModel,
+    fit: WidgetFit,
+    fontSize: TextUnit,
+    width: Dp,
+    lines: Int,
+): String {
+    if (lines == 0) return ""
+    val names = model.eventNames.ifEmpty { listOfNotNull(model.holidayName) }
+    return fitEventNames(names, fit, fontSize, width, lines, model::more)
 }
 
 /** The holiday ink: the brand red on a card, a light red that stays legible on a wallpaper. */
@@ -90,5 +130,6 @@ private const val TEXT_HEIGHT_BOOST = 1.3f
 private val TEXT_WIDTH_AT_ONE = 150.dp
 private val TITLE = 24.sp
 private val DETAIL = 14.sp
+private const val MAX_EVENT_LINES = 2
 private val SOFT_WHITE = Color(0xE6FFFFFF)
 private val WALLPAPER_HOLIDAY = Color(0xFFFFB4AB)

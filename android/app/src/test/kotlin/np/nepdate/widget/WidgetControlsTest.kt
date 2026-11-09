@@ -79,10 +79,10 @@ class WidgetControlsTest {
         }
 
     @Test
-    fun nextFestivalStartsAtTheNearestAndWrapsBothWays() {
+    fun nextFestivalStartsAtTheNearestDayAndStopsAtBothEnds() {
         val first = nextFestivalModel(today, 0, Lang.ENGLISH, Digits.ENGLISH, englishWidgetCopy, controls)
         assertEquals(0, first.index)
-        assertEquals(festivalWindow(today).size - 1, first.previousIndex)
+        assertEquals(null, first.previousIndex)
         assertEquals(1, first.nextIndex)
 
         val last =
@@ -94,7 +94,7 @@ class WidgetControlsTest {
                 englishWidgetCopy,
                 controls,
             )
-        assertEquals(0, last.nextIndex)
+        assertEquals(null, last.nextIndex)
 
         val stale = nextFestivalModel(today, 99, Lang.ENGLISH, Digits.ENGLISH, englishWidgetCopy, controls)
         assertEquals(0, stale.index)
@@ -102,14 +102,25 @@ class WidgetControlsTest {
 
     @Test
     fun nextFestivalCountsTheDaysLeftAndPicksTheHolidayKind() {
-        val entries = festivalWindow(today)
-        val holidayIndex = entries.indexOfFirst { it.isHoliday }
+        val days = festivalWindow(today)
+        val holidayIndex = days.indexOfFirst { day -> day.any { it.isHoliday } }
         val model = nextFestivalModel(today, holidayIndex, Lang.ENGLISH, Digits.ENGLISH, englishWidgetCopy, controls)
 
         assertTrue("a public holiday is within reach of the arrows", holidayIndex >= 0)
         assertTrue(model.isHoliday)
         assertEquals("Next holiday", model.kind)
-        assertEquals(entries[holidayIndex].daysFromToday.toString(), model.days)
+        assertEquals(days[holidayIndex].first().daysFromToday.toString(), model.days)
+    }
+
+    @Test
+    fun nextFestivalShowsEveryNameOfTheDay() {
+        val days = festivalWindow(today)
+        val busy = days.indexOfFirst { it.size > 1 }
+        val model = nextFestivalModel(today, busy, Lang.ENGLISH, Digits.ENGLISH, englishWidgetCopy, controls)
+
+        assertTrue("a day with more than one festival is within reach", busy >= 0)
+        assertEquals(days[busy].size, model.names.size)
+        assertEquals(model.entry?.name, model.names.first())
     }
 
     @Test
@@ -124,12 +135,6 @@ class WidgetControlsTest {
 
             onNode(hasTestTag("next_festival_next"))
                 .assert(hasRunCallbackClickAction<FestivalStepAction>(actionParametersOf(FESTIVAL_INDEX_PARAM to 1)))
-            onNode(hasTestTag("next_festival_previous"))
-                .assert(
-                    hasRunCallbackClickAction<FestivalStepAction>(
-                        actionParametersOf(FESTIVAL_INDEX_PARAM to festivalWindow(today).size - 1),
-                    ),
-                )
             onNode(hasTestTag("next_festival_widget"))
                 .assert(hasStartActivityClickAction(widgetIntent(context, model.entry?.date)))
         }

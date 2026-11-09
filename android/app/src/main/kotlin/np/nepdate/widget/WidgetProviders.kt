@@ -153,6 +153,6 @@ class FestivalsGlanceWidget : GlanceAppWidget() {
         widgetCategory: Int,
     ) {
         val model = previewEnvironment(context).festivalsList(context, PREVIEW_FESTIVAL_DATE, false)
-        providePreviewContent { FestivalsWidgetContent(model, WidgetOpacity.SOLID) }
+        providePreviewContent { FestivalsWidgetContent(model, WidgetOpacity.SOLID, scrolling = false) }
     }
 }

@@ -38,10 +38,11 @@ private data class FestivalFace(
 )
 
 /**
- * The Next festival widget: days left as a big numeral that grows with the widget, then the name
- * and the BS date with its weekday. Public holidays sit on the holiday container, other festivals
- * on the secondary container. Two connected arrows step through the next festivals;
- * [FestivalStepAction] stores the position per widget and the midnight refresh clears it.
+ * The Next festival widget: days left as a big numeral that grows with the widget, then the day's
+ * holidays and festivals, as many as the height holds with "+N" for the rest, and the BS date with
+ * its weekday. Public holidays sit on the holiday container, other festivals on the secondary
+ * container. Two connected arrows step day by day and stop at either end; [FestivalStepAction]
+ * stores the position per widget and the midnight refresh clears it.
  */
 @Composable
 internal fun NextFestivalWidgetContent(
@@ -83,7 +84,17 @@ private fun NextFestivalFull(
     val entry = model.entry ?: return
     val size = LocalSize.current
     val scale = typeScale(minOf(size.width, size.height))
-    val tall = size.height >= TALL_HEIGHT
+    val fit = widgetFit()
+    // A busy day gives the count a little less height, so its names get the room.
+    val share = if (model.names.size > 1) BUSY_NUMBER_SHARE else NUMBER_SHARE
+    val numberSize = (size.height.value * share).coerceIn(MIN_NUMBER, MAX_NUMBER).sp
+    val nameSize = 16.sp * scale.coerceAtMost(MAX_NAME_SCALE)
+    val dateHeight = if (minimal) 0.dp else fit.line(12.sp * scale)
+    // "Today" is drawn smaller than a numeral, so it takes less height.
+    val countHeight = fit.line(if (model.unit.isEmpty()) numberSize * WORD_SHARE else numberSize)
+    val room = size.height - FULL_VERTICAL - ARROW_ROW - countHeight - dateHeight
+    val lines = (room / fit.line(nameSize)).toInt().coerceIn(1, MAX_NAME_LINES)
+    val names = fitEventNames(model.names, fit, nameSize, size.width - FULL_HORIZONTAL, lines, model::more)
     Column(modifier = GlanceModifier.fillMaxSize().padding(start = 16.dp, end = 8.dp, top = 4.dp, bottom = 14.dp)) {
         Row(
             modifier = GlanceModifier.fillMaxWidth().height(ARROW_ROW),
@@ -92,18 +103,23 @@ private fun NextFestivalFull(
             Text(
                 text = model.kind,
                 modifier = GlanceModifier.defaultWeight(),
-                style = TextStyle(color = face.ink, fontSize = 12.sp * scale, fontWeight = FontWeight.Bold),
+                style =
+                    TextStyle(
+                        color = face.ink,
+                        fontSize = WidgetType.label * scale,
+                        fontWeight = WidgetType.labelWeight,
+                    ),
                 maxLines = 2,
             )
             // A two-cell face is too narrow for the label and the arrows side by side.
             if (!minimal && size.width >= ARROWS_IN_FULL) FestivalArrows(model, face)
         }
         Spacer(GlanceModifier.defaultWeight())
-        DaysLeft(model, face.ink, numberSize = (size.height.value * NUMBER_SHARE).coerceIn(MIN_NUMBER, MAX_NUMBER).sp)
+        DaysLeft(model, face.ink, numberSize = numberSize)
         Text(
-            text = entry.name,
-            style = TextStyle(color = face.ink, fontSize = 16.sp * scale, fontWeight = FontWeight.Bold),
-            maxLines = if (tall) 2 else 1,
+            text = names.ifEmpty { entry.name },
+            style = TextStyle(color = face.ink, fontSize = nameSize, fontWeight = WidgetType.emphasisWeight),
+            maxLines = lines,
         )
         if (!minimal) {
             Text(text = model.dateLine, style = TextStyle(color = face.ink, fontSize = 12.sp * scale), maxLines = 1)
@@ -123,6 +139,7 @@ private fun NextFestivalCompact(
 ) {
     val entry = model.entry ?: return
     val width = LocalSize.current.width
+    val fit = widgetFit()
     if (width < COMPACT_ROW_WIDTH) {
         Column(
             modifier = GlanceModifier.fillMaxSize().padding(horizontal = 14.dp, vertical = 6.dp),
@@ -130,8 +147,18 @@ private fun NextFestivalCompact(
         ) {
             val roomy = LocalSize.current.height >= ROOMY_STACK
             DaysLeft(model, face.ink, numberSize = if (roomy) 34.sp else 22.sp)
+            val nameSize = if (roomy) 15.sp else 13.sp
+            val lines = if (roomy) 2 else 1
             Text(
-                text = entry.name,
+                text =
+                    fitEventNames(
+                        model.names,
+                        fit,
+                        nameSize,
+                        width - 28.dp,
+                        lines,
+                        model::more,
+                    ).ifEmpty { entry.name },
                 style =
                     TextStyle(
                         color = face.ink,
@@ -148,8 +175,9 @@ private fun NextFestivalCompact(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         DaysLeft(model, face.ink, numberSize = 30.sp)
+        val textWidth = width - COMPACT_ROW_CHROME - if (!minimal && width >= ARROWS_IN_COMPACT) ARROWS_WIDTH else 0.dp
         Text(
-            text = entry.name,
+            text = fitEventNames(model.names, fit, 14.sp, textWidth, 2, model::more).ifEmpty { entry.name },
             modifier = GlanceModifier.defaultWeight().padding(start = 8.dp),
             style = TextStyle(color = face.ink, fontSize = 14.sp, fontWeight = FontWeight.Bold),
             maxLines = 2,
@@ -247,13 +275,19 @@ private fun EmptyFace(
 }
 
 private val COMPACT_HEIGHT = 100.dp
-private val TALL_HEIGHT = 150.dp
+private val FULL_VERTICAL = 18.dp
+private val FULL_HORIZONTAL = 24.dp
+private const val MAX_NAME_LINES = 4
+private val COMPACT_ROW_CHROME = 90.dp
+private val ARROWS_WIDTH = 74.dp
 private val ARROWS_IN_COMPACT = 220.dp
 private val ARROWS_IN_FULL = 160.dp
 private val COMPACT_ROW_WIDTH = 170.dp
 private val ARROW_ROW = 48.dp
 private val ROOMY_STACK = 84.dp
 private const val NUMBER_SHARE = 0.32f
+private const val BUSY_NUMBER_SHARE = 0.26f
+private const val MAX_NAME_SCALE = 1.5f
 private const val MIN_NUMBER = 36f
 private const val MAX_NUMBER = 96f
 private const val UNIT_SHARE = 0.32f
