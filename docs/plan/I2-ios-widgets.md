@@ -1,8 +1,10 @@
 # I2: iOS widgets (WidgetKit)
 
-Status: planned on 2026-10-20, not started. The previous iOS phase, I1, is complete except the
-device-only I1-06 start-up and download-size numbers, which have no recorded result in
-`PROGRESS.md`.
+Status: implemented. The Today, Today and upcoming, Month and Lock Screen widgets and the two
+controls shipped with I1 and are covered by the committed references. What this phase still lists and
+the code does not have is in the table below; the parity work adds the six widgets of W-06 to W-11.
+The previous iOS phase, I1, is complete except the device-only I1-06 start-up and download-size
+numbers, which have no recorded result in `PROGRESS.md`.
 
 Read first: ADR-0004, ADR-0006, ADR-0008, ADR-0010, `docs/product/widgets.md`,
 `docs/product/requirements.md` (MR-05, MR-07 AC3, MR-09 AC4-AC5, MR-10), and

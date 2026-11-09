@@ -17,38 +17,62 @@ quiet: system fonts, system backgrounds, no cards, no gradients, no decoration.
 
 Background, surfaces and text use the platform's semantic colours (`Color(.systemBackground)`,
 `MaterialTheme.colorScheme`), so light and dark mode, Liquid Glass and dynamic colour work without
-special cases. Two brand colours, both from the Nepal flag:
+special cases. The brand roles are the shipped marigold palette (`android/.../ui/theme/Color.kt`),
+which the iOS asset catalog carries as the same values:
 
-| Token | Light | Dark | Android | Use |
-|---|---|---|---|---|
-| `holiday` | `#C8102E` | `#FF6B7A` | fixed brand colour | Saturday column, public-holiday numerals, holiday names |
-| `holidayFill` | `#C8102E` at 10 % | `#FF6B7A` at 16 % | fixed brand colour at the same alpha | holiday cell background (the H1 mark in full colour) |
-| `today` | `#003893` | `#8FB3FF` | fixed brand colour | today ring (2 pt / 2 dp), "Today" button |
-| `event` | system secondary label | system secondary label | `onSurfaceVariant` | event dot |
-| `dimmed` | secondary text, white 0.33 | secondary text, white 0.78 | `onSurfaceVariant` | days of neighbouring months, AD numerals |
+| Token | Light | Dark | Use |
+|---|---|---|---|
+| `holiday` | `#B3261E` | `#FFB4AB` | Saturday column, public-holiday numerals, holiday names |
+| `holidayFill` | `holiday` at 10 % | `holiday` at 16 % | holiday cell background (the H1 mark in full colour) |
+| `holidayContainer` | `#FFDAD6` | `#8C1D18` | the stronger tile behind a holiday date in lists, sheets and widgets |
+| `onHolidayContainer` | `#410002` | `#FFDAD6` | text and numerals on `holidayContainer` |
+| `today` | `#E8A33D` | `#F0B456` | the Sunny "today" mark: a filled shape, not a ring |
+| `onToday` | `#271900` | `#271900` | the numeral and marks drawn on the Sunny shape |
+| `accent` | `#7C5800` | `#F5BF62` | the app accent, from the Material primary |
+| `event` | system secondary label | system secondary label | the Diamond event mark |
+| `dimmed` | secondary text, white 0.33 | secondary text, white 0.78 | days of neighbouring months, AD numerals |
 
-Each pair is checked for ≥ 4.5:1 contrast on its background (MR-10 AC3) in the M0 design spike;
-adjust lightness only, never hue.
+The navy `#003893` and the red `#C8102E` of the first design system are gone: today is marigold on a
+filled Sunny shape, so it can never be confused with a holiday, and holidays are sindoor red.
+
+Each pair is checked for ≥ 4.5:1 contrast on its background (MR-10 AC3), in light, dark and high
+contrast, as a unit test on the resolved colours rather than by eye (Android
+`HolidayCellContrastTest`; the iOS counterpart belongs to the design foundation). Adjust lightness
+only, never hue.
 
 On Android, `event` and `dimmed` both map to `MaterialTheme.colorScheme.onSurfaceVariant`. Material
 3 has no tertiary text role, and `outline` is a border colour that falls below 4.5:1 on the app
-backgrounds. `onSurfaceVariant` measures 9.11:1 in light and 10.05:1 in dark in the M0 spike, so
-`dimmed` stays above 4.5:1.
+backgrounds. `onSurfaceVariant` measures 9.11:1 in light and 10.05:1 in dark, so `dimmed` stays above
+4.5:1.
 
-On iOS the system tertiary label falls below 4.5:1, so `dimmed` uses the app's secondary text
-colour (`BrandColor`): 7.55:1 on the light background and 12.41:1 on the dark one, measured in the
-I1-03 review (see `ios/README.md`).
+On iOS the system tertiary label falls below 4.5:1, so `dimmed` uses the app's secondary text colour:
+7.55:1 on the light background and 12.41:1 on the dark one (I1-03 review, `ios/README.md`).
 
-On Android 12+ with dynamic colour, surfaces and the selection follow the wallpaper; `holiday` and
-`today` stay fixed, because their meaning is cultural, not decorative.
+On Android 12+ with dynamic colour, surfaces and the selection follow the wallpaper when Appearance is
+System (MR-16); `holiday` and `today` stay fixed, because their meaning is cultural, not decorative.
+
+### iOS
+
+The SwiftUI side of the same system, recorded in ADR-0015:
+
+- The brand roles are colour sets in `ios/Resources/Assets.xcassets` with Any, Dark and **High
+  Contrast** appearances, and `AccentColor` is the marigold primary. Surfaces stay system semantic
+  colours; the Android cream surfaces are not ported.
+- The four brand marks are SwiftUI `Shape`s in `CalendarUI`, so the app and the widget extension share
+  them: `SunnyShape` (today), `SoftBurstShape` (holiday), `DiamondShape` (event) and `CookieShape`
+  (the day sheet's header tile).
+- Glass belongs to the chrome. Standard bars, sheets, buttons and controls get it from the iOS 27 SDK
+  with no work and no opt-out. The content layer has none, per Apple's guidance; the one allowed
+  exception is the floating Today button, behind `#available(iOS 26, *)` with a `.regularMaterial`
+  fallback.
 
 ### H1: holidays are never colour alone
 
 A public holiday always has two signals: the holiday colour **and** a shape. In full-colour mode the
 shape is `holidayFill` behind the numeral; in tinted, clear, accented or monochrome modes (iOS widget
 rendering modes, lock screens, watch) it is a 1.5 pt underline under the numeral. Saturday has
-colour plus its fixed column position. Events use a dot below the numeral. This also covers
-colour-blind users.
+colour plus its fixed column position. Events use the Diamond mark below the numeral. Today uses the
+Sunny shape with `onToday` ink. This also covers colour-blind users.
 
 ## 3. Type
 
@@ -76,7 +100,7 @@ Sentence case everywhere. No all-caps labels, no letter-spaced eyebrows.
  ─────────────────────────────────────────           and Constitution Day: colour + fill
   ४ ²⁰   ५ ²¹   ६ ²²   ७ ²³   ८ ²⁴   ९ ²⁵  १० ²⁶      ९ is a holiday (Indra Jatra, valley): fill
   …
- १८ ⁴   १९ ⁵  (२०)⁶  २१ ⁷   २२ ⁸   २३ ⁹  २४ ¹⁰      (२०) today ring, Tuesday 6 Oct
+ १८ ⁴   १९ ⁵  (२०)⁶  २१ ⁷   २२ ⁸   २३ ⁹  २४ ¹⁰      (२०) today: the Sunny fill, Tuesday 6 Oct
  २५ ¹¹  …                                          २५ Ghatasthapana Brata: fill
  ─────────────────────────────────────────
  Upcoming: Ghatasthapana Brata, in 5 days          next holiday under the grid on tall screens
@@ -84,9 +108,9 @@ Sentence case everywhere. No all-caps labels, no letter-spaced eyebrows.
 
 - The grid is the screen: edge to edge, no card, hairline separators only between weeks.
 - Text is start-aligned except numerals, which are centred in their cell.
-- Navigation: iOS uses a `NavigationStack` with a tab bar (Month, Upcoming, Converter) and Settings
-  in the toolbar; Android uses a `NavigationBar` with the same three destinations and Settings as
-  an icon button in the top app bar of each.
+- Navigation: iOS uses a `TabView` with Patro, Festivals, Converter and Search (the search tab role),
+  Settings behind a toolbar button on every tab; Android uses a `NavigationBar` with the same
+  destinations and Settings in the top app bar.
 
 ## 5. Motion
 

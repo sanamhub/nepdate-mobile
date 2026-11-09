@@ -19,3 +19,4 @@ port are in the hub (`sanamhub/nepdate`).
 | [0012](0012-material3-expressive-pre-release.md) | material3 1.5 pre-release for Material 3 Expressive | Accepted |
 | [0013](0013-opt-in-date-notification.md) | Opt-in date notification on Android | Accepted |
 | [0014](0014-ios-ci-on-xcode-27.md) | iOS CI toolchain and the Xcode 27 move | Accepted |
+| [0015](0015-ios-design-language.md) | iOS design language | Accepted |

@@ -66,6 +66,8 @@ release.
 AC: the version is live on the App Store; `docs/legal/README.md` has no open row.
 
 ### I3-04 Human tasks
-The one-time setup was done in M0-07 (`docs/runbooks/release-ios.md`, "One-time setup"). Before the
-first release: check the Admin API key still works by running `ios-beta.yml`, accept the current agreements in
-App Store Connect, set the DSA status to non-trader, and approve the `production` deployment.
+The one-time setup has **not** been done: there is no Apple Developer account, no App Store Connect
+key and no `ios-beta.yml` (`docs/runbooks/release-ios.md`, "One-time setup"). Before the first
+release: create the account and the key, then check it works by running `ios-beta.yml`, accept the
+current agreements in App Store Connect, set the DSA status to non-trader, and approve the
+`production` deployment.
