@@ -49,8 +49,9 @@ class BaselineProfileGenerator {
         rule.collect(packageName = PACKAGE_NAME) {
             startActivityAndWait()
             device.waitForIdle()
+            val swipeY = monthCellCenterY()
             repeat(PROFILE_SWIPES) {
-                swipeToNextMonth()
+                swipeToNextMonth(swipeY)
             }
         }
     }

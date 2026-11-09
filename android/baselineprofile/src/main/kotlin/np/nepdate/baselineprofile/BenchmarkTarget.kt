@@ -1,10 +1,11 @@
 package np.nepdate.baselineprofile
 
+import android.util.Log
 import androidx.benchmark.macro.BaselineProfileMode
 import androidx.benchmark.macro.CompilationMode
 import androidx.benchmark.macro.MacrobenchmarkScope
 import androidx.test.uiautomator.By
-import androidx.test.uiautomator.Until
+import androidx.test.uiautomator.StaleObjectException
 
 /** The package used by the baseline profile and Macrobenchmark tests. */
 internal const val PACKAGE_NAME = "np.nepdate"
@@ -24,14 +25,28 @@ internal fun withProfile(): CompilationMode =
     CompilationMode.Partial(baselineProfileMode = BaselineProfileMode.Require, warmupIterations = 2)
 
 /**
- * Swipes to the next month from a day cell, so the gesture starts inside the pager. A fixed
+ * The vertical middle of a day cell, so a horizontal swipe starts inside the pager. A fixed
  * fraction of the screen height no longer works: the today card above the grid grew, and a swipe
  * that starts in it draws nothing, which `FrameTimingMetric` reports as no render thread slices.
+ * The tree can redraw between the lookup and the read, so a stale node is looked up again.
  */
-internal fun MacrobenchmarkScope.swipeToNextMonth() {
-    val cell = device.wait(Until.findObject(By.descContains(", 208")), UI_TIMEOUT_MS)
-    checkNotNull(cell) { "The month grid did not draw a day cell" }
-    val y = cell.visibleBounds.centerY()
+internal fun MacrobenchmarkScope.monthCellCenterY(): Int {
+    repeat(CELL_LOOKUPS) {
+        val cell = device.findObject(By.descContains(", 208"))
+        if (cell != null) {
+            try {
+                return cell.visibleBounds.centerY()
+            } catch (stale: StaleObjectException) {
+                Log.d(TAG, "the day cell went stale, looking it up again", stale)
+            }
+        }
+        Thread.sleep(CELL_POLL_MS)
+    }
+    error("The month grid did not draw a day cell")
+}
+
+/** Swipes from [y], a day cell's middle, to the next month. */
+internal fun MacrobenchmarkScope.swipeToNextMonth(y: Int) {
     device.swipe(
         (device.displayWidth * SWIPE_START_X_FRACTION).toInt(),
         y,
@@ -57,4 +72,6 @@ internal fun MacrobenchmarkScope.drawFrameAfterFullyDrawn() {
 
 private const val FRAME_NUDGE_PX = 40
 private const val FRAME_NUDGE_STEPS = 10
-private const val UI_TIMEOUT_MS = 5_000L
+private const val CELL_LOOKUPS = 10
+private const val CELL_POLL_MS = 100L
+private const val TAG = "MonthSwipe"

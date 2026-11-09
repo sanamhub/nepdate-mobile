@@ -25,6 +25,8 @@ class MonthSwipeBenchmark {
     fun monthSwipesWithProfile() = swipe(withProfile())
 
     private fun swipe(compilation: CompilationMode) {
+        // The anchor is read in setup, not in the measured block, so finding the cell is not timed.
+        var swipeY = 0
         benchmarkRule.measureRepeated(
             packageName = PACKAGE_NAME,
             metrics = listOf(FrameTimingMetric()),
@@ -34,10 +36,11 @@ class MonthSwipeBenchmark {
             setupBlock = {
                 startActivityAndWait()
                 device.waitForIdle()
+                swipeY = monthCellCenterY()
             },
         ) {
             repeat(SWIPES) {
-                swipeToNextMonth()
+                swipeToNextMonth(swipeY)
             }
         }
     }
