@@ -49,7 +49,7 @@ public struct ConverterScreen: View {
               .frame(maxWidth: .infinity, minHeight: 44)
           }
           .buttonStyle(.borderedProminent)
-          .tint(BrandColor.today)
+          .tint(BrandColor.accent)
 
           DatePicker("Choose an AD date", selection: $adDate, displayedComponents: .date)
             .datePickerStyle(.compact)
@@ -105,7 +105,7 @@ public struct ConverterScreen: View {
               .frame(maxWidth: .infinity, minHeight: 44)
           }
           .buttonStyle(.bordered)
-          .tint(BrandColor.today)
+          .tint(BrandColor.accent)
 
           if let error = model.comparisonErrorText {
             Text(verbatim: error)

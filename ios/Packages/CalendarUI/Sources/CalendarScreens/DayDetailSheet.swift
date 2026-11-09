@@ -172,14 +172,14 @@ public struct DayDetailContent: View {
           .frame(maxWidth: .infinity, minHeight: 44)
       }
       .buttonStyle(.borderedProminent)
-      .tint(BrandColor.today)
+      .tint(BrandColor.accent)
 
       Button(action: copyDate) {
         Text("Copy date")
           .frame(maxWidth: .infinity, minHeight: 44)
       }
       .buttonStyle(.bordered)
-      .tint(BrandColor.today)
+      .tint(BrandColor.accent)
       .accessibilityValue(Text(copiedText ?? ""))
     }
     .padding(.top, 8)

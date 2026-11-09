@@ -62,7 +62,7 @@ public struct SettingsScreen: View {
           }
         }
       }
-      .tint(BrandColor.today)
+      .tint(BrandColor.accent)
       .toolbarBackground(Color(uiColor: .systemBackground), for: .navigationBar)
       .toolbarBackground(.visible, for: .navigationBar)
       .toolbarColorScheme(colorScheme == .dark ? .dark : .light, for: .navigationBar)
@@ -177,7 +177,7 @@ public struct SettingsContent: View {
       }
     }
     .listStyle(.insetGrouped)
-    .tint(BrandColor.today)
+    .tint(BrandColor.accent)
   }
 
   private var resolvedDigits: Digits {
@@ -213,7 +213,7 @@ public struct SettingsContent: View {
         if selected {
           Image(systemName: "checkmark")
             .font(.body.weight(.semibold))
-            .foregroundStyle(BrandColor.today)
+            .foregroundStyle(BrandColor.accent)
         }
       }
       .frame(minHeight: 44)
@@ -341,7 +341,7 @@ public struct AboutContent: View {
       }
     }
     .listStyle(.insetGrouped)
-    .tint(BrandColor.today)
+    .tint(BrandColor.accent)
     .navigationTitle("About")
     .navigationBarTitleDisplayMode(.inline)
   }
@@ -364,7 +364,7 @@ public struct AboutContent: View {
     Group {
       if let destination = URL(string: url) {
         Link(label, destination: destination)
-          .foregroundStyle(BrandColor.today)
+          .foregroundStyle(BrandColor.accent)
       } else {
         Text(label)
       }
