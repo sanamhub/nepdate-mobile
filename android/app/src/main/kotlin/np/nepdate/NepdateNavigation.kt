@@ -102,9 +102,11 @@ internal fun OverlayScreen(
     repository: SettingsRepository,
     scope: CoroutineScope,
     modifier: Modifier = Modifier,
+    overlay: Overlay = navigation.overlay,
 ) {
     val appVersion = "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})"
-    when (navigation.overlay) {
+    // [overlay] is the one being drawn, which during a transition can differ from the open one.
+    when (overlay) {
         Overlay.SETTINGS ->
             SettingsScreen(
                 settings = settings,
