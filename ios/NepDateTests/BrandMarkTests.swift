@@ -36,7 +36,7 @@ struct BrandMarkTests {
     for mark in Self.marks() {
       var curves = 0
       mark.shape.path(in: Self.rect).cgPath.applyWithBlock { element in
-        if element.pointee.type == .addCurve {
+        if element.pointee.type == .addCurveToPoint {
           curves += 1
         }
       }
