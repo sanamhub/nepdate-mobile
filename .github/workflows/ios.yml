@@ -26,46 +26,9 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  runtimes:
-    name: Runtimes on ${{ matrix.image }}
-    if: github.event_name == 'workflow_dispatch'
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - image: xcode-27
-            xcode: /Applications/Xcode_27.1.app
-          - image: macos-26
-            xcode: /Applications/Xcode_26.6.app
-    runs-on: ${{ matrix.image }}
-    timeout-minutes: 15
-
-    steps:
-      - name: List the Xcodes
-        run: ls -d /Applications/Xcode*.app
-
-      - name: Select Xcode
-        env:
-          XCODE_APP: ${{ matrix.xcode }}
-        run: |
-          if [ ! -d "$XCODE_APP" ]; then
-            echo "xcode: $XCODE_APP is not on this runner image"
-            exit 1
-          fi
-          echo "DEVELOPER_DIR=$XCODE_APP/Contents/Developer" >> "$GITHUB_ENV"
-
-      - name: Show the Xcode version
-        run: xcodebuild -version
-
-      - name: Show the runtimes
-        run: xcrun simctl list runtimes
-
-      - name: Show the devices
-        run: xcrun simctl list devices available
-
   ci:
     name: Xcode ci
-    runs-on: xcode-27
+    runs-on: macos-26
     timeout-minutes: 45
     env:
       SNAPSHOT_TESTING_RECORD: ${{ inputs.record_snapshots && 'all' || 'never' }}
@@ -75,10 +38,10 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       # The image's default Xcode changes without notice; select one by path so a build can be
-      # repeated. 27.1 and not 27.2: XcodeGen 2.46.0 has a known conversion bug on 27.2 (ADR-0014).
+      # repeated. 26.6 and not the xcode-27 image: the gates fail on iOS 27 (ADR-0014).
       - name: Select Xcode
         env:
-          XCODE_APP: /Applications/Xcode_27.1.app
+          XCODE_APP: /Applications/Xcode_26.6.app
         run: |
           ls -d /Applications/Xcode*.app
           if [ ! -d "$XCODE_APP" ]; then

@@ -7,7 +7,7 @@ cd "$(dirname "$0")/.."
 XCODEGEN_VERSION="2.46.0"
 XCODEGEN_SHA256="4d9e34b62172d645eed6457cac13fc222569974098ef4ee9c3368bedf0196806"
 XCODEGEN_URL="https://github.com/yonaskolb/XcodeGen/releases/download/${XCODEGEN_VERSION}/xcodegen.zip"
-SIMULATOR="platform=iOS Simulator,name=iPhone 17,OS=latest"
+SIMULATOR="platform=iOS Simulator,name=iPhone 17,OS=26.5"
 DERIVED_DATA="build/DerivedData"
 PROJECT="NepDate.xcodeproj"
 SNAPSHOT_COUNT=20
