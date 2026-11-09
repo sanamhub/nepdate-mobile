@@ -34,15 +34,17 @@ class LaunchSmokeTest {
     @Test
     fun everyTabAndTheSettingsScreenOpen() {
         launch()
-        for (tab in listOf("Festivals", "Converter", "Patro")) {
-            tap(tab, "the $tab tab")
-        }
+        // The settings button sits inside the tab pager, and a tap during a tab change stops the
+        // pager instead of pressing the button, so open it before the tabs move.
         tap("Settings", "the settings button")
         assertTrue(
             "The settings screen did not open",
             device.wait(Until.hasObject(By.text("Settings").pkg(PACKAGE_NAME)), UI_TIMEOUT_MS),
         )
         device.pressBack()
+        for (tab in listOf("Festivals", "Converter", "Patro")) {
+            tap(tab, "the $tab tab")
+        }
         assertNoCrash("tabs and settings")
     }
 
