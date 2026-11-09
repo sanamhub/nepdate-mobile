@@ -3,6 +3,8 @@ package np.nepdate.baselineprofile
 import androidx.benchmark.macro.BaselineProfileMode
 import androidx.benchmark.macro.CompilationMode
 import androidx.benchmark.macro.MacrobenchmarkScope
+import androidx.test.uiautomator.By
+import androidx.test.uiautomator.Until
 
 /** The package used by the baseline profile and Macrobenchmark tests. */
 internal const val PACKAGE_NAME = "np.nepdate"
@@ -22,6 +24,25 @@ internal fun withProfile(): CompilationMode =
     CompilationMode.Partial(baselineProfileMode = BaselineProfileMode.Require, warmupIterations = 2)
 
 /**
+ * Swipes to the next month from a day cell, so the gesture starts inside the pager. A fixed
+ * fraction of the screen height no longer works: the today card above the grid grew, and a swipe
+ * that starts in it draws nothing, which `FrameTimingMetric` reports as no render thread slices.
+ */
+internal fun MacrobenchmarkScope.swipeToNextMonth() {
+    val cell = device.wait(Until.findObject(By.descContains(", 208")), UI_TIMEOUT_MS)
+    checkNotNull(cell) { "The month grid did not draw a day cell" }
+    val y = cell.visibleBounds.centerY()
+    device.swipe(
+        (device.displayWidth * SWIPE_START_X_FRACTION).toInt(),
+        y,
+        (device.displayWidth * SWIPE_END_X_FRACTION).toInt(),
+        y,
+        SWIPE_STEPS,
+    )
+    device.waitForIdle()
+}
+
+/**
  * `StartupTimingMetric` reads the first frame drawn after `reportFullyDrawn()`, and the app is idle
  * once it has drawn the month grid, so no such frame would exist. A short vertical drag on the grid
  * asks for one. It runs after the launch, so the first-display and fully-drawn times are not moved.
@@ -36,3 +57,4 @@ internal fun MacrobenchmarkScope.drawFrameAfterFullyDrawn() {
 
 private const val FRAME_NUDGE_PX = 40
 private const val FRAME_NUDGE_STEPS = 10
+private const val UI_TIMEOUT_MS = 5_000L
