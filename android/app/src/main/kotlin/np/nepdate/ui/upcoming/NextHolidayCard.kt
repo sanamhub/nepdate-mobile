@@ -25,9 +25,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.sanamhub.nepdate.Lang
 import np.nepdate.R
+import np.nepdate.ui.common.DayMark
 import np.nepdate.ui.common.ShapeBadge
 import np.nepdate.ui.common.SoftBurstShape
-import np.nepdate.ui.common.SymbolIcon
 import np.nepdate.ui.common.inDigits
 import np.nepdate.ui.common.weekdayName
 import np.nepdate.ui.day.relativeDayLabel
@@ -101,7 +101,7 @@ private fun Countdown(
         ShapeBadge(shape = SoftBurstShape, color = colors.onHolidayContainer, size = 84.dp) {
             // "0 days" reads as a bug, so a holiday that is today gets the celebration mark instead.
             if (days == 0) {
-                SymbolIcon(icon = R.drawable.ic_sym_celebration_filled, tint = colors.holidayContainer, size = 36.dp)
+                DayMark(holiday = true, color = colors.holidayContainer, size = 36.dp)
             } else {
                 Text(
                     text = days.toString().inDigits(strings.digits),

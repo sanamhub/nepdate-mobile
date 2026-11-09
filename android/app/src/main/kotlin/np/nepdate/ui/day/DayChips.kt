@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -26,7 +25,7 @@ import io.github.sanamhub.nepdate.NepaliDate
 import io.github.sanamhub.nepdate.patro.CalendarInfo
 import np.nepdate.R
 import np.nepdate.data.Digits
-import np.nepdate.ui.common.SymbolIcon
+import np.nepdate.ui.common.DayMark
 import np.nepdate.ui.common.inDigits
 import np.nepdate.ui.theme.LocalNepdateColors
 
@@ -57,7 +56,7 @@ internal fun DayDetailChips(
                         .padding(horizontal = 12.dp, vertical = 6.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                SymbolIcon(icon = R.drawable.ic_sym_celebration_filled, tint = colors.onHolidayContainer, size = 18.dp)
+                DayMark(holiday = true, color = colors.onHolidayContainer)
                 Spacer(Modifier.width(6.dp))
                 Text(
                     text = stringResource(R.string.public_holiday),

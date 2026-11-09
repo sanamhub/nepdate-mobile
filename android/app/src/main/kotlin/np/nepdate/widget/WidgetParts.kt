@@ -136,6 +136,24 @@ internal fun DateBadge(
     row: WidgetDayRow,
     size: Dp,
 ) {
+    if (row.isToday) {
+        // Today's day sits on the Sunny shape, the app's today marker, so it stands out in a list.
+        Box(modifier = GlanceModifier.size(size), contentAlignment = Alignment.Center) {
+            SunnyShape(GlanceModifier.size(size))
+            Text(
+                text = row.bsDay,
+                style =
+                    TextStyle(
+                        color = onTodayProvider(),
+                        fontSize = (size.value * BADGE_DAY_SCALE).sp,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center,
+                    ),
+                maxLines = 1,
+            )
+        }
+        return
+    }
     val ink = if (row.isHoliday) onHolidayContainerProvider() else GlanceTheme.colors.onSurface
     Column(
         modifier =

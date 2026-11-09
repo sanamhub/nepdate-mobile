@@ -14,6 +14,6 @@ internal enum class NepdateDestination(
     @DrawableRes val selectedIcon: Int,
 ) {
     MONTH(R.string.nav_month, R.drawable.ic_sym_calendar_month, R.drawable.ic_sym_calendar_month_filled),
-    UPCOMING(R.string.nav_upcoming, R.drawable.ic_sym_celebration, R.drawable.ic_sym_celebration_filled),
+    UPCOMING(R.string.nav_upcoming, R.drawable.ic_sym_burst, R.drawable.ic_sym_burst_filled),
     CONVERTER(R.string.nav_converter, R.drawable.ic_sym_swap_horiz, R.drawable.ic_sym_swap_horiz),
 }

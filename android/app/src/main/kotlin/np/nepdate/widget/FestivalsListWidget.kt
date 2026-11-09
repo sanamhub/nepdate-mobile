@@ -36,12 +36,14 @@ import np.nepdate.R
  * The Festivals list widget: every upcoming day with a holiday or an event, as a scrolling list of
  * up to [LIST_MAX_ROWS] days within [LIST_WINDOW_DAYS] days. The chip in the header narrows it to
  * public holidays; [HolidayFilterAction] stores that per widget. A row opens its day in the app,
- * and the header opens the app on today.
+ * and the header opens the app on today. A picker preview cannot draw a scrolling list, so with
+ * [scrolling] off the rows that fit are laid out in a plain column instead.
  */
 @Composable
 internal fun FestivalsWidgetContent(
     model: FestivalsListModel,
     opacity: WidgetOpacity,
+    scrolling: Boolean = true,
 ) {
     val context = LocalContext.current
     Column(
@@ -58,7 +60,12 @@ internal fun FestivalsWidgetContent(
             Text(
                 text = context.getString(R.string.widget3_festivals_title),
                 modifier = GlanceModifier.defaultWeight(),
-                style = TextStyle(color = GlanceTheme.colors.onSurface, fontSize = 17.sp, fontWeight = FontWeight.Bold),
+                style =
+                    TextStyle(
+                        color = GlanceTheme.colors.onSurface,
+                        fontSize = WidgetType.title,
+                        fontWeight = WidgetType.titleWeight,
+                    ),
                 maxLines = 1,
             )
             HolidaysOnlyChip(model.holidaysOnly)
@@ -71,9 +78,22 @@ internal fun FestivalsWidgetContent(
                 maxLines = 2,
             )
         } else {
-            val lines = if (LocalSize.current.height >= TWO_LINE_ROWS) 2 else 1
-            LazyColumn(modifier = GlanceModifier.fillMaxWidth().defaultWeight()) {
-                itemsIndexed(model.rows) { index, row -> FestivalListRow(row, index, lines) }
+            val height = LocalSize.current.height
+            val lines = if (height >= TWO_LINE_ROWS) 2 else 1
+            if (scrolling) {
+                LazyColumn(modifier = GlanceModifier.fillMaxWidth().defaultWeight()) {
+                    itemsIndexed(model.rows) { index, row -> FestivalListRow(row, index, lines) }
+                }
+            } else {
+                val fits = ((height - LIST_HEADER) / (if (lines == 2) TWO_LINE_ROW else ONE_LINE_ROW)).toInt()
+                Column(modifier = GlanceModifier.fillMaxWidth().defaultWeight()) {
+                    model.rows.take(fits.coerceAtLeast(1)).forEachIndexed {
+                        index,
+                        row,
+                        ->
+                        FestivalListRow(row, index, lines)
+                    }
+                }
             }
         }
     }
@@ -142,13 +162,16 @@ private fun FestivalListRow(
     lines: Int,
 ) {
     val context = LocalContext.current
+    // Today's row takes the primary container, like the today faces of the other widgets.
+    val container = if (row.isToday) GlanceTheme.colors.primaryContainer else surfaceContainerProvider()
+    val plainInk = if (row.isToday) GlanceTheme.colors.onPrimaryContainer else GlanceTheme.colors.onSurface
     Column(modifier = GlanceModifier.fillMaxWidth()) {
         if (index > 0) Spacer(GlanceModifier.height(4.dp))
         Row(
             modifier =
                 GlanceModifier
                     .fillMaxWidth()
-                    .shapeBackground(R.drawable.widget_shape_18, surfaceContainerProvider())
+                    .shapeBackground(R.drawable.widget_shape_18, container)
                     .clickable(actionStartActivity(widgetIntent(context, row.date)))
                     .semantics { testTag = "festivals_entry_$index" }
                     .padding(start = 6.dp, end = 12.dp, top = 6.dp, bottom = 6.dp),
@@ -160,9 +183,16 @@ private fun FestivalListRow(
                 modifier = GlanceModifier.defaultWeight().padding(horizontal = 12.dp),
                 style =
                     TextStyle(
-                        color = if (row.isHoliday) holidayProvider() else GlanceTheme.colors.onSurface,
-                        fontSize = 14.sp,
-                        fontWeight = if (row.isHoliday) FontWeight.Bold else FontWeight.Medium,
+                        color = if (row.isHoliday) holidayProvider() else plainInk,
+                        fontSize = WidgetType.body,
+                        fontWeight =
+                            if (row.isHoliday ||
+                                row.isToday
+                            ) {
+                                WidgetType.emphasisWeight
+                            } else {
+                                WidgetType.bodyWeight
+                            },
                     ),
                 maxLines = lines,
             )
@@ -170,9 +200,9 @@ private fun FestivalListRow(
                 text = row.relative,
                 style =
                     TextStyle(
-                        color = GlanceTheme.colors.onSurfaceVariant,
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold,
+                        color = if (row.isToday) plainInk else GlanceTheme.colors.onSurfaceVariant,
+                        fontSize = WidgetType.label,
+                        fontWeight = WidgetType.labelWeight,
                     ),
                 maxLines = 1,
             )
@@ -182,3 +212,8 @@ private fun FestivalListRow(
 
 /** A list shorter than this shows one line per row, so a short widget never clips a row. */
 private val TWO_LINE_ROWS = 150.dp
+
+/** The header and padding above the rows, and the height of one row with its gap. */
+private val LIST_HEADER = 60.dp
+private val ONE_LINE_ROW = 56.dp
+private val TWO_LINE_ROW = 64.dp

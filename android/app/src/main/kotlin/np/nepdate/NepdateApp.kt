@@ -4,7 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -96,45 +96,45 @@ fun NepdateApp(
         if (initialDate != null) navigation.showDate(initialDate)
     }
     StartTabEffect(repository, navigation, opensToDate = initialDate != null)
-    BackHandler(enabled = navigation.overlay != Overlay.NONE) { navigation.back() }
-
-    if (!firstRunDone) {
-        FirstRunScreen(
-            settings = settings,
-            onLook = { scope.launch { repository.setLook(it) } },
-            onDone = { scope.launch { repository.setFirstRunDone(true) } },
-            modifier = modifier,
-        )
-        return
-    }
-    if (navigation.overlay != Overlay.NONE) {
-        OverlayScreen(navigation, settings, today, repository, scope, modifier)
-        return
-    }
-
-    Column(modifier = modifier.fillMaxSize()) {
-        NepalTimeBanner(settings = settings, repository = repository, scope = scope)
-        tabsState.SaveableStateProvider(TABS_STATE_KEY) {
-            NepdateContent(
-                settings = settings,
-                today = today,
-                nepalTime = nepalTime,
-                initialDate = navigation.openDate,
-                initialDateKey = navigation.openKey,
-                onSettings = { navigation.overlay = Overlay.SETTINGS },
-                onSearch = { navigation.overlay = Overlay.SEARCH },
-                onOpenYear = { navigation.overlay = Overlay.YEAR },
-                onShowInPatro = navigation::showDate,
-                onShowMonth = navigation::showMonth,
-                jumpToMonth = navigation.jumpMonth,
-                jumpKey = navigation.jumpKey,
-                destination = navigation.destination,
-                onDestination = { navigation.destination = it },
-                onFirstGridDrawn = onFirstGridDrawn,
-                onOpenDateHandled = navigation::consumeOpenDate,
-                onJumpHandled = navigation::consumeJump,
-                modifier = Modifier.weight(1f),
-            )
+    rememberShellTransition(firstRunDone, navigation).AnimatedContent(
+        modifier = modifier,
+        transitionSpec = shellTransition(),
+    ) { screen ->
+        when {
+            !screen.firstRunDone ->
+                FirstRunScreen(
+                    settings = settings,
+                    onLook = { scope.launch { repository.setLook(it) } },
+                    onDone = { scope.launch { repository.setFirstRunDone(true) } },
+                )
+            screen.overlay != Overlay.NONE ->
+                OverlayScreen(navigation, settings, today, repository, scope, overlay = screen.overlay)
+            else ->
+                Column(modifier = Modifier.fillMaxSize()) {
+                    NepalTimeBanner(settings = settings, repository = repository, scope = scope)
+                    tabsState.SaveableStateProvider(TABS_STATE_KEY) {
+                        NepdateContent(
+                            settings = settings,
+                            today = today,
+                            nepalTime = nepalTime,
+                            initialDate = navigation.openDate,
+                            initialDateKey = navigation.openKey,
+                            onSettings = { navigation.overlay = Overlay.SETTINGS },
+                            onSearch = { navigation.overlay = Overlay.SEARCH },
+                            onOpenYear = { navigation.overlay = Overlay.YEAR },
+                            onShowInPatro = navigation::showDate,
+                            onShowMonth = navigation::showMonth,
+                            jumpToMonth = navigation.jumpMonth,
+                            jumpKey = navigation.jumpKey,
+                            destination = navigation.destination,
+                            onDestination = { navigation.destination = it },
+                            onFirstGridDrawn = onFirstGridDrawn,
+                            onOpenDateHandled = navigation::consumeOpenDate,
+                            onJumpHandled = navigation::consumeJump,
+                            modifier = Modifier.weight(1f),
+                        )
+                    }
+                }
         }
     }
 }

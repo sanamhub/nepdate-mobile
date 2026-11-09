@@ -17,9 +17,6 @@ import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SegmentedButtonDefaults
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -49,6 +46,8 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import np.nepdate.NepdateApplication
 import np.nepdate.R
+import np.nepdate.ui.settings.Choice
+import np.nepdate.ui.settings.ConnectedToggleGroup
 import np.nepdate.ui.theme.NepdateTheme
 
 /**
@@ -221,18 +220,13 @@ private fun OpacityChoices(
     opacity: WidgetOpacity,
     onSelect: (WidgetOpacity) -> Unit,
 ) {
-    SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
-        WidgetOpacity.entries.forEachIndexed { index, option ->
-            SegmentedButton(
-                selected = opacity == option,
-                onClick = { onSelect(option) },
-                shape = SegmentedButtonDefaults.itemShape(index, WidgetOpacity.entries.size),
-                modifier = Modifier.testTag("widget_opacity_${option.key}"),
-            ) {
-                Text(stringResource(option.label), maxLines = 1)
-            }
-        }
-    }
+    ConnectedToggleGroup(
+        options = WidgetOpacity.entries.map { Choice(it, stringResource(it.label)) },
+        selected = opacity,
+        onSelect = onSelect,
+        haptics = null,
+        tags = WidgetOpacity.entries.map { "widget_opacity_${it.key}" },
+    )
 }
 
 @Composable

@@ -55,9 +55,13 @@ internal fun widgetControlCopy(context: Context): WidgetControlCopy {
     )
 }
 
-/** What the Next festival widget draws for the entry at [index] in the browse window. */
+/**
+ * What the Next festival widget draws for the day at [index] in the browse window: [entry] is the
+ * day's first holiday or event and [names] every one of them, the public holiday first.
+ */
 internal data class NextFestivalModel(
     val entry: WidgetUpcomingEntry?,
+    val names: List<String>,
     val kind: String,
     val days: String,
     val unit: String,
@@ -66,8 +70,12 @@ internal data class NextFestivalModel(
     val previousIndex: Int?,
     val nextIndex: Int?,
     val emptyText: String,
+    val digits: Digits = Digits.ENGLISH,
 ) {
     val isHoliday: Boolean get() = entry?.isHoliday == true
+
+    /** The "+N" label for [count] names the widget leaves out. */
+    fun more(count: Int): String = "+$count".inDigits(digits)
 }
 
 /** What the Festivals list widget draws. */
@@ -78,9 +86,10 @@ internal data class FestivalsListModel(
 )
 
 /**
- * Builds the Next festival model. The arrows step through the next [FESTIVAL_WINDOW] holidays and
- * festivals and wrap at either end, as in the design. An [index] outside the window falls back to
- * the nearest entry, so a stale index after the data changes never fails.
+ * Builds the Next festival model. The arrows step day by day through the next [FESTIVAL_WINDOW]
+ * days with a holiday or festival, and stop at either end: going back from the nearest day used to
+ * wrap to the farthest, which read as going forward. An [index] outside the window falls back to
+ * the nearest day, so a stale index after the data changes never fails.
  */
 internal fun nextFestivalModel(
     today: NepaliDate,
@@ -91,10 +100,11 @@ internal fun nextFestivalModel(
     controls: WidgetControlCopy,
 ): NextFestivalModel {
     require(digits != Digits.FOLLOW_LANGUAGE) { "Resolve Digits before building a widget model" }
-    val entries = festivalWindow(today)
-    if (entries.isEmpty()) {
+    val days = festivalWindow(today)
+    if (days.isEmpty()) {
         return NextFestivalModel(
             entry = null,
+            names = emptyList(),
             kind = controls.nextFestivalKind,
             days = "",
             unit = "",
@@ -105,24 +115,26 @@ internal fun nextFestivalModel(
             emptyText = controls.noneLeft,
         )
     }
-    val shown = if (index in entries.indices) index else 0
-    val source = entries[shown]
-    val days = source.daysFromToday
-    val canBrowse = entries.size > 1
+    val shown = if (index in days.indices) index else 0
+    val day = days[shown].sortedByDescending { it.isHoliday }
+    val source = day.first()
+    val left = source.daysFromToday
     return NextFestivalModel(
         entry = source.toWidgetEntry(lang, digits, copy),
+        names = day.map { it.name.name(lang) },
         kind = if (source.isHoliday) controls.nextHolidayKind else controls.nextFestivalKind,
-        days = if (days == 0) copy.relative(0) else days.toString().inDigits(digits),
-        unit = if (days == 0) "" else controls.unit(days),
+        days = if (left == 0) copy.relative(0) else left.toString().inDigits(digits),
+        unit = if (left == 0) "" else controls.unit(left),
         dateLine =
             controls.weekdayAndDate(
                 weekday = source.date.dayOfWeek.displayName(lang),
                 date = shortBsDate(source.date, copy, digits),
             ),
         index = shown,
-        previousIndex = if (canBrowse) (shown - 1 + entries.size) % entries.size else null,
-        nextIndex = if (canBrowse) (shown + 1) % entries.size else null,
+        previousIndex = (shown - 1).takeIf { it >= 0 },
+        nextIndex = (shown + 1).takeIf { it < days.size },
         emptyText = controls.noneLeft,
+        digits = digits,
     )
 }
 
@@ -147,16 +159,21 @@ internal fun festivalsListModel(
 }
 
 /**
- * The entries the Next festival arrows browse: the nearest festivals, plus the next few public
- * holidays even when many smaller observances fall before them, in date order and capped at
- * [FESTIVAL_WINDOW].
+ * The days the Next festival arrows browse, each with all its entries: the nearest days with a
+ * festival, plus the next few public holidays even when many smaller observances fall before them,
+ * in date order and capped at [FESTIVAL_WINDOW].
  */
-internal fun festivalWindow(today: NepaliDate): List<np.nepdate.ui.upcoming.UpcomingEntry> {
-    val scanned = upcoming(today, limit = HOLIDAY_SCAN_LIMIT).entries
-    val first = scanned.take(FESTIVAL_WINDOW)
-    val laterHolidays = scanned.filter { it.isHoliday }.take(WINDOW_HOLIDAYS).filter { it !in first }
-    val chosen = (first.take(FESTIVAL_WINDOW - laterHolidays.size) + laterHolidays).toSet()
-    return scanned.filter { it in chosen }
+internal fun festivalWindow(today: NepaliDate): List<List<np.nepdate.ui.upcoming.UpcomingEntry>> {
+    val days =
+        upcoming(today, limit = HOLIDAY_SCAN_LIMIT)
+            .entries
+            .groupBy { it.date }
+            .values
+            .toList()
+    val first = days.take(FESTIVAL_WINDOW)
+    val laterHolidays = days.filter { day -> day.any { it.isHoliday } }.take(WINDOW_HOLIDAYS).filter { it !in first }
+    val chosen = first.take(FESTIVAL_WINDOW - laterHolidays.size) + laterHolidays
+    return days.filter { it in chosen }
 }
 
 private fun shortBsDate(
@@ -165,7 +182,7 @@ private fun shortBsDate(
     digits: Digits,
 ): String = "${copy.bsMonthNames[date.monthValue - 1]} ${date.dayOfMonth.toString().inDigits(digits)}"
 
-/** How many upcoming entries the Next festival arrows browse before wrapping. */
+/** How many days with a holiday or festival the Next festival arrows browse. */
 internal const val FESTIVAL_WINDOW = 12
 
 /** How many public holidays the browse window always reaches. */

@@ -2,6 +2,7 @@ package np.nepdate.widget
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -82,9 +83,10 @@ internal fun DateChipContent(
 /**
  * The Date and tithi strip (4x1): today's numeral on the Sunny shape, then the weekday and the BS
  * month on one line and the tithi with the AD date under it. A strip too short for two lines keeps
- * one, and a part that does not fit is left out rather than cut. A wide strip adds today's holiday
- * or event as a pill at the end; a minimal strip keeps the weekday and the month only. A tap opens
- * the app on today.
+ * one, and a part that does not fit is left out rather than cut. Today's holidays and events are
+ * pills: a tall strip gives them their own rows under the date, a wide one-row strip ends with the
+ * first of them and a "+N" for the rest. A minimal strip keeps the weekday and the month only. A
+ * tap opens the app on today.
  */
 @Composable
 internal fun DateStripContent(
@@ -93,16 +95,7 @@ internal fun DateStripContent(
     minimal: Boolean = false,
 ) {
     val context = LocalContext.current
-    val size = LocalSize.current
-    val fit = widgetFit()
-    val pill = (model.holidayName ?: model.eventName)?.takeIf { !minimal && size.width >= STRIP_PILL_WIDTH }
-    val sunny = (size.height - 12.dp).coerceIn(32.dp, 64.dp)
-    val text = size.width - sunny - STRIP_CHROME - (if (pill != null) fit.width(pill, 12.sp) + 28.dp else 0.dp)
-    val scale = columnScale(size.height * STRIP_TO_FACE, text, STRIP_WIDTH_AT_ONE)
-    val twoLines = !minimal && size.height >= STRIP_TWO_LINES
-    val first = fitted(fit, text, 15.sp * scale, model.weekday, model.bsMonthYear)
-    val second =
-        if (twoLines) fitted(fit, text, 12.sp * scale, model.tithi, model.adLine) else ""
+    val plan = stripPlan(model, LocalSize.current, widgetFit(), minimal)
     Row(
         modifier =
             widgetRoot(opacity, GlanceTheme.colors.surface)
@@ -113,23 +106,88 @@ internal fun DateStripContent(
                 }.padding(horizontal = 10.dp, vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        SunnyNumeral(model.bsDay, sunny)
+        SunnyNumeral(model.bsDay, plan.sunny)
         Column(modifier = GlanceModifier.defaultWeight().padding(start = 12.dp)) {
             Text(
-                text = first,
-                style = TextStyle(color = weekdayInk(model), fontSize = 15.sp * scale, fontWeight = FontWeight.Bold),
+                text = plan.first,
+                style =
+                    TextStyle(
+                        color = weekdayInk(model),
+                        fontSize = 15.sp * plan.scale,
+                        fontWeight = FontWeight.Bold,
+                    ),
                 maxLines = 1,
             )
-            if (second.isNotEmpty()) {
+            if (plan.second.isNotEmpty()) {
                 Text(
-                    text = second,
-                    style = TextStyle(color = GlanceTheme.colors.onSurfaceVariant, fontSize = 12.sp * scale),
+                    text = plan.second,
+                    style = TextStyle(color = GlanceTheme.colors.onSurfaceVariant, fontSize = 12.sp * plan.scale),
                     maxLines = 1,
                 )
             }
+            StripPills(plan.below)
         }
-        if (pill != null) StripPill(pill, model.isHoliday)
+        StripPills(plan.trailing, GlanceModifier.padding(start = TRAILING_START, bottom = 4.dp))
     }
+}
+
+/** What a Date and tithi strip draws at its size: the text lines, their scale and the pills. */
+private data class StripPlan(
+    val sunny: Dp,
+    val scale: Float,
+    val first: String,
+    val second: String,
+    val below: List<List<EventPill>>,
+    val trailing: List<List<EventPill>>,
+)
+
+private fun stripPlan(
+    model: TodayWidgetModel,
+    size: DpSize,
+    fit: WidgetFit,
+    minimal: Boolean,
+): StripPlan {
+    val names = if (minimal) emptyList() else model.eventNames.ifEmpty { listOfNotNull(model.holidayName) }
+    val pillsBelow = names.isNotEmpty() && size.height >= STRIP_PILLS_BELOW
+    val sunny = (size.height - 12.dp).coerceIn(32.dp, if (pillsBelow) 72.dp else 64.dp)
+    val column = size.width - sunny - STRIP_CHROME
+    val trailing =
+        if (!pillsBelow && size.width >= STRIP_PILL_WIDTH) {
+            packEventPills(names, model.isHoliday, fit, STRIP_PILL, TRAILING_PILLS, 1, model::more)
+        } else {
+            emptyList()
+        }
+    val trailingWidth =
+        trailing.firstOrNull().orEmpty().fold(0.dp) { sum, pill -> sum + eventPillWidth(pill.text, fit, STRIP_PILL) }
+    val text = column - trailingWidth - if (trailing.isEmpty()) 0.dp else TRAILING_START
+    val scale = columnScale(size.height * STRIP_TO_FACE, text, STRIP_WIDTH_AT_ONE).coerceAtMost(MAX_STRIP_SCALE)
+    val twoLines = !minimal && size.height >= STRIP_TWO_LINES
+    val second = if (twoLines) fitted(fit, text, 12.sp * scale, model.tithi, model.adLine) else ""
+    val below =
+        if (pillsBelow) {
+            val textHeight = fit.line(15.sp * scale) + if (second.isNotEmpty()) fit.line(12.sp * scale) else 0.dp
+            val rows = ((size.height - STRIP_VERTICAL - textHeight) / fit.pill(STRIP_PILL)).toInt().coerceIn(1, 2)
+            packEventPills(names, model.isHoliday, fit, STRIP_PILL, column, rows, model::more)
+        } else {
+            emptyList()
+        }
+    val first = fitted(fit, text, 15.sp * scale, model.weekday, model.bsMonthYear)
+    return StripPlan(sunny, scale, first, second, below, trailing)
+}
+
+/** The strip's pills on the secondary container, which stands out from the strip's surface. */
+@Composable
+private fun StripPills(
+    rows: List<List<EventPill>>,
+    modifier: GlanceModifier = GlanceModifier,
+) {
+    EventPillRows(
+        rows,
+        STRIP_PILL,
+        modifier,
+        container = GlanceTheme.colors.secondaryContainer,
+        content = GlanceTheme.colors.onSecondaryContainer,
+    )
 }
 
 /** [parts] joined with dots, dropping parts from the end until the line fits in [width]. */
@@ -145,31 +203,6 @@ private fun fitted(
         if (fit.fits(line, fontSize, width)) return line
     }
     return present.firstOrNull().orEmpty()
-}
-
-@Composable
-private fun StripPill(
-    text: String,
-    isHoliday: Boolean,
-) {
-    Text(
-        text = text,
-        modifier =
-            GlanceModifier
-                .padding(start = 8.dp)
-                .shapeBackground(
-                    R.drawable.widget_shape_pill,
-                    if (isHoliday) holidayContainerProvider() else GlanceTheme.colors.secondaryContainer,
-                ).padding(horizontal = 10.dp, vertical = 4.dp),
-        style =
-            TextStyle(
-                color = if (isHoliday) onHolidayContainerProvider() else GlanceTheme.colors.onSecondaryContainer,
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center,
-            ),
-        maxLines = 1,
-    )
 }
 
 @Composable
@@ -192,6 +225,12 @@ private val CHIP_WIDE = 100.dp
 private val CHIP_LABEL = 22.dp
 private val CHIP_WITH_MONTH = 90.dp
 private val STRIP_PILL_WIDTH = 320.dp
+private val STRIP_PILLS_BELOW = 84.dp
+private val STRIP_VERTICAL = 8.dp
+private val TRAILING_PILLS = 150.dp
+private val TRAILING_START = 8.dp
+private val STRIP_PILL = WidgetType.label
+private const val MAX_STRIP_SCALE = 1.25f
 private val STRIP_CHROME = 32.dp
 private val STRIP_TWO_LINES = 50.dp
 private val STRIP_WIDTH_AT_ONE = 190.dp

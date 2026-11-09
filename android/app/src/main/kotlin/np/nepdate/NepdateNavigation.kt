@@ -80,9 +80,13 @@ internal class AppNavigation(
         jumpMonth = null
     }
 
-    /** The system back gesture: About returns to Settings, every other overlay closes. */
+    /** Where back leads: About returns to Settings, every other overlay closes. */
+    val backTarget: Overlay
+        get() = if (overlay == Overlay.ABOUT) Overlay.SETTINGS else Overlay.NONE
+
+    /** The system back gesture: goes to [backTarget]. */
     fun back() {
-        overlay = if (overlay == Overlay.ABOUT) Overlay.SETTINGS else Overlay.NONE
+        overlay = backTarget
     }
 }
 
@@ -102,9 +106,11 @@ internal fun OverlayScreen(
     repository: SettingsRepository,
     scope: CoroutineScope,
     modifier: Modifier = Modifier,
+    overlay: Overlay = navigation.overlay,
 ) {
     val appVersion = "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})"
-    when (navigation.overlay) {
+    // [overlay] is the one being drawn, which during a transition can differ from the open one.
+    when (overlay) {
         Overlay.SETTINGS ->
             SettingsScreen(
                 settings = settings,

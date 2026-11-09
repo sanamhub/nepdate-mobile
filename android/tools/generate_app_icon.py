@@ -1,7 +1,9 @@
 """Generates the NepDate Patro app icon and every export from one geometry.
 
 The mark is a calendar page on sindoor: a cream page with an ink-red header and two binder rings,
-and the marigold Sunny shape, the app's "today" marker, in the middle of the page. It carries no
+and the marigold Sunny shape, the app's "today" marker, in the middle of the page, with the NepDate
+mark small in the sun: the NepDate logo's disc and pennant line, without its moon and sun, which
+would not survive the size. It carries no
 numeral, so it never reads as a wrong date in the status bar or the notification shade, and it
 sits in the same family as the Mitibar desktop icon (a calendar page on a red tile).
 
@@ -36,6 +38,16 @@ SUN_OUTER = 13.0
 SUN_INNER_SHARE = 0.86
 SUN_LOBES = 12
 
+# The NepDate logo's disc and pennant line, in the logo's 936 unit grid (centre 468, disc radius
+# 447). The line is a filled outline so the monochrome icon can cut it out of the disc.
+LOGO_CENTRE = 468.0
+LOGO_RADIUS = 447.0
+PENNANT = [(220.0, 100.0), (830.0, 458.0), (296.0, 447.0), (712.0, 850.0)]
+MARK_RADIUS = 8.4
+MARK_STROKE = 1.4
+# A corner sharper than this many half-strokes is bevelled, so the pennant tip stays in the disc.
+MITER_LIMIT = 2.2
+
 
 def sun_points() -> list[tuple[float, float]]:
     points = []
@@ -46,6 +58,73 @@ def sun_points() -> list[tuple[float, float]]:
         radius = inner + (SUN_OUTER - inner) * (0.5 + 0.5 * math.cos(SUN_LOBES * theta))
         points.append((SUN_CENTRE[0] + radius * math.cos(theta), SUN_CENTRE[1] + radius * math.sin(theta)))
     return points
+
+
+def mark_scale() -> float:
+    return MARK_RADIUS / LOGO_RADIUS
+
+
+def disc_path() -> str:
+    """The logo's disc, filled in the page colour."""
+    cx, cy = SUN_CENTRE
+    r = MARK_RADIUS
+    return f"M{cx - r:.2f},{cy:.2f}A{r:.2f},{r:.2f} 0,1 1 {cx + r:.2f},{cy:.2f}A{r:.2f},{r:.2f} 0,1 1 {cx - r:.2f},{cy:.2f}Z"
+
+
+def clip_to_ring(a, b, limit):
+    """Moves a segment's outer end [a] onto the circle of radius [limit] round the sun centre."""
+    cx, cy = SUN_CENTRE
+    dx, dy = a[0] - b[0], a[1] - b[1]
+    fx, fy = b[0] - cx, b[1] - cy
+    qa = dx * dx + dy * dy
+    qb = 2 * (fx * dx + fy * dy)
+    qc = fx * fx + fy * fy - limit * limit
+    t = (-qb + math.sqrt(qb * qb - 4 * qa * qc)) / (2 * qa)
+    return (b[0] + t * dx, b[1] + t * dy)
+
+
+def pennant_points() -> list[tuple[float, float]]:
+    """The pennant line inside the ring, outlined at MARK_STROKE with mitred corners."""
+    scale = mark_scale()
+    line = [
+        (SUN_CENTRE[0] + (x - LOGO_CENTRE) * scale, SUN_CENTRE[1] + (y - LOGO_CENTRE) * scale) for x, y in PENNANT
+    ]
+    # The line ends at the disc's edge, as it does in the logo.
+    line[0] = clip_to_ring(line[0], line[1], MARK_RADIUS - MARK_STROKE / 2)
+    line[-1] = clip_to_ring(line[-1], line[-2], MARK_RADIUS - MARK_STROKE / 2)
+    half = MARK_STROKE / 2
+
+    def normal(a, b):
+        dx, dy = b[0] - a[0], b[1] - a[1]
+        length = math.hypot(dx, dy)
+        return (-dy / length, dx / length)
+
+    def side(sign):
+        out = []
+        for i, point in enumerate(line):
+            if i == 0 or i == len(line) - 1:
+                n = normal(line[0], line[1]) if i == 0 else normal(line[-2], line[-1])
+                out.append((point[0] + sign * half * n[0], point[1] + sign * half * n[1]))
+                continue
+            n1 = normal(line[i - 1], point)
+            n2 = normal(point, line[i + 1])
+            mx, my = n1[0] + n2[0], n1[1] + n2[1]
+            length = math.hypot(mx, my)
+            mx, my = mx / length, my / length
+            miter = half / (mx * n1[0] + my * n1[1])
+            # The outer side of the turn is the one opposite the way the line turns.
+            turn = (point[0] - line[i - 1][0]) * (line[i + 1][1] - point[1]) - (point[1] - line[i - 1][1]) * (
+                line[i + 1][0] - point[0]
+            )
+            outer = -1 if turn > 0 else 1
+            if sign == outer and miter > MITER_LIMIT * half:
+                out.append((point[0] + sign * half * n1[0], point[1] + sign * half * n1[1]))
+                out.append((point[0] + sign * half * n2[0], point[1] + sign * half * n2[1]))
+            else:
+                out.append((point[0] + sign * miter * mx, point[1] + sign * miter * my))
+        return out
+
+    return side(1) + list(reversed(side(-1)))
 
 
 def rounded_rect_path(x0, y0, x1, y1, r, top=True, bottom=True) -> str:
@@ -81,6 +160,8 @@ def layers() -> dict[str, str]:
         "header": rounded_rect_path(x0, y0, x1, HEADER_BOTTOM, PAGE_RADIUS, bottom=False),
         "rings": "".join(ring_paths()),
         "sun": polygon_path(sun_points()),
+        "disc": disc_path(),
+        "mark": polygon_path(pennant_points()),
     }
 
 
@@ -92,6 +173,8 @@ def write_svg(paths: dict[str, str]) -> None:
   <path d="{paths['header']}" fill="{HEADER}"/>
   <path d="{paths['rings']}" fill="{PAGE}"/>
   <path d="{paths['sun']}" fill="{SUN}"/>
+  <path d="{paths['disc']}" fill="{PAGE}"/>
+  <path d="{paths['mark']}" fill="{HEADER}"/>
 </svg>
 """
     (ASSETS / "nepdate-app-icon.svg").write_text(svg, encoding="utf-8")
@@ -119,10 +202,13 @@ def write_vectors(paths: dict[str, str]) -> None:
         + vector_path(paths["header"], "@color/ic_launcher_header")
         + vector_path(paths["rings"], "@color/ic_launcher_page")
         + vector_path(paths["sun"], "@color/ic_launcher_sun")
+        + vector_path(paths["disc"], "@color/ic_launcher_page")
+        + vector_path(paths["mark"], "@color/ic_launcher_header")
     )
     (RES / "drawable/ic_launcher_foreground.xml").write_text(VECTOR.format(paths=foreground), encoding="utf-8")
-    # Themed icons take one colour: the page and rings as the shape, the sun as a hole in it.
-    mono = vector_path(paths["page"] + paths["rings"] + paths["sun"], "#FFFFFFFF", even_odd=True)
+    # Themed icons take one colour: the page and rings as the shape, the sun as a hole in it, the
+    # disc filled again inside the hole and the pennant a hole in the disc.
+    mono = vector_path(paths["page"] + paths["rings"] + paths["sun"] + paths["disc"] + paths["mark"], "#FFFFFFFF", even_odd=True)
     (RES / "drawable/ic_launcher_monochrome.xml").write_text(VECTOR.format(paths=mono), encoding="utf-8")
 
 
@@ -147,6 +233,9 @@ def raster(size: int, crop: tuple[float, float, float, float], background: bool,
     for x, y in RINGS:
         draw.rounded_rectangle([*pt(x - w / 2, y), *pt(x + w / 2, y + h)], radius=w / 2 * px, fill=PAGE)
     draw.polygon([pt(x, y) for x, y in sun_points()], fill=SUN)
+    cx, cy = SUN_CENTRE
+    draw.ellipse([*pt(cx - MARK_RADIUS, cy - MARK_RADIUS), *pt(cx + MARK_RADIUS, cy + MARK_RADIUS)], fill=PAGE)
+    draw.polygon([pt(x, y) for x, y in pennant_points()], fill=HEADER)
     img = img.resize((size, size), Image.LANCZOS)
     if mask:
         m = Image.new("L", (size * scale, size * scale), 0)

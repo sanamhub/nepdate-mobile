@@ -48,7 +48,12 @@ internal data class TodayWidgetModel(
     val tithi: String = "",
     val eventName: String? = null,
     val bsLongLine: String = "",
-)
+    val eventNames: List<String> = emptyList(),
+    val digits: Digits = Digits.ENGLISH,
+) {
+    /** The "+N" label for [count] names a widget leaves out, in the widget's digits. */
+    fun more(count: Int): String = "+$count".inDigits(digits)
+}
 
 /**
  * The W-02 model: today on the left and the next days with a holiday or event on the right.
@@ -151,6 +156,8 @@ internal fun todayWidgetModel(
         tithi = info?.tithi?.name(lang).orEmpty(),
         eventName = firstEvent,
         bsLongLine = bsDate(date, copy, digits),
+        eventNames = info?.events?.map { it.name(lang) }.orEmpty(),
+        digits = digits,
     )
 }
 

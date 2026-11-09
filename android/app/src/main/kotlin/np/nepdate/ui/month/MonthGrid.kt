@@ -37,6 +37,7 @@ import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.semantics.testTag
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import io.github.sanamhub.nepdate.Lang
 import io.github.sanamhub.nepdate.NepaliDate
@@ -60,6 +61,7 @@ internal fun MonthGrid(
     monthNames: List<String>,
     publicHoliday: String,
     onDayClick: (NepaliDate) -> Unit,
+    rowHeight: Dp,
     modifier: Modifier = Modifier,
     onFirstGridDrawn: () -> Unit = {},
 ) {
@@ -71,9 +73,7 @@ internal fun MonthGrid(
     Column(
         modifier =
             modifier
-                .fillMaxSize()
-                // The grid ends above the floating bar; the month card runs on behind it.
-                .padding(LocalBottomBarPadding.current)
+                .fillMaxWidth()
                 .padding(horizontal = 8.dp)
                 .testTag("month_grid"),
     ) {
@@ -81,7 +81,7 @@ internal fun MonthGrid(
             Row(
                 modifier =
                     Modifier
-                        .weight(1f)
+                        .height(rowHeight)
                         .fillMaxWidth(),
             ) {
                 row.forEach { cell ->
@@ -323,7 +323,8 @@ internal fun DayListDetails(
 
 private const val DAYS_PER_WEEK = 7
 
-private val ROW_GAP = 2.dp
+/** The gap between week rows. */
+internal val ROW_GAP = 2.dp
 
 private val HolidayCellShape = RoundedCornerShape(percent = 50)
 

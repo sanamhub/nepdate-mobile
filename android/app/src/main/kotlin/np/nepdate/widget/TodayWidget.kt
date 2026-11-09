@@ -136,8 +136,8 @@ private fun RowScope.UpcomingEntries(
     minimal: Boolean,
 ) {
     val height = LocalSize.current.height
-    val rowHeight = if (height >= ROOMY) 48.dp else 40.dp
-    val layout = upcomingLayout(height, rowHeight, model.todayRow.takeUnless { minimal }, widgetFit())
+    val layout = upcomingLayout(height, model.todayRow.takeUnless { minimal }, widgetFit())
+    val rowHeight = layout.rowHeight
     Column(modifier = GlanceModifier.defaultWeight().fillMaxHeight().padding(start = 10.dp, end = 4.dp)) {
         model.todayRow.takeUnless { minimal }?.let { TodayNote(it, layout, context) }
         if (layout.title) {
@@ -147,8 +147,8 @@ private fun RowScope.UpcomingEntries(
                 style =
                     TextStyle(
                         color = GlanceTheme.colors.onSurfaceVariant,
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold,
+                        fontSize = WidgetType.label,
+                        fontWeight = WidgetType.labelWeight,
                     ),
                 maxLines = 1,
             )
@@ -156,7 +156,7 @@ private fun RowScope.UpcomingEntries(
         if (layout.rows == 0) return@Column
         model.entries.take(layout.rows).forEachIndexed { index, row ->
             if (index > 0) Spacer(GlanceModifier.height(ROW_GAP))
-            UpcomingRow(row, index, rowHeight, context, minimal)
+            UpcomingRow(row, index, rowHeight, context, minimal, nameLines = if (rowHeight >= TWO_LINE_ROW) 2 else 1)
         }
         val footer =
             model.dataEnds ?: context.getString(R.string.upcoming_empty).takeIf { model.entries.isEmpty() }
@@ -173,11 +173,15 @@ private fun RowScope.UpcomingEntries(
 /** How today's note is drawn: over two lines with a caption, or as one line. */
 private enum class NoteStyle { FULL, COMPACT }
 
-/** The right side's plan: the note's style, whether the list has its title, and how many rows fit. */
+/**
+ * The right side's plan: the note's style, whether the list has its title, how many rows fit and
+ * how tall each is. Rows grow to share the height, so a tall widget leaves no empty band at the end.
+ */
 private data class UpcomingLayout(
     val note: NoteStyle,
     val title: Boolean,
     val rows: Int,
+    val rowHeight: Dp,
 )
 
 /**
@@ -187,24 +191,31 @@ private data class UpcomingLayout(
  */
 private fun upcomingLayout(
     height: Dp,
-    rowHeight: Dp,
     todayRow: WidgetDayRow?,
     fit: WidgetFit,
 ): UpcomingLayout {
     val room = height - ROOT_PADDING
-    val slot = rowHeight + ROW_GAP
+    val minRow = if (height >= ROOMY) MIN_ROOMY_ROW else MIN_ROW
+    val slot = minRow + ROW_GAP
     val full = fit.line(NOTE_CAPTION) + fit.line(NOTE_NAMES) * NOTE_LINES + NOTE_CHROME
     val compact = fit.line(NOTE_NAMES) + COMPACT_NOTE_CHROME
 
-    fun rows(
+    // The last row needs no gap after it, so the space gets one gap back before dividing.
+    fun plan(
+        note: NoteStyle,
+        title: Boolean,
         space: Dp,
         min: Int,
-    ) = (space / slot).toInt().coerceIn(min, UPCOMING_MAX_ROWS)
+    ): UpcomingLayout {
+        val rows = ((space + ROW_GAP) / slot).toInt().coerceIn(min, UPCOMING_MAX_ROWS)
+        val share = if (rows > 0) (space + ROW_GAP) / rows - ROW_GAP else minRow
+        return UpcomingLayout(note, title, rows, share.coerceIn(minRow, MAX_ROW))
+    }
     return when {
-        todayRow == null -> UpcomingLayout(NoteStyle.FULL, title = true, rows = rows(room - TITLE_HEIGHT, 1))
-        room - full - TITLE_HEIGHT >= slot ->
-            UpcomingLayout(NoteStyle.FULL, title = true, rows = rows(room - full - TITLE_HEIGHT, 1))
-        else -> UpcomingLayout(NoteStyle.COMPACT, title = false, rows = rows(room - compact, 0))
+        todayRow == null -> plan(NoteStyle.FULL, title = true, space = room - TITLE_HEIGHT, min = 1)
+        room - full - TITLE_HEIGHT >= minRow ->
+            plan(NoteStyle.FULL, title = true, space = room - full - TITLE_HEIGHT, min = 1)
+        else -> plan(NoteStyle.COMPACT, title = false, space = room - compact, min = 0)
     }
 }
 
@@ -224,7 +235,7 @@ private fun TodayNote(
         TextStyle(
             color = if (row.isHoliday) holidayProvider() else ink,
             fontSize = NOTE_NAMES,
-            fontWeight = FontWeight.Bold,
+            fontWeight = WidgetType.emphasisWeight,
         )
     val modifier =
         GlanceModifier
@@ -271,6 +282,7 @@ private fun UpcomingRow(
     height: Dp,
     context: Context,
     minimal: Boolean,
+    nameLines: Int,
 ) {
     Row(
         modifier =
@@ -281,17 +293,17 @@ private fun UpcomingRow(
                 .semantics { testTag = "upcoming_entry_$index" },
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        DateBadge(row, height - 4.dp)
+        DateBadge(row, minOf(height - 4.dp, MAX_BADGE))
         Column(modifier = GlanceModifier.defaultWeight().padding(start = 10.dp)) {
             Text(
                 text = row.names,
                 style =
                     TextStyle(
                         color = if (row.isHoliday) holidayProvider() else GlanceTheme.colors.onSurface,
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Bold,
+                        fontSize = WidgetType.body,
+                        fontWeight = WidgetType.emphasisWeight,
                     ),
-                maxLines = 1,
+                maxLines = nameLines,
             )
             if (!minimal) {
                 Text(
@@ -316,6 +328,11 @@ private val ROOMY = 170.dp
 private val ROOT_PADDING = 16.dp
 private val TITLE_HEIGHT = 24.dp
 private val ROW_GAP = 4.dp
+private val MIN_ROW = 40.dp
+private val MIN_ROOMY_ROW = 44.dp
+private val MAX_ROW = 60.dp
+private val TWO_LINE_ROW = 56.dp
+private val MAX_BADGE = 48.dp
 private val NOTE_CAPTION = 11.sp
 private val NOTE_NAMES = 13.sp
 private const val NOTE_LINES = 2

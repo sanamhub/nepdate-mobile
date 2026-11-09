@@ -57,6 +57,7 @@ import np.nepdate.R
 import np.nepdate.data.Digits
 import np.nepdate.data.Settings
 import np.nepdate.ui.common.CookieShape
+import np.nepdate.ui.common.DayMark
 import np.nepdate.ui.common.ShapeBadge
 import np.nepdate.ui.common.SunnyShape
 import np.nepdate.ui.common.SymbolIcon
@@ -359,6 +360,7 @@ private fun DayDetailFacts(
                         label = R.string.day_tithi,
                         value = tithi.name(lang),
                         icon = R.drawable.ic_sym_dark_mode_filled,
+                        holidayMark = false,
                         iconContainer = scheme.tertiaryContainer,
                         iconContent = scheme.onTertiaryContainer,
                         emphasised = false,
@@ -373,7 +375,8 @@ private fun DayDetailFacts(
                     FactRow(
                         label = R.string.day_event_label,
                         value = event.name(lang),
-                        icon = R.drawable.ic_sym_temple_hindu_filled,
+                        icon = null,
+                        holidayMark = isHolidayName,
                         iconContainer = if (isHolidayName) colors.holidayContainer else scheme.secondaryContainer,
                         iconContent = if (isHolidayName) colors.onHolidayContainer else scheme.onSecondaryContainer,
                         emphasised = isHolidayName,
@@ -393,7 +396,8 @@ private fun DayDetailFacts(
 private data class FactRow(
     val label: Int,
     val value: String,
-    @param:DrawableRes val icon: Int,
+    @param:DrawableRes val icon: Int?,
+    val holidayMark: Boolean,
     val iconContainer: Color,
     val iconContent: Color,
     val emphasised: Boolean,
@@ -416,7 +420,11 @@ private fun FactListItem(
             ),
         leadingContent = {
             ShapeBadge(shape = CircleShape, color = row.iconContainer, size = 40.dp) {
-                SymbolIcon(icon = row.icon, tint = row.iconContent, size = 22.dp)
+                if (row.icon != null) {
+                    SymbolIcon(icon = row.icon, tint = row.iconContent, size = 22.dp)
+                } else {
+                    DayMark(holiday = row.holidayMark, color = row.iconContent, size = 22.dp)
+                }
             }
         },
         overlineContent = { Text(stringResource(row.label), style = MaterialTheme.typography.labelMedium) },

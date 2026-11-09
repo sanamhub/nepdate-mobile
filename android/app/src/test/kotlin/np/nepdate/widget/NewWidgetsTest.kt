@@ -53,7 +53,23 @@ class NewWidgetsTest {
             onNode(hasTestTag("week_day_2083-06-26"))
                 .assert(hasStartActivityClickAction(widgetIntent(context, NepaliDate.of(2083, 6, 26))))
             onNode(hasTestTag("week_widget")).assert(hasStartActivityClickAction(widgetIntent(context)))
+            // Two rows high, the month title gives way to the days and the next line.
+            onNode(hasText("Asoj 2083")).assertDoesNotExist()
+        }
+
+    @Test
+    fun aTallWeekListsTheRestOfTheWeekUnderItsTitle() =
+        runGlanceAppWidgetUnitTest {
+            setContext(context)
+            setAppWidgetSize(DpSize(320.dp, 250.dp))
+            val model = weekWidgetModel(today, Lang.ENGLISH, Digits.ENGLISH, englishWidgetCopy)
+            provideComposable { GlanceTheme { WeekWidgetContent(model, WidgetOpacity.SOLID) } }
+
             onNode(hasText("Asoj 2083")).assertExists()
+            val first = model.agenda.first()
+            onNode(hasTestTag("week_agenda_${first.date.toIsoString()}"))
+                .assert(hasStartActivityClickAction(widgetIntent(context, first.date)))
+            onNode(hasTestTag("week_next")).assertDoesNotExist()
         }
 
     @Test

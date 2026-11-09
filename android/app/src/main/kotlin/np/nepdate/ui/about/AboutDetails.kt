@@ -72,22 +72,6 @@ internal fun AboutDetails(
     }
 }
 
-/** One promise badge: its symbol and its short label. */
-private data class PromiseBadge(
-    @param:DrawableRes val icon: Int,
-    @param:StringRes val label: Int,
-)
-
-private val PROMISES =
-    listOf(
-        PromiseBadge(R.drawable.ic_sym_wifi_off_filled, R.string.about_offline),
-        PromiseBadge(R.drawable.ic_sym_block_filled, R.string.about_no_ads),
-        PromiseBadge(R.drawable.ic_sym_shield_lock_filled, R.string.about_no_data),
-        PromiseBadge(R.drawable.ic_sym_code, R.string.about_open_source),
-        PromiseBadge(R.drawable.ic_sym_bolt_filled, R.string.about_fast),
-        PromiseBadge(R.drawable.ic_sym_translate, R.string.about_bilingual),
-    )
-
 private const val PROMISE_COLUMNS = 3
 
 /**
@@ -104,7 +88,7 @@ private fun Promises() {
             scheme.tertiaryContainer to scheme.onTertiaryContainer,
         )
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        PROMISES.chunked(PROMISE_COLUMNS).forEach { row ->
+        APP_PROMISES.chunked(PROMISE_COLUMNS).forEach { row ->
             Row(
                 modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Min),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),

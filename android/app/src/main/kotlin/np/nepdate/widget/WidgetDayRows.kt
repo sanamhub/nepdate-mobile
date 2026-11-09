@@ -20,6 +20,7 @@ internal data class WidgetDayRow(
     val names: String,
     val relative: String,
     val isHoliday: Boolean,
+    val isToday: Boolean = false,
 )
 
 /** The days a list widget shows, and the end of the calendar data when the list reaches it. */
@@ -57,6 +58,7 @@ internal fun upcomingDays(
                     names = entries.joinToString(", ") { it.name.name(lang) },
                     relative = copy.relative(entries.first().daysFromToday).inDigits(digits),
                     isHoliday = entries.any { it.isHoliday },
+                    isToday = entries.first().daysFromToday == 0,
                 )
             }
     return WidgetDayList(rows, scanned.dataEndsOn)
@@ -73,12 +75,20 @@ internal data class WeekDayCell(
     val hasEvents: Boolean,
 )
 
-/** The Week widget: the Sunday-to-Saturday week around today and the next day with an event. */
+/**
+ * The Week widget: the Sunday-to-Saturday week around today, the next day with an event, and the
+ * [agenda]: today and the rest of the week, each day with a holiday or event as one row.
+ */
 internal data class WeekWidgetModel(
     val title: String,
     val days: List<WeekDayCell>,
     val next: WidgetDayRow?,
-)
+    val agenda: List<WidgetDayRow> = emptyList(),
+    val digits: Digits = Digits.ENGLISH,
+) {
+    /** The "+N" label for [count] agenda days the widget leaves out. */
+    fun more(count: Int): String = "+$count".inDigits(digits)
+}
 
 /** Builds the Week widget for the week that contains [today]. */
 internal fun weekWidgetModel(
@@ -107,10 +117,23 @@ internal fun weekWidgetModel(
         upcomingDays(today, holidaysOnly = false, lang = lang, digits = digits, copy = copy, maxRows = 2)
             .rows
             .firstOrNull { it.date != today }
+    val daysLeft = DAYS_IN_WEEK - 1 - offset
+    val agenda =
+        upcomingDays(
+            today,
+            holidaysOnly = false,
+            lang = lang,
+            digits = digits,
+            copy = copy,
+            maxRows = DAYS_IN_WEEK,
+            maxDays = daysLeft,
+        ).rows
     return WeekWidgetModel(
         title = monthTitle(copy.bsMonthNames[today.monthValue - 1], today.year, digits),
         days = days,
         next = next,
+        agenda = agenda,
+        digits = digits,
     )
 }
 

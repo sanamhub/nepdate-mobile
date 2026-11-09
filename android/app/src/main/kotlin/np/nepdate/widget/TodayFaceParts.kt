@@ -1,7 +1,6 @@
 package np.nepdate.widget
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
@@ -9,39 +8,9 @@ import androidx.glance.LocalContext
 import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.layout.Box
 import androidx.glance.layout.padding
-import androidx.glance.text.FontWeight
-import androidx.glance.text.Text
-import androidx.glance.text.TextStyle
 import np.nepdate.R
 
 // The Today widget's controls and pill, kept apart from its layout.
-
-/** Today's holiday on the holiday container, or today's event on the surface, as a small pill. */
-@Composable
-internal fun FacePill(
-    text: String,
-    isHoliday: Boolean,
-    fontSize: TextUnit,
-) {
-    Box(modifier = GlanceModifier.padding(top = 4.dp)) {
-        Text(
-            text = text,
-            modifier =
-                GlanceModifier
-                    .shapeBackground(
-                        R.drawable.widget_shape_pill,
-                        if (isHoliday) holidayContainerProvider() else GlanceTheme.colors.surface,
-                    ).padding(horizontal = 10.dp, vertical = 3.dp),
-            style =
-                TextStyle(
-                    color = if (isHoliday) onHolidayContainerProvider() else GlanceTheme.colors.onSurface,
-                    fontSize = fontSize,
-                    fontWeight = FontWeight.Bold,
-                ),
-            maxLines = 1,
-        )
-    }
-}
 
 /**
  * The flip button: a filled primary circle with the on-primary icon. Primary on primary container
