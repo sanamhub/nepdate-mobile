@@ -10,6 +10,7 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.github.takahirom.roborazzi.RoborazziOptions
 import com.github.takahirom.roborazzi.captureRoboImage
 import np.nepdate.R
 import org.junit.Test
@@ -27,6 +28,13 @@ import org.robolectric.annotation.GraphicsMode
 @Config(sdk = [34], qualifiers = "w360dp-h800dp-xhdpi")
 class StaticWidgetPreviewTest {
     private val context: Context = ApplicationProvider.getApplicationContext()
+
+    /**
+     * Glyphs are rasterised by the host, so a text edge lands a pixel or two differently on CI than
+     * on the machine that recorded the references. One percent still fails on any layout change.
+     */
+    private val tolerance =
+        RoborazziOptions(compareOptions = RoborazziOptions.CompareOptions(changeThreshold = 0.01f))
 
     @Test
     fun previews() {
@@ -57,7 +65,7 @@ class StaticWidgetPreviewTest {
         view.layout(0, 0, width, height)
         val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
         view.draw(Canvas(bitmap))
-        bitmap.captureRoboImage("a5-static-${preview.name}.png")
+        bitmap.captureRoboImage("a5-static-${preview.name}.png", roborazziOptions = tolerance)
     }
 
     private data class Preview(
