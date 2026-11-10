@@ -32,7 +32,7 @@ import java.time.ZoneOffset
 
 /** Tests added by the A2 review. */
 @RunWith(AndroidJUnit4::class)
-@Config(sdk = [35], qualifiers = "en-rUS-w360dp-h800dp-xhdpi")
+@Config(qualifiers = "en-rUS-w360dp-h800dp-xhdpi")
 class WidgetReviewTest {
     private val context: Context = ApplicationProvider.getApplicationContext()
 

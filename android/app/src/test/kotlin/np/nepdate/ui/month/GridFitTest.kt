@@ -38,7 +38,7 @@ import org.robolectric.annotation.GraphicsMode
  */
 @RunWith(AndroidJUnit4::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
-@Config(sdk = [35], qualifiers = "w360dp-h640dp-xhdpi")
+@Config(qualifiers = "w360dp-h640dp-xhdpi")
 class GridFitTest {
     @get:Rule
     val composeRule = createComposeRule()

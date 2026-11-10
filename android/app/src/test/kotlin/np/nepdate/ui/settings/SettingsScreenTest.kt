@@ -25,7 +25,7 @@ import org.robolectric.annotation.Config
 
 /** A1-06 and MR-06, MR-07, MR-12 in the Settings screen. */
 @RunWith(AndroidJUnit4::class)
-@Config(sdk = [35], qualifiers = "w360dp-h800dp-xhdpi")
+@Config(qualifiers = "w360dp-h800dp-xhdpi")
 class SettingsScreenTest {
     @get:Rule
     val composeRule = createComposeRule()
