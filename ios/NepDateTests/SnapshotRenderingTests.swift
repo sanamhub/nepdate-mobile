@@ -152,7 +152,6 @@ struct SnapshotRenderingTests {
     }
   }
 
-<<<<<<< HEAD
   @Test("MR-15: first run renders in both schemes, Nepali and on an iPhone SE")
   func firstRun() throws {
     let today = MonthDate(year: 2083, month: 6, day: 25)
@@ -197,8 +196,6 @@ struct SnapshotRenderingTests {
     )
   }
 
-=======
->>>>>>> origin/docs/ios-parity-scope
   @Test("the four brand marks render in light and dark")
   func brandMarks() throws {
     for (scheme, suffix) in [(ColorScheme.light, "light"), (.dark, "dark")] {
