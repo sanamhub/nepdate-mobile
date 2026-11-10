@@ -418,7 +418,8 @@ private struct RootTabView: View {
       Tab("Converter", systemImage: "arrow.left.arrow.right", value: AppTab.converter) {
         NavigationStack {
           ConverterScreen(
-            model: ConverterViewModel(today: today, language: language, digits: digits)
+            model: ConverterViewModel(today: today, language: language, digits: digits),
+            onOpenDay: onOpenDay
           )
           .settingsToolbar(onSettings)
         }

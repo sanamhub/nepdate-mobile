@@ -103,6 +103,7 @@ struct ConverterViewModelTests {
     #expect(model.comparison?.years == 1)
     #expect(model.comparison?.months == 0)
     #expect(model.comparison?.days == 0)
+    #expect(model.comparison?.totalDays == 365)
     #expect(model.comparisonError == nil)
     #expect(model.comparisonRange == "Baisakh 1, 2081 to Baisakh 1, 2082")
     #expect(model.differenceText == "1 year, 0 months, 0 days")
@@ -157,5 +158,25 @@ struct ConverterViewModelTests {
     #expect(model.error == .unreadable)
     #expect(model.errorText == "Enter a BS date like 2083-06-20")
     #expect(model.result == nil)
+  }
+}
+
+
+  @Test("MR-21: two chosen dates compare, and Reset clears the converter")
+  func compareAndReset() throws {
+    var model = Self.model()
+    model.compare(
+      from: MonthDate(year: 2083, month: 6, day: 20),
+      to: MonthDate(year: 2083, month: 7, day: 19)
+    )
+    #expect(model.comparison?.days == 30)
+    #expect(model.comparison?.totalDays == 30)
+
+    model.fromBs("2083-06-20")
+    #expect(model.result != nil)
+    model.reset()
+    #expect(model.result == nil)
+    #expect(model.comparison == nil)
+    #expect(model.error == nil)
   }
 }

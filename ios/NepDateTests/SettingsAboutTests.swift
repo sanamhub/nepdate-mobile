@@ -100,7 +100,7 @@ struct SettingsAboutTests {
     #expect(!dismissed.shouldSuggestNepalTime(deviceZone: london))
   }
 
-  @Test("MR-07 AC2: AboutLinks has exactly the five allow-listed URLs")
+  @Test("MR-07 AC2: AboutLinks has exactly the six allow-listed URLs")
   func links() {
     let expected: Set<String> = [
       "https://github.com/sanamhub/nepdate-mobile/blob/main/docs/product/known-data-questions.md",
@@ -108,6 +108,7 @@ struct SettingsAboutTests {
       "https://github.com/sanamhub/nepdate-mobile/blob/main/docs/legal/README.md",
       "https://github.com/sanamhub/nepdate-mobile/blob/main/docs/product/privacy-policy.md",
       "https://github.com/sanamhub/nepdate-mobile",
+      "https://patro.nepdate.com",
     ]
     #expect(Set(AboutLinks.all) == expected)
     #expect(AboutLinks.all.allSatisfy { AboutLinks.problem(with: $0) == nil })

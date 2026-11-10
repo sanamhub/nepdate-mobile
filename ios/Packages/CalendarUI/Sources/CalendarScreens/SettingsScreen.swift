@@ -184,6 +184,10 @@ public struct SettingsContent: View {
       Section {
         Toggle("Show tithi in the month grid", isOn: showTithi)
           .frame(minHeight: 44)
+        Toggle("Show AD dates in the month grid", isOn: showsADDates)
+          .frame(minHeight: 44)
+        Toggle("Haptic feedback", isOn: hapticsEnabled)
+          .frame(minHeight: 44)
       }
 
       Section {
@@ -217,6 +221,26 @@ public struct SettingsContent: View {
     case .english: return "English"
     case .nepali: return "नेपाली"
     }
+  }
+
+  private var showsADDates: Binding<Bool> {
+    Binding(
+      get: { model.settings.showsADDates },
+      set: { value in
+        model.setShowsADDates(value)
+        onChanged(model.settings)
+      }
+    )
+  }
+
+  private var hapticsEnabled: Binding<Bool> {
+    Binding(
+      get: { model.settings.hapticsEnabled },
+      set: { value in
+        model.setHapticsEnabled(value)
+        onChanged(model.settings)
+      }
+    )
   }
 
   private var showTithi: Binding<Bool> {
@@ -323,6 +347,30 @@ public struct AboutContent: View {
   public var body: some View {
     List {
       Section {
+        sectionHeader("Promises")
+        LazyVGrid(
+          columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 3),
+          spacing: 12
+        ) {
+          ForEach(AppPromises.all.indices, id: \.self) { index in
+            VStack(spacing: 6) {
+              Image(systemName: AppPromises.all[index].symbol)
+                .font(.title3)
+                .foregroundStyle(BrandColor.accent)
+                .frame(height: 24)
+              Text(AppPromises.all[index].title)
+                .font(.caption)
+                .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
+            }
+            .frame(maxWidth: .infinity)
+          }
+        }
+        .padding(.vertical, 4)
+        .accessibilityElement(children: .combine)
+      }
+
+      Section {
         sectionHeader("About")
         infoRow("App version", info.appVersion)
         infoRow("Library version", info.libraryVersion)
@@ -335,6 +383,7 @@ public struct AboutContent: View {
       }
 
       Section {
+        link("Web patro", AboutLinks.webPatro)
         link("Known data questions", AboutLinks.knownData)
         link("Report a wrong date", AboutLinks.reportDate)
         link("Licences", AboutLinks.licences)

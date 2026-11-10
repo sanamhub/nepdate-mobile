@@ -79,7 +79,7 @@ public struct FirstRunScreen: View {
   }
 
   private var promises: some View {
-    let promises = Self.promiseList
+    let promises = AppPromises.all
     return LazyVGrid(columns: columns, alignment: .leading, spacing: 10) {
       ForEach(promises.indices, id: \.self) { index in
         HStack(alignment: .firstTextBaseline, spacing: 8) {
@@ -173,14 +173,4 @@ public struct FirstRunScreen: View {
     }
   }
 
-  private static var promiseList: [(symbol: String, title: LocalizedStringKey)] {
-    [
-      ("calendar", "Nepali dates at a glance"),
-      ("flag.fill", "Public holidays marked"),
-      ("sparkles", "Tithi and festivals"),
-      ("arrow.left.arrow.right", "BS and AD converter"),
-      ("wifi.slash", "Works without a network"),
-      ("square.grid.2x2.fill", "Home Screen widgets"),
-    ]
-  }
 }

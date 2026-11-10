@@ -72,6 +72,7 @@ final class ScreenUITests: XCTestCase {
     XCTAssertTrue(app.buttons["Report a wrong date"].exists)
     XCTAssertTrue(app.buttons["Licences"].exists)
     XCTAssertTrue(app.buttons["Privacy"].exists)
+    XCTAssertTrue(app.buttons["Web patro"].exists)
     app.swipeUp()
     XCTAssertTrue(app.buttons["Source code"].exists)
     app.swipeUp()
