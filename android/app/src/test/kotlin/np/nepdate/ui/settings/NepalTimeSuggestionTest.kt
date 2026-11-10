@@ -17,7 +17,7 @@ import java.time.ZoneId
 
 /** A1-06 and MR-06 AC1: the first-launch suggestion shows only when it should, once. */
 @RunWith(AndroidJUnit4::class)
-@Config(sdk = [35], qualifiers = "w360dp-h800dp-xhdpi")
+@Config(qualifiers = "w360dp-h800dp-xhdpi")
 class NepalTimeSuggestionTest {
     @get:Rule
     val composeRule = createComposeRule()

@@ -116,6 +116,12 @@ android {
                 it.systemProperty("releaseStatusFile", releaseStatusFile.get().asFile.absolutePath)
                 it.inputs.property("releaseDate", providers.environmentVariable("RELEASE_DATE").orElse(""))
                 it.maxHeapSize = "2g"
+                // Half the cores keeps memory bounded on a 2g heap per fork. Each fork gets its
+                // own Robolectric sandbox; the screenshot tests write one file per test into the
+                // shared output directory, and only DataFreshnessTest writes releaseStatusFile,
+                // so the forks share no writable state.
+                it.maxParallelForks =
+                    (Runtime.getRuntime().availableProcessors() / 2).coerceAtLeast(1)
             }
         }
     }
