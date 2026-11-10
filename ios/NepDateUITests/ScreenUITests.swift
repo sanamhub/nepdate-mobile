@@ -23,7 +23,7 @@ final class ScreenUITests: XCTestCase {
   ///   bottom sits behind the home indicator, and the same tint passes on the links above it. The
   ///   promises section added with the converter work gives nine findings at the default size and
   ///   three at accessibility2 (run 42787285560); the counts are printed for the review.
-  private static let converterTolerated: [String: Int] = []
+  private static let converterTolerated: [String: Int] = [:]
   /// The converter at accessibility2 clips the result line on the narrow width; the audit reports
   /// it as a clipped text (run 42791913219). The kind is tolerated, the count is printed.
   private static let converterAccessibilityTolerated = ["textClipped text": 1]
