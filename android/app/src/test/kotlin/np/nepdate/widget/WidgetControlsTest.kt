@@ -25,7 +25,7 @@ import org.robolectric.annotation.Config
 
 /** The interactive controls of the redesigned widgets and the two festival widgets. */
 @RunWith(AndroidJUnit4::class)
-@Config(sdk = [35], qualifiers = "en-rUS-w360dp-h800dp-xhdpi")
+@Config(qualifiers = "en-rUS-w360dp-h800dp-xhdpi")
 class WidgetControlsTest {
     private val context: Context = ApplicationProvider.getApplicationContext()
     private val today = NepaliDate.of(2083, 6, 20)

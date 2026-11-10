@@ -18,7 +18,7 @@ import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 
 @RunWith(AndroidJUnit4::class)
-@Config(sdk = [35], qualifiers = "en-rUS")
+@Config(qualifiers = "en-rUS")
 class DateNotificationTest {
     private val context: Application = ApplicationProvider.getApplicationContext()
     private val manager = context.getSystemService(NotificationManager::class.java)

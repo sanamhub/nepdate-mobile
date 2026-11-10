@@ -20,7 +20,7 @@ import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 
 @RunWith(AndroidJUnit4::class)
-@Config(sdk = [35], qualifiers = "en-rUS-w360dp-h800dp-xhdpi")
+@Config(qualifiers = "en-rUS-w360dp-h800dp-xhdpi")
 class WidgetContentTest {
     private val context: Context = ApplicationProvider.getApplicationContext()
 
