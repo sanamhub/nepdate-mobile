@@ -1,35 +1,108 @@
 import CalendarKit
 import CalendarScreens
+import CalendarUI
+import Observation
 import SwiftUI
 import UIKit
 import WidgetKit
 
 @main
 struct NepDateApp: App {
+  @State private var commands = AppCommands()
+
   var body: some Scene {
     WindowGroup {
-      RootView()
+      RootView(commands: commands)
     }
+    .commands {
+      CommandMenu("Go") {
+        Button("Go to Today") {
+          commands.goToToday()
+        }
+        .keyboardShortcut("t", modifiers: .command)
+
+        Button("Previous Month") {
+          commands.previousMonth()
+        }
+        .keyboardShortcut(.leftArrow, modifiers: .command)
+
+        Button("Next Month") {
+          commands.nextMonth()
+        }
+        .keyboardShortcut(.rightArrow, modifiers: .command)
+
+        Divider()
+
+        Button("Search") {
+          commands.search()
+        }
+        .keyboardShortcut("f", modifiers: .command)
+      }
+    }
+  }
+}
+
+/// A place the menu asks the shell to open.
+struct AppRequest: Sendable, Hashable {
+  /// The tab to select.
+  let tab: AppTab
+
+  /// The month change to apply, when the request came from a month command.
+  let month: MonthCommand?
+}
+
+/// The actions the iPad and hardware-keyboard menu sends to the shell (MR-01 AC5, MR-13).
+///
+/// The menu lives on the scene and the state it changes lives in the root view, so the menu records
+/// a request and the root applies it once, then clears it.
+@Observable
+final class AppCommands {
+  var request: AppRequest?
+
+  func goToToday() {
+    request = AppRequest(tab: .patro, month: .today)
+  }
+
+  func previousMonth() {
+    request = AppRequest(tab: .patro, month: .previous)
+  }
+
+  func nextMonth() {
+    request = AppRequest(tab: .patro, month: .next)
+  }
+
+  func search() {
+    request = AppRequest(tab: .search, month: nil)
   }
 }
 
 private struct RootView: View {
   @State private var settings: Settings
-  @State private var showsSettings = false
-  @State private var tab = AppTab.month
+  @State private var today: MonthDate
+  @State private var tab: AppTab
   @State private var route: AppRoute?
+  @State private var monthCommand: MonthCommand?
+  @State private var showsSettings = false
+  @State private var showsFirstRun: Bool
   @Environment(\.scenePhase) private var scenePhase
+
+  let commands: AppCommands
 
   /// Asks WidgetKit to reload when the settings, the day or the clock change (I2-05).
   private let refresher = WidgetRefresher { WidgetCenter.shared.reloadAllTimelines() }
 
-  init() {
-    _settings = State(initialValue: SettingsStore().load())
+  init(commands: AppCommands) {
+    let store = SettingsStore()
+    let settings = store.load()
+    self.commands = commands
+    _settings = State(initialValue: settings)
+    _today = State(initialValue: Self.day(settings: settings))
+    _tab = State(initialValue: settings.opensOn.tab)
+    _showsFirstRun = State(initialValue: Self.firstRunIsDue)
   }
 
   var body: some View {
     let store = SettingsStore()
-    let today = Self.testToday ?? TodayProvider().today(dateFollows: settings.dateFollows)
     let language = settings.language.resolved
     let digits = settings.digits.resolved(for: language)
     let suggestion = SettingsViewModel(settings: settings, store: store)
@@ -56,46 +129,71 @@ private struct RootView: View {
       #endif
     }
     .background(Color(uiColor: .systemBackground))
+    .preferredColorScheme(settings.appearance.colorScheme)
+    .environment(\.hapticsEnabled, settings.hapticsEnabled)
     // Widget taps. An unknown or malformed URL just opens the app where it was.
     .onOpenURL { url in
       guard let opened = AppRoute(url: url) else { return }
       open(opened)
     }
-    .onAppear { activate() }
+    .onAppear {
+      activate()
+    }
+    .onChange(of: commands.request) { _, request in
+      apply(request)
+    }
     .onChange(of: scenePhase) { _, phase in
       if phase == .active { activate() }
     }
+    .onChange(of: settings.dateFollows) { _, _ in
+      refreshToday()
+    }
     .onReceive(NotificationCenter.default.publisher(for: .NSSystemTimeZoneDidChange)) { _ in
+      refreshToday()
       refresher.timeChanged()
     }
     .onReceive(
       NotificationCenter.default.publisher(for: UIApplication.significantTimeChangeNotification)
     ) { _ in
+      refreshToday()
       refresher.timeChanged()
     }
-    .sheet(isPresented: $showsSettings) {
+    .task(id: settings.dateFollows) {
+      await refreshAtMidnight()
+    }.sheet(isPresented: $showsSettings) {
       SettingsScreen(
         model: SettingsViewModel(settings: settings, store: store),
         info: info,
-        onChanged: {
-          settings = $0
+        onChanged: { changed in
+          settings = changed
           refresher.settingsChanged()
         }
       )
     }
+    .fullScreenCover(isPresented: $showsFirstRun) {
+      FirstRunScreen(settings: settings, today: today) { updated in
+        var model = SettingsViewModel(settings: settings, store: store)
+        model.setAppearance(updated.appearance)
+        settings = model.settings
+        FirstRunStore().markShown()
+        showsFirstRun = false
+        refresher.settingsChanged()
+      }
+      .interactiveDismissDisabled()
+    }
   }
 
-  /// Opens a route: its tab, and for the month tab the day or today.
+  /// Opens a route: its tab, and for the Patro tab the day or today.
   private func open(_ opened: AppRoute) {
     showsSettings = false
     tab = opened.tab
-    route = opened.tab == .month ? opened : nil
+    route = opened.tab == .patro ? opened : nil
   }
 
   /// Runs when the app becomes active: reloads the widgets on a new day, then opens the route a
   /// control left in the App Group, or the one a UI test passes.
   private func activate() {
-    let today = Self.testToday ?? TodayProvider().today(dateFollows: settings.dateFollows)
+    refreshToday()
     refresher.becameActive(on: today)
     if let pending = PendingRouteStore().consume() {
       open(pending)
@@ -108,6 +206,39 @@ private struct RootView: View {
         open(opened)
       }
     #endif
+  }
+
+  /// Points the menu commands at the shell's state.
+  private func apply(_ request: AppRequest?) {
+    guard let request else { return }
+    tab = request.tab
+    if let month = request.month {
+      monthCommand = month
+    }
+    commands.request = nil
+  }
+
+  /// Reads the clock again; a new day reloads the widgets.
+  private func refreshToday() {
+    let value = Self.day(settings: settings)
+    guard value != today else { return }
+    today = value
+    refresher.timeChanged()
+  }
+
+  /// Waits for the next local midnight and reads the clock again, for as long as the app is open.
+  @MainActor
+  private func refreshAtMidnight() async {
+    let zone = MidnightRefresh.zone(for: settings.dateFollows)
+    while !Task.isCancelled {
+      let wait = MidnightRefresh.secondsUntilNextMidnight(now: Date(), zone: zone)
+      do {
+        try await Task.sleep(for: .seconds(wait))
+      } catch {
+        return
+      }
+      refreshToday()
+    }
   }
 
   private func tabs(
@@ -138,10 +269,17 @@ private struct RootView: View {
         today: today,
         tab: $tab,
         route: route,
+        monthCommand: monthCommand,
         onRouteHandled: { route = nil },
+        onMonthCommandHandled: { monthCommand = nil },
         onSettings: { showsSettings = true }
       )
     }
+  }
+
+  /// Today in the zone the settings choose, or the day a UI test pins.
+  private static func day(settings: Settings) -> MonthDate {
+    testToday ?? TodayProvider().today(dateFollows: settings.dateFollows)
   }
 
   private static var appVersion: String {
@@ -152,6 +290,20 @@ private struct RootView: View {
 
   private static var libraryVersion: String {
     Bundle.main.object(forInfoDictionaryKey: "NepDateLibraryVersion") as? String ?? "unknown"
+  }
+
+  /// Whether the first-run screen is due: the App Group flag, unless a UI test overrides it. The
+  /// other UI tests would otherwise start behind the cover, so a pinned day hides it by default.
+  private static var firstRunIsDue: Bool {
+    #if DEBUG
+      switch ProcessInfo.processInfo.environment["NEPDATE_UI_TEST_FIRST_RUN"] {
+      case "show": return true
+      case "hide": return false
+      default: break
+      }
+      if testToday != nil { return false }
+    #endif
+    return !FirstRunStore().hasShown
   }
 
   #if DEBUG
@@ -182,7 +334,9 @@ private struct RootTabView: View {
   let today: MonthDate
   @Binding var tab: AppTab
   let route: AppRoute?
+  let monthCommand: MonthCommand?
   let onRouteHandled: () -> Void
+  let onMonthCommandHandled: () -> Void
   let onSettings: () -> Void
 
   var body: some View {
@@ -190,53 +344,96 @@ private struct RootTabView: View {
     let digits = settings.digits.resolved(for: language)
 
     TabView(selection: $tab) {
-      if let model = MonthViewModel(
-        today: today,
-        language: language,
-        digits: digits,
-        showTithi: settings.showTithi
-      ) {
-        MonthScreen(
-          model: model,
-          onSettings: onSettings,
-          route: route,
-          onRouteHandled: onRouteHandled
-        )
-        .id(settings)
-        .tabItem {
-          Label("Month", systemImage: "calendar")
+      Tab("Patro", systemImage: "calendar", value: AppTab.patro) {
+        NavigationStack {
+          if let model = MonthViewModel(
+            today: today,
+            language: language,
+            digits: digits,
+            showTithi: settings.showTithi
+          ) {
+            MonthScreen(
+              model: model,
+              settings: settings,
+              today: today,
+              route: route,
+              monthCommand: monthCommand,
+              onRouteHandled: onRouteHandled,
+              onMonthCommandHandled: onMonthCommandHandled
+            )
+            .settingsToolbar(onSettings)
+          }
         }
-        .tag(AppTab.month)
       }
 
-      if let upcoming = UpcomingViewModel(
-        today: today,
-        language: language,
-        digits: digits
-      ) {
-        UpcomingScreen(
-          model: upcoming,
-          language: language,
-          digits: digits,
-          onSettings: onSettings
-        )
-        .id(settings)
-        .tabItem {
-          Label("Upcoming", systemImage: "bell")
+      Tab("Festivals", systemImage: "sparkles", value: AppTab.festivals) {
+        NavigationStack {
+          if let upcoming = UpcomingViewModel(
+            today: today,
+            language: language,
+            digits: digits
+          ) {
+            UpcomingScreen(
+              model: upcoming,
+              language: language,
+              digits: digits
+            )
+            .settingsToolbar(onSettings)
+          }
         }
-        .tag(AppTab.upcoming)
       }
 
-      ConverterScreen(
-        model: ConverterViewModel(today: today, language: language, digits: digits),
-        onSettings: onSettings
-      )
-      .id(settings)
-      .tabItem {
-        Label("Converter", systemImage: "arrow.left.arrow.right")
+      Tab("Converter", systemImage: "arrow.left.arrow.right", value: AppTab.converter) {
+        NavigationStack {
+          ConverterScreen(
+            model: ConverterViewModel(today: today, language: language, digits: digits)
+          )
+          .settingsToolbar(onSettings)
+        }
       }
-      .tag(AppTab.converter)
+
+      Tab(
+        "Search",
+        systemImage: "magnifyingglass",
+        value: AppTab.search,
+        role: .search
+      ) {
+        NavigationStack {
+          SearchPlaceholder()
+            .settingsToolbar(onSettings)
+        }
+      }
     }
+    .tabViewStyle(.sidebarAdaptable)
+  }
+}
+
+/// The search tab until its screen lands.
+private struct SearchPlaceholder: View {
+  var body: some View {
+    ContentUnavailableView("Search", systemImage: "magnifyingglass")
+      .navigationTitle("Search")
+  }
+}
+
+private struct SettingsToolbar: ViewModifier {
+  let action: () -> Void
+
+  func body(content: Content) -> some View {
+    content.toolbar {
+      ToolbarItem(placement: .topBarTrailing) {
+        Button(action: action) {
+          Image(systemName: "gearshape")
+        }
+        .accessibilityLabel(Text("Settings"))
+      }
+    }
+  }
+}
+
+extension View {
+  fileprivate func settingsToolbar(_ action: @escaping () -> Void) -> some View {
+    modifier(SettingsToolbar(action: action))
   }
 }
 
@@ -294,6 +491,8 @@ private struct RootTabView: View {
               )
             )
           }
+        case "firstRun":
+          FirstRunScreen(settings: settings, today: today) { _ in }
         default:
           Text("Unknown test screen")
         }

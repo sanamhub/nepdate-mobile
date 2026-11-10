@@ -23,6 +23,10 @@ struct SettingsStoreTests {
     #expect(settings.dateFollows == .device)
     #expect(settings.showTithi == false)
     #expect(settings.dateFollowsSuggestionHandled == false)
+    #expect(settings.appearance == .system)
+    #expect(settings.showsADDates)
+    #expect(settings.opensOn == .patro)
+    #expect(settings.hapticsEnabled)
   }
 
   @Test("I1-01: every setting round-trips")
@@ -35,6 +39,10 @@ struct SettingsStoreTests {
     store.setDateFollows(.nepal)
     store.setShowTithi(true)
     store.setDateFollowsSuggestionHandled(true)
+    store.setAppearance(.dark)
+    store.setShowsADDates(false)
+    store.setOpensOn(.festivals)
+    store.setHapticsEnabled(false)
 
     let settings = store.load()
     #expect(settings.language == .nepali)
@@ -42,6 +50,17 @@ struct SettingsStoreTests {
     #expect(settings.dateFollows == .nepal)
     #expect(settings.showTithi)
     #expect(settings.dateFollowsSuggestionHandled)
+    #expect(settings.appearance == .dark)
+    #expect(settings.showsADDates == false)
+    #expect(settings.opensOn == .festivals)
+    #expect(settings.hapticsEnabled == false)
+  }
+
+  @Test("MR-18: Opens on maps to its tab")
+  func opensOnTabs() {
+    #expect(OpensOn.patro.tab == .patro)
+    #expect(OpensOn.festivals.tab == .festivals)
+    #expect(OpensOn.converter.tab == .converter)
   }
 
   @Test("I1-01: unknown stored values fall back to the defaults")

@@ -64,13 +64,15 @@ targets:
     sources:
       - path: NepDateWidgets
       - path: Shared
-      - path: Resources
+      - path: Resources/Localizable.xcstrings
+      - path: NepDateWidgets/Resources
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: np.nepdate.widgets
         PRODUCT_NAME: NepDateWidgets
         INFOPLIST_FILE: Config/NepDateWidgets-Info.plist
         CODE_SIGN_ENTITLEMENTS: Config/NepDateWidgets.entitlements
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
         SKIP_INSTALL: YES
     dependencies:
       - package: CalendarKit

@@ -4,13 +4,16 @@ import NepDate
 /// The app's tabs.
 public enum AppTab: Sendable, Hashable {
   /// The month grid.
-  case month
+  case patro
 
-  /// The upcoming holidays and events.
-  case upcoming
+  /// The festivals and public holidays.
+  case festivals
 
   /// The date converter.
   case converter
+
+  /// The search tab.
+  case search
 }
 
 /// A place in the app that a URL opens: the widgets' taps and the controls. It owns the
@@ -25,13 +28,13 @@ public enum AppRoute: Sendable, Hashable {
   /// The Converter tab.
   case converter
 
-  /// The tab that shows this route: the Converter for `converter`, the Month for the others.
+  /// The tab that shows this route: the Converter for `converter`, the Patro for the others.
   public var tab: AppTab {
     switch self {
     case .converter:
       return .converter
     case .today, .day:
-      return .month
+      return .patro
     }
   }
 

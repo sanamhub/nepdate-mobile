@@ -71,7 +71,40 @@ public enum DigitsSetting: String, Sendable, Hashable, CaseIterable {
   }
 }
 
-/// The persisted preferences from MR-06 and MR-07.
+/// The Appearance setting (MR-16). System follows the device; the other two fix the scheme.
+public enum Appearance: String, Sendable, Hashable, CaseIterable {
+  /// Follow the device's light or dark appearance.
+  case system
+
+  /// Always draw light.
+  case light
+
+  /// Always draw dark.
+  case dark
+}
+
+/// The tab the app opens on (MR-18 AC1).
+public enum OpensOn: String, Sendable, Hashable, CaseIterable {
+  /// The month screen.
+  case patro
+
+  /// The festivals screen.
+  case festivals
+
+  /// The converter.
+  case converter
+
+  /// The tab this choice opens.
+  public var tab: AppTab {
+    switch self {
+    case .patro: return .patro
+    case .festivals: return .festivals
+    case .converter: return .converter
+    }
+  }
+}
+
+/// The persisted preferences from MR-06, MR-07, MR-16, MR-17, MR-18 and MR-19.
 public struct Settings: Sendable, Hashable {
   /// The Language setting. The month's BS and AD digits follow it.
   public var language: LanguageSetting
@@ -88,8 +121,20 @@ public struct Settings: Sendable, Hashable {
   /// Whether the first-launch "Nepal time" suggestion was shown (MR-06 AC1).
   public var dateFollowsSuggestionHandled: Bool
 
+  /// The Appearance setting (MR-16).
+  public var appearance: Appearance
+
+  /// Whether a month cell draws its small AD day (MR-17).
+  public var showsADDates: Bool
+
+  /// The tab a cold launch opens (MR-18).
+  public var opensOn: OpensOn
+
+  /// Whether the app plays haptics (MR-19).
+  public var hapticsEnabled: Bool
+
   /// The fresh-install values: System, follow language, This device, no tithi, suggestion not
-  /// shown.
+  /// shown, follow the system appearance, AD dates on, Patro, haptics on.
   public static let defaults = Settings()
 
   /// Creates settings.
@@ -100,17 +145,29 @@ public struct Settings: Sendable, Hashable {
   ///   - showTithi: Whether the month grid shows tithi; defaults to false.
   ///   - dateFollowsSuggestionHandled: Whether the first-launch suggestion was shown; defaults
   ///     to false.
+  ///   - appearance: The Appearance setting; defaults to System.
+  ///   - showsADDates: Whether month cells draw the AD day; defaults to true.
+  ///   - opensOn: The tab a cold launch opens; defaults to Patro.
+  ///   - hapticsEnabled: Whether the app plays haptics; defaults to true.
   public init(
     language: LanguageSetting = .system,
     digits: DigitsSetting = .followLanguage,
     dateFollows: DateFollows = .device,
     showTithi: Bool = false,
-    dateFollowsSuggestionHandled: Bool = false
+    dateFollowsSuggestionHandled: Bool = false,
+    appearance: Appearance = .system,
+    showsADDates: Bool = true,
+    opensOn: OpensOn = .patro,
+    hapticsEnabled: Bool = true
   ) {
     self.language = language
     self.digits = digits
     self.dateFollows = dateFollows
     self.showTithi = showTithi
     self.dateFollowsSuggestionHandled = dateFollowsSuggestionHandled
+    self.appearance = appearance
+    self.showsADDates = showsADDates
+    self.opensOn = opensOn
+    self.hapticsEnabled = hapticsEnabled
   }
 }

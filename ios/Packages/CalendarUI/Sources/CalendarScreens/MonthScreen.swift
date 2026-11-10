@@ -13,28 +13,41 @@ public struct MonthScreen: View {
   @State private var showsPicker = false
   @State private var detail: MonthDate?
   @State private var isRecentring = false
-  private let onSettings: (() -> Void)?
+  @Environment(\.accessibilityReduceMotion) private var reduceMotion
+  private let settings: Settings
+  private let today: MonthDate
   private let route: AppRoute?
+  private let monthCommand: MonthCommand?
   private let onRouteHandled: () -> Void
+  private let onMonthCommandHandled: () -> Void
 
   /// Creates the screen.
   /// - Parameters:
   ///   - model: The month to open on and the settings to draw it with.
-  ///   - onSettings: Opens Settings.
+  ///   - settings: The settings the screen follows while it is open.
+  ///   - today: Today in the zone the settings choose.
   ///   - route: A place to open, from a widget tap; `nil` when there is none.
+  ///   - monthCommand: A month change asked for by a keyboard command; `nil` when there is none.
   ///   - onRouteHandled: Called once the screen has opened `route`, so the caller can clear it.
+  ///   - onMonthCommandHandled: Called once the screen has applied `monthCommand`.
   public init(
     model: MonthViewModel,
-    onSettings: (() -> Void)? = nil,
+    settings: Settings,
+    today: MonthDate,
     route: AppRoute? = nil,
-    onRouteHandled: @escaping () -> Void = {}
+    monthCommand: MonthCommand? = nil,
+    onRouteHandled: @escaping () -> Void = {},
+    onMonthCommandHandled: @escaping () -> Void = {}
   ) {
     _model = State(initialValue: model)
     _scrolledMonth = State(initialValue: model.month)
     _window = State(initialValue: Self.window(around: model.month))
-    self.onSettings = onSettings
+    self.settings = settings
+    self.today = today
     self.route = route
+    self.monthCommand = monthCommand
     self.onRouteHandled = onRouteHandled
+    self.onMonthCommandHandled = onMonthCommandHandled
   }
 
   /// The screen's content.
@@ -45,8 +58,7 @@ public struct MonthScreen: View {
         onPrevious: { go(to: previousMonth) },
         onNext: { go(to: nextMonth) },
         onToday: { go(to: todayMonth) },
-        onChoose: { showsPicker = true },
-        onSettings: onSettings
+        onChoose: { showsPicker = true }
       )
       ScrollViewReader { proxy in
         ScrollView(.horizontal) {
@@ -92,6 +104,9 @@ public struct MonthScreen: View {
     .background(Color(uiColor: .systemBackground))
     .onAppear { open(route) }
     .onChange(of: route) { _, newValue in open(newValue) }
+    .onChange(of: monthCommand) { _, command in apply(command) }
+    .onChange(of: settings) { _, newValue in apply(newValue, today: today) }
+    .onChange(of: today) { _, newValue in apply(settings, today: newValue) }
     .sheet(isPresented: presentsSheet) {
       if showsPicker {
         MonthPickerSheet(
@@ -130,6 +145,36 @@ public struct MonthScreen: View {
     detail = date
   }
 
+  /// Applies a keyboard command, then clears it.
+  private func apply(_ command: MonthCommand?) {
+    guard let command else { return }
+    switch command {
+    case .today: go(to: todayMonth)
+    case .previous: go(to: previousMonth)
+    case .next: go(to: nextMonth)
+    }
+    onMonthCommandHandled()
+  }
+
+  /// Rebuilds the shown month for new settings or a new today, keeping the shown month and the
+  /// selected day. The pager is not rebuilt, so a settings change never loses the screen's state.
+  private func apply(_ settings: Settings, today: MonthDate) {
+    let language = settings.language.resolved
+    let digits = settings.digits.resolved(for: language)
+    guard
+      let updated = MonthViewModel(
+        today: today,
+        language: language,
+        digits: digits,
+        showTithi: settings.showTithi,
+        month: model.month
+      )
+    else { return }
+    let selection = model.selected
+    model = updated
+    if let selection { model.select(selection) }
+  }
+
   /// Opens a widget's route: today's month, or a day's month with its detail sheet.
   private func open(_ route: AppRoute?) {
     guard let route else { return }
@@ -166,7 +211,7 @@ public struct MonthScreen: View {
     if !window.contains(key) {
       window = Self.window(around: key)
     }
-    withAnimation(.snappy) {
+    withAnimation(Motion.animation(.snappy, reduceMotion: reduceMotion)) {
       scrolledMonth = key
     }
   }
@@ -223,8 +268,7 @@ public struct MonthScreenContent: View {
         onPrevious: {},
         onNext: {},
         onToday: {},
-        onChoose: {},
-        onSettings: nil
+        onChoose: {}
       )
       MonthPageView(
         key: model.month,
@@ -247,7 +291,6 @@ private struct MonthHeader: View {
   let onNext: () -> Void
   let onToday: () -> Void
   let onChoose: () -> Void
-  let onSettings: (() -> Void)?
 
   @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
@@ -324,17 +367,6 @@ private struct MonthHeader: View {
       }
       .disabled(!model.canGoNext)
       .accessibilityLabel(Text("Next month"))
-
-      if let onSettings {
-        Button(action: onSettings) {
-          Image(systemName: "gearshape")
-            .font(.body.weight(.semibold))
-            .frame(minWidth: 44, minHeight: 44)
-            .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
-        .accessibilityLabel(Text("Settings"))
-      }
     }
     .buttonStyle(.plain)
   }

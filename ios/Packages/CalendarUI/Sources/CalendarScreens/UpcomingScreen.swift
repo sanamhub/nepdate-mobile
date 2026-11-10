@@ -7,7 +7,6 @@ public struct UpcomingScreen: View {
   private let model: UpcomingViewModel
   private let language: AppLanguage
   private let digits: Digits
-  private let onSettings: (() -> Void)?
   @State private var selected: MonthDate?
 
   /// Creates the screen.
@@ -15,24 +14,19 @@ public struct UpcomingScreen: View {
   ///   - model: The entries to show.
   ///   - language: The language of the names.
   ///   - digits: The resolved Digits setting.
-  ///   - onSettings: Opens Settings.
   public init(
     model: UpcomingViewModel,
     language: AppLanguage,
-    digits: Digits,
-    onSettings: (() -> Void)? = nil
+    digits: Digits
   ) {
     self.model = model
     self.language = language
     self.digits = digits
-    self.onSettings = onSettings
   }
 
   /// The screen's content.
   public var body: some View {
-    VStack(spacing: 0) {
-      ScreenHeader(title: "Upcoming", onSettings: onSettings)
-
+    Group {
       if model.entries.isEmpty {
         Text("No upcoming holidays or events yet")
           .font(.body)
@@ -76,6 +70,7 @@ public struct UpcomingScreen: View {
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
     .background(Color(uiColor: .systemBackground))
+    .navigationTitle("Upcoming")
     .sheet(isPresented: showsDetail) {
       if let selected,
         let detail = DayDetailViewModel(

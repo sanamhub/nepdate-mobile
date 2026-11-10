@@ -152,6 +152,50 @@ struct SnapshotRenderingTests {
     }
   }
 
+  @Test("MR-15: first run renders in both schemes, Nepali and on an iPhone SE")
+  func firstRun() throws {
+    let today = MonthDate(year: 2083, month: 6, day: 25)
+    let phone = CGSize(width: 390, height: 844)
+    let se = CGSize(width: 375, height: 667)
+
+    try render(
+      FirstRunScreen(settings: Settings(), today: today) { _ in },
+      name: "first-run-en-light",
+      size: phone,
+      scheme: .light,
+      locale: Locale(identifier: "en")
+    )
+    try render(
+      FirstRunScreen(settings: Settings(appearance: .dark), today: today) { _ in },
+      name: "first-run-en-dark",
+      size: phone,
+      scheme: .dark,
+      locale: Locale(identifier: "en")
+    )
+    try render(
+      FirstRunScreen(settings: Settings(language: .nepali), today: today) { _ in },
+      name: "first-run-ne-light",
+      size: phone,
+      scheme: .light,
+      locale: Locale(identifier: "ne")
+    )
+    try render(
+      FirstRunScreen(settings: Settings(), today: today) { _ in },
+      name: "first-run-accessibility2",
+      size: phone,
+      scheme: .light,
+      locale: Locale(identifier: "en"),
+      type: .accessibility2
+    )
+    try render(
+      FirstRunScreen(settings: Settings(), today: today) { _ in },
+      name: "first-run-se-light",
+      size: se,
+      scheme: .light,
+      locale: Locale(identifier: "en")
+    )
+  }
+
   @Test("the four brand marks render in light and dark")
   func brandMarks() throws {
     for (scheme, suffix) in [(ColorScheme.light, "light"), (.dark, "dark")] {
@@ -170,11 +214,13 @@ struct SnapshotRenderingTests {
     name: String,
     size: CGSize,
     scheme: ColorScheme,
-    locale: Locale
+    locale: Locale,
+    type: DynamicTypeSize = .large
   ) throws {
     let content = AnyView(
       view
         .environment(\.colorScheme, scheme)
+        .environment(\.dynamicTypeSize, type)
         .environment(\.locale, locale)
         .frame(width: size.width, height: size.height)
         .background(Color(uiColor: .systemBackground))

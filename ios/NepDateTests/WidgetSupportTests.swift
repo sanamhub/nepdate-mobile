@@ -61,8 +61,8 @@ struct WidgetControlTests {
   @Test("the router selects the Converter and the Month")
   func tabs() {
     #expect(AppRoute.converter.tab == .converter)
-    #expect(AppRoute.today.tab == .month)
-    #expect(AppRoute.day(MonthDate(year: 2083, month: 6, day: 25)).tab == .month)
+    #expect(AppRoute.today.tab == .patro)
+    #expect(AppRoute.day(MonthDate(year: 2083, month: 6, day: 25)).tab == .patro)
   }
 
   @Test("a stored value that is not a route is dropped")

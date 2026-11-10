@@ -56,8 +56,10 @@ System (MR-16); `holiday` and `today` stay fixed, because their meaning is cultu
 
 The SwiftUI side of the same system, recorded in ADR-0015:
 
-- The brand roles are colour sets in `ios/Resources/Assets.xcassets` with Any, Dark and **High
-  Contrast** appearances, and `AccentColor` is the marigold primary. Surfaces stay system semantic
+- The brand roles are colour sets in the CalendarUI package's asset catalogue with Any, Dark and
+  **High Contrast** appearances, so the package previews and tests resolve them; the app's own
+  catalogue keeps `AppIcon` and `AccentColor` and the widget's keeps its `AccentColor`. `AccentColor`
+  is the marigold primary. Surfaces stay system semantic
   colours; the Android cream surfaces are not ported.
 - The four brand marks are SwiftUI `Shape`s in `CalendarUI`, so the app and the widget extension share
   them: `SunnyShape` (today), `SoftBurstShape` (holiday), `DiamondShape` (event) and `CookieShape`

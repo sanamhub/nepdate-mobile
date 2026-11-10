@@ -11,7 +11,6 @@ public struct SettingsScreen: View {
   private let onChanged: (Settings) -> Void
   private let opener: SettingsURLOpener
   @Environment(\.dismiss) private var dismiss
-  @Environment(\.colorScheme) private var colorScheme
 
   /// Creates the screen.
   /// - Parameters:
@@ -63,9 +62,6 @@ public struct SettingsScreen: View {
         }
       }
       .tint(BrandColor.accent)
-      .toolbarBackground(Color(uiColor: .systemBackground), for: .navigationBar)
-      .toolbarBackground(.visible, for: .navigationBar)
-      .toolbarColorScheme(colorScheme == .dark ? .dark : .light, for: .navigationBar)
     }
   }
 }
@@ -126,6 +122,22 @@ public struct SettingsContent: View {
       }
 
       Section {
+        sectionHeader("Appearance")
+        choice("System", selected: model.settings.appearance == .system) {
+          model.setAppearance(.system)
+          onChanged(model.settings)
+        }
+        choice("Light", selected: model.settings.appearance == .light) {
+          model.setAppearance(.light)
+          onChanged(model.settings)
+        }
+        choice("Dark", selected: model.settings.appearance == .dark) {
+          model.setAppearance(.dark)
+          onChanged(model.settings)
+        }
+      }
+
+      Section {
         sectionHeader("Digits")
         choice("Follow language", selected: model.settings.digits == .followLanguage) {
           model.setDigits(.followLanguage)
@@ -149,6 +161,22 @@ public struct SettingsContent: View {
         }
         choice("Nepal time", selected: model.settings.dateFollows == .nepal) {
           model.setDateFollows(.nepal)
+          onChanged(model.settings)
+        }
+      }
+
+      Section {
+        sectionHeader("Opens on")
+        choice("Patro", selected: model.settings.opensOn == .patro) {
+          model.setOpensOn(.patro)
+          onChanged(model.settings)
+        }
+        choice("Festivals", selected: model.settings.opensOn == .festivals) {
+          model.setOpensOn(.festivals)
+          onChanged(model.settings)
+        }
+        choice("Converter", selected: model.settings.opensOn == .converter) {
+          model.setOpensOn(.converter)
           onChanged(model.settings)
         }
       }
@@ -236,7 +264,6 @@ public struct SettingsContent: View {
 /// The About screen with its navigation title.
 public struct AboutScreen: View {
   private let content: AboutContent
-  @Environment(\.colorScheme) private var colorScheme
 
   /// Creates the screen.
   /// - Parameter content: The About values and links.
@@ -256,9 +283,6 @@ public struct AboutScreen: View {
             .foregroundStyle(.primary)
         }
       }
-      .toolbarBackground(Color(uiColor: .systemBackground), for: .navigationBar)
-      .toolbarBackground(.visible, for: .navigationBar)
-      .toolbarColorScheme(colorScheme == .dark ? .dark : .light, for: .navigationBar)
   }
 }
 
