@@ -153,7 +153,6 @@ struct SnapshotRenderingTests {
     }
   }
 
-<<<<<<< HEAD
   @Test("MR-15: first run renders in both schemes, Nepali and on an iPhone SE")
   func firstRun() throws {
     let today = MonthDate(year: 2083, month: 6, day: 25)
