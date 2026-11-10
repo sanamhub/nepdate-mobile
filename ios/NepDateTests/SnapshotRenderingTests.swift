@@ -425,12 +425,10 @@ struct SnapshotRenderingTests {
   }
 
   private func modeName(_ mode: WidgetRenderingMode) -> String {
-    switch mode {
-    case .fullColor: return "full"
-    case .accented: return "accented"
-    case .vibrant: return "vibrant"
-    @unknown default: return "other"
-    }
+    if mode == .fullColor { return "full" }
+    if mode == .accented { return "accented" }
+    if mode == .vibrant { return "vibrant" }
+    return "other"
   }
 
   private static var outputDirectory: URL {
