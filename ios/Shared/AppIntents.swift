@@ -1,5 +1,6 @@
 import AppIntents
 import CalendarKit
+import NepDate
 import Foundation
 import SwiftUI
 
@@ -82,7 +83,7 @@ struct NepDateShortcuts: AppShortcutsProvider {
         "Show today in \(.applicationName)",
       ],
       shortTitle: "Open today",
-      systemImage: "calendar"
+      systemImageName: "calendar"
     )
     AppShortcut(
       intent: GoToDateIntent(),
@@ -91,7 +92,7 @@ struct NepDateShortcuts: AppShortcutsProvider {
         "Open \(\.$date) in \(.applicationName)",
       ],
       shortTitle: "Go to date",
-      systemImage: "calendar.badge.clock"
+      systemImageName: "calendar.badge.clock"
     )
     AppShortcut(
       intent: NextHolidayIntent(),
@@ -100,7 +101,7 @@ struct NepDateShortcuts: AppShortcutsProvider {
         "When is the next holiday in \(.applicationName)",
       ],
       shortTitle: "Next holiday",
-      systemImage: "sparkles"
+      systemImageName: "sparkles"
     )
   }
 }
