@@ -244,6 +244,10 @@ final class MonthAccessibilityTests: XCTestCase {
     if titleButton.waitForExistence(timeout: 3) {
       titleButton.tap()
     }
+    let navTitleButton = app.navigationBars.buttons[label]
+    if navTitleButton.waitForExistence(timeout: 2) {
+      navTitleButton.tap()
+    }
     let taps: [() -> Void] = [
       { title(label, in: app).tap() },
       {
