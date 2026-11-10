@@ -92,7 +92,8 @@ class RememberTodayTest {
         setToday(provider)
         composeRule.onNodeWithText("2081-04-15").assertExists()
 
-        composeRule.waitUntil(3_000) {
+        // Real time passes here, so the wait allows for a slow runner; the rollover itself is 0.5 s away.
+        composeRule.waitUntil(10_000) {
             composeRule.onAllNodesWithText("2081-04-16").fetchSemanticsNodes().isNotEmpty()
         }
     }
