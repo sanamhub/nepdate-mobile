@@ -20,7 +20,7 @@ import org.robolectric.annotation.Config
 
 /** A1-05 and MR-03 AC1 to AC3 in the Upcoming screen. */
 @RunWith(AndroidJUnit4::class)
-@Config(sdk = [35], qualifiers = "w360dp-h800dp-xhdpi")
+@Config(qualifiers = "w360dp-h800dp-xhdpi")
 class UpcomingScreenTest {
     @get:Rule
     val composeRule = createComposeRule()

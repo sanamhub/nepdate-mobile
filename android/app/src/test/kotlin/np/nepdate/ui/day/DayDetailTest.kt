@@ -21,7 +21,7 @@ import org.robolectric.annotation.Config
 
 /** A1-04 and MR-02 AC1, AC3, AC4, AC5 and AC6. */
 @RunWith(AndroidJUnit4::class)
-@Config(sdk = [35], qualifiers = "w360dp-h800dp-xhdpi")
+@Config(qualifiers = "w360dp-h800dp-xhdpi")
 class DayDetailTest {
     @get:Rule
     val composeRule = createComposeRule()

@@ -26,7 +26,7 @@ import org.robolectric.annotation.Config
  * not the digits the platform formatter picks for the locale.
  */
 @RunWith(AndroidJUnit4::class)
-@Config(sdk = [35], qualifiers = "ne-w360dp-h800dp-xhdpi")
+@Config(qualifiers = "ne-w360dp-h800dp-xhdpi")
 class PluralDigitsTest {
     @get:Rule
     val composeRule = createComposeRule()
