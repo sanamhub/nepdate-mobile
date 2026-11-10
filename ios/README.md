@@ -12,7 +12,7 @@ The iPhone and iPad app and the widget extension. The Xcode project is generated
 | `Packages/CalendarKit` | Local SwiftPM package: dates, month layout, widget summaries, settings (I1) |
 | `Packages/CalendarUI` | Local SwiftPM package: product `CalendarUI` (views and colours shared by app and widget) and product `CalendarScreens` (the app-only month, day, Upcoming, Converter, Settings and About screens and their view models) |
 | `NepDateTests/` | Swift Testing tests and the committed snapshot references; renders the screenshot artefact |
-| `NepDateUITests/` | XCUITests: opening on today, the picker at both range ends, the pager recentre, the month, day and I1-05 accessibility audits, Copy date and diagnostic copy |
+| `NepDateUITests/` | XCUITests: opening on today, the picker at both range ends, the pager recentre, the month, day and I1-05 accessibility audits, Copy date, diagnostic copy and the widget routing (`WidgetRoutingUITests`) |
 | `Resources/` | `Localizable.xcstrings` (English and Nepali) |
 | `Config/` | Info.plists and the App Group entitlements for both targets |
 | `scripts/ci.sh` | The gates of ADR-0008 |
@@ -28,7 +28,7 @@ open NepDate.xcodeproj        # after ci.sh, on a Mac
 `ci.sh` downloads XcodeGen 2.46.0, checks its SHA-256, generates the project and runs six gates:
 xcodegen, format, build, test, coverage, network. It ends with `ci: 6/6 gates passed`. The test gate
 runs the Swift Testing suites and the XCUITest, renders the month screen and the widgets to
-`build/snapshots`, and compares the thirty-five reference snapshots. `ios.yml` uploads the screenshots and
+`build/snapshots`, and compares the forty-three reference snapshots. `ios.yml` uploads the screenshots and
 the references as artefacts.
 
 The coverage gate reads the test result bundle with `xcrun xccov` and fails below 80 % line
@@ -208,11 +208,9 @@ a source `import Network` (run 39098192026) and, with the source grep switched o
 
 ## Executable sizes
 
-The build gate prints the sizes and gates none of them. With the Month and Lock Screen widgets and
-the controls the app executable is 2,465,640 bytes (2,045,984 before) and the widget executable is
-1,173,392 bytes (615,656 before). The 557,736 bytes added to the widget come from the month grid and
-Lock Screen views, the month widget's data model, the App Intents for the buttons and controls, and
-the spoken labels. Both executables link `nepdate-swift` (including the `NepDatePatro` tables)
+The build gate prints the sizes and gates none of them. The last run on `main` (42036758155) printed
+2,515,160 bytes for the app executable and 1,219,656 bytes for the widget executable; the bundle sizes
+were 3,716 KB and 1,224 KB. Both executables link `nepdate-swift` (including the `NepDatePatro` tables)
 statically through `CalendarKit`. This was not measured with a link map. If the tables become a real
 share of the download, `CalendarKit` can ship as one dynamic framework in the app bundle that both
 executables load.

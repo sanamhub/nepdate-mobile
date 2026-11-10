@@ -25,7 +25,8 @@ A full-width 7-column month grid, Sunday first (the Nepali week), for one BS mon
 - AC4: today has the today ring; the selected day has the selection fill.
 - AC5: horizontal swipe and previous/next buttons change the month; a "Today" button appears only
   when another month is shown.
-- AC6: tapping the header opens a month and year picker covering BS 1901–2199.
+- AC6: tapping the header opens a month and year picker covering BS 1901–2199 on Android; on iOS the
+  header opens the year view (MR-14), and the picker sheet is removed.
 - AC7: a 5- or 6-row grid; cells from neighbouring months are dimmed and not tappable.
 - AC8: optional tithi line in each cell (Settings, off by default); never truncated mid-character
   (Devanagari conjuncts stay whole).
@@ -94,7 +95,8 @@ widget there has its own ACs (W-xx). Common ACs:
   (012). Follow language gives Nepali digits when the app language resolves to नेपाली and English
   digits otherwise; with Language set to System it follows the resolved system locale. The setting
   applies to every BS and AD number and every count ("in 5 days", "1 year"), except the MR-02 AC1
-  Devanagari line. Date follows (MR-06). Show tithi in month grid. Theme follows the system (no in-app theme switch).
+  Devanagari line. Date follows (MR-06). Show tithi in month grid. Appearance (MR-16), not a theme
+  switch hidden in the system settings.
 - AC2: "About": app version, library version, holiday data coverage (first and last date), data
   source (C# NepDate via the hub, MIT), the official sources it follows (Ministry of Home Affairs
   holiday notice, Nepal Panchanga Nirnayak Samiti), a link to the "Known data questions" list
@@ -148,6 +150,123 @@ Go-class device (Android 11, 2 GB) for the low end.
 - AC2: "Subscribe to Nepal holidays" opens the hub's published `holidays.ics` as a `webcal://` link
   (iOS) or shares it to a calendar app (Android). The calendar app fetches it; this app never does.
   Depends on the hub publishing the file (hub task, see ADR-0003).
+
+## MR-13 Search
+
+Full-screen search: festivals and events by name, and a typed date to jump to.
+
+**Platforms:** both.
+
+- AC1: name search matches a substring in English and in Nepali, across the whole coverage, and
+  groups the results by BS month; each row opens its day detail.
+- AC2: date jump reads a typed year-month-day in both calendars. It is valid in BS when the BS
+  library can make that day, and valid in AD when the AD to BS tables can. Two cards when it is
+  valid in both ("Go to BS …", "Go to AD …"), one card when only one calendar can read it, and the
+  card that explains date jumping when neither can.
+- AC3: the jump input accepts `-`, `/` and `.` as separators, in ASCII or Devanagari digits, and
+  eight bare digits read as YYYYMMDD. The keyboard's search action opens the only card, or the BS
+  card when there are two.
+- AC4: recent searches: the last five, newest first, with swipe to delete and a "Clear" action.
+  They are recorded when a name result is opened, never when a date card is used.
+- AC5: the landing state shows the recent searches and the next three festivals; a query with no
+  matches shows the platform's empty-search state with the query in it.
+- AC6: a typed date outside the library's range offers no card, and the name results still run.
+
+## MR-14 Year view
+
+**Platforms:** both.
+
+- AC1: twelve mini months for one BS year, with a legend for today, public holiday and Saturday, and
+  a badge with the month's public-holiday count.
+- AC2: previous and next year in the toolbar, limited to BS 1901–2199.
+- AC3: tapping a month returns to the month view showing that month.
+- AC4: spoken as "Asoj 2083, 3 public holidays"; at accessibility sizes it becomes a list of months.
+
+## MR-15 First run
+
+**Platforms:** both.
+
+- AC1: shown once, full screen: today's BS day on the Sunny mark, the title "A light, fast patro of
+  your own", six promises each with an SF Symbol or a Material icon and a label, the Appearance
+  choice (MR-16), a Language row that opens the system per-app language page, and a prominent
+  "Open the patro" button.
+- AC2: fits an iPhone SE (3rd gen) and a 360 dp wide Android screen at the default text size without
+  scrolling, and scrolls at accessibility sizes.
+- AC3: never shown again once dismissed; the flag lives in the App Group on iOS and in the settings
+  store on Android.
+- AC4: asks for no permission and makes no request (MR-08).
+
+## MR-16 Appearance
+
+**Platforms:** both.
+
+- AC1: System (default), Light, Dark; applied at the root, including inside first run, and persisted.
+- AC2: with System, Android keeps the wallpaper's dynamic colours; choosing Light or Dark fixes the
+  theme and turns dynamic colour off. iOS uses the system backgrounds in every case.
+- AC3: a change applies immediately, without a relaunch.
+
+## MR-17 Show AD dates
+
+**Platforms:** both.
+
+- AC1: default on; the small AD day in each month cell (MR-01 AC1) follows it.
+- AC2: with it off, a cell shows only the BS numeral, while the spoken label still names the AD date
+  (MR-10 AC1).
+
+## MR-18 Opens on
+
+**Platforms:** both.
+
+- AC1: Patro (default), Festivals or Converter; applied once per cold launch.
+- AC2: a deep link or a widget tap wins over the setting and opens the day or screen it names.
+
+## MR-19 Haptics
+
+**Platforms:** both.
+
+- AC1: default on; a light selection haptic on a wheel, picker or stepper change, and a success
+  haptic on copy.
+- AC2: iOS routes every haptic through one environment value and Android through one settings flag,
+  so switching it off leaves no haptic anywhere.
+- AC3: no haptic on appear, on scrolling or on a plain tap.
+
+## MR-20 Day sheet navigation and share
+
+**Platforms:** both.
+
+- AC1: next and previous day change the sheet's day without closing it; the date moves vertically and
+  gives a selection haptic. On iOS a VoiceOver adjustable action does the same.
+- AC2: Share sends text: the BS long date, "weekday, AD date", then one line per event.
+- AC3: Copy date keeps MR-02 AC3 and gives a success haptic.
+
+## MR-21 Converter between two dates
+
+**Platforms:** both.
+
+- AC1: From and To rows each open the same pickers as a single conversion, and a swap button
+  exchanges them.
+- AC2: the result reads "Y years, M months, D days" and the total days between the two.
+- AC3: the difference comes from the library's own date difference, not from arithmetic in a view.
+
+## MR-22 Today card
+
+**Platforms:** both.
+
+- AC1: above the grid on the current month at non-accessibility sizes: today's BS day on the Sunny
+  mark, "Today", the weekday, the tithi and the AD date.
+- AC2: up to three chips: the holiday first, then the day's events, with "+N more" for the rest; when
+  the day has fewer than three events, the next holiday fills a chip.
+- AC3: tapping the card opens today's day sheet.
+- AC4: hidden on another month and at accessibility sizes, where the list layout has the same data.
+
+## MR-23 Holidays and events under the grid
+
+**Platforms:** both.
+
+- AC1: under the month grid, one row per day that has a public holiday or an event, in date order,
+  each opening that day.
+- AC2: hidden when the month has none, and at accessibility sizes, where the list layout already
+  shows them.
 
 ## Out of scope for v1 (each needs a new ADR)
 

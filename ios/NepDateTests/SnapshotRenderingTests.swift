@@ -152,6 +152,19 @@ struct SnapshotRenderingTests {
     }
   }
 
+  @Test("the four brand marks render in light and dark")
+  func brandMarks() throws {
+    for (scheme, suffix) in [(ColorScheme.light, "light"), (.dark, "dark")] {
+      try render(
+        BrandMarkSheet(),
+        name: "brand-marks-\(suffix)",
+        size: CGSize(width: 460, height: 150),
+        scheme: scheme,
+        locale: Locale(identifier: "en")
+      )
+    }
+  }
+
   private func render<V: View>(
     _ view: V,
     name: String,
@@ -188,4 +201,65 @@ struct SnapshotRenderingTests {
 
 private struct RenderFailure: Error {
   let name: String
+}
+
+/// The four brand marks side by side, each on the fill it uses in the app, so the rounding can be
+/// compared with Android's at a glance.
+private struct BrandMarkSheet: View {
+  private struct Mark {
+    let name: String
+    let shape: AnyShape
+    let fill: Color
+    let ink: Color
+  }
+
+  private var marks: [Mark] {
+    [
+      Mark(
+        name: "Sunny",
+        shape: AnyShape(SunnyShape()),
+        fill: BrandColor.today,
+        ink: BrandColor.onToday
+      ),
+      Mark(
+        name: "SoftBurst",
+        shape: AnyShape(SoftBurstShape()),
+        fill: BrandColor.holidayContainer,
+        ink: BrandColor.onHolidayContainer
+      ),
+      Mark(
+        name: "Diamond",
+        shape: AnyShape(DiamondShape()),
+        fill: BrandColor.holiday,
+        ink: Color.clear
+      ),
+      Mark(
+        name: "Cookie",
+        shape: AnyShape(CookieShape()),
+        fill: BrandColor.holidayContainer,
+        ink: BrandColor.onHolidayContainer
+      ),
+    ]
+  }
+
+  var body: some View {
+    HStack(spacing: 24) {
+      ForEach(marks.indices, id: \.self) { index in
+        VStack(spacing: 10) {
+          marks[index].shape
+            .fill(marks[index].fill)
+            .frame(width: 88, height: 88)
+            .overlay(
+              Text("20")
+                .font(BrandType.cellNumeral)
+                .foregroundStyle(marks[index].ink)
+            )
+          Text(marks[index].name)
+            .font(BrandType.caption)
+        }
+      }
+    }
+    .padding(24)
+    .background(Color(uiColor: .systemBackground))
+  }
 }

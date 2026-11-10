@@ -5,7 +5,9 @@ works from a Windows PC browser and the iPhone; no Mac.
 
 ## One-time setup
 
-Done in M0-07, because `ios-beta.yml` (M0-04) needs it.
+Not done yet. `ios-beta.yml` does not exist, the App Store Connect key is not in either environment
+and there is no Apple account, so everything below is still ahead. It is needed before the first
+TestFlight build.
 
 1. Enrol in the Apple Developer Program (individual, USD 99 a year) at developer.apple.com/programs
    with an Apple ID that has two-factor authentication. In-app enrolment through the Apple Developer
@@ -40,8 +42,9 @@ git tag ios-vX.Y.Z
 git push origin ios-vX.Y.Z
 ```
 
-`ios-release.yml` archives and uploads to App Store Connect after the `production` approval. Then, by
-hand:
+`ios-release.yml` archives and uploads to App Store Connect after the `production` approval. That
+workflow is not written yet: it waits for the Apple account and the key (I3-01), so the two commands
+above cannot be run today. Once it exists, by hand:
 1. TestFlight: install on a device; check today's date, each widget family, lock-screen widgets, the
    controls, and that no permission prompt appears.
 2. App Store Connect: attach the build, paste "What's new" from the changelog, submit for review with
