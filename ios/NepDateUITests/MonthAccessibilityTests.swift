@@ -182,6 +182,7 @@ final class MonthAccessibilityTests: XCTestCase {
   private func audit(_ app: XCUIApplication) throws -> [String: Int] {
     var tolerated: [String: Int] = [:]
     for audit in Self.audits {
+<<<<<<< HEAD
       try AccessibilityAudit.perform(on: app, audit.type) { issue in
         let label = issue.element?.label ?? ""
         let frame = issue.element?.frame ?? .zero
@@ -195,6 +196,24 @@ final class MonthAccessibilityTests: XCTestCase {
         guard isHiddenText else { return false }
         tolerated["\(audit.name) \(kind)", default: 0] += 1
         return true
+=======
+      let before = tolerated
+      try retryingAuditTimeout(reset: { tolerated = before }) {
+        try app.performAccessibilityAudit(for: audit.type) { issue in
+          let label = issue.element?.label ?? ""
+          let frame = issue.element?.frame ?? .zero
+          let isHiddenText =
+            !label.isEmpty && issue.detailedDescription.contains("SwiftUI.AccessibilityNode")
+          let kind = label.allSatisfy(\.isNumber) ? "numeral" : "text"
+          print(
+            "AUDIT \(audit.name) \(isHiddenText ? kind : "other") label=\(label) "
+              + "frame=\(frame) \(issue.compactDescription) | \(issue.detailedDescription)"
+          )
+          guard isHiddenText else { return false }
+          tolerated["\(audit.name) \(kind)", default: 0] += 1
+          return true
+        }
+>>>>>>> origin/docs/ios-parity-scope
       }
     }
     print("AUDIT tolerated \(tolerated.sorted { $0.key < $1.key })")

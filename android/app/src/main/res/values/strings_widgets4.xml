@@ -3,7 +3,7 @@
     <string name="widget4_text_name">Date text</string>
     <string name="widget4_text_description">Today\'s date as plain text with no card, for a clean home screen.</string>
     <string name="widget4_preview_text_title">Asoj 25</string>
-    <string name="widget4_preview_text_detail">Saturday · Pratipada</string>
+    <string name="widget4_preview_text_detail">Sunday · Pratipada</string>
     <string name="widget_details_title">Show details</string>
     <string name="widget_details_summary">The tithi, events and buttons. Off shows the date only.</string>
     <string name="widget_background_title">Background</string>

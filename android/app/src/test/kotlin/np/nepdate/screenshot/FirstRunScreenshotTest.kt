@@ -13,6 +13,9 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
+import java.time.Clock
+import java.time.Instant
+import java.time.ZoneId
 
 /** The first-run screen in each language. A human checks the PNGs; they are not a pass. */
 @RunWith(AndroidJUnit4::class)
@@ -41,10 +44,16 @@ class FirstRunScreenshotTest {
         composeRule.setContent {
             NepdateTheme(darkTheme = darkTheme, dynamicColor = false) {
                 ScreenshotFrame {
-                    FirstRunScreen(settings = settings, onLook = {}, onDone = {})
+                    FirstRunScreen(settings = settings, onLook = {}, onDone = {}, clock = KARTIK_23_2083)
                 }
             }
         }
         composeRule.onRoot().captureRoboImage("$name.png")
+    }
+
+    private companion object {
+        /** Noon on Kartik 23, 2083 (9 November 2026) in Nepal, the day the references show. */
+        val KARTIK_23_2083: Clock =
+            Clock.fixed(Instant.parse("2026-11-09T06:15:00Z"), ZoneId.of("Asia/Kathmandu"))
     }
 }
