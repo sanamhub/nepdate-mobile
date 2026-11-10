@@ -61,7 +61,10 @@ public struct MonthScreen: View {
     .frame(maxWidth: .infinity, maxHeight: .infinity)
     .background(Color(uiColor: .systemBackground))
     .navigationTitle(model.monthTitle)
-    .navigationBarTitleDisplayMode(.large)
+    // The title menu hangs off the title, and the system only draws its chevron and makes it
+    // tappable on an inline title. A large title leaves the menu unreachable by touch as well as
+    // by the accessibility audit, so the month keeps the inline title and the menu.
+    .navigationBarTitleDisplayMode(.inline)
     .toolbarTitleMenu {
       Button("Go to today") {
         go(to: todayMonth)
