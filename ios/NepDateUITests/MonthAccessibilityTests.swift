@@ -63,60 +63,6 @@ final class MonthAccessibilityTests: XCTestCase {
     "textClipped text",
   ]
 
-  /// Temporary: prints what the inline title exposes and whether the title menu opens. Removed
-  /// once the title lookup and the menu tap are settled.
-  @MainActor
-  func testDiagnosticDumpOfTheTitle() throws {
-    let app = Self.launch()
-    XCTAssertTrue(
-      app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Asoj 1, 2083"))
-        .firstMatch.waitForExistence(timeout: 10)
-    )
-
-    print("DIAG-BARS-BEGIN")
-    print(app.navigationBars.debugDescription)
-    print("DIAG-BARS-END")
-
-    let bars = app.navigationBars
-    print("DIAG-BAR-COUNT \(bars.count)")
-    for index in 0..<min(bars.count, 5) {
-      let bar = bars.element(boundBy: index)
-      print("DIAG-BAR \(index) id=\(bar.identifier) label=\(bar.label)")
-    }
-
-    let buttons = bars.buttons
-    print("DIAG-BAR-BUTTON-COUNT \(buttons.count)")
-    for index in 0..<min(buttons.count, 10) {
-      let button = buttons.element(boundBy: index)
-      print("DIAG-BAR-BUTTON \(index) id=\(button.identifier) label=\(button.label)")
-    }
-
-    let exact = app.descendants(matching: .any)
-      .matching(NSPredicate(format: "label == %@", "Asoj 2083"))
-    print("DIAG-EXACT-COUNT \(exact.count)")
-    let titled = bars.matching(NSPredicate(format: "identifier == %@", "Asoj 2083"))
-    print("DIAG-BAR-BY-ID-COUNT \(titled.count)")
-
-    let titleButton = buttons.matching(
-      NSPredicate(format: "label BEGINSWITH %@", "Asoj 2083")
-    ).firstMatch
-    print("DIAG-TITLE-BUTTON-EXISTS \(titleButton.exists) hittable \(titleButton.isHittable)")
-    if titleButton.exists {
-      titleButton.tap()
-      let yearView = app.buttons["Year view"]
-      let appeared = yearView.waitForExistence(timeout: 10)
-      print("DIAG-YEAR-VIEW-APPEARED \(appeared)")
-      if appeared {
-        yearView.tap()
-        let yearBar = app.navigationBars["2083"].waitForExistence(timeout: 10)
-        print("DIAG-YEAR-BAR-APPEARED \(yearBar)")
-        for index in 0..<min(app.navigationBars.buttons.count, 10) {
-          print("DIAG-YEAR-BAR-BUTTON \(app.navigationBars.buttons.element(boundBy: index).label)")
-        }
-      }
-    }
-  }
-
   @MainActor
   func testMonthScreenOpensOnToday() throws {
     let model = try Self.model()
@@ -295,8 +241,9 @@ final class MonthAccessibilityTests: XCTestCase {
   }
 
   /// Opens the title menu and picks the year view. The month screen draws an inline title, so
-  /// SwiftUI puts the title in the navigation bar as a button carrying the month name; tapping it
-  /// opens the menu. The item is looked up as a button, which is how a presented menu exposes it.
+  /// SwiftUI puts the month in the navigation bar as a button labelled "Asoj 2083, Actions Menu";
+  /// tapping it presents the menu, which the runner reaches on this screen (run 42828292103). The
+  /// item is looked up as a button, which is how a presented menu exposes it.
   @MainActor
   private static func openYearView(_ app: XCUIApplication, label: String) {
     let titleButton = app.navigationBars.buttons.matching(
@@ -310,9 +257,13 @@ final class MonthAccessibilityTests: XCTestCase {
     yearView.tap()
   }
 
+  /// The month title. The screen draws an inline title, so the navigation bar itself carries the
+  /// month as its identifier and has no labelled text: the bar's title button is labelled
+  /// "Asoj 2083, Actions Menu", and no element has the month alone as its label (run 42828292103).
+  /// The bar keeps the identifier as the month changes, so each call reads the month the app shows.
   @MainActor
   private static func title(_ label: String, in app: XCUIApplication) -> XCUIElement {
-    app.descendants(matching: .any).matching(NSPredicate(format: "label == %@", label)).firstMatch
+    app.navigationBars[label]
   }
 
   @MainActor
