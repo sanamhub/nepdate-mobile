@@ -25,7 +25,9 @@ struct ScreenSnapshotTests {
         UpcomingViewModel(today: Self.today, language: language, digits: digits)
       )
       snapshot(
-        UpcomingScreen(model: model, language: language, digits: digits),
+        NavigationStack {
+          UpcomingScreen(model: model, language: language, digits: digits)
+        },
         named: "upcoming-\(name)",
         scheme: scheme,
         type: type,
@@ -41,11 +43,13 @@ struct ScreenSnapshotTests {
       model.fromBs("2083-06-20")
       model.compareWithBs("2082-01-01")
       snapshot(
-        ConverterScreen(
-          model: model,
-          bsInput: "2083-06-20",
-          compareInput: "2082-01-01"
-        ),
+        NavigationStack {
+          ConverterScreen(
+            model: model,
+            bsInput: "2083-06-20",
+            compareInput: "2082-01-01"
+          )
+        },
         named: "converter-\(name)",
         scheme: scheme,
         type: type,

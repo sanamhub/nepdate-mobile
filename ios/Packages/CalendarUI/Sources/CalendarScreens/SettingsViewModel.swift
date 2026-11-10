@@ -38,6 +38,20 @@ public struct SettingsViewModel: Sendable {
     store.setShowTithi(value)
   }
 
+  /// Stores the Appearance choice (MR-16).
+  /// - Parameter value: The new setting.
+  public mutating func setAppearance(_ value: Appearance) {
+    settings.appearance = value
+    store.setAppearance(value)
+  }
+
+  /// Stores the Opens on choice (MR-18).
+  /// - Parameter value: The new setting.
+  public mutating func setOpensOn(_ value: OpensOn) {
+    settings.opensOn = value
+    store.setOpensOn(value)
+  }
+
   /// Whether the first-launch "Nepal time" suggestion should show (MR-06 AC1).
   /// - Parameter deviceZone: The device's zone.
   /// - Returns: True only for an unhandled install, This device and a zone outside Nepal time.

@@ -149,7 +149,7 @@ final class MonthAccessibilityTests: XCTestCase {
   private func audit(_ app: XCUIApplication) throws -> [String: Int] {
     var tolerated: [String: Int] = [:]
     for audit in Self.audits {
-      try app.performAccessibilityAudit(for: audit.type) { issue in
+      try AccessibilityAudit.perform(on: app, audit.type) { issue in
         let label = issue.element?.label ?? ""
         let frame = issue.element?.frame ?? .zero
         let isHiddenText =

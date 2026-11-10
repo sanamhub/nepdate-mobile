@@ -52,12 +52,17 @@ final class ScreenUITests: XCTestCase {
   func testSettingsAndAboutShowTheirValues() throws {
     let app = Self.launch(screen: "settings")
 
+    XCTAssertTrue(app.staticTexts["Appearance"].waitForExistence(timeout: 10))
     XCTAssertTrue(app.staticTexts["Digits"].exists)
     XCTAssertTrue(app.staticTexts["Follow language"].exists)
-    XCTAssertTrue(app.staticTexts["Date follows"].exists)
+    app.swipeUp()
+    XCTAssertTrue(app.staticTexts["Date follows"].waitForExistence(timeout: 5))
+    XCTAssertTrue(app.staticTexts["Opens on"].exists)
     XCTAssertTrue(app.staticTexts["Show tithi in the month grid"].exists)
 
-    app.swipeUp()
+    for _ in 0..<5 where !app.staticTexts["About"].exists {
+      app.swipeUp()
+    }
     app.staticTexts["About"].tap()
     XCTAssertTrue(app.staticTexts["App version"].waitForExistence(timeout: 10))
     XCTAssertTrue(app.staticTexts["Library version"].exists)
@@ -88,9 +93,10 @@ final class ScreenUITests: XCTestCase {
   func testSettingsSectionTitlesCarryTheHeaderTrait() throws {
     let app = Self.launch(screen: "settings")
 
-    for title in ["Digits", "Date follows"] {
+    for title in ["Appearance", "Digits", "Date follows", "Opens on"] {
       let element = app.staticTexts[title]
-      XCTAssertTrue(element.waitForExistence(timeout: 10), "\(title) is not on the screen")
+      if !element.exists { app.swipeUp() }
+      XCTAssertTrue(element.waitForExistence(timeout: 5), "\(title) is not on the screen")
       XCTAssertTrue(Self.hasHeaderTrait(element), "\(title) is not a header")
     }
   }
@@ -171,7 +177,7 @@ final class ScreenUITests: XCTestCase {
   ) throws -> [String: Int] {
     var counts: [String: Int] = [:]
     for audit in Self.audits {
-      try app.performAccessibilityAudit(for: audit.type) { issue in
+      try AccessibilityAudit.perform(on: app, audit.type) { issue in
         let label = issue.element?.label ?? ""
         let frame = issue.element?.frame ?? .zero
         let kind = !label.isEmpty && label.allSatisfy(\.isNumber) ? "numeral" : "text"

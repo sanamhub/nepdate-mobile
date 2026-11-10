@@ -27,7 +27,8 @@ let package = Package(
       name: "CalendarUI",
       dependencies: [
         .product(name: "CalendarKit", package: "CalendarKit"),
-      ]
+      ],
+      resources: [.process("Resources")]
     ),
     .target(
       name: "CalendarScreens",

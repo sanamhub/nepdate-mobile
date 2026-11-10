@@ -28,8 +28,18 @@ public struct SettingsStore: Sendable {
       dateFollows: DateFollows(rawValue: defaults?.string(forKey: Key.dateFollows) ?? "")
         ?? .device,
       showTithi: defaults?.bool(forKey: Key.showTithi) ?? false,
-      dateFollowsSuggestionHandled: defaults?.bool(forKey: Key.suggestion) ?? false
+      dateFollowsSuggestionHandled: defaults?.bool(forKey: Key.suggestion) ?? false,
+      appearance: Appearance(rawValue: defaults?.string(forKey: Key.appearance) ?? "") ?? .system,
+      showsADDates: Self.bool(defaults, Key.showsADDates, default: true),
+      opensOn: OpensOn(rawValue: defaults?.string(forKey: Key.opensOn) ?? "") ?? .patro,
+      hapticsEnabled: Self.bool(defaults, Key.haptics, default: true)
     )
+  }
+
+  /// Reads a stored flag whose fresh-install value is `true`.
+  private static func bool(_ defaults: UserDefaults?, _ key: String, default value: Bool) -> Bool {
+    guard let defaults, defaults.object(forKey: key) != nil else { return value }
+    return defaults.bool(forKey: key)
   }
 
   /// Stores the Language choice (MR-07 AC1).
@@ -62,11 +72,39 @@ public struct SettingsStore: Sendable {
     AppGroup.defaults(suiteName: suiteName)?.set(value, forKey: Key.suggestion)
   }
 
+  /// Stores the Appearance choice (MR-16).
+  /// - Parameter value: The setting.
+  public func setAppearance(_ value: Appearance) {
+    AppGroup.defaults(suiteName: suiteName)?.set(value.rawValue, forKey: Key.appearance)
+  }
+
+  /// Stores the Show AD dates choice (MR-17).
+  /// - Parameter value: The setting.
+  public func setShowsADDates(_ value: Bool) {
+    AppGroup.defaults(suiteName: suiteName)?.set(value, forKey: Key.showsADDates)
+  }
+
+  /// Stores the Opens on choice (MR-18).
+  /// - Parameter value: The setting.
+  public func setOpensOn(_ value: OpensOn) {
+    AppGroup.defaults(suiteName: suiteName)?.set(value.rawValue, forKey: Key.opensOn)
+  }
+
+  /// Stores the Haptic feedback choice (MR-19).
+  /// - Parameter value: The setting.
+  public func setHapticsEnabled(_ value: Bool) {
+    AppGroup.defaults(suiteName: suiteName)?.set(value, forKey: Key.haptics)
+  }
+
   private enum Key {
     static let language = "language"
     static let digits = "digits"
     static let dateFollows = "date_follows"
     static let showTithi = "show_tithi"
     static let suggestion = "date_follows_suggestion_handled"
+    static let appearance = "appearance"
+    static let showsADDates = "show_ad_dates"
+    static let opensOn = "opens_on"
+    static let haptics = "haptics_enabled"
   }
 }

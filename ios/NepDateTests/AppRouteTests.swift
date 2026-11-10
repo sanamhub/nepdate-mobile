@@ -41,7 +41,7 @@ struct AppRouteTests {
     let url = try #require(URL(string: "nepdate://day/2083-06-25"))
     let route = try #require(AppRoute(url: url))
     #expect(route == .day(MonthDate(year: 2083, month: 6, day: 25)))
-    #expect(route.tab == .month)
+    #expect(route.tab == .patro)
   }
 
   @Test("parsing a route's URL gives the same route")
