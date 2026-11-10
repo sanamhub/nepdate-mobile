@@ -53,6 +53,7 @@ final class MonthAccessibilityTests: XCTestCase {
     "contrast numeral",
     "contrast text",
     "dynamicType numeral",
+    "dynamicType text",
     "elementDetection other",
   ]
   private static let listCategories: Set<String> = [
