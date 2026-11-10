@@ -45,6 +45,25 @@ Then, by hand:
    48 hours without new crashes in Android vitals. For 1.0 the build goes through the closed test
    first (A3-04).
 
+## Pre-release, GitHub only
+
+Use this while no Play service account is available, or for a beta before the first Play release.
+The tag still carries the complete version, `android-vX.Y.Z-beta.N`, and `versionName` in
+`android/app/build.gradle.kts` must match it exactly.
+
+1. Set `versionCode` to a number above every build already installed by testers, and `versionName`
+   to `X.Y.Z-beta.N`.
+2. Write `## [X.Y.Z-beta.N] - YYYY-MM-DD` in `android/CHANGELOG.md` and
+   `fastlane/metadata/android/{en-US,ne-NP}/changelogs/<versionCode>.txt`.
+3. Check that `PLAY_SERVICE_ACCOUNT_JSON` is not set in the `production` environment. The Play job
+   then prints a warning and skips the upload for a version with a suffix. A final version with no
+   secret fails the release instead.
+4. Push the tag. The GitHub release is a draft and is marked as a pre-release because the version
+   has a suffix. Publish the draft, and leave Play alone until the account and the service account
+   exist.
+5. Tell testers the build comes from GitHub, not Play, and installs over an earlier build only when
+   `versionCode` is higher.
+
 ## Rolling back
 
 Halt the staged rollout in Play Console; mark the GitHub release as pre-release; fix forward with a
