@@ -5,21 +5,26 @@ import SwiftUI
 import UIKit
 
 /// The Patro tab (MR-01, MR-14, MR-22, MR-23): a pager of month pages with the today card, the
-/// grid and the month's holidays and events, a title menu for today, and the previous, today and
-/// next buttons.
+/// grid and the month's holidays and events, a title menu for today and the year view, and the
+/// previous, today and next buttons.
 public struct MonthScreen: View {
   @State private var model: MonthViewModel
   @State private var scrolledMonth: MonthKey?
   @State private var window: [MonthKey]
   @State private var detail: MonthDate?
   @State private var isRecentring = false
+  @State private var showsYear = false
+  @Namespace private var yearZoom
+  @Namespace private var detailZoom
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
   private let settings: Settings
   private let today: MonthDate
   private let route: AppRoute?
   private let monthCommand: MonthCommand?
+  private let monthRequest: MonthKey?
   private let onRouteHandled: () -> Void
   private let onMonthCommandHandled: () -> Void
+  private let onMonthRequestHandled: () -> Void
 
   /// Creates the screen.
   /// - Parameters:
@@ -28,16 +33,20 @@ public struct MonthScreen: View {
   ///   - today: Today in the zone the settings choose.
   ///   - route: A place to open, from a widget tap; `nil` when there is none.
   ///   - monthCommand: A month change asked for by a keyboard command; `nil` when there is none.
+  ///   - monthRequest: A month to open, asked for by the festivals list; `nil` when there is none.
   ///   - onRouteHandled: Called once the screen has opened `route`, so the caller can clear it.
   ///   - onMonthCommandHandled: Called once the screen has applied `monthCommand`.
+  ///   - onMonthRequestHandled: Called once the screen has opened `monthRequest`.
   public init(
     model: MonthViewModel,
     settings: Settings,
     today: MonthDate,
     route: AppRoute? = nil,
     monthCommand: MonthCommand? = nil,
+    monthRequest: MonthKey? = nil,
     onRouteHandled: @escaping () -> Void = {},
-    onMonthCommandHandled: @escaping () -> Void = {}
+    onMonthCommandHandled: @escaping () -> Void = {},
+    onMonthRequestHandled: @escaping () -> Void = {}
   ) {
     _model = State(initialValue: model)
     _scrolledMonth = State(initialValue: model.month)
@@ -46,8 +55,10 @@ public struct MonthScreen: View {
     self.today = today
     self.route = route
     self.monthCommand = monthCommand
+    self.monthRequest = monthRequest
     self.onRouteHandled = onRouteHandled
     self.onMonthCommandHandled = onMonthCommandHandled
+    self.onMonthRequestHandled = onMonthRequestHandled
   }
 
   /// The screen's content.
@@ -59,10 +70,16 @@ public struct MonthScreen: View {
     .frame(maxWidth: .infinity, maxHeight: .infinity)
     .background(Color(uiColor: .systemBackground))
     .navigationTitle(model.monthTitle)
-    .navigationBarTitleDisplayMode(.large)
+    // The title menu hangs off the title, and the system only draws its chevron and makes it
+    // tappable on an inline title. A large title leaves the menu unreachable by touch as well as
+    // by the accessibility audit, so the month keeps the inline title and the menu.
+    .navigationBarTitleDisplayMode(.inline)
     .toolbarTitleMenu {
       Button("Go to today") {
         go(to: todayMonth)
+      }
+      Button("Year view") {
+        showsYear = true
       }
     }
     .toolbar {
@@ -87,22 +104,25 @@ public struct MonthScreen: View {
         .accessibilityLabel(Text("Next month"))
       }
     }
+    .navigationDestination(isPresented: $showsYear) {
+      yearDestination
+    }
     .onAppear { open(route) }
     .onChange(of: route) { _, newValue in open(newValue) }
     .onChange(of: monthCommand) { _, command in apply(command) }
+    .onChange(of: monthRequest) { _, key in openMonth(key) }
     .onChange(of: settings) { _, newValue in apply(newValue, today: today) }
     .onChange(of: today) { _, newValue in apply(settings, today: newValue) }
-    .sheet(isPresented: detailSheet) {
-      if let detail,
-        let detailModel = DayDetailViewModel(
-          date: detail,
-          language: model.language,
-          digits: model.digits
-        )
-      {
-        DayDetailSheet(model: detailModel)
-      }
-    }
+    .modifier(
+      DayDetailPresentation(
+        date: $detail,
+        today: today,
+        language: model.language,
+        digits: model.digits,
+        zoom: detailZoom,
+        reduceMotion: reduceMotion
+      )
+    )
   }
 
   private var monthSpan: some View {
@@ -114,6 +134,7 @@ public struct MonthScreen: View {
     }
     .padding(.horizontal, 16)
     .padding(.bottom, 2)
+    .matchedTransitionSource(id: Self.yearZoomID, in: yearZoom)
   }
 
   private var pager: some View {
@@ -129,6 +150,7 @@ public struct MonthScreen: View {
               showTithi: model.showTithi,
               showsADDates: model.showsADDates,
               selected: model.selected,
+              zoom: detailZoom,
               onSelect: select,
               onOpenDay: openDay
             )
@@ -155,13 +177,22 @@ public struct MonthScreen: View {
     }
   }
 
-  private var detailSheet: Binding<Bool> {
-    Binding(
-      get: { detail != nil },
-      set: { isPresented in
-        if !isPresented { detail = nil }
+  private var yearDestination: some View {
+    Group {
+      if let year = YearViewModel(
+        year: model.month.year,
+        today: today,
+        language: model.language,
+        digits: model.digits
+      ) {
+        let screen = YearScreen(model: year, onPick: pickMonth)
+        if reduceMotion {
+          screen
+        } else {
+          screen.navigationTransition(.zoom(sourceID: Self.yearZoomID, in: yearZoom))
+        }
       }
-    )
+    }
   }
 
   private var previousMonth: MonthKey? {
@@ -206,6 +237,13 @@ public struct MonthScreen: View {
     onRouteHandled()
   }
 
+  /// Opens a month asked for by the festivals list, then clears the request.
+  private func openMonth(_ key: MonthKey?) {
+    guard let key else { return }
+    go(to: key)
+    onMonthRequestHandled()
+  }
+
   /// Applies a keyboard command, then clears it.
   private func apply(_ command: MonthCommand?) {
     guard let command else { return }
@@ -237,6 +275,11 @@ public struct MonthScreen: View {
     if let selection { model.select(selection) }
   }
 
+  private func pickMonth(_ key: MonthKey) {
+    showsYear = false
+    go(to: key)
+  }
+
   private func go(to key: MonthKey?) {
     guard let key, key != model.month else { return }
     model.go(to: key)
@@ -263,7 +306,7 @@ public struct MonthScreen: View {
   }
 
   /// The pages the pager holds. A window around the shown month keeps the number of views small;
-  /// the title menu can still reach every month and `go(to:)` recentres the window first.
+  /// the year view can still reach every month and `go(to:)` recentres the window first.
   private static func window(around key: MonthKey) -> [MonthKey] {
     let radius = 24
     var start = key.id - radius
@@ -279,6 +322,7 @@ public struct MonthScreen: View {
     return (start...end).compactMap { MonthKey(id: $0) }
   }
 
+  private static let yearZoomID = "year"
 }
 
 /// One page of the pager: the today card, the weekday row, the grid and the month's holidays and
@@ -291,6 +335,7 @@ private struct MonthPage: View {
   let showTithi: Bool
   let showsADDates: Bool
   let selected: MonthDate?
+  let zoom: Namespace.ID
   let onSelect: (MonthDate) -> Void
   let onOpenDay: (MonthDate) -> Void
   @Environment(\.dynamicTypeSize) private var dynamicTypeSize
@@ -336,6 +381,7 @@ private struct MonthPage: View {
               showsADDates: showsADDates,
               publicHoliday: AppText.string("public holiday", language),
               todayLabel: AppText.string("Today", language),
+              zoomNamespace: zoom,
               onSelect: onSelect
             )
             .padding(.horizontal, 8)
@@ -373,6 +419,7 @@ private struct MonthPage: View {
 /// The content of the month screen without the pager and the navigation, for the snapshot tests.
 public struct MonthScreenContent: View {
   private let model: MonthViewModel
+  @Namespace private var detailZoom
 
   /// Creates the content.
   /// - Parameter model: The month to draw and the settings to draw it with.
@@ -390,9 +437,57 @@ public struct MonthScreenContent: View {
       showTithi: model.showTithi,
       showsADDates: model.showsADDates,
       selected: model.selected,
+      zoom: detailZoom,
       onSelect: { _ in },
       onOpenDay: { _ in }
     )
     .background(Color(uiColor: .systemBackground))
+  }
+}
+
+/// Presents the day sheet as a sheet on a phone and as an inspector on a regular-width screen
+/// (iPad), with the zoom transition from the tapped cell unless Reduce Motion is on (MR-20).
+private struct DayDetailPresentation: ViewModifier {
+  @Binding var date: MonthDate?
+  let today: MonthDate
+  let language: AppLanguage
+  let digits: Digits
+  let zoom: Namespace.ID
+  let reduceMotion: Bool
+  @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+
+  func body(content: Content) -> some View {
+    if horizontalSizeClass == .regular {
+      content.inspector(isPresented: presented) {
+        destination
+      }
+    } else {
+      content.sheet(isPresented: presented) {
+        destination
+      }
+    }
+  }
+
+  private var presented: Binding<Bool> {
+    Binding(
+      get: { date != nil },
+      set: { isPresented in
+        if !isPresented { date = nil }
+      }
+    )
+  }
+
+  @ViewBuilder
+  private var destination: some View {
+    if let date,
+      let model = DayDetailViewModel(date: date, language: language, digits: digits)
+    {
+      let sheet = DayDetailSheet(model: model, today: today)
+      if reduceMotion {
+        sheet
+      } else {
+        sheet.navigationTransition(.zoom(sourceID: date, in: zoom))
+      }
+    }
   }
 }

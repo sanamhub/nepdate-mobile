@@ -45,6 +45,20 @@ public struct SettingsViewModel: Sendable {
     store.setAppearance(value)
   }
 
+  /// Stores the Show AD dates choice (MR-17).
+  /// - Parameter value: The new setting.
+  public mutating func setShowsADDates(_ value: Bool) {
+    settings.showsADDates = value
+    store.setShowsADDates(value)
+  }
+
+  /// Stores the Haptic feedback choice (MR-19).
+  /// - Parameter value: The new setting.
+  public mutating func setHapticsEnabled(_ value: Bool) {
+    settings.hapticsEnabled = value
+    store.setHapticsEnabled(value)
+  }
+
   /// Stores the Opens on choice (MR-18).
   /// - Parameter value: The new setting.
   public mutating func setOpensOn(_ value: OpensOn) {

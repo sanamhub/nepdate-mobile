@@ -75,6 +75,9 @@ public struct UpcomingGroup: Sendable, Hashable, Identifiable {
 
 /// The next 20 public holidays and events from today (MR-03).
 public struct UpcomingViewModel: Sendable {
+  /// The first day the list covers, used for a day's relative chip.
+  public let today: MonthDate
+
   /// The groups, in date order.
   public let groups: [UpcomingGroup]
 
@@ -151,6 +154,7 @@ public struct UpcomingViewModel: Sendable {
         grouped.append((entry.date.year, entry.date.month, [entry]))
       }
     }
+    self.today = today
     self.groups = grouped.map { group in
       UpcomingGroup(
         year: group.year,

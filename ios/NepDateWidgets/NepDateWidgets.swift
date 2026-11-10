@@ -8,6 +8,9 @@ struct NepDateWidgets: WidgetBundle {
     UpcomingWidget()
     MonthWidget()
     LockScreenWidget()
+    FestivalCountdownWidget()
+    FestivalsListWidget()
+    ThisWeekWidget()
     OpenConverterControl()
     OpenTodayControl()
   }

@@ -16,6 +16,7 @@ struct MonthGrid: View {
   let showsADDates: Bool
   let publicHoliday: String
   let todayLabel: String
+  let zoomNamespace: Namespace.ID
   let onSelect: (MonthDate) -> Void
 
   @Namespace private var rotorNamespace
@@ -40,6 +41,7 @@ struct MonthGrid: View {
             label: accessibilityLabel(cell),
             todayLabel: todayLabel,
             rotorNamespace: rotorNamespace,
+            zoomNamespace: zoomNamespace,
             onSelect: onSelect
           )
         } else {
@@ -100,6 +102,7 @@ private struct DayCell: View {
   let label: String
   let todayLabel: String
   let rotorNamespace: Namespace.ID
+  let zoomNamespace: Namespace.ID
   let onSelect: (MonthDate) -> Void
 
   var body: some View {
@@ -117,6 +120,7 @@ private struct DayCell: View {
       .accessibilityAddTraits(.isButton)
       .accessibilityAddTraits(isSelected ? .isSelected : [])
       .accessibilityRotorEntry(id: date, in: rotorNamespace)
+      .matchedTransitionSource(id: date, in: zoomNamespace)
     } else {
       content
         .accessibilityElement(children: .ignore)

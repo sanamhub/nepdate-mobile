@@ -1,6 +1,24 @@
 import NepDate
 import NepDatePatro
 
+/// How far a day is from today, for the day sheet's first chip (MR-20 AC1).
+public enum RelativeDay: Sendable, Hashable {
+  /// The day is today.
+  case today
+
+  /// The day is tomorrow.
+  case tomorrow
+
+  /// The day was yesterday.
+  case yesterday
+
+  /// The day is this many days ahead.
+  case inDays(Int)
+
+  /// The day was this many days ago.
+  case daysAgo(Int)
+}
+
 /// The day detail sheet's text (MR-02, A1-04).
 ///
 /// The date, weekday, tithi, holiday flag and events are computed here so the sheet only draws
@@ -104,6 +122,55 @@ public struct DayDetailViewModel: Sendable, Hashable {
   /// resolved Digits (MR-02 AC3).
   public var copyText: String {
     bsDate
+  }
+
+  /// The text Share sends (MR-20 AC2): the BS long date, the weekday and AD date, then one line
+  /// per event, the same as Android's `DayActions.kt`.
+  public var shareText: String {
+    ([bsDate, weekdayAndDate] + events).joined(separator: "\n")
+  }
+
+  /// How far the day is from a reference date (MR-20 AC1).
+  /// - Parameter today: The reference date, usually the app's today.
+  /// - Returns: Today, tomorrow, yesterday, or the signed day count.
+  public func relativeDay(from today: MonthDate) -> RelativeDay {
+    guard
+      let reference = try? NepaliDate(
+        year: today.year,
+        month: today.month,
+        day: today.day
+      )
+    else { return .today }
+    let days = reference.days(until: nepaliDate)
+    switch days {
+    case 0: return .today
+    case 1: return .tomorrow
+    case -1: return .yesterday
+    case let ahead where ahead > 1: return .inDays(ahead)
+    default: return .daysAgo(-days)
+    }
+  }
+
+  /// The day this many days later, or earlier for a negative count (MR-20 AC1).
+  /// - Parameter offset: The number of days to move; 1 is tomorrow.
+  /// - Returns: The model for that day, or `nil` at the edge of the library's range.
+  public func day(offset: Int) -> DayDetailViewModel? {
+    guard let moved = try? nepaliDate.adding(days: offset) else { return nil }
+    return DayDetailViewModel(
+      date: MonthDate(year: moved.year, month: moved.month, day: moved.day),
+      language: language,
+      digits: digits
+    )
+  }
+
+  /// Whether a previous day exists inside the library's range.
+  public var canGoPrevious: Bool {
+    day(offset: -1) != nil
+  }
+
+  /// Whether a next day exists inside the library's range.
+  public var canGoNext: Bool {
+    day(offset: 1) != nil
   }
 
   /// The title of the event handed to the system editor (MR-02 AC2).

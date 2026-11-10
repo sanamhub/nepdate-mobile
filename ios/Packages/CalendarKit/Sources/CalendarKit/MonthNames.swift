@@ -15,6 +15,16 @@ public enum MonthNames {
     return language == .nepali ? bsNepali[month - 1] : bsEnglish[month - 1]
   }
 
+  /// A short Bikram Sambat month name, designed for the date chip (W-08).
+  /// - Parameters:
+  ///   - month: The month, 1 to 12.
+  ///   - language: The language of the name.
+  /// - Returns: A short name such as `Aso` or `असो`, or an empty string outside 1 to 12.
+  public static func bsShort(_ month: Int, _ language: AppLanguage) -> String {
+    guard (1...12).contains(month) else { return "" }
+    return language == .nepali ? bsShortNepali[month - 1] : bsShortEnglish[month - 1]
+  }
+
   /// A Gregorian month name.
   /// - Parameters:
   ///   - month: The month, 1 to 12.
@@ -40,6 +50,15 @@ public enum MonthNames {
     "Magh",
     "Falgun",
     "Chaitra",
+  ]
+
+  private static let bsShortEnglish = [
+    "Bai", "Jes", "Asa", "Shr", "Bha", "Aso", "Kar", "Man", "Pou", "Mag", "Fal", "Cha",
+  ]
+
+  private static let bsShortNepali = [
+    "बैश", "जेठ", "असार", "साउन", "भदौ", "असोज", "कार्तिक", "मंसिर", "पुष", "माघ", "फागुन",
+    "चैत",
   ]
 
   private static let bsNepali = [

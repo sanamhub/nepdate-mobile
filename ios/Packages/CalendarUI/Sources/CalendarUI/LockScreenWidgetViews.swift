@@ -75,6 +75,13 @@ public struct LockScreenRectangularView: View {
         .font(.headline)
         .lineLimit(1)
         .widgetAccentable()
+      if let tithi = entry.day.tithi {
+        Text(verbatim: tithi)
+          .font(.caption2)
+          .foregroundStyle(.secondary)
+          .lineLimit(1)
+          .widgetAccentable()
+      }
       if let holiday = content.rectangularHoliday {
         if let name = holiday.name {
           Text(verbatim: name)

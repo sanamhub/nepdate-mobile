@@ -15,6 +15,15 @@ enum WidgetTestData {
     return nepal.date(in: zone).addingTimeInterval(12 * 3_600)
   }
 
+  /// The settings a test widget draws with.
+  static func settings(language: AppLanguage = .english) -> Settings {
+    Settings(
+      language: language == .nepali ? .nepali : .english,
+      digits: language == .nepali ? .nepali : .english,
+      dateFollows: .nepal
+    )
+  }
+
   static func entry(
     _ date: MonthDate,
     language: AppLanguage = .english

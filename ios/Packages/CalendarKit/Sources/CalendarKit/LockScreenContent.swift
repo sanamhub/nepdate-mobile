@@ -40,7 +40,7 @@ extension WidgetEntry {
     return LockScreenContent(
       inline: "\(day.month) \(day.day), \(day.weekday)",
       circularDay: day.day,
-      circularMonth: String(day.month.prefix(3)),
+      circularMonth: day.shortMonth,
       isHoliday: day.isHoliday,
       rectangularDate: "\(day.month) \(day.day) · \(day.weekday)",
       rectangularHoliday: holiday

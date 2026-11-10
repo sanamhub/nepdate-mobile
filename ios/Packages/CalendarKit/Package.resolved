@@ -1,0 +1,15 @@
+{
+  "originHash" : "2a75e75e24d098fbb6badecd4cd757b4b9b93a1bfcc47f50ee26db800070fc6e",
+  "pins" : [
+    {
+      "identity" : "nepdate-swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/sanamhub/nepdate-swift.git",
+      "state" : {
+        "revision" : "f0ebf1a73c38c84739e5a433e55f0d5328f6555a",
+        "version" : "1.0.0-rc.1"
+      }
+    }
+  ],
+  "version" : 3
+}

@@ -23,11 +23,17 @@ public enum AboutLinks {
   /// The source repository.
   public static let sourceCode = "https://github.com/sanamhub/nepdate-mobile"
 
+  /// The web patro, which runs in any browser and needs no install.
+  public static let webPatro = "https://patro.nepdate.com"
+
   /// Empty until the hub publishes `holidays.ics` (ADR-0003).
   public static let holidaysICSURL = ""
 
-  /// The five links the requirement names, in display order.
-  public static let all = [knownData, reportDate, licences, privacy, sourceCode]
+  /// The six links the requirement names, in display order.
+  public static let all = [webPatro, reportDate, knownData, privacy, sourceCode, licences]
+
+  /// The project's own sites About may link to.
+  public static let allowedSites = ["patro.nepdate.com", "nepdate.com"]
 
   /// Only repositories whose pages are public today.
   public static let allowedRepositories = ["sanamhub/nepdate-mobile"]
@@ -38,6 +44,12 @@ public enum AboutLinks {
   public static func problem(with url: String) -> String? {
     guard let parsed = URL(string: url), parsed.scheme == "https" else {
       return "not an https URL: \(url)"
+    }
+    if let host = parsed.host, allowedSites.contains(host) {
+      if let port = parsed.port, port != 443 {
+        return "unexpected port: \(url)"
+      }
+      return nil
     }
     guard parsed.host == "github.com" else {
       return "not github.com: \(url)"

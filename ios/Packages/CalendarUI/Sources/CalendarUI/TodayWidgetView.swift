@@ -2,22 +2,33 @@ import CalendarKit
 import SwiftUI
 import WidgetKit
 
-/// The small Today widget (W-01): the BS day numeral, month, weekday, AD date or holiday name,
-/// the holiday mark, the next holiday and the Nepal label.
+/// The small Today widget (W-01): the main calendar's date, the other calendar's date or the
+/// holiday name, the holiday mark, and, when details are on, the tithi and the next holiday.
 public struct TodayWidgetView: View {
   private let entry: WidgetEntry
+  private let mainCalendar: MainCalendar
+  private let showsDetails: Bool
 
   /// Creates the view.
-  /// - Parameter entry: The values to draw.
-  public init(entry: WidgetEntry) {
+  /// - Parameters:
+  ///   - entry: The values to draw.
+  ///   - mainCalendar: The calendar whose date is the hero.
+  ///   - showsDetails: Whether the tithi and the next-holiday line show.
+  public init(
+    entry: WidgetEntry,
+    mainCalendar: MainCalendar = .bs,
+    showsDetails: Bool = true
+  ) {
     self.entry = entry
+    self.mainCalendar = mainCalendar
+    self.showsDetails = showsDetails
   }
 
   /// The view's content.
   public var body: some View {
     VStack(alignment: .leading, spacing: 4) {
       HStack(alignment: .firstTextBaseline, spacing: 8) {
-        Text(verbatim: entry.day.day)
+        Text(verbatim: heroDay)
           .font(.system(size: 56, weight: .semibold, design: .rounded))
           .monospacedDigit()
           .foregroundStyle(entry.day.isHoliday ? BrandColor.holiday : Color.primary)
@@ -28,7 +39,7 @@ public struct TodayWidgetView: View {
           .foregroundStyle(.secondary)
       }
 
-      Text(verbatim: entry.day.month)
+      Text(verbatim: heroMonth)
         .font(.headline)
 
       if entry.day.isHoliday {
@@ -38,40 +49,44 @@ public struct TodayWidgetView: View {
           .widgetAccentable()
       }
 
-      if let holiday = entry.day.holidayName {
-        Text(verbatim: holiday)
-          .font(.caption2)
-          .foregroundStyle(BrandColor.secondaryText)
-          .lineLimit(1)
-      } else if entry.day.isHoliday {
-        Text("Public holiday")
+      if entry.day.isHoliday {
+        Text(verbatim: entry.day.holidayName ?? String(localized: "Public holiday"))
           .font(.caption2)
           .foregroundStyle(BrandColor.secondaryText)
           .lineLimit(1)
       } else {
-        Text(verbatim: entry.day.adDate)
+        Text(verbatim: otherCalendarLine)
           .font(.caption2)
           .foregroundStyle(BrandColor.secondaryText)
           .lineLimit(1)
       }
 
-      if entry.day.showsNepalLabel {
-        Text("Nepal")
-          .font(.caption2)
-          .foregroundStyle(BrandColor.today)
-      }
-
-      Spacer(minLength: 0)
-
-      if let next = entry.nextHoliday {
-        HStack(alignment: .firstTextBaseline, spacing: 4) {
-          eventName(next)
-            .lineLimit(1)
-          Spacer(minLength: 0)
-          relativeText(next)
-            .foregroundStyle(.secondary)
+      if showsDetails {
+        if let tithi = entry.day.tithi {
+          Text(verbatim: tithi)
+            .font(.caption2)
+            .foregroundStyle(BrandColor.secondaryText)
+            .lineLimit(2)
         }
-        .font(.caption2)
+
+        if entry.day.showsNepalLabel {
+          Text("Nepal")
+            .font(.caption2)
+            .foregroundStyle(BrandColor.today)
+        }
+
+        Spacer(minLength: 0)
+
+        if let next = entry.nextHoliday {
+          HStack(alignment: .firstTextBaseline, spacing: 4) {
+            eventName(next)
+              .lineLimit(1)
+            Spacer(minLength: 0)
+            relativeText(next)
+              .foregroundStyle(.secondary)
+          }
+          .font(.caption2)
+        }
       }
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
@@ -80,9 +95,24 @@ public struct TodayWidgetView: View {
     .accessibilityLabel(Text(verbatim: spoken))
   }
 
+  private var heroDay: String {
+    mainCalendar == .bs ? entry.day.day : entry.day.adDayText
+  }
+
+  private var heroMonth: String {
+    mainCalendar == .bs ? entry.day.month : entry.day.adMonthName
+  }
+
+  private var otherCalendarLine: String {
+    mainCalendar == .bs ? entry.day.adDate : "\(entry.day.month) \(entry.day.day)"
+  }
+
   /// The numeral, the holiday and the next holiday's count, spoken as one label.
   private var spoken: String {
     var text = WidgetSpeech.today(entry, words: .localized)
+    if mainCalendar == .ad {
+      text = "\(entry.day.adDate), " + text
+    }
     if let next = entry.nextHoliday {
       text += ", " + WidgetSpeech.event(next, words: .localized)
     }
@@ -110,8 +140,8 @@ public struct TodayWidgetView: View {
   }
 }
 
-/// The medium Today and upcoming widget (W-02): W-01's content on the left and the next three
-/// events on the right.
+/// The medium Today and upcoming widget (W-02): W-01's content on the left and the next four
+/// events on the right, with the data-ends line when fewer than four remain.
 public struct UpcomingWidgetView: View {
   private let entry: WidgetEntry
 

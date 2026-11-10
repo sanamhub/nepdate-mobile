@@ -1,0 +1,9 @@
+NepDate is a light, fast Nepali patro. It answers what the Bikram Sambat date is, whether today is a public holiday, and what is coming, without ads, accounts or a network.
+
+- The month grid with big BS numerals, small AD dates, holidays and Saturdays in red, the tithi and every festival.
+- The today card with the day, the weekday, the tithi and the next public holiday.
+- The festivals list and a search for names in English or Nepali and for a typed BS or AD date.
+- A converter between Bikram Sambat and Gregorian dates, and the difference between two dates.
+- Home Screen widgets for today, the month, the next festival, this week and the festivals list, plus Lock Screen and Control Center items.
+- English and Nepali, with the system's per-app language page.
+- No ads, no analytics, no account, and no network calls.

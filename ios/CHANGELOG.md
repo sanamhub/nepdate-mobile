@@ -8,6 +8,12 @@ All notable changes to the iOS app. The format follows
 
 ### Added
 
+- The parity work: the four tabs with the search role, the first run, the today card and the
+  rebuilt month grid, the year view, the day sheet's stepping and Share, the festivals list and
+  search, the rebuilt converter, the six promises in About, the new widget families, the App
+  Shortcuts and the festival entity. The version is 1.0.0 and the store metadata is in
+  `fastlane/metadata/ios/en-US`.
+
 - The iOS project skeleton: the app target, the Today widget extension, the App Group
   `group.np.nepdate`, the local packages `CalendarKit` and `CalendarUI`, `PrivacyInfo.xcprivacy` in
   both targets, a String Catalog with English and Nepali, and the five gates of `ios/scripts/ci.sh`.
@@ -38,7 +44,7 @@ All notable changes to the iOS app. The format follows
 - `ci.sh` checks `NepDateLibraryVersion` against the nepdate-swift pin and every catalog key for a
   translated `ne` value.
 - The widget timeline: one entry for the build instant and one at each of the next seven local
-  midnights, with the day, the next holiday and the next three events.
+  midnights, with the day, the next holiday and the next four events.
 - W-01 Today and W-02 Today and upcoming, with the holiday mark, the Nepal label, the coverage
   footer and `nepdate://` links. Eight widget reference snapshots, 35 in total.
 - The app opens `nepdate://today` on today's month and `nepdate://day/<date>` on that day's detail;
@@ -66,3 +72,4 @@ All notable changes to the iOS app. The format follows
   I1-04 from linker layout; no widget source changed.
 - Copy date now shows "Date copied" and announces it once to VoiceOver.
 - Light secondary text is 0.33 white (7.55:1 on the background).
+

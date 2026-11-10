@@ -47,4 +47,19 @@ public enum PatroLookahead {
     }
     return nil
   }
+
+  /// The public holiday on a day, if the day is one.
+  /// - Parameter date: The day to read.
+  /// - Returns: The holiday with a day count of 0, or `nil` when the day is not a public holiday.
+  public static func holiday(on date: MonthDate) -> HolidayCountdown? {
+    guard let day = try? NepaliDate(year: date.year, month: date.month, day: date.day)
+    else { return nil }
+    let info = day.calendarInfo
+    guard info.isPublicHoliday else { return nil }
+    return HolidayCountdown(
+      date: date,
+      name: info.events.first.map(NamedText.init),
+      days: 0
+    )
+  }
 }

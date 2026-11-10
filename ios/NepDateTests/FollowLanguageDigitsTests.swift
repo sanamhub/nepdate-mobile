@@ -81,19 +81,29 @@ struct FollowLanguageDigitsTests {
     #expect(Digits.english.format(2083) == "2083")
   }
 
-  @Test("the widget summary uses the stored zone, language and digits")
-  func widgetSummary() throws {
+  @Test("the widget entry uses the stored zone, language and digits")
+  func widgetEntry() throws {
     // 2024-07-30T18:30:00Z: BS 2081-04-16 in Nepal, 2081-04-15 in New York.
     let newYork = try #require(TimeZone(identifier: "America/New_York"))
-    let provider = TodayProvider(
-      now: { Date(timeIntervalSince1970: 1_722_364_200) }, deviceZone: newYork)
+    let now = Date(timeIntervalSince1970: 1_722_364_200)
 
-    let nepal = TodaySummary.make(
-      settings: Settings(language: .nepali, dateFollows: .nepal), provider: provider)
-    #expect(nepal.day == "१६")
+    let nepal = try #require(
+      WidgetTimeline.entries(
+        now: now,
+        settings: Settings(language: .nepali, dateFollows: .nepal),
+        deviceZone: newYork
+      ).first
+    )
+    #expect(nepal.day.day == "१६")
+    #expect(nepal.day.month == "साउन")
 
-    let device = TodaySummary.make(
-      settings: Settings(language: .nepali, digits: .english), provider: provider)
-    #expect(device.day == "15")
+    let device = try #require(
+      WidgetTimeline.entries(
+        now: now,
+        settings: Settings(language: .nepali, digits: .english),
+        deviceZone: newYork
+      ).first
+    )
+    #expect(device.day.day == "15")
   }
 }

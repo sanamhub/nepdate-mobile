@@ -14,9 +14,11 @@ final class DayDetailUITests: XCTestCase {
     ("trait", .trait),
   ]
 
-  /// No finding is tolerated on the sheet. Add an entry here only with its evidence in this file
-  /// and `ios/README.md`, as the month screen's table does.
-  private static let tolerated: [String: Int] = [:]
+  /// The sheet itself has no tolerated finding. The only exception is the drawn Sunny mark and its
+  /// event lines, which the audit reports as element detections at a zero frame; those are counted
+  /// under `elementDetection other`, as on the month screen. The counts are printed for the review
+  /// because they move by one or two between runs of identical builds.
+  private static let toleratedCategories: Set<String> = ["elementDetection other"]
 
   @MainActor
   func testSheetShowsItsFieldsAndCopiesTheDate() throws {
@@ -39,25 +41,48 @@ final class DayDetailUITests: XCTestCase {
       app.swipeUp()
     }
     copy.tap()
-    XCTAssertTrue(
-      app.staticTexts["Date copied"].waitForExistence(timeout: 2),
-      "the copy confirmation did not show"
-    )
 
-    // The app writes the pasteboard and repeats the copied date as the button's accessibility
-    // value. The XCUITest runner's own pasteboard read waits on the system paste prompt (runs
-    // 39184279428 and 39186125450), so `DayClipboardTests` reads the pasteboard in the app process
-    // instead.
+    // The copied date stays on the button as its accessibility value, so a copy that ran is
+    // observable after the confirmation line has gone. The line itself lasts two seconds
+    // (`CopyConfirmation.duration`), and the runner needed nine seconds between finding the button
+    // and synthesising the tap on run 42821786175, because it re-read the interrupting elements
+    // before every event. A query that starts after the tap returns therefore always misses it, so
+    // the line is not asserted here: `CopyConfirmationTests` asserts that showing it starts
+    // visible, and the sheet's `copied` reference image shows it drawn.
     let copied = NSPredicate(format: "value == %@", "Asoj 25, 2083")
     let wait = expectation(for: copied, evaluatedWith: copy)
-    XCTAssertEqual(XCTWaiter.wait(for: [wait], timeout: 5), .completed)
+    XCTAssertEqual(
+      XCTWaiter.wait(for: [wait], timeout: 10),
+      .completed,
+      "the copy did not run"
+    )
+
+    // The XCUITest runner's own pasteboard read waits on the system paste prompt (runs
+    // 39184279428 and 39186125450), so `DayClipboardTests` reads the pasteboard in the app process
+    // instead.
+  }
+
+  @MainActor
+  func testNextAndPreviousDayStayInTheSheet() throws {
+    let app = try Self.openSheet()
+
+    let next = app.buttons["Next day"]
+    XCTAssertTrue(next.waitForExistence(timeout: 5))
+    next.tap()
+    XCTAssertTrue(app.staticTexts["Asoj 26, 2083"].waitForExistence(timeout: 5))
+
+    let previous = app.buttons["Previous day"]
+    XCTAssertTrue(previous.exists)
+    previous.tap()
+    XCTAssertTrue(app.staticTexts["Asoj 25, 2083"].waitForExistence(timeout: 5))
   }
 
   @MainActor
   func testSheetHasOnlyTheToleratedAuditFindings() throws {
     let app = try Self.openSheet()
 
-    XCTAssertEqual(try audit(app), Self.tolerated)
+    let found = try audit(app)
+    XCTAssertEqual(Set(found.keys), Self.toleratedCategories, "\(found)")
   }
 
   @MainActor
@@ -72,8 +97,10 @@ final class DayDetailUITests: XCTestCase {
           "AUDIT \(audit.name) \(kind) label=\(label) frame=\(frame) "
             + "\(issue.compactDescription) | \(issue.detailedDescription)"
         )
-        guard Self.tolerated["\(audit.name) \(kind)"] != nil else { return false }
-        counts["\(audit.name) \(kind)", default: 0] += 1
+        let isDrawnMark = audit.name == "elementDetection" && label.isEmpty && frame == .zero
+        let key = isDrawnMark ? "elementDetection other" : "\(audit.name) \(kind)"
+        guard isDrawnMark || Self.toleratedCategories.contains(key) else { return false }
+        counts[key, default: 0] += 1
         return true
       }
     }

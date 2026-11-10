@@ -13,11 +13,32 @@ public struct WidgetDay: Sendable, Hashable {
   /// The BS month name.
   public let month: String
 
+  /// The short BS month name for the date chip (W-08).
+  public let shortMonth: String
+
+  /// The AD month name.
+  public let adMonthName: String
+
+  /// The AD day number in the resolved digits.
+  public let adDayText: String
+
   /// The weekday name.
   public let weekday: String
 
   /// The AD date, for example `6 October 2026`.
   public let adDate: String
+
+  /// The AD day of the month.
+  public let adDay: Int
+
+  /// The AD month, 1 to 12.
+  public let adMonth: Int
+
+  /// The AD year.
+  public let adYear: Int
+
+  /// The tithi, or `nil` when the data has none.
+  public let tithi: String?
 
   /// The first event on a public holiday, or `nil` when the day has none.
   public let holidayName: String?
@@ -77,7 +98,34 @@ public enum WidgetTimeline {
   public static func preview(settings: Settings = .defaults) -> WidgetEntry {
     // 2026-10-11T12:00:00+05:45, the Asoj 25 holiday.
     let now = Date(timeIntervalSince1970: 1_791_699_300)
-    return entries(now: now, settings: settings, deviceZone: CalendarDates.nepal).first!
+    if let first = entries(now: now, settings: settings, deviceZone: CalendarDates.nepal).first {
+      return first
+    }
+    // The fixed instant is inside coverage, so the branch above always returns. The fallback
+    // keeps the placeholder total without a force unwrap.
+    return WidgetEntry(
+      date: now,
+      day: WidgetDay(
+        date: MonthDate(year: 2083, month: 6, day: 25),
+        day: "25",
+        month: "Asoj",
+        shortMonth: "Aso",
+        adMonthName: "October",
+        adDayText: "11",
+        weekday: "Sunday",
+        adDate: "11 October 2026",
+        adDay: 11,
+        adMonth: 10,
+        adYear: 2026,
+        tithi: nil,
+        holidayName: nil,
+        isHoliday: false,
+        showsNepalLabel: false
+      ),
+      nextHoliday: nil,
+      upcoming: [],
+      dataEndsOn: nil
+    )
   }
 
   /// The entries for a timeline.
@@ -153,8 +201,15 @@ public enum WidgetTimeline {
       date: today,
       day: digits.format(date.day),
       month: MonthNames.bs(date.month, language),
+      shortMonth: MonthNames.bsShort(date.month, language),
+      adMonthName: MonthNames.ad(date.gregorian.month, language),
+      adDayText: digits.format(date.gregorian.day),
       weekday: date.weekday.name(language.lang),
       adDate: adDate(date.gregorian, language: language, digits: digits),
+      adDay: date.gregorian.day,
+      adMonth: date.gregorian.month,
+      adYear: date.gregorian.year,
+      tithi: info.tithi.map { digits.applying(to: $0.name(language.lang)) },
       holidayName: holidayName,
       isHoliday: info.isPublicHoliday,
       showsNepalLabel: settings.dateFollows == .nepal
@@ -163,7 +218,7 @@ public enum WidgetTimeline {
     )
     let upcoming = upcomingEvents(
       after: date,
-      limit: 3,
+      limit: 4,
       language: language,
       digits: digits
     )
@@ -172,7 +227,7 @@ public enum WidgetTimeline {
       day: day,
       nextHoliday: nextHoliday(after: date, language: language, digits: digits),
       upcoming: upcoming,
-      dataEndsOn: upcoming.count < 3
+      dataEndsOn: upcoming.count < 4
         ? bsDate(Patro.coverage.upperBound, language: language, digits: digits)
         : nil
     )
@@ -202,6 +257,28 @@ public enum WidgetTimeline {
       date = next
     }
     return nil
+  }
+
+  /// The next events from today, for the festival countdown's twelve-day window.
+  /// - Parameters:
+  ///   - now: The instant the entry stands for.
+  ///   - settings: The stored settings.
+  ///   - deviceZone: The device's zone, injected for tests.
+  ///   - count: The window size in events; 12 by default.
+  /// - Returns: The events in date order.
+  public static func festivalWindow(
+    now: Date,
+    settings: Settings,
+    deviceZone: TimeZone = .current,
+    count: Int = 12
+  ) -> [WidgetEvent] {
+    let today = TodayProvider(now: { now }, deviceZone: deviceZone)
+      .today(dateFollows: settings.dateFollows)
+    guard let date = try? NepaliDate(year: today.year, month: today.month, day: today.day)
+    else { return [] }
+    let language = settings.language.resolved
+    let digits = settings.digits.resolved(for: language)
+    return upcomingEvents(after: date, limit: count, language: language, digits: digits)
   }
 
   private static func upcomingEvents(

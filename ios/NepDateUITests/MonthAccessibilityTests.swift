@@ -2,8 +2,9 @@ import CalendarKit
 import CalendarScreens
 import XCTest
 
-/// MR-01, MR-10 and MR-22 on the running app: the month screen opens on today, the pager recentres
-/// its window, the today card opens the day sheet, and the system accessibility audit passes.
+/// MR-01, MR-10 and MR-14 on the running app: the month screen opens on today, the year view
+/// reaches both ends of the range and returns to a month, the pager recentres its window, the
+/// today card opens the day sheet, and the system accessibility audit passes.
 ///
 /// Every test pins today to Asoj 20, 2083 (`NEPDATE_UI_TEST_TODAY`, read by Debug builds only), so
 /// the audit inspects the same month on every run and its counts below are exact.
@@ -78,6 +79,56 @@ final class MonthAccessibilityTests: XCTestCase {
     XCTAssertTrue(Self.title("Asoj 2083", in: app).waitForExistence(timeout: 10))
   }
 
+  @MainActor
+  func testYearViewReachesBothEndsOfTheRange() throws {
+    let last = Self.launch(month: "2199-12")
+    let lastTitle = Self.title("Chaitra 2199", in: last)
+    XCTAssertTrue(lastTitle.waitForExistence(timeout: 10))
+    // A month away from today draws four trailing items, and four do not fit beside an inline title
+    // on the 402-point screen: the system moves the Today and Next month buttons into the bar's
+    // More menu (run 42833678656). Previous month stays in the bar, so each end of the range is
+    // asserted here through it and through the year view's own year buttons, and
+    // `MonthViewModelTests` asserts the model's `canGoPrevious` and `canGoNext` at both ends.
+    XCTAssertTrue(last.buttons["Previous month"].isEnabled)
+
+    Self.openYearView(last, label: "Chaitra 2199")
+    XCTAssertTrue(last.navigationBars["2199"].waitForExistence(timeout: 10))
+    XCTAssertFalse(last.buttons["Next year"].isEnabled)
+    XCTAssertTrue(last.buttons["Previous year"].isEnabled)
+
+    let baisakh = last.buttons.matching(
+      NSPredicate(format: "label BEGINSWITH %@", "Baisakh 2199")
+    ).firstMatch
+    XCTAssertTrue(baisakh.waitForExistence(timeout: 5), "the Baisakh mini month is missing")
+    baisakh.tap()
+    XCTAssertTrue(Self.title("Baisakh 2199", in: last).waitForExistence(timeout: 10))
+    XCTAssertTrue(
+      Self.cell(beginningWith: "Baisakh 1, 2199,", in: last).waitForExistence(timeout: 10),
+      "the pager did not move to Baisakh 2199"
+    )
+    last.terminate()
+
+    let first = Self.launch(month: "1901-01")
+    let firstTitle = Self.title("Baisakh 1901", in: first)
+    XCTAssertTrue(firstTitle.waitForExistence(timeout: 10))
+    XCTAssertFalse(first.buttons["Previous month"].isEnabled)
+
+    Self.openYearView(first, label: "Baisakh 1901")
+    XCTAssertTrue(first.navigationBars["1901"].waitForExistence(timeout: 10))
+    XCTAssertFalse(first.buttons["Previous year"].isEnabled)
+    XCTAssertTrue(first.buttons["Next year"].isEnabled)
+
+    let chaitra = first.buttons.matching(
+      NSPredicate(format: "label BEGINSWITH %@", "Chaitra 1901")
+    ).firstMatch
+    XCTAssertTrue(chaitra.waitForExistence(timeout: 5), "the Chaitra mini month is missing")
+    chaitra.tap()
+    XCTAssertTrue(Self.title("Chaitra 1901", in: first).waitForExistence(timeout: 10))
+    XCTAssertTrue(
+      Self.cell(beginningWith: "Chaitra 1, 1901,", in: first).waitForExistence(timeout: 10)
+    )
+  }
+
   /// The pager holds 49 months around the shown one and recentres when a swipe comes within five
   /// pages of an edge. Twenty-one swipes from Asoj 2083 cross that point once (at the twentieth).
   @MainActor
@@ -85,17 +136,27 @@ final class MonthAccessibilityTests: XCTestCase {
     let app = Self.launch()
     XCTAssertTrue(Self.title("Asoj 2083", in: app).waitForExistence(timeout: 10))
 
+    let pager = app.scrollViews["month_pager"]
     var key = try XCTUnwrap(MonthKey(year: 2083, month: 6))
     for _ in 0..<21 {
       key = try XCTUnwrap(MonthKey(id: key.id + 1))
       let expected = "\(MonthNames.bs(key.month, .english)) \(key.year)"
-      app.scrollViews["month_pager"].swipeLeft()
-      let moved = NSPredicate(format: "label == %@", expected)
-      let element = Self.title(expected, in: app)
-      let wait = expectation(for: moved, evaluatedWith: element)
-      XCTAssertEqual(XCTWaiter.wait(for: [wait], timeout: 5), .completed, "expected \(expected)")
+      // The month is the navigation bar's identifier, so a wait for the bar of that month is the
+      // wait for the pager to reach it. The swipe is slow so that its momentum cannot carry the
+      // pager past the page it turns to, which left the pager on Bhadau 2085 after the last swipe
+      // of this loop on run 42846143540. The pager also ignores a page change while it recentres
+      // its window, so a swipe that lands in that moment is dropped and the month gets one more
+      // swipe (run 42837970793); the 10 second wait makes sure a swipe that was merely slow is not
+      // followed by a second one.
+      var reached = false
+      for _ in 0..<2 where !reached {
+        pager.swipeLeft(velocity: .slow)
+        reached = Self.title(expected, in: app).waitForExistence(timeout: 10)
+      }
+      XCTAssertTrue(reached, "the pager did not reach \(expected)")
     }
-    XCTAssertTrue(Self.title("Asar 2085", in: app).waitForExistence(timeout: 10))
+    // The loop above landed on Asar 2085; its first cell proves the pager draws that month after
+    // the recentre, not only that the bar names it.
     XCTAssertTrue(
       Self.cell(beginningWith: "Asar 1, 2085,", in: app).waitForExistence(timeout: 10),
       "the page after the recentre is not Asar 2085"
@@ -179,18 +240,43 @@ final class MonthAccessibilityTests: XCTestCase {
   @MainActor
   private static func launch(
     arguments: [String] = [],
-    today: String = "2083-06-20"
+    today: String = "2083-06-20",
+    month: String? = nil
   ) -> XCUIApplication {
     let app = XCUIApplication()
     app.launchEnvironment["NEPDATE_UI_TEST_TODAY"] = today
+    if let month {
+      app.launchEnvironment["NEPDATE_UI_TEST_MONTH"] = month
+    }
     app.launchArguments += ["-AppleLanguages", "(en)", "-AppleLocale", "en_US"] + arguments
     app.launch()
     return app
   }
 
+  /// Opens the title menu and picks the year view. The month screen draws an inline title, so
+  /// SwiftUI puts the month in the navigation bar as a button labelled "Asoj 2083, Actions Menu";
+  /// tapping it presents the menu, which the runner reaches on this screen (run 42828292103). The
+  /// item is looked up as a button, which is how a presented menu exposes it.
+  @MainActor
+  private static func openYearView(_ app: XCUIApplication, label: String) {
+    let titleButton = app.navigationBars.buttons.matching(
+      NSPredicate(format: "label BEGINSWITH %@", label)
+    ).firstMatch
+    XCTAssertTrue(titleButton.waitForExistence(timeout: 10), "the title button is missing")
+    titleButton.tap()
+
+    let yearView = app.buttons["Year view"]
+    XCTAssertTrue(yearView.waitForExistence(timeout: 5), "the title menu is missing")
+    yearView.tap()
+  }
+
+  /// The month title. The screen draws an inline title, so the navigation bar itself carries the
+  /// month as its identifier and has no labelled text: the bar's title button is labelled
+  /// "Asoj 2083, Actions Menu", and no element has the month alone as its label (run 42828292103).
+  /// The bar keeps the identifier as the month changes, so each call reads the month the app shows.
   @MainActor
   private static func title(_ label: String, in app: XCUIApplication) -> XCUIElement {
-    app.descendants(matching: .any).matching(NSPredicate(format: "label == %@", label)).firstMatch
+    app.navigationBars[label]
   }
 
   @MainActor

@@ -36,6 +36,9 @@ public struct Comparison: Sendable, Hashable {
 
   /// Days after the months.
   public let days: Int
+
+  /// The signed total number of days between the two dates.
+  public let totalDays: Int
 }
 
 /// Why a conversion failed, before the view maps it to a localised line.
@@ -90,6 +93,47 @@ public struct ConverterViewModel: Sendable {
     self.digits = digits
   }
 
+  /// Converts a BS date chosen with the wheel pickers.
+  /// - Parameters:
+  ///   - year: The BS year.
+  ///   - month: The month, 1 to 12.
+  ///   - day: The day, 1 to the month's length.
+  public mutating func fromBs(year: Int, month: Int, day: Int) {
+    fromBs("\(year)-\(month)-\(day)")
+  }
+
+  /// Compares two BS dates, independent of the single conversion above (MR-21).
+  /// - Parameters:
+  ///   - from: The first date.
+  ///   - to: The second date.
+  public mutating func compare(from: MonthDate, to: MonthDate) {
+    guard
+      let first = try? NepaliDate(year: from.year, month: from.month, day: from.day),
+      let second = try? NepaliDate(year: to.year, month: to.month, day: to.day)
+    else {
+      comparisonError = .outOfRange
+      return
+    }
+    let diff = first.diff(to: second)
+    comparison = Comparison(
+      from: from,
+      to: to,
+      years: diff.years,
+      months: diff.months,
+      days: diff.days,
+      totalDays: diff.totalDays
+    )
+    comparisonError = nil
+  }
+
+  /// Returns the converter to its initial state.
+  public mutating func reset() {
+    let today = self.today
+    let language = self.language
+    let digits = self.digits
+    self = ConverterViewModel(today: today, language: language, digits: digits)
+  }
+
   /// Converts BS text with the library's lenient parser (MR-04 AC1 and AC2).
   /// - Parameter text: Nepali or English digits, with a month name or numeric fields.
   public mutating func fromBs(_ text: String) {
@@ -139,7 +183,8 @@ public struct ConverterViewModel: Sendable {
         to: MonthDate(year: second.year, month: second.month, day: second.day),
         years: diff.years,
         months: diff.months,
-        days: diff.days
+        days: diff.days,
+        totalDays: diff.totalDays
       )
       comparisonError = nil
     } catch {

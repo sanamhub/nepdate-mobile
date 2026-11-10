@@ -44,3 +44,4 @@ that profile after the device measurements.
 | `WidgetTimelinePerformanceTests.testMemory`, peak resident size of the test process around building 8 month entries (CI run [42011732710](https://github.com/sanamhub/nepdate-mobile/actions/runs/42011732710)) | 347,078,656 bytes before, 369,410,048 bytes after | A regression signal only: the process also holds the app and the test frameworks |
 | Widget executable | 1,173,392 bytes | Was 615,656 bytes before the Month and Lock Screen widgets; see `ios/README.md` |
 | App executable | 2,465,640 bytes | Was 2,045,984 bytes |
+| `PerformanceUITests.testAppLaunch` (`XCTApplicationLaunchMetric`) | 3.937 s average of five launches, relative standard deviation 20.3 % (CI run [42853920542](https://github.com/sanamhub/nepdate-mobile/actions/runs/42853920542)) | A report only, not a gate: the shared runner cannot judge an absolute launch time |
