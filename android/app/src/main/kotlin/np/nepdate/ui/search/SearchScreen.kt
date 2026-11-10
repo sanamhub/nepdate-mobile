@@ -2,6 +2,7 @@ package np.nepdate.ui.search
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -92,14 +93,14 @@ internal fun SearchScreen(
     var query by rememberSaveable { mutableStateOf("") }
     val trimmed = query.trim()
     val allEntries = remember(today) { coverageEntries(today) }
-    val jumpDate = remember(trimmed) { parseJumpDate(trimmed) }
+    val jumpDates = remember(trimmed) { parseJumpDates(trimmed) }
     val results =
         remember(allEntries, trimmed) { if (trimmed.isEmpty()) emptyList() else searchGroups(allEntries, trimmed) }
     val recent = rememberRecentSearches(recentStore)
     val rowColor = MaterialTheme.colorScheme.surfaceContainerLowest
     val style = ParvaRowStyle(container = { rowColor }, highlight = trimmed, tagPrefix = "search_result_")
     val open: (NepaliDate) -> Unit = { date ->
-        if (parseJumpDate(trimmed) == null) recent.add(trimmed)
+        if (!jumpDates.isDate) recent.add(trimmed)
         onOpenDate(date)
     }
 
@@ -111,7 +112,12 @@ internal fun SearchScreen(
                 .statusBarsPadding()
                 .imePadding(),
     ) {
-        SearchField(query = query, onQueryChange = { query = it }, onBack = onBack, onSubmit = { jumpDate?.let(open) })
+        SearchField(
+            query = query,
+            onQueryChange = { query = it },
+            onBack = onBack,
+            onSubmit = { jumpDates.primary?.let(open) },
+        )
         HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
         LazyColumn(
             modifier = Modifier.fillMaxSize().testTag("search_results"),
@@ -123,9 +129,9 @@ internal fun SearchScreen(
                 }
             }
             item(key = "jump") {
-                JumpToDateCard(date = jumpDate, strings = strings, onOpen = { jumpDate?.let(open) })
+                JumpCards(dates = jumpDates, strings = strings, onOpen = open)
             }
-            if (trimmed.isNotEmpty() && jumpDate == null) {
+            if (trimmed.isNotEmpty() && !jumpDates.isDate) {
                 item(key = "count") { ResultCount(results.sumOf { it.entries.size }, trimmed, strings) }
             }
             parvaGroups(groups = results, lang = lang, today = today, strings = strings, style = style, onSelect = open)
@@ -216,56 +222,84 @@ private fun ClearButton(
     }
 }
 
-/** The tertiary card that explains date jumping, and jumps when the query is a date. */
+/**
+ * The date cards. A typed date such as `2081-05-10` is valid in BS and in AD, so it gets one card
+ * for each reading; a date that only one calendar can read gets one card; anything else gets the
+ * card that explains date jumping.
+ */
 @Composable
-private fun JumpToDateCard(
-    date: NepaliDate?,
+private fun JumpCards(
+    dates: JumpDates,
     strings: ParvaStrings,
-    onOpen: () -> Unit,
+    onOpen: (NepaliDate) -> Unit,
+) {
+    Column(
+        modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 10.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        dates.bs?.let { date ->
+            JumpCard(
+                title = stringResource(R.string.search_jump_open_bs, strings.bsLong(date)),
+                detail = strings.adDate(date),
+                tag = "search_jump_bs",
+                onClick = { onOpen(date) },
+            )
+        }
+        dates.ad?.let { date ->
+            JumpCard(
+                title = stringResource(R.string.search_jump_open_ad, strings.adDate(date)),
+                detail = strings.bsLong(date),
+                tag = "search_jump_ad",
+                onClick = { onOpen(date) },
+            )
+        }
+        if (!dates.isDate) {
+            JumpCard(
+                title = stringResource(R.string.search_jump_title),
+                detail =
+                    stringResource(
+                        R.string.search_jump_example,
+                        BS_EXAMPLE.inDigits(strings.digits),
+                        AD_EXAMPLE.inDigits(strings.digits),
+                    ),
+                tag = "search_jump",
+                onClick = null,
+            )
+        }
+    }
+}
+
+/** One rounded card of [JumpCards]: the date it opens, or the explainer when [onClick] is null. */
+@Composable
+private fun JumpCard(
+    title: String,
+    detail: String,
+    tag: String,
+    onClick: (() -> Unit)?,
 ) {
     val content = MaterialTheme.colorScheme.onTertiaryContainer
     Row(
         modifier =
             Modifier
-                .padding(start = 16.dp, end = 16.dp, top = 10.dp)
                 .fillMaxWidth()
                 .heightIn(min = 56.dp)
                 .clip(RoundedCornerShape(24.dp))
                 .background(MaterialTheme.colorScheme.tertiaryContainer)
-                .then(if (date != null) Modifier.clickable(onClick = onOpen) else Modifier)
+                .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier)
                 .padding(horizontal = 16.dp, vertical = 12.dp)
-                .testTag("search_jump"),
+                .testTag(tag),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         SymbolIcon(icon = R.drawable.ic_sym_event, tint = content)
         Spacer(Modifier.width(14.dp))
         Column {
-            if (date != null) {
-                Text(
-                    text = stringResource(R.string.search_jump_open, strings.bsLong(date)),
-                    color = content,
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.Bold,
-                )
-                Text(text = strings.adDate(date), color = content, style = MaterialTheme.typography.bodyMedium)
-            } else {
-                Text(
-                    text = stringResource(R.string.search_jump_title),
-                    color = content,
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.Bold,
-                )
-                Text(
-                    text =
-                        stringResource(
-                            R.string.search_jump_example,
-                            BS_EXAMPLE.inDigits(strings.digits),
-                            AD_EXAMPLE.inDigits(strings.digits),
-                        ),
-                    color = content,
-                    style = MaterialTheme.typography.bodyMedium,
-                )
-            }
+            Text(
+                text = title,
+                color = content,
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.Bold,
+            )
+            Text(text = detail, color = content, style = MaterialTheme.typography.bodyMedium)
         }
     }
 }
@@ -312,31 +346,50 @@ internal fun searchGroups(
         .map { (key, items) -> VisibleGroup(key.first, key.second, items) }
 
 /**
- * The date in [text] when it is written as year-month-day, in ASCII or Devanagari digits. Years after
- * [BS_YEAR_FLOOR] are read as BS, earlier years as AD; `2083-07-15` is BS and `2026-11-01` is AD.
- *
- * @return the BS date, or null when the text is not a valid date in range
+ * The two readings of a typed date: the same year-month-day once as a BS date and once as an AD
+ * date. `2081-05-10` is a real day in both calendars, so it has both; a date only one calendar can
+ * read, such as a BS day past the end of the Nepali year that came first, has only that one.
  */
-internal fun parseJumpDate(text: String): NepaliDate? {
-    val ascii = text.map { if (it in '०'..'९') '0' + (it - '०') else it }.joinToString("").trim()
-    // Eight digits typed without separators (20830722) read as YYYYMMDD.
-    val spaced = if (ascii.length == DATE_DIGITS && ascii.all { it.isDigit() }) withDateSlashes(ascii) else ascii
-    val match = DATE_PATTERN.matchEntire(spaced) ?: return null
-    val (year, month, day) = match.destructured.toList().map { it.toInt() }
-    return if (year > BS_YEAR_FLOOR) {
-        NepaliDate.ofOrNull(year, month, day)
-    } else {
-        try {
-            LocalDate.of(year, month, day).toNepaliDate()
-        } catch (_: DateTimeException) {
-            null
-        } catch (_: NepDateException) {
-            null
-        }
-    }
+internal data class JumpDates(
+    val bs: NepaliDate?,
+    val ad: NepaliDate?,
+) {
+    /** True when [text] read as a date in either calendar. */
+    val isDate: Boolean get() = bs != null || ad != null
+
+    /** The date the keyboard's Search action opens: the BS reading when the text has both. */
+    val primary: NepaliDate? get() = bs ?: ad
 }
 
+/**
+ * Reads [text] as a year-month-day date, in ASCII or Devanagari digits, and returns both readings
+ * that the library can make of it. Eight digits typed without separators (`20830722`) read as
+ * YYYYMMDD.
+ *
+ * @return the BS reading and the AD reading, either of which is null when that calendar cannot read it
+ */
+internal fun parseJumpDates(text: String): JumpDates {
+    val ascii = text.map { if (it in '०'..'९') '0' + (it - '०') else it }.joinToString("").trim()
+    val spaced = if (ascii.length == DATE_DIGITS && ascii.all { it.isDigit() }) withDateSlashes(ascii) else ascii
+    val match = DATE_PATTERN.matchEntire(spaced) ?: return JumpDates(null, null)
+    val (year, month, day) = match.destructured.toList().map { it.toInt() }
+    return JumpDates(bs = NepaliDate.ofOrNull(year, month, day), ad = adDateOf(year, month, day))
+}
+
+/** The BS date that [year]-[month]-[day] falls on in AD, or null outside the library's range. */
+private fun adDateOf(
+    year: Int,
+    month: Int,
+    day: Int,
+): NepaliDate? =
+    try {
+        LocalDate.of(year, month, day).toNepaliDate()
+    } catch (_: DateTimeException) {
+        null
+    } catch (_: NepDateException) {
+        null
+    }
+
 private val DATE_PATTERN = Regex("""(\d{4})\s*[-/.]\s*(\d{1,2})\s*[-/.]\s*(\d{1,2})""")
-private const val BS_YEAR_FLOOR = 2040
 private const val BS_EXAMPLE = "2083-07-15"
 private const val AD_EXAMPLE = "2026-11-01"

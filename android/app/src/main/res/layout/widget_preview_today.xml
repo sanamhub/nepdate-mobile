@@ -1,53 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- The static Today preview for Android 12 to 14 pickers. -->
+<!-- The static Today preview for Android 12 to 14 pickers: today's numeral on the Sunny shape,
+     the weekday as the title and the BS month and year as the body line. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/widget_shape_28"
-    android:backgroundTint="#FFDEA8"
+    android:backgroundTint="@color/widget_preview_today"
+    android:gravity="center"
     android:orientation="vertical"
-    android:padding="14dp"
-    tools:ignore="Overdraw,HardcodedText">
+    android:padding="8dp"
+    tools:ignore="Overdraw,UnusedAttribute">
+
+    <FrameLayout
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:background="@drawable/widget_sunny">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/widget3_preview_day"
+            android:textColor="@color/widget_preview_on_today"
+            android:textFontWeight="700"
+            android:textSize="22sp" />
+    </FrameLayout>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/widget_preview_month"
-        android:textColor="#271900"
-        android:textSize="14sp"
-        android:textStyle="bold" />
-
-    <TextView
-        android:layout_width="72dp"
-        android:layout_height="72dp"
-        android:layout_gravity="center"
-        android:layout_marginTop="6dp"
-        android:background="@drawable/widget_sunny"
-        android:gravity="center"
-        android:text="@string/widget3_preview_day"
-        android:textColor="#271900"
-        android:textSize="30sp"
-        android:textStyle="bold" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
+        android:layout_marginTop="2dp"
         android:text="@string/widget3_preview_weekday"
-        android:textColor="#271900"
-        android:textSize="15sp"
-        android:textStyle="bold" />
+        android:textColor="@color/widget_preview_on_today"
+        android:textFontWeight="500"
+        android:textSize="18sp" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/widget_shape_pill"
-        android:backgroundTint="#FFDAD6"
-        android:paddingHorizontal="10dp"
-        android:layout_marginTop="4dp"
-        android:text="@string/widget_preview_holiday"
-        android:textColor="#410002"
-        android:textSize="12sp"
-        android:textStyle="bold" />
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:text="@string/widget_preview_month"
+        android:textColor="@color/widget_preview_on_today"
+        android:textFontWeight="400"
+        android:textSize="14sp" />
 </LinearLayout>
