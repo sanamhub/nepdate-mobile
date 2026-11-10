@@ -314,8 +314,7 @@ public struct ConverterScreen: View {
         Text(verbatim: bsLine(value))
           .font(.subheadline.weight(.semibold))
           .foregroundStyle(.primary)
-          .lineLimit(1)
-          .minimumScaleFactor(0.7)
+          .fixedSize(horizontal: false, vertical: true)
       }
       .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
       .padding(.horizontal, 10)
