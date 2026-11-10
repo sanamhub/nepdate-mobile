@@ -136,17 +136,22 @@ final class MonthAccessibilityTests: XCTestCase {
     let app = Self.launch()
     XCTAssertTrue(Self.title("Asoj 2083", in: app).waitForExistence(timeout: 10))
 
+    let pager = app.scrollViews["month_pager"]
     var key = try XCTUnwrap(MonthKey(year: 2083, month: 6))
     for _ in 0..<21 {
       key = try XCTUnwrap(MonthKey(id: key.id + 1))
       let expected = "\(MonthNames.bs(key.month, .english)) \(key.year)"
-      app.scrollViews["month_pager"].swipeLeft()
       // The month is the navigation bar's identifier, so a wait for the bar of that month is the
-      // wait for the pager to reach it.
-      XCTAssertTrue(
-        Self.title(expected, in: app).waitForExistence(timeout: 5),
-        "the pager did not reach \(expected)"
-      )
+      // wait for the pager to reach it. The pager ignores a page change while it recentres its
+      // window, so a swipe that lands in that moment is dropped and the month gets one more swipe
+      // (run 42837970793); the 10 second wait makes sure a swipe that was merely slow is not
+      // followed by a second one.
+      var reached = false
+      for _ in 0..<2 where !reached {
+        pager.swipeLeft()
+        reached = Self.title(expected, in: app).waitForExistence(timeout: 10)
+      }
+      XCTAssertTrue(reached, "the pager did not reach \(expected)")
     }
     XCTAssertTrue(Self.title("Asar 2085", in: app).waitForExistence(timeout: 10))
     XCTAssertTrue(
