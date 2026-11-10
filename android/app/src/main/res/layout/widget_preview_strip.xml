@@ -1,45 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- The static Date and tithi preview for Android 12 to 14 pickers. -->
+<!-- The static Date and tithi preview for Android 12 to 14 pickers: today's numeral on the Sunny
+     shape, the weekday and BS month as the body line, the tithi and AD date as the label line. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/widget_shape_28"
     android:backgroundTint="@color/nepdate_background"
+    android:baselineAligned="false"
     android:gravity="center_vertical"
     android:orientation="horizontal"
-    android:padding="8dp"
-    tools:ignore="Overdraw,HardcodedText">
+    android:paddingHorizontal="10dp"
+    android:paddingVertical="4dp"
+    tools:ignore="Overdraw,UnusedAttribute">
 
-    <TextView
-        android:layout_width="44dp"
-        android:layout_height="44dp"
-        android:background="@drawable/widget_sunny"
-        android:gravity="center"
-        android:text="@string/widget3_preview_day"
-        android:textColor="#271900"
-        android:textSize="18sp"
-        android:textStyle="bold" />
+    <FrameLayout
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="@drawable/widget_sunny">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/widget3_preview_day"
+            android:textColor="@color/widget_preview_on_today"
+            android:textFontWeight="700"
+            android:textSize="18sp" />
+    </FrameLayout>
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="12dp"
+        android:layout_weight="1"
         android:orientation="vertical">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
             android:text="@string/widget_preview_date"
             android:textColor="@color/widget_preview_text"
-            android:textSize="15sp"
-            android:textStyle="bold" />
+            android:textFontWeight="500"
+            android:textSize="14sp" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
             android:text="@string/widget3_preview_strip_detail"
             android:textColor="@color/widget_preview_holiday"
+            android:textFontWeight="400"
             android:textSize="12sp" />
     </LinearLayout>
 </LinearLayout>

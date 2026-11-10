@@ -64,6 +64,26 @@ class WidgetScreenshotTest {
         renderMonthMatrix()
     }
 
+    /**
+     * The device is outside Nepal while the date follows Nepal, so the face says so next to the
+     * weekday (W-01 AC3). A day without events leaves room for the tithi, the AD date and the next
+     * holiday line.
+     */
+    @Test
+    fun nepalTime() {
+        val model =
+            todayWidgetModel(
+                date = PLAIN,
+                lang = Lang.ENGLISH,
+                digits = Digits.ENGLISH,
+                copy = englishWidgetCopy,
+                showNepal = true,
+            )
+        render(size = DpSize(250.dp, 180.dp)) {
+            TodayWidgetContent(model, WidgetOpacity.SOLID)
+        }.drawToBitmap().captureRoboImage("a2-w01-4x3-light-solid-nepal-time.png")
+    }
+
     @Test
     fun generatedPreviews() {
         listOf(Mode.LIGHT to "light", Mode.DARK to "dark", Mode.NEPALI to "ne").forEach { (mode, modeName) ->
@@ -331,3 +351,6 @@ private val MONTH_55 = DpSize(320.dp, 320.dp)
 
 private val NORMAL = NepaliDate.of(2083, 6, 20)
 private val HOLIDAY = NepaliDate.of(2083, 6, 25)
+
+/** A day with a tithi and no holiday or event, so the optional lines below it get the room. */
+private val PLAIN = NepaliDate.of(2083, 6, 26)
