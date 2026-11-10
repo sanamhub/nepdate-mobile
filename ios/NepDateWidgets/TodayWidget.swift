@@ -54,21 +54,32 @@ struct TodayConfigurationIntent: WidgetConfigurationIntent {
     "Choose the main calendar and whether the tithi and the next holiday show."
   )
 
-  @Parameter(title: "Main calendar", default: MainCalendar.bs)
-  var calendar: MainCalendar
+  @Parameter(title: "Main calendar", default: WidgetCalendar.bs)
+  var calendar: WidgetCalendar
 
   @Parameter(title: "Show details", default: true)
   var showDetails: Bool
 }
 
-extension MainCalendar: AppEnum {
-  /// The calendar setting's name in the widget's configuration.
-  public static var typeDisplayRepresentation: TypeDisplayRepresentation {
+/// The main calendar the Today widget leads with, as the configuration's own choice, because an
+/// `AppEnum` conformance cannot be added to the CalendarKit type from the widget.
+enum WidgetCalendar: String, AppEnum {
+  case bs
+  case ad
+
+  /// The calendar in the app's model.
+  var mainCalendar: MainCalendar {
+    switch self {
+    case .bs: .bs
+    case .ad: .ad
+    }
+  }
+
+  static var typeDisplayRepresentation: TypeDisplayRepresentation {
     TypeDisplayRepresentation(name: "Main calendar")
   }
 
-  /// The label of each calendar in the configuration picker.
-  public static var caseDisplayRepresentations: [MainCalendar: DisplayRepresentation] {
+  static var caseDisplayRepresentations: [WidgetCalendar: DisplayRepresentation] {
     [
       .bs: DisplayRepresentation(title: "Bikram Sambat"),
       .ad: DisplayRepresentation(title: "Gregorian"),
@@ -88,7 +99,7 @@ struct TodayIntentProvider: AppIntentTimelineProvider {
     TodayEntry(
       date: Date(),
       entry: WidgetTimeline.preview(),
-      mainCalendar: configuration.calendar,
+      mainCalendar: configuration.calendar.mainCalendar,
       showsDetails: configuration.showDetails
     )
   }
@@ -101,7 +112,7 @@ struct TodayIntentProvider: AppIntentTimelineProvider {
       TodayEntry(
         date: entry.date,
         entry: entry,
-        mainCalendar: configuration.calendar,
+        mainCalendar: configuration.calendar.mainCalendar,
         showsDetails: configuration.showDetails
       )
     }
