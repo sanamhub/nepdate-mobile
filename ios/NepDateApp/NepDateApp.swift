@@ -82,6 +82,7 @@ private struct RootView: View {
   @State private var tab: AppTab
   @State private var route: AppRoute?
   @State private var monthCommand: MonthCommand?
+  @State private var monthRequest: MonthKey?
   @State private var showsSettings = false
   @State private var showsFirstRun: Bool
   @Environment(\.scenePhase) private var scenePhase
@@ -271,8 +272,18 @@ private struct RootView: View {
         tab: $tab,
         route: route,
         monthCommand: monthCommand,
+        monthRequest: monthRequest,
         onRouteHandled: { route = nil },
         onMonthCommandHandled: { monthCommand = nil },
+        onMonthRequestHandled: { monthRequest = nil },
+        onOpenDay: { date in
+          tab = .patro
+          route = .day(date)
+        },
+        onOpenMonth: { key in
+          tab = .patro
+          monthRequest = key
+        },
         onSettings: { showsSettings = true }
       )
     }
@@ -352,8 +363,12 @@ private struct RootTabView: View {
   @Binding var tab: AppTab
   let route: AppRoute?
   let monthCommand: MonthCommand?
+  let monthRequest: MonthKey?
   let onRouteHandled: () -> Void
   let onMonthCommandHandled: () -> Void
+  let onMonthRequestHandled: () -> Void
+  let onOpenDay: (MonthDate) -> Void
+  let onOpenMonth: (MonthKey) -> Void
   let onSettings: () -> Void
 
   var body: some View {
@@ -377,8 +392,10 @@ private struct RootTabView: View {
               today: today,
               route: route,
               monthCommand: monthCommand,
+              monthRequest: monthRequest,
               onRouteHandled: onRouteHandled,
-              onMonthCommandHandled: onMonthCommandHandled
+              onMonthCommandHandled: onMonthCommandHandled,
+              onMonthRequestHandled: onMonthRequestHandled
             )
             .settingsToolbar(onSettings)
           }
@@ -387,18 +404,14 @@ private struct RootTabView: View {
 
       Tab("Festivals", systemImage: "sparkles", value: AppTab.festivals) {
         NavigationStack {
-          if let upcoming = UpcomingViewModel(
+          FestivalsScreen(
             today: today,
             language: language,
-            digits: digits
-          ) {
-            UpcomingScreen(
-              model: upcoming,
-              language: language,
-              digits: digits
-            )
-            .settingsToolbar(onSettings)
-          }
+            digits: digits,
+            onOpenDay: onOpenDay,
+            onOpenMonth: onOpenMonth
+          )
+          .settingsToolbar(onSettings)
         }
       }
 
@@ -418,20 +431,17 @@ private struct RootTabView: View {
         role: .search
       ) {
         NavigationStack {
-          SearchPlaceholder()
-            .settingsToolbar(onSettings)
+          SearchScreen(
+            today: today,
+            language: language,
+            digits: digits,
+            onOpenDay: onOpenDay
+          )
+          .settingsToolbar(onSettings)
         }
       }
     }
     .tabViewStyle(.sidebarAdaptable)
-  }
-}
-
-/// The search tab until its screen lands.
-private struct SearchPlaceholder: View {
-  var body: some View {
-    ContentUnavailableView("Search", systemImage: "magnifyingglass")
-      .navigationTitle("Search")
   }
 }
 
@@ -473,6 +483,25 @@ extension View {
         case "upcoming":
           if let model = UpcomingViewModel(today: today, language: language, digits: digits) {
             UpcomingScreen(model: model, language: language, digits: digits)
+          }
+        case "festivals":
+          NavigationStack {
+            FestivalsScreen(
+              today: today,
+              language: language,
+              digits: digits,
+              onOpenDay: { _ in },
+              onOpenMonth: { _ in }
+            )
+          }
+        case "search":
+          NavigationStack {
+            SearchScreen(
+              today: today,
+              language: language,
+              digits: digits,
+              onOpenDay: { _ in }
+            )
           }
         case "converter":
           ConverterScreen(

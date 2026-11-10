@@ -238,6 +238,61 @@ struct SnapshotRenderingTests {
     )
   }
 
+  @Test("MR-03 and MR-13: the festivals list and search render")
+  func festivalsAndSearch() throws {
+    let today = MonthDate(year: 2083, month: 6, day: 25)
+    let phone = CGSize(width: 390, height: 844)
+
+    for (scheme, suffix) in [(ColorScheme.light, "light"), (.dark, "dark")] {
+      try render(
+        NavigationStack {
+          FestivalsScreen(
+            today: today,
+            language: .english,
+            digits: .english,
+            onOpenDay: { _ in },
+            onOpenMonth: { _ in }
+          )
+        },
+        name: "festivals-\(suffix)",
+        size: phone,
+        scheme: scheme,
+        locale: Locale(identifier: "en")
+      )
+    }
+
+    try render(
+      NavigationStack {
+        SearchScreen(
+          today: today,
+          language: .english,
+          digits: .english,
+          onOpenDay: { _ in }
+        )
+      },
+      name: "search-landing",
+      size: phone,
+      scheme: .light,
+      locale: Locale(identifier: "en")
+    )
+
+    try render(
+      NavigationStack {
+        SearchScreen(
+          today: today,
+          language: .english,
+          digits: .english,
+          initialQuery: "Ghatasthapana",
+          onOpenDay: { _ in }
+        )
+      },
+      name: "search-results",
+      size: phone,
+      scheme: .light,
+      locale: Locale(identifier: "en")
+    )
+  }
+
   @Test("the four brand marks render in light and dark")
   func brandMarks() throws {
     for (scheme, suffix) in [(ColorScheme.light, "light"), (.dark, "dark")] {

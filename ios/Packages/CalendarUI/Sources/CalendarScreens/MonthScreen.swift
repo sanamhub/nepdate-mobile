@@ -21,8 +21,10 @@ public struct MonthScreen: View {
   private let today: MonthDate
   private let route: AppRoute?
   private let monthCommand: MonthCommand?
+  private let monthRequest: MonthKey?
   private let onRouteHandled: () -> Void
   private let onMonthCommandHandled: () -> Void
+  private let onMonthRequestHandled: () -> Void
 
   /// Creates the screen.
   /// - Parameters:
@@ -31,16 +33,20 @@ public struct MonthScreen: View {
   ///   - today: Today in the zone the settings choose.
   ///   - route: A place to open, from a widget tap; `nil` when there is none.
   ///   - monthCommand: A month change asked for by a keyboard command; `nil` when there is none.
+  ///   - monthRequest: A month to open, asked for by the festivals list; `nil` when there is none.
   ///   - onRouteHandled: Called once the screen has opened `route`, so the caller can clear it.
   ///   - onMonthCommandHandled: Called once the screen has applied `monthCommand`.
+  ///   - onMonthRequestHandled: Called once the screen has opened `monthRequest`.
   public init(
     model: MonthViewModel,
     settings: Settings,
     today: MonthDate,
     route: AppRoute? = nil,
     monthCommand: MonthCommand? = nil,
+    monthRequest: MonthKey? = nil,
     onRouteHandled: @escaping () -> Void = {},
-    onMonthCommandHandled: @escaping () -> Void = {}
+    onMonthCommandHandled: @escaping () -> Void = {},
+    onMonthRequestHandled: @escaping () -> Void = {}
   ) {
     _model = State(initialValue: model)
     _scrolledMonth = State(initialValue: model.month)
@@ -49,8 +55,10 @@ public struct MonthScreen: View {
     self.today = today
     self.route = route
     self.monthCommand = monthCommand
+    self.monthRequest = monthRequest
     self.onRouteHandled = onRouteHandled
     self.onMonthCommandHandled = onMonthCommandHandled
+    self.onMonthRequestHandled = onMonthRequestHandled
   }
 
   /// The screen's content.
@@ -99,6 +107,7 @@ public struct MonthScreen: View {
     .onAppear { open(route) }
     .onChange(of: route) { _, newValue in open(newValue) }
     .onChange(of: monthCommand) { _, command in apply(command) }
+    .onChange(of: monthRequest) { _, key in openMonth(key) }
     .onChange(of: settings) { _, newValue in apply(newValue, today: today) }
     .onChange(of: today) { _, newValue in apply(settings, today: newValue) }
     .modifier(
@@ -223,6 +232,13 @@ public struct MonthScreen: View {
       break
     }
     onRouteHandled()
+  }
+
+  /// Opens a month asked for by the festivals list, then clears the request.
+  private func openMonth(_ key: MonthKey?) {
+    guard let key else { return }
+    go(to: key)
+    onMonthRequestHandled()
   }
 
   /// Applies a keyboard command, then clears it.

@@ -132,6 +132,18 @@ final class ScreenUITests: XCTestCase {
   }
 
   @MainActor
+  func testFestivalsHasOnlyTheToleratedAuditFindings() throws {
+    let app = Self.launch(screen: "festivals")
+    XCTAssertEqual(try audit(app, tolerating: [:]), [:])
+  }
+
+  @MainActor
+  func testSearchHasOnlyTheToleratedAuditFindings() throws {
+    let app = Self.launch(screen: "search")
+    XCTAssertEqual(try audit(app, tolerating: [:]), [:])
+  }
+
+  @MainActor
   func testSettingsHasOnlyTheToleratedAuditFindings() throws {
     let app = Self.launch(screen: "settings")
     XCTAssertEqual(try audit(app, tolerating: Self.settingsTolerated), Self.settingsTolerated)
