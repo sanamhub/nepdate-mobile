@@ -6,9 +6,9 @@ All notable changes to the Android app. The format follows
 
 ## [Unreleased]
 
-## [1.0.0] - not yet released
+## [1.0.0-beta.1] - 2026-11-09
 
-The release date is set when the tag is pushed.
+The first pre-release, published on GitHub only while Play access is pending.
 
 ### Added
 

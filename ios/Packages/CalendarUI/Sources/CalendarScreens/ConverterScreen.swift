@@ -44,6 +44,7 @@ public struct ConverterScreen: View {
         .tint(BrandColor.accent)
         .foregroundStyle(BrandColor.onAccent)
 
+<<<<<<< HEAD
         DatePicker("Choose an AD date", selection: $adDate, displayedComponents: .date)
           .datePickerStyle(.compact)
           .onChange(of: adDate) { _, value in
@@ -53,6 +54,55 @@ public struct ConverterScreen: View {
             )
             if let year = parts.year, let month = parts.month, let day = parts.day {
               model.fromAd(year: year, month: month, day: day)
+=======
+          Button(action: convert) {
+            Text("Convert")
+              .frame(maxWidth: .infinity, minHeight: 44)
+          }
+          .buttonStyle(.borderedProminent)
+          .tint(BrandColor.accent)
+          .foregroundStyle(BrandColor.onAccent)
+
+          DatePicker("Choose an AD date", selection: $adDate, displayedComponents: .date)
+            .datePickerStyle(.compact)
+            .onChange(of: adDate) { _, value in
+              let parts = Calendar(identifier: .gregorian).dateComponents(
+                [.year, .month, .day],
+                from: value
+              )
+              if let year = parts.year, let month = parts.month, let day = parts.day {
+                model.fromAd(year: year, month: month, day: day)
+              }
+            }
+            .accessibilityIdentifier("converter_ad_picker")
+
+          if let error = model.errorText {
+            Text(verbatim: error)
+              .font(.subheadline)
+              .foregroundStyle(.red)
+              .fixedSize(horizontal: false, vertical: true)
+              .accessibilityIdentifier("converter_error")
+          }
+
+          if let result = model.resultBsDate {
+            Divider()
+            Text("Result")
+              .font(.subheadline)
+              .foregroundStyle(BrandColor.secondaryText)
+            Text(verbatim: result)
+              .font(.title2.weight(.bold))
+              .fixedSize(horizontal: false, vertical: true)
+              .accessibilityIdentifier("converter_result")
+            if let weekday = model.resultWeekdayAndDate {
+              Text(verbatim: weekday)
+                .font(.body)
+                .fixedSize(horizontal: false, vertical: true)
+            }
+            if let distance = model.daysFromTodayText {
+              Text(verbatim: distance)
+                .font(.subheadline)
+                .foregroundStyle(BrandColor.secondaryText)
+>>>>>>> origin/docs/ios-parity-scope
             }
           }
           .accessibilityIdentifier("converter_ad_picker")
@@ -67,6 +117,7 @@ public struct ConverterScreen: View {
 
         if let result = model.resultBsDate {
           Divider()
+<<<<<<< HEAD
           Text("Result")
             .font(.subheadline)
             .foregroundStyle(BrandColor.secondaryText)
@@ -76,6 +127,38 @@ public struct ConverterScreen: View {
             .accessibilityIdentifier("converter_result")
           if let weekday = model.resultWeekdayAndDate {
             Text(verbatim: weekday)
+=======
+          TextField("Compare with", text: $compareInput)
+            .textInputAutocapitalization(.never)
+            .autocorrectionDisabled()
+            .textFieldStyle(.roundedBorder)
+            .accessibilityIdentifier("converter_compare_input")
+
+          Button(action: compare) {
+            Text("Compare")
+              .frame(maxWidth: .infinity, minHeight: 44)
+          }
+          .buttonStyle(.bordered)
+          .tint(BrandColor.accent)
+
+          if let error = model.comparisonErrorText {
+            Text(verbatim: error)
+              .font(.subheadline)
+              .foregroundStyle(.red)
+              .fixedSize(horizontal: false, vertical: true)
+              .accessibilityIdentifier("converter_comparison_error")
+          }
+
+          if let range = model.comparisonRange {
+            Text(verbatim: range)
+              .font(.subheadline)
+              .foregroundStyle(BrandColor.secondaryText)
+              .fixedSize(horizontal: false, vertical: true)
+              .accessibilityIdentifier("converter_comparison")
+          }
+          if let difference = model.differenceText {
+            Text(verbatim: difference)
+>>>>>>> origin/docs/ios-parity-scope
               .font(.body)
               .fixedSize(horizontal: false, vertical: true)
           }
