@@ -88,8 +88,7 @@ struct NepDateShortcuts: AppShortcutsProvider {
     AppShortcut(
       intent: GoToDateIntent(),
       phrases: [
-        "Open a date in \(.applicationName)",
-        "Open \(\.$date) in \(.applicationName)",
+        "Open a date in \(.applicationName)"
       ],
       shortTitle: "Go to date",
       systemImageName: "calendar.badge.clock"
