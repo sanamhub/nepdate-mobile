@@ -16,7 +16,7 @@ import org.robolectric.annotation.GraphicsMode
 /** A1-06 Settings and About screenshots, including the language row on API 35. */
 @RunWith(AndroidJUnit4::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
-@Config(sdk = [35], qualifiers = "w360dp-h1400dp-xhdpi")
+@Config(qualifiers = "w360dp-h1400dp-xhdpi")
 class SettingsScreenshotTest {
     @get:Rule
     val composeRule = createComposeRule()

@@ -14,11 +14,9 @@ import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.annotation.Config
 
 /** The back gesture seeks the transition, finishes it on release and undoes it on cancel. */
 @RunWith(AndroidJUnit4::class)
-@Config(sdk = [35])
 class PredictiveBackTest {
     @get:Rule
     val composeRule = createAndroidComposeRule<ComponentActivity>()

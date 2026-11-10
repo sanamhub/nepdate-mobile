@@ -17,14 +17,12 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.annotation.Config
 
 /**
  * Widget review item 1: Previous, Next and Today did nothing on the device. The state transition is
  * tested against real Glance state, and every callback is built the way Glance builds it.
  */
 @RunWith(AndroidJUnit4::class)
-@Config(sdk = [35])
 class MonthNavigationActionTest {
     private val context: Context = ApplicationProvider.getApplicationContext()
     private val today = NepaliDate.of(2083, 7, 20)

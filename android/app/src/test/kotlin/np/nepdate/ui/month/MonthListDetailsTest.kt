@@ -19,7 +19,7 @@ import org.robolectric.annotation.Config
 
 /** The list layout's visible event name follows the Digits setting, like the grid's spoken label. */
 @RunWith(AndroidJUnit4::class)
-@Config(sdk = [35], qualifiers = "w360dp-h640dp-xhdpi")
+@Config(qualifiers = "w360dp-h640dp-xhdpi")
 class MonthListDetailsTest {
     @get:Rule
     val composeRule = createComposeRule()
