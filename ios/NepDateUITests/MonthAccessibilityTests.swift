@@ -233,11 +233,20 @@ final class MonthAccessibilityTests: XCTestCase {
   /// Taps the navigation title so its menu opens. XCTest exposes the title as a static text, so
   /// the tap goes through the navigation bar's centre and falls back to the title element.
   @MainActor
+  /// Opens the title menu and picks the year view. The month title is a button with an identifier
+  /// on the newer Patro screens and a plain navigation title on the older ones, so the button is
+  /// tried first, then the navigation bar's centre, then the title itself.
   private static func openYearView(_ app: XCUIApplication, label: String) {
-    app.navigationBars.firstMatch
-      .coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
-      .tap()
     let yearView = app.buttons["Year view"]
+    let titleButton = app.buttons["Choose month and year"]
+    if titleButton.waitForExistence(timeout: 5) {
+      titleButton.tap()
+    }
+    if !yearView.waitForExistence(timeout: 2) {
+      app.navigationBars.firstMatch
+        .coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
+        .tap()
+    }
     if !yearView.waitForExistence(timeout: 2) {
       title(label, in: app).tap()
     }
