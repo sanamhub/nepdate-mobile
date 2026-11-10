@@ -159,8 +159,6 @@ struct ConverterViewModelTests {
     #expect(model.errorText == "Enter a BS date like 2083-06-20")
     #expect(model.result == nil)
   }
-}
-
 
   @Test("MR-21: two chosen dates compare, and Reset clears the converter")
   func compareAndReset() throws {
