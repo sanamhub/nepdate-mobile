@@ -87,7 +87,7 @@ import java.util.Locale
 /**
  * The first-run welcome: today's date on the marigold Sunny shape, the promise, the language (Android
  * 13 and later, through the per-app locale) and the look. A look applies at once through [onLook],
- * so the screen previews it live; [onDone] opens the patro.
+ * so the screen previews it live; [onDone] opens the patro. [clock] reads today; tests pass a fixed one.
  */
 @Composable
 internal fun FirstRunScreen(
@@ -95,8 +95,9 @@ internal fun FirstRunScreen(
     onLook: (Look) -> Unit,
     onDone: () -> Unit,
     modifier: Modifier = Modifier,
+    clock: Clock = Clock.systemDefaultZone(),
 ) {
-    val today = remember(settings.dateFollows) { TodayProvider(Clock.systemDefaultZone()).today(settings.dateFollows) }
+    val today = remember(settings.dateFollows, clock) { TodayProvider(clock).today(settings.dateFollows) }
     val digits = settings.digits.resolve(languageFor(LocalConfiguration.current.locales[0]))
     val canPickLanguage = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
     Column(
