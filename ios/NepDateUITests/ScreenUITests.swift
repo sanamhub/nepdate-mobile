@@ -122,8 +122,13 @@ final class ScreenUITests: XCTestCase {
     )
     XCTAssertTrue(app.staticTexts["Baisakh 1, 2077 – Mangsir 20, 2084"].exists)
     XCTAssertTrue(app.staticTexts["Promises"].exists)
+    // The promises are one combined accessibility element, so each label is looked for in the
+    // label of any element rather than in a static text of its own.
     for promise in Self.promises {
-      XCTAssertTrue(app.staticTexts[promise].exists, "the promise \(promise) is missing")
+      let element = app.descendants(matching: .any)
+        .matching(NSPredicate(format: "label CONTAINS %@", promise))
+        .firstMatch
+      XCTAssertTrue(element.exists, "the promise \(promise) is missing")
     }
 
     // The list builds its rows as they scroll into view, so each link is scrolled to before it is
@@ -137,7 +142,11 @@ final class ScreenUITests: XCTestCase {
     }
     XCTAssertFalse(app.buttons["Subscribe to Nepal holidays"].exists)
 
-    app.buttons["Copy diagnostic info"].tap()
+    let copy = app.buttons["Copy diagnostic info"]
+    for _ in 0..<5 where !copy.isHittable {
+      app.swipeUp()
+    }
+    copy.tap()
     let copied = app.staticTexts["Copied"]
     XCTAssertTrue(copied.waitForExistence(timeout: 2))
 
