@@ -295,7 +295,7 @@ struct SnapshotRenderingTests {
   }
 
   @Test("W-06, W-07 and W-10 render in every mode and both languages")
-  func newWidgets() throws {
+  func newFestivalWidgets() throws {
     for language in [AppLanguage.english, .nepali] {
       let locale = Locale(identifier: language == .nepali ? "ne" : "en")
       let suffix = language == .nepali ? "ne" : "en"
