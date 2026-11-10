@@ -41,18 +41,25 @@ final class DayDetailUITests: XCTestCase {
       app.swipeUp()
     }
     copy.tap()
-    XCTAssertTrue(
-      app.staticTexts["Date copied"].waitForExistence(timeout: 2),
-      "the copy confirmation did not show"
-    )
 
-    // The app writes the pasteboard and repeats the copied date as the button's accessibility
-    // value. The XCUITest runner's own pasteboard read waits on the system paste prompt (runs
-    // 39184279428 and 39186125450), so `DayClipboardTests` reads the pasteboard in the app process
-    // instead.
+    // The copied date stays on the button as its accessibility value, so a copy that ran is
+    // observable after the confirmation line has gone. The line itself lasts two seconds
+    // (`CopyConfirmation.duration`), and the runner needed nine seconds between finding the button
+    // and synthesising the tap on run 42821786175, because it re-read the interrupting elements
+    // before every event. A query that starts after the tap returns therefore always misses it, so
+    // the line is not asserted here: `CopyConfirmationTests` asserts that showing it starts
+    // visible, and the sheet's `copied` reference image shows it drawn.
     let copied = NSPredicate(format: "value == %@", "Asoj 25, 2083")
     let wait = expectation(for: copied, evaluatedWith: copy)
-    XCTAssertEqual(XCTWaiter.wait(for: [wait], timeout: 5), .completed)
+    XCTAssertEqual(
+      XCTWaiter.wait(for: [wait], timeout: 10),
+      .completed,
+      "the copy did not run"
+    )
+
+    // The XCUITest runner's own pasteboard read waits on the system paste prompt (runs
+    // 39184279428 and 39186125450), so `DayClipboardTests` reads the pasteboard in the app process
+    // instead.
   }
 
   @MainActor
