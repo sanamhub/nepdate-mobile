@@ -50,6 +50,7 @@ public struct ConverterScreen: View {
           }
           .buttonStyle(.borderedProminent)
           .tint(BrandColor.accent)
+          .foregroundStyle(BrandColor.onAccent)
 
           DatePicker("Choose an AD date", selection: $adDate, displayedComponents: .date)
             .datePickerStyle(.compact)

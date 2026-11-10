@@ -34,6 +34,11 @@ public enum BrandColor {
   /// The app accent, from the Material primary.
   public static let accent = Color("AccentColor", bundle: .main)
 
+  /// The label on a control filled with ccent, from the Material on-primary: white in light,
+  /// dark brown in dark, where the accent is a light marigold. A prominent button sets it, because
+  /// the system's white label is unreadable on the dark accent.
+  public static let onAccent = Color("OnAccent", bundle: .main)
+
   /// Secondary text (AD numerals, dimmed days, tithi and event lines). The system secondary label
   /// is below 4.5:1 in light mode, so the month screen uses this pair. Measured (WCAG relative
   /// luminance): light 7.55:1 on the background, 6.36:1 on `holidayFill`, 6.25:1 on `selection`;

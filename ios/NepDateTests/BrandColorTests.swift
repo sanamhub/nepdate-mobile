@@ -81,6 +81,15 @@ struct BrandColorTests {
     }
   }
 
+  @Test("the label on a prominent accent button is legible")
+  func onAccent() {
+    for appearance in Self.appearances {
+      let traits = Self.traits(appearance)
+      let fill = UIColor(BrandColor.accent).resolvedColor(with: traits)
+      expectAtLeast("onAccent on accent", BrandColor.onAccent, fill, traits, in: appearance.name)
+    }
+  }
+
   private static func traits(_ appearance: Appearance) -> UITraitCollection {
     UITraitCollection(traitsFrom: [
       UITraitCollection(userInterfaceStyle: appearance.style),

@@ -32,6 +32,7 @@ public struct NepalTimeSuggestionView: View {
         Button("Use Nepal time", action: onAccept)
           .buttonStyle(.borderedProminent)
           .tint(BrandColor.accent)
+          .foregroundStyle(BrandColor.onAccent)
           .frame(minHeight: 44)
       }
     }

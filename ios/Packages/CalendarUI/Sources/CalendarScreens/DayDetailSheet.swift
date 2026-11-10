@@ -173,6 +173,7 @@ public struct DayDetailContent: View {
       }
       .buttonStyle(.borderedProminent)
       .tint(BrandColor.accent)
+      .foregroundStyle(BrandColor.onAccent)
 
       Button(action: copyDate) {
         Text("Copy date")
