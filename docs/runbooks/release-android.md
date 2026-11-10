@@ -54,9 +54,10 @@ The tag still carries the complete version, `android-vX.Y.Z-beta.N`, and `versio
 1. Set `versionCode` to a number above every build already installed by testers, and `versionName`
    to `X.Y.Z-beta.N`.
 2. Write `## [X.Y.Z-beta.N] - YYYY-MM-DD` in `android/CHANGELOG.md` and
-   `fastlane/metadata/android/en-US/changelogs/<versionCode>.txt`.
+   `fastlane/metadata/android/{en-US,ne-NP}/changelogs/<versionCode>.txt`.
 3. Check that `PLAY_SERVICE_ACCOUNT_JSON` is not set in the `production` environment. The Play job
-   then prints a warning and skips the upload; it does not fail the release.
+   then prints a warning and skips the upload for a version with a suffix. A final version with no
+   secret fails the release instead.
 4. Push the tag. The GitHub release is a draft and is marked as a pre-release because the version
    has a suffix. Publish the draft, and leave Play alone until the account and the service account
    exist.
