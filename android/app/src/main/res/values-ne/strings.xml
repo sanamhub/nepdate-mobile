@@ -71,7 +71,7 @@
     <string name="widget_today_name">आज</string>
     <string name="widget_today_description">आजको बिक्रम सम्बत मिति, बार र अर्को बिदा।</string>
     <string name="widget_upcoming_name">आज र आउँदो</string>
-    <string name="widget_upcoming_description">आजको मिति र अर्को तीन बिदा वा कार्यक्रम।</string>
+    <string name="widget_upcoming_description">आजको मिति र बिदा वा कार्यक्रम भएका आउँदा दिनहरू।</string>
     <string name="widget_month_name">महिना</string>
     <string name="widget_month_description">बिदा, कार्यक्रम र आजसहितको बिक्रम सम्बत महिना।</string>
     <string name="widget_nepal">नेपाल</string>
