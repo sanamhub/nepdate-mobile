@@ -20,5 +20,22 @@
     <string name="widget3_preview_month">असोज</string>
     <string name="widget3_preview_weekday">आइतबार</string>
     <string name="widget3_preview_strip_detail">प्रतिपदा · घटस्थापना</string>
-    <string name="widget3_preview_week">आइत  सोम  मङ्गल  बुध  बिही  शुक्र  शनि\n २५   २६   २७   २८   २९   ३०   ३१</string>
+    <string name="widget3_preview_week_sun">आइत</string>
+    <string name="widget3_preview_week_mon">सोम</string>
+    <string name="widget3_preview_week_tue">मङ्गल</string>
+    <string name="widget3_preview_week_wed">बुध</string>
+    <string name="widget3_preview_week_thu">बिही</string>
+    <string name="widget3_preview_week_fri">शुक्र</string>
+    <string name="widget3_preview_week_sat">शनि</string>
+    <string name="widget3_preview_day_29">२९</string>
+    <string name="widget3_preview_day_30">३०</string>
+    <string name="widget3_preview_day_31">३१</string>
+    <string name="widget3_preview_day_26">२६</string>
+    <string name="widget3_preview_day_27">२७</string>
+    <string name="widget3_preview_day_28">२८</string>
+    <string name="widget3_preview_agenda">घटस्थापना, फूलपाती र थप</string>
+    <string name="widget3_preview_upcoming_names">फूलपाती</string>
+    <string name="widget3_preview_upcoming_when">६ दिनमा</string>
+    <string name="widget3_preview_festivals_names">घटस्थापना</string>
+    <string name="widget3_preview_ad_span">सेप्टेम्बरदेखि अक्टोबर २०२६</string>
 </resources>

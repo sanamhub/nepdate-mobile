@@ -26,9 +26,7 @@ class BaselineProfileGenerator {
     @Before
     fun dismissFirstRun() {
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-        device.executeShellCommand("am start -n $PACKAGE_NAME/.MainActivity")
-        device.openPastFirstRun()
-        device.executeShellCommand("am force-stop $PACKAGE_NAME")
+        device.prepareForMeasuredLaunch()
     }
 
     /** Cold start to the first drawn month grid. Also written to the startup profile. */
@@ -49,15 +47,9 @@ class BaselineProfileGenerator {
         rule.collect(packageName = PACKAGE_NAME) {
             startActivityAndWait()
             device.waitForIdle()
+            val swipeY = monthCellCenterY()
             repeat(PROFILE_SWIPES) {
-                device.swipe(
-                    (device.displayWidth * SWIPE_START_X_FRACTION).toInt(),
-                    (device.displayHeight * SWIPE_Y_FRACTION).toInt(),
-                    (device.displayWidth * SWIPE_END_X_FRACTION).toInt(),
-                    (device.displayHeight * SWIPE_Y_FRACTION).toInt(),
-                    SWIPE_STEPS,
-                )
-                device.waitForIdle()
+                swipeToNextMonth(swipeY)
             }
         }
     }

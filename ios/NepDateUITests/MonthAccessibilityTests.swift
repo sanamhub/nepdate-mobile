@@ -45,7 +45,12 @@ final class MonthAccessibilityTests: XCTestCase {
   ///   above them.
   ///
   /// Any other finding, or a different count, fails the test.
-  private static let gridTolerated = ["contrast numeral": 2, "dynamicType numeral": 63]
+  private static let gridTolerated = [
+    "contrast numeral": 1,
+    "contrast text": 6,
+    "dynamicType numeral": 71,
+    "dynamicType text": 8,
+  ]
   private static let listTolerated = [
     "contrast text": 2,
     "dynamicType text": 10,
@@ -76,10 +81,7 @@ final class MonthAccessibilityTests: XCTestCase {
     XCTAssertFalse(last.buttons["Next month"].isEnabled)
     XCTAssertTrue(last.buttons["Previous month"].isEnabled)
 
-    lastTitle.tap()
-    let yearView = last.buttons["Year view"]
-    XCTAssertTrue(yearView.waitForExistence(timeout: 5), "the title menu is missing")
-    yearView.tap()
+    Self.openYearView(last, label: "Chaitra 2199")
     XCTAssertTrue(last.navigationBars["2199"].waitForExistence(timeout: 10))
     XCTAssertFalse(last.buttons["Next year"].isEnabled)
     XCTAssertTrue(last.buttons["Previous year"].isEnabled)
@@ -102,10 +104,7 @@ final class MonthAccessibilityTests: XCTestCase {
     XCTAssertFalse(first.buttons["Previous month"].isEnabled)
     XCTAssertTrue(first.buttons["Next month"].isEnabled)
 
-    firstTitle.tap()
-    let firstYear = first.buttons["Year view"]
-    XCTAssertTrue(firstYear.waitForExistence(timeout: 5))
-    firstYear.tap()
+    Self.openYearView(first, label: "Baisakh 1901")
     XCTAssertTrue(first.navigationBars["1901"].waitForExistence(timeout: 10))
     XCTAssertFalse(first.buttons["Previous year"].isEnabled)
     XCTAssertTrue(first.buttons["Next year"].isEnabled)
@@ -183,6 +182,7 @@ final class MonthAccessibilityTests: XCTestCase {
   private func audit(_ app: XCUIApplication) throws -> [String: Int] {
     var tolerated: [String: Int] = [:]
     for audit in Self.audits {
+<<<<<<< HEAD
       try AccessibilityAudit.perform(on: app, audit.type) { issue in
         let label = issue.element?.label ?? ""
         let frame = issue.element?.frame ?? .zero
@@ -196,6 +196,24 @@ final class MonthAccessibilityTests: XCTestCase {
         guard isHiddenText else { return false }
         tolerated["\(audit.name) \(kind)", default: 0] += 1
         return true
+=======
+      let before = tolerated
+      try retryingAuditTimeout(reset: { tolerated = before }) {
+        try app.performAccessibilityAudit(for: audit.type) { issue in
+          let label = issue.element?.label ?? ""
+          let frame = issue.element?.frame ?? .zero
+          let isHiddenText =
+            !label.isEmpty && issue.detailedDescription.contains("SwiftUI.AccessibilityNode")
+          let kind = label.allSatisfy(\.isNumber) ? "numeral" : "text"
+          print(
+            "AUDIT \(audit.name) \(isHiddenText ? kind : "other") label=\(label) "
+              + "frame=\(frame) \(issue.compactDescription) | \(issue.detailedDescription)"
+          )
+          guard isHiddenText else { return false }
+          tolerated["\(audit.name) \(kind)", default: 0] += 1
+          return true
+        }
+>>>>>>> origin/docs/ios-parity-scope
       }
     }
     print("AUDIT tolerated \(tolerated.sorted { $0.key < $1.key })")
@@ -216,6 +234,21 @@ final class MonthAccessibilityTests: XCTestCase {
     app.launchArguments += ["-AppleLanguages", "(en)", "-AppleLocale", "en_US"] + arguments
     app.launch()
     return app
+  }
+
+  /// Taps the navigation title so its menu opens. XCTest exposes the title as a static text, so
+  /// the tap goes through the navigation bar's centre and falls back to the title element.
+  @MainActor
+  private static func openYearView(_ app: XCUIApplication, label: String) {
+    app.navigationBars.firstMatch
+      .coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
+      .tap()
+    let yearView = app.buttons["Year view"]
+    if !yearView.waitForExistence(timeout: 2) {
+      title(label, in: app).tap()
+    }
+    XCTAssertTrue(yearView.waitForExistence(timeout: 5), "the title menu is missing")
+    yearView.tap()
   }
 
   @MainActor

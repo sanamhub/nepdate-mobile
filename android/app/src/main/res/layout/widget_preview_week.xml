@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- The static This week preview for Android 12 to 14 pickers. -->
+<!-- The static This week preview for Android 12 to 14 pickers at four by two: the Sunday to
+     Saturday week with today on the Sunny shape, then the rest of the week's holidays and events
+     as the agenda line. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -7,25 +9,268 @@
     android:background="@drawable/widget_shape_28"
     android:backgroundTint="@color/nepdate_background"
     android:orientation="vertical"
-    android:padding="12dp"
-    tools:ignore="Overdraw,HardcodedText">
+    android:paddingHorizontal="8dp"
+    android:paddingVertical="6dp"
+    tools:ignore="Overdraw,UnusedAttribute,NestedWeights">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:baselineAligned="false"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center_horizontal"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/widget3_preview_week_sun"
+                android:textColor="@color/widget_preview_soft"
+                android:textFontWeight="500"
+                android:textSize="11sp" />
+
+            <FrameLayout
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:background="@drawable/widget_sunny">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="@string/widget3_preview_day"
+                    android:textColor="@color/widget_preview_on_today"
+                    android:textFontWeight="700"
+                    android:textSize="15sp" />
+            </FrameLayout>
+
+            
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center_horizontal"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/widget3_preview_week_mon"
+                android:textColor="@color/widget_preview_soft"
+                android:textFontWeight="500"
+                android:textSize="11sp" />
+
+            <FrameLayout
+                android:layout_width="30dp"
+                android:layout_height="30dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="@string/widget3_preview_day_26"
+                    android:textColor="@color/widget_preview_text"
+                    android:textFontWeight="700"
+                    android:textSize="15sp" />
+            </FrameLayout>
+
+            
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center_horizontal"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/widget3_preview_week_tue"
+                android:textColor="@color/widget_preview_soft"
+                android:textFontWeight="500"
+                android:textSize="11sp" />
+
+            <FrameLayout
+                android:layout_width="30dp"
+                android:layout_height="30dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="@string/widget3_preview_day_27"
+                    android:textColor="@color/widget_preview_text"
+                    android:textFontWeight="700"
+                    android:textSize="15sp" />
+            </FrameLayout>
+
+            
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center_horizontal"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/widget3_preview_week_wed"
+                android:textColor="@color/widget_preview_soft"
+                android:textFontWeight="500"
+                android:textSize="11sp" />
+
+            <FrameLayout
+                android:layout_width="30dp"
+                android:layout_height="30dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="@string/widget3_preview_day_28"
+                    android:textColor="@color/widget_preview_text"
+                    android:textFontWeight="700"
+                    android:textSize="15sp" />
+            </FrameLayout>
+
+            <FrameLayout
+                android:layout_width="4dp"
+                android:layout_height="4dp"
+                android:layout_marginTop="2dp"
+                android:background="@drawable/widget_shape_pill"
+                android:backgroundTint="@color/widget_preview_event" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center_horizontal"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/widget3_preview_week_thu"
+                android:textColor="@color/widget_preview_soft"
+                android:textFontWeight="500"
+                android:textSize="11sp" />
+
+            <FrameLayout
+                android:layout_width="30dp"
+                android:layout_height="30dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="@string/widget3_preview_day_29"
+                    android:textColor="@color/widget_preview_text"
+                    android:textFontWeight="700"
+                    android:textSize="15sp" />
+            </FrameLayout>
+
+            
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center_horizontal"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/widget3_preview_week_fri"
+                android:textColor="@color/widget_preview_soft"
+                android:textFontWeight="500"
+                android:textSize="11sp" />
+
+            <FrameLayout
+                android:layout_width="30dp"
+                android:layout_height="30dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="@string/widget3_preview_day_30"
+                    android:textColor="@color/widget_preview_text"
+                    android:textFontWeight="700"
+                    android:textSize="15sp" />
+            </FrameLayout>
+
+            
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginHorizontal="2dp"
+            android:layout_weight="1"
+            android:background="@drawable/widget_shape_12"
+            android:backgroundTint="@color/widget_preview_holiday_container"
+            android:gravity="center_horizontal"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/widget3_preview_week_sat"
+                android:textColor="@color/widget_preview_holiday"
+                android:textFontWeight="500"
+                android:textSize="11sp" />
+
+            <FrameLayout
+                android:layout_width="30dp"
+                android:layout_height="30dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="@string/widget3_preview_day_31"
+                    android:textColor="@color/widget_preview_holiday"
+                    android:textFontWeight="700"
+                    android:textSize="15sp" />
+            </FrameLayout>
+
+            <FrameLayout
+                android:layout_width="12dp"
+                android:layout_height="4dp"
+                android:layout_marginTop="2dp"
+                android:background="@drawable/widget_shape_pill"
+                android:backgroundTint="@color/widget_preview_holiday" />
+        </LinearLayout>
+    </LinearLayout>
 
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/widget_preview_month"
-        android:textColor="@color/widget_preview_text"
-        android:textSize="17sp"
-        android:textStyle="bold" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:fontFamily="monospace"
-        android:lineSpacingExtra="6dp"
-        android:text="@string/widget3_preview_week"
-        android:textColor="@color/widget_preview_text"
-        android:textSize="14sp"
-        android:textStyle="bold" />
+        android:layout_marginTop="6dp"
+        android:background="@drawable/widget_shape_12"
+        android:backgroundTint="@color/widget_preview_surface"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="6dp"
+        android:text="@string/widget3_preview_agenda"
+        android:textColor="@color/widget_preview_holiday"
+        android:textFontWeight="400"
+        android:textSize="14sp" />
 </LinearLayout>

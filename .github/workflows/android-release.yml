@@ -1,8 +1,8 @@
 name: Android release
 
-# A3-02: this workflow is written and statically tested in A3. It is not run in this phase.
-# A human creates the tag and approves the production environment. Promotion from the internal
-# track stays manual in Play Console.
+# A tag builds the signed APK and AAB, attests them, uploads the AAB to the Play internal track
+# when a service account is set, and creates a draft GitHub Release. A human publishes the draft.
+# A versionName with a pre-release suffix (1.0.0-beta.1) marks the GitHub release as a pre-release.
 
 on:
   push:
@@ -213,7 +213,7 @@ jobs:
 
   publish:
     name: Play internal track
-    needs: sign
+    needs: [preflight, sign]
     if: github.ref_type == 'tag' && (github.event_name == 'push' || inputs.dry_run == false)
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -254,10 +254,17 @@ jobs:
       - name: Upload the AAB to the internal track
         env:
           ANDROID_PUBLISHER_CREDENTIALS: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          VERSION: ${{ needs.preflight.outputs.version }}
         working-directory: android
         run: |
           set -euo pipefail
           if [[ -z "$ANDROID_PUBLISHER_CREDENTIALS" ]]; then
+            # Only a pre-release (a version with a suffix) may skip Play. A final release fails, so
+            # a missing secret never ships a version to GitHub alone by accident.
+            if [[ "$VERSION" == *-* ]]; then
+              echo "::warning::PLAY_SERVICE_ACCOUNT_JSON is empty; skipping the Play upload for pre-release $VERSION."
+              exit 0
+            fi
             echo "::error::PLAY_SERVICE_ACCOUNT_JSON is empty in the production environment"
             exit 1
           fi
@@ -346,7 +353,7 @@ jobs:
         with:
           body_path: notes.md
           draft: true
-          prerelease: false
+          prerelease: ${{ contains(needs.preflight.outputs.version, '-') }}
           files: |
             artifacts/*.apk
             artifacts/*.aab
