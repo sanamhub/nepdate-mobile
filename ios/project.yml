@@ -64,6 +64,8 @@ targets:
     sources:
       - path: NepDateWidgets
       - path: Shared
+        excludes:
+          - AppIntents.swift
       - path: Resources/Localizable.xcstrings
       - path: NepDateWidgets/Resources
     settings:
