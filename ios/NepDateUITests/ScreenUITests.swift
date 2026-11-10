@@ -95,7 +95,9 @@ final class ScreenUITests: XCTestCase {
 
     for title in ["Appearance", "Digits", "Date follows", "Opens on"] {
       let element = app.staticTexts[title]
-      if !element.exists { app.swipeUp() }
+      for _ in 0..<6 where !element.exists {
+        app.swipeUp()
+      }
       XCTAssertTrue(element.waitForExistence(timeout: 5), "\(title) is not on the screen")
       XCTAssertTrue(Self.hasHeaderTrait(element), "\(title) is not a header")
     }
