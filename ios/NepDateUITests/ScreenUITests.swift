@@ -23,12 +23,13 @@ final class ScreenUITests: XCTestCase {
   ///   bottom sits behind the home indicator, and the same tint passes on the links above it. The
   ///   promises section gives nine findings at the default size and three at accessibility2 (run
   ///   42787285560); the counts are printed for the review.
-  /// - Converter: the from and to date labels are reported as possibly clipped at larger sizes, at
+  /// - Converter: the from and to date labels were reported as possibly clipped at larger sizes, at
   ///   the default size and at accessibility2 (runs 42791913219 and 42808682568). Both are date
   ///   values the user has to read, so the screen wraps them instead of shrinking them onto one
-  ///   line; the kind is tolerated and the labels are printed for the review.
-  private static let converterTolerated = ["textClipped text": 2]
-  private static let converterAccessibilityTolerated = ["textClipped text": 2]
+  ///   line. The audit then reports no finding at either size (run 42821786175), so nothing is
+  ///   tolerated on this screen.
+  private static let converterTolerated: [String: Int] = [:]
+  private static let converterAccessibilityTolerated: [String: Int] = [:]
   /// The festivals list draws its rows as plain buttons over the system background. The audit
   /// reports the holiday names and the one holiday numeral in the first visible section, and the
   /// small Open in Patro header button; the same pairs pass on the rows below. Nothing else is
