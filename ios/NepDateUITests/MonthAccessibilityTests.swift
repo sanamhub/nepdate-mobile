@@ -142,18 +142,21 @@ final class MonthAccessibilityTests: XCTestCase {
       key = try XCTUnwrap(MonthKey(id: key.id + 1))
       let expected = "\(MonthNames.bs(key.month, .english)) \(key.year)"
       // The month is the navigation bar's identifier, so a wait for the bar of that month is the
-      // wait for the pager to reach it. The pager ignores a page change while it recentres its
-      // window, so a swipe that lands in that moment is dropped and the month gets one more swipe
-      // (run 42837970793); the 10 second wait makes sure a swipe that was merely slow is not
+      // wait for the pager to reach it. The swipe is slow so that its momentum cannot carry the
+      // pager past the page it turns to, which left the pager on Bhadau 2085 after the last swipe
+      // of this loop on run 42846143540. The pager also ignores a page change while it recentres
+      // its window, so a swipe that lands in that moment is dropped and the month gets one more
+      // swipe (run 42837970793); the 10 second wait makes sure a swipe that was merely slow is not
       // followed by a second one.
       var reached = false
       for _ in 0..<2 where !reached {
-        pager.swipeLeft()
+        pager.swipeLeft(velocity: .slow)
         reached = Self.title(expected, in: app).waitForExistence(timeout: 10)
       }
       XCTAssertTrue(reached, "the pager did not reach \(expected)")
     }
-    XCTAssertTrue(Self.title("Asar 2085", in: app).waitForExistence(timeout: 10))
+    // The loop above landed on Asar 2085; its first cell proves the pager draws that month after
+    // the recentre, not only that the bar names it.
     XCTAssertTrue(
       Self.cell(beginningWith: "Asar 1, 2085,", in: app).waitForExistence(timeout: 10),
       "the page after the recentre is not Asar 2085"
