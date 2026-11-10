@@ -1,0 +1,1 @@
+First pre-release: month view, day detail, upcoming, converter, widgets, English and Nepali.

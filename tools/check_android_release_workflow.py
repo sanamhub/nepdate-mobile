@@ -145,7 +145,7 @@ def check_needs(doc: dict[str, Any]) -> None:
     expected = {
         "ci": {"preflight"},
         "sign": {"preflight", "ci"},
-        "publish": {"sign"},
+        "publish": {"preflight", "sign"},
         "attest": {"sign"},
         "release": {"preflight", "sign", "attest"},
     }
@@ -259,6 +259,9 @@ def check_publish(doc: dict[str, Any]) -> None:
             raise WorkflowError(f"publish job does not use {expected}")
     if "ANDROID_PUBLISHER_CREDENTIALS" not in "\n".join(str(step) for step in steps(publish)):
         raise WorkflowError("publish job does not use the Play service-account secret")
+    # Only a pre-release may skip Play when the secret is missing; a final version must fail.
+    if '"$VERSION" == *-*' not in text or "exit 1" not in text:
+        raise WorkflowError("publish job must fail a final version that has no Play secret")
 
 
 def check_attestation(doc: dict[str, Any]) -> None:
@@ -361,6 +364,11 @@ def mutate_contents_write(doc: dict[str, Any]) -> None:
     jobs(doc)["publish"]["permissions"] = {"contents": "write"}
 
 
+def mutate_skip_play_for_every_version(doc: dict[str, Any]) -> None:
+    upload = find_step(doc, "publish", "Upload the AAB to the internal track")
+    upload["run"] = upload["run"].replace('"$VERSION" == *-*', "true").replace("exit 1", "exit 0")
+
+
 def mutate_release_before_attest(doc: dict[str, Any]) -> None:
     jobs(doc)["release"]["needs"] = ["preflight", "sign"]
 
@@ -415,6 +423,7 @@ def main() -> int:
     expect_mutation_failure(workflow, mutate_keep_keystore, "always remove the signing key")
     expect_mutation_failure(workflow, mutate_contents_write, "only the release job may have contents: write")
     expect_mutation_failure(workflow, mutate_release_before_attest, "release must need exactly")
+    expect_mutation_failure(workflow, mutate_skip_play_for_every_version, "must fail a final version")
     print("all static workflow checks passed")
     return 0
 
