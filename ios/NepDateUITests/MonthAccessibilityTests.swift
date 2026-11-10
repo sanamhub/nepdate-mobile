@@ -81,10 +81,7 @@ final class MonthAccessibilityTests: XCTestCase {
     XCTAssertFalse(last.buttons["Next month"].isEnabled)
     XCTAssertTrue(last.buttons["Previous month"].isEnabled)
 
-    lastTitle.tap()
-    let yearView = last.buttons["Year view"]
-    XCTAssertTrue(yearView.waitForExistence(timeout: 5), "the title menu is missing")
-    yearView.tap()
+    Self.openYearView(last, label: "Chaitra 2199")
     XCTAssertTrue(last.navigationBars["2199"].waitForExistence(timeout: 10))
     XCTAssertFalse(last.buttons["Next year"].isEnabled)
     XCTAssertTrue(last.buttons["Previous year"].isEnabled)
@@ -107,10 +104,7 @@ final class MonthAccessibilityTests: XCTestCase {
     XCTAssertFalse(first.buttons["Previous month"].isEnabled)
     XCTAssertTrue(first.buttons["Next month"].isEnabled)
 
-    firstTitle.tap()
-    let firstYear = first.buttons["Year view"]
-    XCTAssertTrue(firstYear.waitForExistence(timeout: 5))
-    firstYear.tap()
+    Self.openYearView(first, label: "Baisakh 1901")
     XCTAssertTrue(first.navigationBars["1901"].waitForExistence(timeout: 10))
     XCTAssertFalse(first.buttons["Previous year"].isEnabled)
     XCTAssertTrue(first.buttons["Next year"].isEnabled)
@@ -221,6 +215,21 @@ final class MonthAccessibilityTests: XCTestCase {
     app.launchArguments += ["-AppleLanguages", "(en)", "-AppleLocale", "en_US"] + arguments
     app.launch()
     return app
+  }
+
+  /// Taps the navigation title so its menu opens. XCTest exposes the title as a static text, so
+  /// the tap goes through the navigation bar's centre and falls back to the title element.
+  @MainActor
+  private static func openYearView(_ app: XCUIApplication, label: String) {
+    app.navigationBars.firstMatch
+      .coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
+      .tap()
+    let yearView = app.buttons["Year view"]
+    if !yearView.waitForExistence(timeout: 2) {
+      title(label, in: app).tap()
+    }
+    XCTAssertTrue(yearView.waitForExistence(timeout: 5), "the title menu is missing")
+    yearView.tap()
   }
 
   @MainActor
