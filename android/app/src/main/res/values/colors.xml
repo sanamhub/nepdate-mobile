@@ -2,7 +2,7 @@
 <resources>
     <color name="nepdate_background">#FFF8F3</color>
     <color name="widget_preview_text">#1C1B1F</color>
-    <color name="widget_preview_holiday">#C8102E</color>
+    <color name="widget_preview_holiday">#B3261E</color>
     <!-- The widget containers a static preview draws, from the app's light scheme. -->
     <color name="widget_preview_today">#FFDEA8</color>
     <color name="widget_preview_on_today">#271900</color>

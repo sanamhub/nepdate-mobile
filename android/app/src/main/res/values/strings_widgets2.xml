@@ -27,6 +27,6 @@
     <string name="widget2_none_left">No more festivals in the calendar data</string>
 
     <!-- Static previews for launchers before Android 15. -->
-    <string name="widget2_preview_days">5</string>
-    <string name="widget2_preview_festival">Ghatasthapana</string>
+    <string name="widget2_preview_days">6</string>
+    <string name="widget2_preview_festival">Fulpati</string>
 </resources>

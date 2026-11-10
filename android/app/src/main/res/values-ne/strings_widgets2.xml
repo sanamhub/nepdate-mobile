@@ -27,6 +27,6 @@
     <string name="widget2_none_left">पात्रोको जानकारीमा अब कुनै पर्व बाँकी छैन</string>
 
     <!-- Static previews for launchers before Android 15. -->
-    <string name="widget2_preview_days">५</string>
-    <string name="widget2_preview_festival">घटस्थापना</string>
+    <string name="widget2_preview_days">६</string>
+    <string name="widget2_preview_festival">फूलपाती</string>
 </resources>

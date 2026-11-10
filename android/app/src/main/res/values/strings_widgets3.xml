@@ -33,8 +33,9 @@
     <string name="widget3_preview_day_26">26</string>
     <string name="widget3_preview_day_27">27</string>
     <string name="widget3_preview_day_28">28</string>
-    <string name="widget3_preview_agenda">Govardhan Puja, Mha Puja and more</string>
-    <string name="widget3_preview_upcoming_names">Navaratri Start</string>
-    <string name="widget3_preview_festivals_names">Gai Puja, World Environment Day</string>
+    <string name="widget3_preview_agenda">Ghatasthapana, Fulpati and more</string>
+    <string name="widget3_preview_upcoming_names">Fulpati</string>
+    <string name="widget3_preview_upcoming_when">in 6 days</string>
+    <string name="widget3_preview_festivals_names">Ghatasthapana</string>
     <string name="widget3_preview_ad_span">Sep to Oct 2026</string>
 </resources>

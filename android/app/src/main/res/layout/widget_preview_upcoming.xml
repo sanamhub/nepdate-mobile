@@ -113,7 +113,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/widget3_preview_day_26"
+                    android:text="@string/widget3_preview_day_31"
                     android:textColor="@color/widget_preview_on_holiday"
                     android:textFontWeight="700"
                     android:textSize="16sp" />
@@ -121,7 +121,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/widget3_preview_week_mon"
+                    android:text="@string/widget3_preview_week_sat"
                     android:textColor="@color/widget_preview_on_holiday"
                     android:textFontWeight="500"
                     android:textSize="11sp" />
@@ -149,7 +149,7 @@
                     android:layout_height="wrap_content"
                     android:ellipsize="end"
                     android:maxLines="1"
-                    android:text="@string/upcoming_tomorrow"
+                    android:text="@string/widget3_preview_upcoming_when"
                     android:textColor="@color/widget_preview_soft"
                     android:textFontWeight="400"
                     android:textSize="12sp" />

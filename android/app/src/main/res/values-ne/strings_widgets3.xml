@@ -33,8 +33,9 @@
     <string name="widget3_preview_day_26">२६</string>
     <string name="widget3_preview_day_27">२७</string>
     <string name="widget3_preview_day_28">२८</string>
-    <string name="widget3_preview_agenda">गोवर्धन पूजा, म्ह पूजा र थप</string>
-    <string name="widget3_preview_upcoming_names">नवरात्रि सुरु</string>
-    <string name="widget3_preview_festivals_names">गाई पूजा, विश्व वातावरण दिवस</string>
+    <string name="widget3_preview_agenda">घटस्थापना, फूलपाती र थप</string>
+    <string name="widget3_preview_upcoming_names">फूलपाती</string>
+    <string name="widget3_preview_upcoming_when">६ दिनमा</string>
+    <string name="widget3_preview_festivals_names">घटस्थापना</string>
     <string name="widget3_preview_ad_span">सेप्टेम्बरदेखि अक्टोबर २०२६</string>
 </resources>
