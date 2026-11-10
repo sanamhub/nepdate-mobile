@@ -24,6 +24,9 @@ public struct MonthViewModel: Sendable {
   /// Whether cells carry their tithi line (MR-01 AC8).
   public let showTithi: Bool
 
+  /// Whether cells carry their small AD day (MR-17).
+  public let showsADDates: Bool
+
   /// The shown month's layout.
   public private(set) var layout: MonthLayout
 
@@ -31,16 +34,18 @@ public struct MonthViewModel: Sendable {
 
   /// Creates the state, opening on today's month unless another month is given.
   /// - Parameters:
-  ///   - today: The date that gets the today ring.
+  ///   - today: The date that gets the today mark.
   ///   - language: The language of the names.
   ///   - digits: The resolved Digits setting.
   ///   - showTithi: Whether cells carry their tithi line.
+  ///   - showsADDates: Whether cells carry their AD day; on by default (MR-17 AC1).
   ///   - month: The month to show; today's month by default.
   public init?(
     today: MonthDate,
     language: AppLanguage,
     digits: Digits,
     showTithi: Bool,
+    showsADDates: Bool = true,
     month: MonthKey? = nil
   ) {
     guard let todayMonth = MonthKey(monthOf: today) else { return nil }
@@ -60,6 +65,7 @@ public struct MonthViewModel: Sendable {
     self.language = language
     self.digits = digits
     self.showTithi = showTithi
+    self.showsADDates = showsADDates
     self.layout = layout
     self.todayMonth = todayMonth
   }
@@ -103,6 +109,27 @@ public struct MonthViewModel: Sendable {
   /// The cells of the shown month that belong to it.
   public var dayCells: [MonthCell] {
     layout.cells.filter { $0.isInMonth }
+  }
+
+  /// Whether the today card shows: only on today's month (MR-22 AC4).
+  public var showsTodayCard: Bool {
+    month == todayMonth
+  }
+
+  /// Today's cell in the shown month, or `nil` when another month is shown.
+  public var todayCell: MonthCell? {
+    guard showsTodayCard else { return nil }
+    return layout.cells.first { $0.isInMonth && $0.isToday }
+  }
+
+  /// The days of the shown month with a public holiday or an event, in date order (MR-23 AC1).
+  public var daysWithHolidayOrEvent: [MonthCell] {
+    layout.cells.filter { $0.isInMonth && ($0.isHoliday || $0.hasEvents) }
+  }
+
+  /// The next public holiday after today inside the look-ahead window (MR-22 AC2).
+  public var nextHoliday: HolidayCountdown? {
+    PatroLookahead.nextHoliday(after: today)
   }
 
   /// Shows another month and drops the selection.

@@ -4,13 +4,13 @@ import Foundation
 import SwiftUI
 import UIKit
 
-/// The month screen (MR-01): a pager of month pages, a header that opens the month picker, the
-/// previous and next buttons and a Today button that appears only off today's month.
+/// The Patro tab (MR-01, MR-14, MR-22, MR-23): a pager of month pages with the today card, the
+/// grid and the month's holidays and events, a title menu for today, and the previous, today and
+/// next buttons.
 public struct MonthScreen: View {
   @State private var model: MonthViewModel
   @State private var scrolledMonth: MonthKey?
   @State private var window: [MonthKey]
-  @State private var showsPicker = false
   @State private var detail: MonthDate?
   @State private var isRecentring = false
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -53,66 +53,47 @@ public struct MonthScreen: View {
   /// The screen's content.
   public var body: some View {
     VStack(spacing: 0) {
-      MonthHeader(
-        model: model,
-        onPrevious: { go(to: previousMonth) },
-        onNext: { go(to: nextMonth) },
-        onToday: { go(to: todayMonth) },
-        onChoose: { showsPicker = true }
-      )
-      ScrollViewReader { proxy in
-        ScrollView(.horizontal) {
-          LazyHStack(spacing: 0) {
-            ForEach(window) { key in
-              MonthPageView(
-                key: key,
-                today: model.today,
-                showTithi: model.showTithi,
-                language: model.language,
-                digits: model.digits,
-                selected: model.selected,
-                onSelect: { date in
-                  guard key == model.month else { return }
-                  select(date)
-                }
-              )
-              .accessibilityHidden(key != (scrolledMonth ?? model.month))
-              .containerRelativeFrame([.horizontal, .vertical])
-              .id(key)
-            }
-          }
-          .scrollTargetLayout()
-        }
-        .scrollTargetBehavior(.paging)
-        .scrollPosition(id: $scrolledMonth)
-        .scrollIndicators(.hidden)
-        .onChange(of: scrolledMonth) { _, newValue in
-          guard !isRecentring, let newValue, newValue != model.month else { return }
-          model.go(to: newValue)
-          if let index = window.firstIndex(of: newValue),
-            index < 5 || index >= window.count - 5
-          {
-            recentre(on: newValue, proxy: proxy)
-          }
-        }
+      monthSpan
+      pager
+    }
+    .frame(maxWidth: .infinity, maxHeight: .infinity)
+    .background(Color(uiColor: .systemBackground))
+    .navigationTitle(model.monthTitle)
+    .navigationBarTitleDisplayMode(.large)
+    .toolbarTitleMenu {
+      Button("Go to today") {
+        go(to: todayMonth)
       }
     }
-    .background(Color(uiColor: .systemBackground))
+    .toolbar {
+      ToolbarItemGroup(placement: .topBarTrailing) {
+        Button(action: { go(to: previousMonth) }) {
+          Image(systemName: "chevron.left")
+        }
+        .disabled(!model.canGoPrevious)
+        .accessibilityLabel(Text("Previous month"))
+
+        if model.showsTodayButton {
+          Button(action: { go(to: todayMonth) }) {
+            Text("Today")
+          }
+          .accessibilityLabel(Text("Today"))
+        }
+
+        Button(action: { go(to: nextMonth) }) {
+          Image(systemName: "chevron.right")
+        }
+        .disabled(!model.canGoNext)
+        .accessibilityLabel(Text("Next month"))
+      }
+    }
     .onAppear { open(route) }
     .onChange(of: route) { _, newValue in open(newValue) }
     .onChange(of: monthCommand) { _, command in apply(command) }
     .onChange(of: settings) { _, newValue in apply(newValue, today: today) }
     .onChange(of: today) { _, newValue in apply(settings, today: newValue) }
-    .sheet(isPresented: presentsSheet) {
-      if showsPicker {
-        MonthPickerSheet(
-          initial: model.month,
-          language: model.language,
-          digits: model.digits,
-          years: model.pickerYears,
-          onPick: { go(to: $0) }
-        )
-      } else if let detail,
+    .sheet(isPresented: detailSheet) {
+      if let detail,
         let detailModel = DayDetailViewModel(
           date: detail,
           language: model.language,
@@ -124,21 +105,105 @@ public struct MonthScreen: View {
     }
   }
 
-  private var presentsSheet: Binding<Bool> {
-    Binding(
-      get: { showsPicker || detail != nil },
-      set: { isPresented in
-        if !isPresented {
-          showsPicker = false
-          detail = nil
+  private var monthSpan: some View {
+    HStack(spacing: 8) {
+      Text(verbatim: model.adSpan)
+        .font(.subheadline)
+        .foregroundStyle(BrandColor.secondaryText)
+      Spacer(minLength: 0)
+    }
+    .padding(.horizontal, 16)
+    .padding(.bottom, 2)
+  }
+
+  private var pager: some View {
+    ScrollViewReader { proxy in
+      ScrollView(.horizontal) {
+        LazyHStack(spacing: 0) {
+          ForEach(window) { key in
+            MonthPage(
+              key: key,
+              today: today,
+              language: model.language,
+              digits: model.digits,
+              showTithi: model.showTithi,
+              showsADDates: model.showsADDates,
+              selected: model.selected,
+              onSelect: select,
+              onOpenDay: openDay
+            )
+            .accessibilityHidden(key != (scrolledMonth ?? model.month))
+            .containerRelativeFrame([.horizontal, .vertical])
+            .id(key)
+          }
+        }
+        .scrollTargetLayout()
+      }
+      .scrollTargetBehavior(.paging)
+      .scrollPosition(id: $scrolledMonth)
+      .scrollIndicators(.hidden)
+      .accessibilityIdentifier("month_pager")
+      .onChange(of: scrolledMonth) { _, newValue in
+        guard !isRecentring, let newValue, newValue != model.month else { return }
+        model.go(to: newValue)
+        if let index = window.firstIndex(of: newValue),
+          index < 5 || index >= window.count - 5
+        {
+          recentre(on: newValue, proxy: proxy)
         }
       }
+    }
+  }
+
+  private var detailSheet: Binding<Bool> {
+    Binding(
+      get: { detail != nil },
+      set: { isPresented in
+        if !isPresented { detail = nil }
+      }
     )
+  }
+
+  private var previousMonth: MonthKey? {
+    MonthKey(id: model.month.id - 1)
+  }
+
+  private var nextMonth: MonthKey? {
+    MonthKey(id: model.month.id + 1)
+  }
+
+  private var todayMonth: MonthKey? {
+    MonthKey(monthOf: model.today)
   }
 
   private func select(_ date: MonthDate) {
     model.select(date)
     detail = date
+  }
+
+  /// Opens a day, changing the shown month first when the day is in another month.
+  private func openDay(_ date: MonthDate) {
+    if let key = MonthKey(monthOf: date), key != model.month {
+      go(to: key)
+    }
+    model.select(date)
+    detail = date
+  }
+
+  /// Opens a widget's route: today's month, or a day's month with its detail sheet.
+  private func open(_ route: AppRoute?) {
+    guard let route else { return }
+    switch route {
+    case .today:
+      detail = nil
+      go(to: todayMonth)
+    case .day(let date):
+      openDay(date)
+    case .converter:
+      // The Converter is another tab, so the app never hands this route to the month screen.
+      break
+    }
+    onRouteHandled()
   }
 
   /// Applies a keyboard command, then clears it.
@@ -163,42 +228,13 @@ public struct MonthScreen: View {
         language: language,
         digits: digits,
         showTithi: settings.showTithi,
+        showsADDates: settings.showsADDates,
         month: model.month
       )
     else { return }
     let selection = model.selected
     model = updated
     if let selection { model.select(selection) }
-  }
-
-  /// Opens a widget's route: today's month, or a day's month with its detail sheet.
-  private func open(_ route: AppRoute?) {
-    guard let route else { return }
-    showsPicker = false
-    switch route {
-    case .today:
-      detail = nil
-      go(to: todayMonth)
-    case .day(let date):
-      go(to: MonthKey(monthOf: date))
-      select(date)
-    case .converter:
-      // The Converter is another tab, so the app never hands this route to the month screen.
-      break
-    }
-    onRouteHandled()
-  }
-
-  private var previousMonth: MonthKey? {
-    MonthKey(id: model.month.id - 1)
-  }
-
-  private var nextMonth: MonthKey? {
-    MonthKey(id: model.month.id + 1)
-  }
-
-  private var todayMonth: MonthKey? {
-    MonthKey(monthOf: model.today)
   }
 
   private func go(to key: MonthKey?) {
@@ -227,7 +263,7 @@ public struct MonthScreen: View {
   }
 
   /// The pages the pager holds. A window around the shown month keeps the number of views small;
-  /// the picker can still reach every month and `go(to:)` recentres the window first.
+  /// the title menu can still reach every month and `go(to:)` recentres the window first.
   private static func window(around key: MonthKey) -> [MonthKey] {
     let radius = 24
     var start = key.id - radius
@@ -242,11 +278,99 @@ public struct MonthScreen: View {
     }
     return (start...end).compactMap { MonthKey(id: $0) }
   }
+
 }
 
-/// The header and one month page, without the pager. The snapshot tests render this, because a
-/// pager container adds no pixels of its own and an off-screen `ScrollView` cannot be positioned
-/// reliably in a test.
+/// One page of the pager: the today card, the weekday row, the grid and the month's holidays and
+/// events, or the list layout at accessibility sizes.
+private struct MonthPage: View {
+  let key: MonthKey
+  let today: MonthDate
+  let language: AppLanguage
+  let digits: Digits
+  let showTithi: Bool
+  let showsADDates: Bool
+  let selected: MonthDate?
+  let onSelect: (MonthDate) -> Void
+  let onOpenDay: (MonthDate) -> Void
+  @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
+  var body: some View {
+    if let layout = MonthLayout(
+      year: key.year,
+      month: key.month,
+      showTithi: showTithi,
+      today: today
+    ) {
+      if dynamicTypeSize.isAccessibilitySize {
+        MonthAccessibilityList(
+          layout: layout,
+          language: language,
+          digits: digits,
+          selected: selected,
+          onSelect: onSelect
+        )
+      } else {
+        ScrollView {
+          VStack(spacing: 8) {
+            if isCurrentMonth, let todayCell = todayCell(in: layout) {
+              TodayCard(
+                cell: todayCell,
+                nextHoliday: PatroLookahead.nextHoliday(after: today),
+                language: language,
+                digits: digits,
+                todayLabel: AppText.string("Today", language),
+                publicHoliday: AppText.string("public holiday", language),
+                onOpenDay: onOpenDay
+              )
+              .padding(.horizontal, 8)
+            }
+            MonthWeekdayRow(language: language)
+              .padding(.horizontal, 8)
+            MonthGrid(
+              layout: layout,
+              language: language,
+              digits: digits,
+              selected: selected,
+              showTithi: showTithi,
+              showsADDates: showsADDates,
+              publicHoliday: AppText.string("public holiday", language),
+              todayLabel: AppText.string("Today", language),
+              onSelect: onSelect
+            )
+            .padding(.horizontal, 8)
+
+            let days = layout.cells.filter { $0.isInMonth && ($0.isHoliday || $0.hasEvents) }
+            if !days.isEmpty {
+              MonthDayList(
+                cells: days,
+                language: language,
+                digits: digits,
+                publicHoliday: AppText.string("public holiday", language),
+                onSelect: onSelect
+              )
+              .padding(.horizontal, 8)
+            }
+          }
+          .padding(.top, 4)
+          .padding(.bottom, 16)
+        }
+      }
+    } else {
+      Color.clear
+    }
+  }
+
+  private var isCurrentMonth: Bool {
+    MonthKey(monthOf: today) == key
+  }
+
+  private func todayCell(in layout: MonthLayout) -> MonthCell? {
+    layout.cells.first { $0.isInMonth && $0.isToday }
+  }
+}
+
+/// The content of the month screen without the pager and the navigation, for the snapshot tests.
 public struct MonthScreenContent: View {
   private let model: MonthViewModel
 
@@ -258,518 +382,17 @@ public struct MonthScreenContent: View {
 
   /// The content.
   public var body: some View {
-    VStack(spacing: 0) {
-      MonthHeader(
-        model: model,
-        onPrevious: {},
-        onNext: {},
-        onToday: {},
-        onChoose: {}
-      )
-      MonthPageView(
-        key: model.month,
-        today: model.today,
-        showTithi: model.showTithi,
-        language: model.language,
-        digits: model.digits,
-        selected: model.selected,
-        onSelect: { _ in }
-      )
-      .frame(maxHeight: .infinity)
-    }
+    MonthPage(
+      key: model.month,
+      today: model.today,
+      language: model.language,
+      digits: model.digits,
+      showTithi: model.showTithi,
+      showsADDates: model.showsADDates,
+      selected: model.selected,
+      onSelect: { _ in },
+      onOpenDay: { _ in }
+    )
     .background(Color(uiColor: .systemBackground))
-  }
-}
-
-private struct MonthHeader: View {
-  let model: MonthViewModel
-  let onPrevious: () -> Void
-  let onNext: () -> Void
-  let onToday: () -> Void
-  let onChoose: () -> Void
-
-  @Environment(\.dynamicTypeSize) private var dynamicTypeSize
-
-  var body: some View {
-    Group {
-      if dynamicTypeSize.isAccessibilitySize {
-        VStack(alignment: .leading, spacing: 0) {
-          title
-          navigation
-        }
-      } else {
-        HStack(alignment: .firstTextBaseline, spacing: 4) {
-          title
-          Spacer(minLength: 4)
-          navigation
-        }
-      }
-    }
-    .frame(maxWidth: .infinity, alignment: .leading)
-    .padding(.horizontal, 16)
-    .padding(.top, 8)
-    .padding(.bottom, 4)
-  }
-
-  private var title: some View {
-    Button(action: onChoose) {
-      VStack(alignment: .leading, spacing: 2) {
-        Text(model.monthTitle)
-          .font(.largeTitle)
-          .fontWeight(.bold)
-          .foregroundStyle(.primary)
-          .fixedSize(horizontal: false, vertical: true)
-        Text(model.adSpan)
-          .font(.subheadline)
-          .foregroundStyle(BrandColor.secondaryText)
-      }
-      .frame(minHeight: 44, alignment: .leading)
-      .contentShape(Rectangle())
-      .accessibilityHidden(true)
-    }
-    .buttonStyle(.plain)
-    .accessibilityLabel(Text("Choose month and year"))
-    .accessibilityValue(Text(model.monthTitle))
-  }
-
-  private var navigation: some View {
-    HStack(spacing: 0) {
-      Button(action: onPrevious) {
-        Image(systemName: "chevron.left")
-          .font(.body.weight(.semibold))
-          .frame(minWidth: 44, minHeight: 44)
-          .contentShape(Rectangle())
-      }
-      .disabled(!model.canGoPrevious)
-      .accessibilityLabel(Text("Previous month"))
-
-      if model.showsTodayButton {
-        Button(action: onToday) {
-          Text("Today")
-            .font(.subheadline)
-            .fontWeight(.semibold)
-            .foregroundStyle(BrandColor.accent)
-            .frame(minWidth: 44, minHeight: 44)
-            .contentShape(Rectangle())
-        }
-        .accessibilityLabel(Text("Today"))
-      }
-
-      Button(action: onNext) {
-        Image(systemName: "chevron.right")
-          .font(.body.weight(.semibold))
-          .frame(minWidth: 44, minHeight: 44)
-          .contentShape(Rectangle())
-      }
-      .disabled(!model.canGoNext)
-      .accessibilityLabel(Text("Next month"))
-    }
-    .buttonStyle(.plain)
-  }
-}
-
-private struct MonthPageView: View {
-  let key: MonthKey
-  let today: MonthDate
-  let showTithi: Bool
-  let language: AppLanguage
-  let digits: Digits
-  let selected: MonthDate?
-  let onSelect: (MonthDate) -> Void
-
-  @Environment(\.dynamicTypeSize) private var dynamicTypeSize
-
-  var body: some View {
-    if let layout = MonthLayout(
-      year: key.year,
-      month: key.month,
-      showTithi: showTithi,
-      today: today
-    ) {
-      Group {
-        if dynamicTypeSize.isAccessibilitySize {
-          MonthList(
-            layout: layout,
-            language: language,
-            digits: digits,
-            selected: selected,
-            onSelect: onSelect
-          )
-        } else {
-          VStack(spacing: 0) {
-            MonthWeekdayRow(language: language)
-            MonthGrid(
-              layout: layout,
-              language: language,
-              digits: digits,
-              selected: selected,
-              onSelect: onSelect
-            )
-          }
-        }
-      }
-      .frame(maxWidth: .infinity, maxHeight: .infinity)
-    } else {
-      Color.clear
-    }
-  }
-}
-
-private struct MonthWeekdayRow: View {
-  let language: AppLanguage
-
-  var body: some View {
-    HStack(spacing: 0) {
-      let names = MonthLayout.weekdayNames(language)
-      ForEach(names.indices, id: \.self) { index in
-        Text(names[index])
-          .font(.caption)
-          .fontWeight(.medium)
-          .foregroundStyle(index == 6 ? BrandColor.holiday : BrandColor.secondaryText)
-          .lineLimit(1)
-          .minimumScaleFactor(0.6)
-          .frame(maxWidth: .infinity)
-          .padding(.vertical, 4)
-      }
-    }
-    .accessibilityHidden(true)
-  }
-}
-
-private struct MonthGrid: View {
-  let layout: MonthLayout
-  let language: AppLanguage
-  let digits: Digits
-  let selected: MonthDate?
-  let onSelect: (MonthDate) -> Void
-
-  private let publicHoliday = String(localized: "public holiday")
-  private let todayLabel = String(localized: "Today")
-
-  var body: some View {
-    VStack(spacing: 0) {
-      ForEach(0..<layout.rowCount, id: \.self) { row in
-        HStack(spacing: 0) {
-          ForEach(0..<7, id: \.self) { column in
-            let cell = layout.cells[row * 7 + column]
-            if cell.date == nil {
-              Color.clear
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else {
-              DayCell(
-                cell: cell,
-                language: language,
-                digits: digits,
-                isSelected: cell.date == selected,
-                label: layout.accessibilityLabel(
-                  for: cell,
-                  language: language,
-                  digits: digits,
-                  publicHoliday: publicHoliday
-                ),
-                todayLabel: todayLabel,
-                onSelect: onSelect
-              )
-              .frame(maxWidth: .infinity, maxHeight: .infinity)
-            }
-          }
-        }
-        .frame(maxHeight: .infinity)
-
-        if row < layout.rowCount - 1 {
-          Rectangle()
-            .fill(Color.secondary.opacity(0.2))
-            .frame(height: 0.5)
-            .accessibilityHidden(true)
-        }
-      }
-    }
-    .frame(maxHeight: .infinity)
-  }
-}
-
-private struct DayCell: View {
-  let cell: MonthCell
-  let language: AppLanguage
-  let digits: Digits
-  let isSelected: Bool
-  let label: String
-  let todayLabel: String
-  let onSelect: (MonthDate) -> Void
-
-  var body: some View {
-    if cell.isSelectable, let date = cell.date {
-      Button {
-        onSelect(date)
-      } label: {
-        content
-          .accessibilityHidden(true)
-      }
-      .buttonStyle(.plain)
-      .accessibilityElement(children: .ignore)
-      .accessibilityLabel(Text(label))
-      .accessibilityValue(cell.isToday ? Text(todayLabel) : Text(""))
-      .accessibilityAddTraits(.isButton)
-      .accessibilityAddTraits(isSelected ? .isSelected : [])
-    } else {
-      content
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel(Text(label))
-        .accessibilityValue(cell.isToday ? Text(todayLabel) : Text(""))
-    }
-  }
-
-  private var content: some View {
-    VStack(spacing: 1) {
-      Text(cell.bsNumber(digits))
-        .font(.title2)
-        .fontWeight(.semibold)
-        .monospacedDigit()
-        .foregroundStyle(numeralColor)
-        .lineLimit(1)
-        .minimumScaleFactor(0.7)
-        .frame(minWidth: 34, minHeight: 34)
-        .overlay {
-          if cell.isToday {
-            Circle()
-              .stroke(BrandColor.today, lineWidth: 2)
-          }
-        }
-        .accessibilityHidden(true)
-      if isSelected && cell.isHoliday {
-        Rectangle()
-          .fill(BrandColor.holiday)
-          .frame(width: 18, height: 2)
-      }
-      if let tithi = cell.tithi {
-        Text(tithi.name(language))
-          .font(.caption2)
-          .multilineTextAlignment(.center)
-          .foregroundStyle(BrandColor.secondaryText)
-          .lineLimit(1)
-          .minimumScaleFactor(0.6)
-          .accessibilityHidden(true)
-      }
-      if cell.hasEvents {
-        Circle()
-          .fill(cell.isHoliday || cell.isSaturday ? BrandColor.holiday : BrandColor.secondaryText)
-          .frame(width: 4, height: 4)
-          .accessibilityHidden(true)
-      }
-    }
-    .padding(2)
-    .frame(maxWidth: .infinity, maxHeight: .infinity)
-    .background {
-      RoundedRectangle(cornerRadius: 8, style: .continuous)
-        .fill(background)
-        .padding(2)
-    }
-    .overlay(alignment: .topTrailing) {
-      Text(cell.adNumber(digits))
-        .font(.caption2)
-        .foregroundStyle(BrandColor.secondaryText)
-        .padding(.top, 2)
-        .padding(.trailing, 4)
-        .accessibilityHidden(true)
-    }
-    .contentShape(Rectangle())
-  }
-
-  private var background: Color {
-    if isSelected { return BrandColor.selection }
-    if cell.isHoliday { return BrandColor.holidayFill }
-    return .clear
-  }
-
-  private var numeralColor: Color {
-    guard cell.isInMonth else { return BrandColor.secondaryText }
-    return cell.isHoliday || cell.isSaturday ? BrandColor.holiday : .primary
-  }
-}
-
-private struct MonthList: View {
-  let layout: MonthLayout
-  let language: AppLanguage
-  let digits: Digits
-  let selected: MonthDate?
-  let onSelect: (MonthDate) -> Void
-
-  private let publicHoliday = String(localized: "public holiday")
-  private let todayLabel = String(localized: "Today")
-
-  var body: some View {
-    ScrollView {
-      LazyVStack(spacing: 0) {
-        ForEach(Array(layout.cells.filter(\.isInMonth).enumerated()), id: \.offset) { item in
-          let cell = item.element
-          if let date = cell.date {
-            MonthListRow(
-              cell: cell,
-              date: date,
-              language: language,
-              digits: digits,
-              isSelected: date == selected,
-              label: layout.accessibilityLabel(
-                for: cell,
-                language: language,
-                digits: digits,
-                publicHoliday: publicHoliday
-              ),
-              todayLabel: todayLabel,
-              onSelect: onSelect
-            )
-          }
-        }
-      }
-      .padding(.horizontal, 16)
-      .padding(.bottom, 16)
-    }
-  }
-}
-
-private struct MonthListRow: View {
-  let cell: MonthCell
-  let date: MonthDate
-  let language: AppLanguage
-  let digits: Digits
-  let isSelected: Bool
-  let label: String
-  let todayLabel: String
-  let onSelect: (MonthDate) -> Void
-
-  var body: some View {
-    Button {
-      onSelect(date)
-    } label: {
-      VStack(alignment: .leading, spacing: 3) {
-        HStack(alignment: .firstTextBaseline) {
-          Text(verbatim: bsDate)
-            .font(.title3)
-            .fontWeight(.semibold)
-          Spacer(minLength: 8)
-          if cell.isToday {
-            Text(todayLabel)
-              .font(.caption)
-              .fontWeight(.semibold)
-              .foregroundStyle(BrandColor.accent)
-          }
-        }
-        Text(verbatim: adLine)
-          .font(.subheadline)
-          .foregroundStyle(BrandColor.secondaryText)
-        if cell.isHoliday {
-          Text("Public holiday")
-            .font(.subheadline)
-            .foregroundStyle(BrandColor.secondaryText)
-        }
-        if let tithi = cell.tithi {
-          Text(verbatim: tithi.name(language))
-            .font(.subheadline)
-            .foregroundStyle(BrandColor.secondaryText)
-        }
-        if let event = cell.events.first {
-          Text(verbatim: digits.applying(to: event.name(language)))
-            .font(.subheadline)
-            .foregroundStyle(BrandColor.secondaryText)
-        }
-      }
-      .frame(maxWidth: .infinity, alignment: .leading)
-      .padding(.horizontal, 8)
-      .padding(.vertical, 10)
-      .background(background, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
-      .contentShape(Rectangle())
-      .accessibilityHidden(true)
-    }
-    .buttonStyle(.plain)
-    .accessibilityElement(children: .ignore)
-    .accessibilityLabel(Text(label))
-    .accessibilityValue(cell.isToday ? Text(todayLabel) : Text(""))
-    .accessibilityAddTraits(.isButton)
-    .accessibilityAddTraits(isSelected ? .isSelected : [])
-  }
-
-  private var background: Color {
-    if isSelected { return BrandColor.selection }
-    if cell.isHoliday { return BrandColor.holidayFill }
-    return .clear
-  }
-
-  private var bsDate: String {
-    "\(MonthNames.bs(date.month, language)) \(digits.format(date.day)), \(digits.format(date.year))"
-  }
-
-  private var adLine: String {
-    let day = digits.format(cell.adDay)
-    let month = MonthNames.ad(cell.adMonth, language)
-    let year = digits.format(cell.adYear)
-    return "\(cell.weekdayName(language)) · \(day) \(month) \(year)"
-  }
-}
-
-private struct MonthPickerSheet: View {
-  @State private var month: Int
-  @State private var year: Int
-  let language: AppLanguage
-  let digits: Digits
-  let years: ClosedRange<Int>
-  let onPick: (MonthKey) -> Void
-  @Environment(\.dismiss) private var dismiss
-
-  init(
-    initial: MonthKey,
-    language: AppLanguage,
-    digits: Digits,
-    years: ClosedRange<Int>,
-    onPick: @escaping (MonthKey) -> Void
-  ) {
-    _month = State(initialValue: initial.month)
-    _year = State(initialValue: initial.year)
-    self.language = language
-    self.digits = digits
-    self.years = years
-    self.onPick = onPick
-  }
-
-  var body: some View {
-    NavigationStack {
-      HStack(spacing: 0) {
-        Picker("Month", selection: $month) {
-          ForEach(1...12, id: \.self) { value in
-            Text(MonthNames.bs(value, language)).tag(value)
-          }
-        }
-        .pickerStyle(.wheel)
-        .frame(maxWidth: .infinity)
-        .accessibilityLabel(Text("Month"))
-
-        Picker("Year", selection: $year) {
-          ForEach(years, id: \.self) { value in
-            Text(digits.format(value)).tag(value)
-          }
-        }
-        .pickerStyle(.wheel)
-        .frame(maxWidth: .infinity)
-        .accessibilityLabel(Text("Year"))
-      }
-      .navigationTitle("Choose month and year")
-      .navigationBarTitleDisplayMode(.inline)
-      .toolbar {
-        ToolbarItem(placement: .cancellationAction) {
-          Button("Cancel") {
-            dismiss()
-          }
-        }
-        ToolbarItem(placement: .confirmationAction) {
-          Button("Go") {
-            if let key = MonthKey(year: year, month: month) {
-              onPick(key)
-            }
-            dismiss()
-          }
-        }
-      }
-    }
-    .presentationDetents([.medium, .large])
-    .presentationDragIndicator(.visible)
   }
 }

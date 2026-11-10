@@ -267,6 +267,7 @@ private struct RootView: View {
       RootTabView(
         settings: settings,
         today: today,
+        initialMonth: Self.testMonth,
         tab: $tab,
         route: route,
         monthCommand: monthCommand,
@@ -327,11 +328,27 @@ private struct RootView: View {
       return nil
     #endif
   }
+
+  /// A UI test can open the Patro tab on a chosen month with `NEPDATE_UI_TEST_MONTH=2199-12`, so
+  /// the year-view range test starts at an end instead of swiping there. Debug builds only.
+  private static var testMonth: MonthKey? {
+    #if DEBUG
+      guard let value = ProcessInfo.processInfo.environment["NEPDATE_UI_TEST_MONTH"] else {
+        return nil
+      }
+      let parts = value.split(separator: "-").compactMap { Int($0) }
+      guard parts.count == 2 else { return nil }
+      return MonthKey(year: parts[0], month: parts[1])
+    #else
+      return nil
+    #endif
+  }
 }
 
 private struct RootTabView: View {
   let settings: Settings
   let today: MonthDate
+  let initialMonth: MonthKey?
   @Binding var tab: AppTab
   let route: AppRoute?
   let monthCommand: MonthCommand?
@@ -350,7 +367,9 @@ private struct RootTabView: View {
             today: today,
             language: language,
             digits: digits,
-            showTithi: settings.showTithi
+            showTithi: settings.showTithi,
+            showsADDates: settings.showsADDates,
+            month: initialMonth
           ) {
             MonthScreen(
               model: model,
