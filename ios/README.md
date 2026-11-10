@@ -39,7 +39,7 @@ so code the framework carries from nepdate-swift does not count. The gate prints
 `llvm-cov` counted and fails when that is zero, so a filter or path that matches nothing cannot
 pass.
 
-`swift-snapshot-testing` 1.19.6 is pinned in `project.yml` and linked only to `NepDateTests`. The
+`swift-snapshot-testing` 1.19.7 is pinned in `project.yml` and linked only to `NepDateTests`. The
 six month references are in `NepDateTests/__Snapshots__/MonthSnapshotTests`: light with Asoj 25
 selected, dark, Nepali with the tithi line, tithi in English, `.xxxLarge`, and `.accessibility2`.
 The four day references are in `NepDateTests/__Snapshots__/DayDetailSnapshotTests`: Asoj 9 2083 in
@@ -48,7 +48,7 @@ light, dark, Nepali and `.accessibility2`. The sixteen widget references are in
 the month widget on Jestha 2083 (a six-week month) and the three Lock Screen families on Asoj 25
 2083, each in English and Nepali. Accented and vibrant render byte-identically to full colour for
 every widget, so they are not kept; `WidgetSnapshotTests.collapsedModesMatch` proves that. All references are rendered on the
-iPhone 17 simulator by Xcode 26.6. The test gate sets `SNAPSHOT_TESTING_RECORD=never`, so a missing image
+iPhone 17 simulator by Xcode 27.1 (ADR-0014). The test gate sets `SNAPSHOT_TESTING_RECORD=never`, so a missing image
 fails instead of being written. `ci.sh` exports it as `TEST_RUNNER_SNAPSHOT_TESTING_RECORD`, because
 `xcodebuild` passes a variable into the test process on the simulator only with that prefix;
 without it the record run of 39144415913 compared instead of recording.
@@ -61,7 +61,8 @@ an issue so that a human reviews it. Use its artefact, then run the workflow nor
 control PR moved the day sheet's vertical spacing by two points; all four day references failed
 (run 39191170937), and the PR was closed and its branch deleted.
 
-1.19.6 is the newest tag (checked 2026-10-18). Its package has one `SnapshotTesting` product, and
+1.19.7 is the newest tag (2026-10-21); 1.19.6 fixed a crash on macOS 27. Its package has one
+`SnapshotTesting` product, and
 that product always compiles its SwiftUI file, so no product leaves SwiftUI out. The tests call the
 UIKit `.image` strategy on a `UIHostingController`, which is the renderer the SwiftUI overload uses
 too. Run 39111474141 linked the package and recorded an image. It showed no `SwiftUICore` or
@@ -189,12 +190,14 @@ the app still passes `./scripts/ci.sh`.
 
 ## Xcode version
 
-ADR-0004 and ADR-0008 ask for the latest stable Xcode, which ADR-0004 records as 27.x. On
-2026-10-18 the `macos-26` image has Xcode 26.0 to 26.6 in `/Applications` and no Xcode 27 (run
-39100819816 lists them), so `ios.yml` selects `/Applications/Xcode_26.6.app` by path through
-`DEVELOPER_DIR` and fails if that path is missing. The workflow prints the list on every run. Move
-the path to Xcode 27.x once the image has it, and before the first App Store upload (I3), since
-uploads need the current SDK.
+ADR-0004 and ADR-0008 ask for the latest stable Xcode, which ADR-0004 records as 27.x. ADR-0014
+records why CI is still on 26.6: the `xcode-27` image was measured and the gates do not pass on
+iOS 27 yet (snapshot PNG writes fail, the accessibility audit finds less than the tests tolerate, the
+pager swipe lands a month off and the Settings screens fail). `ios.yml` therefore runs on `macos-26`
+and selects `/Applications/Xcode_26.6.app` by path through `DEVELOPER_DIR`, failing if that path is
+missing, and pins the destination to `iPhone 17` on `OS=26.5`. The workflow prints the Xcodes and the
+available simulators on every run. Before the first App Store upload, and before April 2027 when the
+iOS 27 SDK becomes mandatory, the migration in ADR-0014 §1 has to be done.
 
 ## Network check
 

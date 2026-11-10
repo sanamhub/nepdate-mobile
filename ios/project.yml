@@ -31,7 +31,7 @@ packages:
     exactVersion: 1.0.0-rc.1
   SnapshotTesting:
     url: https://github.com/pointfreeco/swift-snapshot-testing.git
-    exactVersion: 1.19.6
+    exactVersion: 1.19.7
 
 targets:
   NepDateApp:

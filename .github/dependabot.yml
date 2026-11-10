@@ -16,16 +16,8 @@ updates:
     cooldown:
       default-days: 14
 
-  - package-ecosystem: swift
-    directory: "/ios/Packages/CalendarKit"
-    schedule:
-      interval: weekly
-    cooldown:
-      default-days: 14
-
-  - package-ecosystem: swift
-    directory: "/ios/Packages/CalendarUI"
-    schedule:
-      interval: weekly
-    cooldown:
-      default-days: 14
+# No Swift entries on purpose. The iOS dependency pins live in four places that Dependabot cannot
+# keep in step: exact versions in Packages/CalendarKit/Package.swift and Packages/CalendarUI/
+# Package.swift, the NepDate exactVersion and SnapshotTesting exactVersion in project.yml, and
+# NEPDATE_LIBRARY_VERSION in the same file. ci.sh fails when they disagree, and the bump is a
+# reviewed change, so the runbook names the four files instead (docs/runbooks/release-ios.md).

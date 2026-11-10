@@ -47,6 +47,21 @@ hand:
 2. App Store Connect: attach the build, paste "What's new" from the changelog, submit for review with
    phased release on.
 
+## Toolchain and dependency bumps
+
+Dependabot does not watch the iOS dependencies: their pins live in four places that it cannot keep in
+step, and `ios/scripts/ci.sh` fails when they disagree. Bump them by hand, in one change:
+
+1. `ios/Packages/CalendarKit/Package.swift` (the `nepdate-swift` pin) and
+   `ios/Packages/CalendarUI/Package.swift` (the same pin).
+2. `ios/project.yml`: `packages.NepDate.exactVersion` and `settings.base.NEPDATE_LIBRARY_VERSION`.
+3. `ios/project.yml`: `packages.SnapshotTesting.exactVersion`, test-only.
+4. Run `ios/scripts/ci.sh` locally, or push and read `ios.yml`. A pin at least fourteen days old is
+   the floor for every dependency (the NepDate packages are exempt).
+
+The Xcode version is chosen by path in `ios.yml` and by nothing else; the toolchain decisions and the
+fallback are in ADR-0014.
+
 ## Rolling back
 
 Pause the phased release; if needed remove the version from sale and submit a fix with an expedited

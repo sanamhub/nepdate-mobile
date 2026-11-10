@@ -38,7 +38,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       # The image's default Xcode changes without notice; select one by path so a build can be
-      # repeated. See ios/README.md for why this is 26.6 and not 27.x.
+      # repeated. 26.6 and not the xcode-27 image: the gates fail on iOS 27 (ADR-0014).
       - name: Select Xcode
         env:
           XCODE_APP: /Applications/Xcode_26.6.app
@@ -52,6 +52,11 @@ jobs:
 
       - name: Show the Xcode version
         run: xcodebuild -version
+
+      # The simulator destination is pinned by name and OS, so it is listed here too: a renamed
+      # device or a withdrawn runtime shows up before the gates run.
+      - name: Show the simulators
+        run: xcrun simctl list devices available
 
       - name: Run the iOS gates
         working-directory: ios
