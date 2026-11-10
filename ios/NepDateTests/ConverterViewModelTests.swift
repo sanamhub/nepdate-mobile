@@ -103,7 +103,9 @@ struct ConverterViewModelTests {
     #expect(model.comparison?.years == 1)
     #expect(model.comparison?.months == 0)
     #expect(model.comparison?.days == 0)
-    #expect(model.comparison?.totalDays == 365)
+    // Baisakh 1, 2081 is 13 April 2024 and Baisakh 1, 2082 is 14 April 2025, so the year between
+    // them is 366 days long.
+    #expect(model.comparison?.totalDays == 366)
     #expect(model.comparisonError == nil)
     #expect(model.comparisonRange == "Baisakh 1, 2081 to Baisakh 1, 2082")
     #expect(model.differenceText == "1 year, 0 months, 0 days")
