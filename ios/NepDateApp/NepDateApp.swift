@@ -104,8 +104,6 @@ private struct RootView: View {
 
   var body: some View {
     let store = SettingsStore()
-    let language = settings.language.resolved
-    let digits = settings.digits.resolved(for: language)
     let suggestion = SettingsViewModel(settings: settings, store: store)
     let info = AboutInfo(
       appVersion: Self.appVersion,

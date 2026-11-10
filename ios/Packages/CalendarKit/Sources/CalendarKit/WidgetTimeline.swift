@@ -98,7 +98,34 @@ public enum WidgetTimeline {
   public static func preview(settings: Settings = .defaults) -> WidgetEntry {
     // 2026-10-11T12:00:00+05:45, the Asoj 25 holiday.
     let now = Date(timeIntervalSince1970: 1_791_699_300)
-    return entries(now: now, settings: settings, deviceZone: CalendarDates.nepal).first!
+    if let first = entries(now: now, settings: settings, deviceZone: CalendarDates.nepal).first {
+      return first
+    }
+    // The fixed instant is inside coverage, so the branch above always returns. The fallback
+    // keeps the placeholder total without a force unwrap.
+    return WidgetEntry(
+      date: now,
+      day: WidgetDay(
+        date: MonthDate(year: 2083, month: 6, day: 25),
+        day: "25",
+        month: "Asoj",
+        shortMonth: "Aso",
+        adMonthName: "October",
+        adDayText: "11",
+        weekday: "Sunday",
+        adDate: "11 October 2026",
+        adDay: 11,
+        adMonth: 10,
+        adYear: 2026,
+        tithi: nil,
+        holidayName: nil,
+        isHoliday: false,
+        showsNepalLabel: false
+      ),
+      nextHoliday: nil,
+      upcoming: [],
+      dataEndsOn: nil
+    )
   }
 
   /// The entries for a timeline.

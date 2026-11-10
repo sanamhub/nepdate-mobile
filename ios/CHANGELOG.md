@@ -8,6 +8,12 @@ All notable changes to the iOS app. The format follows
 
 ### Added
 
+- The parity work: the four tabs with the search role, the first run, the today card and the
+  rebuilt month grid, the year view, the day sheet's stepping and Share, the festivals list and
+  search, the rebuilt converter, the six promises in About, the new widget families, the App
+  Shortcuts and the festival entity. The version is 1.0.0 and the store metadata is in
+  `fastlane/metadata/ios/en-US`.
+
 - The iOS project skeleton: the app target, the Today widget extension, the App Group
   `group.np.nepdate`, the local packages `CalendarKit` and `CalendarUI`, `PrivacyInfo.xcprivacy` in
   both targets, a String Catalog with English and Nepali, and the five gates of `ios/scripts/ci.sh`.
@@ -66,3 +72,4 @@ All notable changes to the iOS app. The format follows
   I1-04 from linker layout; no widget source changed.
 - Copy date now shows "Date copied" and announces it once to VoiceOver.
 - Light secondary text is 0.33 white (7.55:1 on the background).
+

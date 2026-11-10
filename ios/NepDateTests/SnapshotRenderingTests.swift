@@ -350,6 +350,37 @@ struct SnapshotRenderingTests {
     }
   }
 
+  @Test("MR-09: the month and the year render at an iPad size")
+  func iPadSize() throws {
+    let today = MonthDate(year: 2083, month: 6, day: 25)
+    let month = try #require(
+      MonthViewModel(
+        today: today,
+        language: .english,
+        digits: .english,
+        showTithi: false
+      )
+    )
+    let year = try #require(
+      YearViewModel(year: 2083, today: today, language: .english, digits: .english)
+    )
+    let size = CGSize(width: 1024, height: 1366)
+    try render(
+      MonthScreenContent(model: month),
+      name: "month-ipad",
+      size: size,
+      scheme: .light,
+      locale: Locale(identifier: "en")
+    )
+    try render(
+      NavigationStack { YearScreen(model: year, onPick: { _ in }) },
+      name: "year-ipad",
+      size: size,
+      scheme: .light,
+      locale: Locale(identifier: "en")
+    )
+  }
+
   @Test("the four brand marks render in light and dark")
   func brandMarks() throws {
     for (scheme, suffix) in [(ColorScheme.light, "light"), (.dark, "dark")] {
