@@ -17,7 +17,7 @@ import org.robolectric.annotation.Config
 
 /** A1-03 and MR-01 AC4: the selected day is exposed as selected. */
 @RunWith(AndroidJUnit4::class)
-@Config(sdk = [35], qualifiers = "w360dp-h800dp-xhdpi")
+@Config(qualifiers = "w360dp-h800dp-xhdpi")
 class MonthSelectionTest {
     @get:Rule
     val composeRule = createComposeRule()

@@ -8,10 +8,8 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Shadows
-import org.robolectric.annotation.Config
 
 @RunWith(AndroidJUnit4::class)
-@Config(sdk = [35])
 class AndroidMidnightAlarmTest {
     @Test
     fun armUsesOneInexactTenMinuteWindow() {

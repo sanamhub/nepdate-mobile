@@ -13,7 +13,6 @@ import np.nepdate.data.TodayProvider
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.annotation.Config
 import java.time.Clock
 import java.time.Duration
 import java.time.Instant
@@ -23,7 +22,6 @@ import java.util.TimeZone
 
 /** Today follows local midnight, a clock change, a time-zone change and a return to the foreground. */
 @RunWith(AndroidJUnit4::class)
-@Config(sdk = [35])
 class RememberTodayTest {
     @get:Rule
     val composeRule = createAndroidComposeRule<ComponentActivity>()

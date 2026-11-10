@@ -20,7 +20,7 @@ import java.time.ZoneId
 /** The first-run screen in each language. A human checks the PNGs; they are not a pass. */
 @RunWith(AndroidJUnit4::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
-@Config(sdk = [35], qualifiers = "w360dp-h800dp-xhdpi")
+@Config(qualifiers = "w360dp-h800dp-xhdpi")
 class FirstRunScreenshotTest {
     @get:Rule
     val composeRule = createComposeRule()
