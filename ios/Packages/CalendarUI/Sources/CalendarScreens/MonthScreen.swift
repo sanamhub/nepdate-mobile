@@ -5,14 +5,16 @@ import SwiftUI
 import UIKit
 
 /// The Patro tab (MR-01, MR-14, MR-22, MR-23): a pager of month pages with the today card, the
-/// grid and the month's holidays and events, a title menu for today, and the previous, today and
-/// next buttons.
+/// grid and the month's holidays and events, a title menu for today and the year view, and the
+/// previous, today and next buttons.
 public struct MonthScreen: View {
   @State private var model: MonthViewModel
   @State private var scrolledMonth: MonthKey?
   @State private var window: [MonthKey]
   @State private var detail: MonthDate?
   @State private var isRecentring = false
+  @State private var showsYear = false
+  @Namespace private var yearZoom
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
   private let settings: Settings
   private let today: MonthDate
@@ -64,6 +66,9 @@ public struct MonthScreen: View {
       Button("Go to today") {
         go(to: todayMonth)
       }
+      Button("Year view") {
+        showsYear = true
+      }
     }
     .toolbar {
       ToolbarItemGroup(placement: .topBarTrailing) {
@@ -86,6 +91,9 @@ public struct MonthScreen: View {
         .disabled(!model.canGoNext)
         .accessibilityLabel(Text("Next month"))
       }
+    }
+    .navigationDestination(isPresented: $showsYear) {
+      yearDestination
     }
     .onAppear { open(route) }
     .onChange(of: route) { _, newValue in open(newValue) }
@@ -114,6 +122,7 @@ public struct MonthScreen: View {
     }
     .padding(.horizontal, 16)
     .padding(.bottom, 2)
+    .matchedTransitionSource(id: Self.yearZoomID, in: yearZoom)
   }
 
   private var pager: some View {
@@ -150,6 +159,24 @@ public struct MonthScreen: View {
           index < 5 || index >= window.count - 5
         {
           recentre(on: newValue, proxy: proxy)
+        }
+      }
+    }
+  }
+
+  private var yearDestination: some View {
+    Group {
+      if let year = YearViewModel(
+        year: model.month.year,
+        today: today,
+        language: model.language,
+        digits: model.digits
+      ) {
+        let screen = YearScreen(model: year, onPick: pickMonth)
+        if reduceMotion {
+          screen
+        } else {
+          screen.navigationTransition(.zoom(sourceID: Self.yearZoomID, in: yearZoom))
         }
       }
     }
@@ -237,6 +264,11 @@ public struct MonthScreen: View {
     if let selection { model.select(selection) }
   }
 
+  private func pickMonth(_ key: MonthKey) {
+    showsYear = false
+    go(to: key)
+  }
+
   private func go(to key: MonthKey?) {
     guard let key, key != model.month else { return }
     model.go(to: key)
@@ -263,7 +295,7 @@ public struct MonthScreen: View {
   }
 
   /// The pages the pager holds. A window around the shown month keeps the number of views small;
-  /// the title menu can still reach every month and `go(to:)` recentres the window first.
+  /// the year view can still reach every month and `go(to:)` recentres the window first.
   private static func window(around key: MonthKey) -> [MonthKey] {
     let radius = 24
     var start = key.id - radius
@@ -279,6 +311,7 @@ public struct MonthScreen: View {
     return (start...end).compactMap { MonthKey(id: $0) }
   }
 
+  private static let yearZoomID = "year"
 }
 
 /// One page of the pager: the today card, the weekday row, the grid and the month's holidays and

@@ -196,6 +196,48 @@ struct SnapshotRenderingTests {
     )
   }
 
+  @Test("MR-14: the year view renders in both schemes and Nepali")
+  func yearView() throws {
+    let today = MonthDate(year: 2083, month: 6, day: 25)
+    let english = try #require(
+      YearViewModel(year: 2083, today: today, language: .english, digits: .english)
+    )
+    let nepali = try #require(
+      YearViewModel(year: 2083, today: today, language: .nepali, digits: .nepali)
+    )
+    let size = CGSize(width: 390, height: 844)
+
+    try render(
+      NavigationStack { YearScreen(model: english, onPick: { _ in }) },
+      name: "year-en-light",
+      size: size,
+      scheme: .light,
+      locale: Locale(identifier: "en")
+    )
+    try render(
+      NavigationStack { YearScreen(model: english, onPick: { _ in }) },
+      name: "year-en-dark",
+      size: size,
+      scheme: .dark,
+      locale: Locale(identifier: "en")
+    )
+    try render(
+      NavigationStack { YearScreen(model: nepali, onPick: { _ in }) },
+      name: "year-ne-light",
+      size: size,
+      scheme: .light,
+      locale: Locale(identifier: "ne")
+    )
+    try render(
+      NavigationStack { YearScreen(model: english, onPick: { _ in }) },
+      name: "year-accessibility2",
+      size: size,
+      scheme: .light,
+      locale: Locale(identifier: "en"),
+      type: .accessibility2
+    )
+  }
+
   @Test("the four brand marks render in light and dark")
   func brandMarks() throws {
     for (scheme, suffix) in [(ColorScheme.light, "light"), (.dark, "dark")] {
