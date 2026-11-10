@@ -60,6 +60,12 @@ public enum FestivalDirectory {
     all.filter { $0.date >= date }
   }
 
+  /// The last day the patro table covers, for the widgets' "data ends on" line.
+  public static var coverageEnd: MonthDate {
+    let end = Patro.coverage.upperBound
+    return MonthDate(year: end.year, month: end.month, day: end.day)
+  }
+
   /// The next few days with a holiday or an event, starting today.
   /// - Parameters:
   ///   - date: The first day to include.
