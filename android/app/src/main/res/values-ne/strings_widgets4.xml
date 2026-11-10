@@ -3,7 +3,7 @@
     <string name="widget4_text_name">मिति मात्र</string>
     <string name="widget4_text_description">कार्ड बिना, सादा अक्षरमा आजको मिति।</string>
     <string name="widget4_preview_text_title">असोज २५</string>
-    <string name="widget4_preview_text_detail">शनिबार · प्रतिपदा</string>
+    <string name="widget4_preview_text_detail">आइतबार · प्रतिपदा</string>
     <string name="widget_details_title">विवरण देखाउने</string>
     <string name="widget_details_summary">तिथि, कार्यक्रम र बटन। बन्द गर्दा मिति मात्र देखिन्छ।</string>
     <string name="widget_background_title">पृष्ठभूमि</string>
