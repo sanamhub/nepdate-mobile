@@ -40,7 +40,7 @@ import org.robolectric.annotation.Config
 
 /** A1-03 and the Compose parts of MR-01 and MR-10. */
 @RunWith(AndroidJUnit4::class)
-@Config(sdk = [35], qualifiers = "w360dp-h640dp-xhdpi")
+@Config(qualifiers = "w360dp-h640dp-xhdpi")
 class MonthScreenTest {
     @get:Rule
     val composeRule = createComposeRule()

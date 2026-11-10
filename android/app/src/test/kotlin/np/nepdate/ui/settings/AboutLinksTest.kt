@@ -7,12 +7,10 @@ import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.annotation.Config
 import java.lang.reflect.Modifier
 
 /** A1-06 and MR-07 AC2 and MR-12 AC2 link and share constants. */
 @RunWith(AndroidJUnit4::class)
-@Config(sdk = [35])
 class AboutLinksTest {
     @Test
     fun aboutUrlsAreTheOnesTheRequirementNames() {

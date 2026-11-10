@@ -22,7 +22,7 @@ import org.robolectric.annotation.Config
 
 /** The widgets added by the widget review (item 10) and the open-the-app rule (item 8). */
 @RunWith(AndroidJUnit4::class)
-@Config(sdk = [35], qualifiers = "en-rUS-w360dp-h800dp-xhdpi")
+@Config(qualifiers = "en-rUS-w360dp-h800dp-xhdpi")
 class NewWidgetsTest {
     private val context: Context = ApplicationProvider.getApplicationContext()
     private val today = NepaliDate.of(2083, 6, 25)
