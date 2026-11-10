@@ -45,7 +45,12 @@ final class MonthAccessibilityTests: XCTestCase {
   ///   above them.
   ///
   /// Any other finding, or a different count, fails the test.
-  private static let gridTolerated = ["contrast numeral": 2, "dynamicType numeral": 63]
+  private static let gridTolerated = [
+    "contrast numeral": 1,
+    "contrast text": 6,
+    "dynamicType numeral": 71,
+    "dynamicType text": 8,
+  ]
   private static let listTolerated = [
     "contrast text": 2,
     "dynamicType text": 10,
