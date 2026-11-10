@@ -2,7 +2,6 @@ import AppIntents
 import CalendarKit
 import CalendarUI
 import NepDate
-import NepDatePatro
 import Foundation
 import SwiftUI
 import WidgetKit
@@ -231,7 +230,7 @@ struct FestivalsListProvider: AppIntentTimelineProvider {
       .today(dateFollows: settings.dateFollows)
     let all = FestivalDirectory.next(after: today, limit: 24)
     let days = holidaysOnly ? all.filter(\.isHoliday) : all
-    let end = Patro.coverage.upperBound
+    let end = FestivalDirectory.coverageEnd
     let dataEndsOn: String? =
       days.count < 8
       ? "\(MonthNames.bs(end.month, language)) \(digits.format(end.day)), "
