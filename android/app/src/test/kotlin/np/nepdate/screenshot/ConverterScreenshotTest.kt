@@ -21,7 +21,7 @@ import org.robolectric.annotation.GraphicsMode
 /** A1-05 Converter screenshots. A human still checks the PNGs and the device. */
 @RunWith(AndroidJUnit4::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
-@Config(sdk = [35], qualifiers = "w360dp-h800dp-xhdpi")
+@Config(qualifiers = "w360dp-h800dp-xhdpi")
 class ConverterScreenshotTest {
     @get:Rule
     val composeRule = createComposeRule()

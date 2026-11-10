@@ -27,7 +27,7 @@ import org.robolectric.annotation.Config
 
 /** The tabs as a pager: swipe and tap both move it, and an open-day request is consumed once. */
 @RunWith(AndroidJUnit4::class)
-@Config(sdk = [35], qualifiers = "w360dp-h640dp-xhdpi")
+@Config(qualifiers = "w360dp-h640dp-xhdpi")
 class TabPagerTest {
     @get:Rule
     val composeRule = createComposeRule()
