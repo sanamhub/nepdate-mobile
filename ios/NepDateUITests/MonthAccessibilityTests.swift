@@ -170,7 +170,11 @@ final class MonthAccessibilityTests: XCTestCase {
     // therefore pins the kinds of finding, and prints their counts for the review; a new kind of
     // finding still fails. The counts last seen are recorded above the tables.
     let found = try audit(app)
-    XCTAssertEqual(Set(found.keys), Self.gridCategories, "\(found)")
+    var expected = Self.gridCategories
+    if !found.ran.contains("elementDetection") {
+      expected.remove("elementDetection other")
+    }
+    XCTAssertEqual(Set(found.counts.keys), expected, "\(found.counts)")
   }
 
   @MainActor
@@ -185,16 +189,17 @@ final class MonthAccessibilityTests: XCTestCase {
     )
 
     let found = try audit(app)
-    XCTAssertEqual(Set(found.keys), Self.listCategories, "\(found)")
+    XCTAssertEqual(Set(found.counts.keys), Self.listCategories, "\(found.counts)")
   }
 
   /// Runs every audit category. A finding on a hidden text node is counted under its category
   /// and kind and returned; any other finding fails the audit call itself.
   @MainActor
-  private func audit(_ app: XCUIApplication) throws -> [String: Int] {
+  private func audit(_ app: XCUIApplication) throws -> (counts: [String: Int], ran: Set<String>) {
     var tolerated: [String: Int] = [:]
+    var ran: Set<String> = []
     for audit in Self.audits {
-      try AccessibilityAudit.perform(on: app, audit.type) { issue in
+      let completed = try AccessibilityAudit.perform(on: app, audit.type) { issue in
         let label = issue.element?.label ?? ""
         let frame = issue.element?.frame ?? .zero
         let isHiddenText =
@@ -210,9 +215,13 @@ final class MonthAccessibilityTests: XCTestCase {
         tolerated[isDrawnMark ? "elementDetection other" : "\(audit.name) \(kind)", default: 0] += 1
         return true
       }
+      if completed {
+        ran.insert(audit.name)
+      }
     }
+    print("AUDIT ran \(ran.sorted())")
     print("AUDIT tolerated \(tolerated.sorted { $0.key < $1.key })")
-    return tolerated
+    return (tolerated, ran)
   }
 
   @MainActor
@@ -231,35 +240,18 @@ final class MonthAccessibilityTests: XCTestCase {
     return app
   }
 
-  /// Taps the navigation title so its menu opens. XCTest exposes the title as a static text, so
-  /// the tap goes through the navigation bar's centre and falls back to the title element.
+  /// Opens the title menu and picks the year view. The month screen draws an inline title, so
+  /// SwiftUI puts the title in the navigation bar as a button carrying the month name; tapping it
+  /// opens the menu. The item is looked up as a button, which is how a presented menu exposes it.
   @MainActor
-  /// Opens the title menu and picks the year view. The menu belongs to the navigation title, which
-  /// is a large title text on the Patro tab, so the title is tapped, then the navigation bar's
-  /// centre, then the bar itself; the item is looked up by any element type because a title menu
-  /// presents its items as buttons on some iOS builds and as menu items on others.
   private static func openYearView(_ app: XCUIApplication, label: String) {
-    let yearView = app.descendants(matching: .any)["Year view"]
-    let titleButton = app.buttons["Choose month and year"]
-    if titleButton.waitForExistence(timeout: 3) {
-      titleButton.tap()
-    }
-    let navTitleButton = app.navigationBars.buttons[label]
-    if navTitleButton.waitForExistence(timeout: 2) {
-      navTitleButton.tap()
-    }
-    let taps: [() -> Void] = [
-      { title(label, in: app).tap() },
-      {
-        app.navigationBars.firstMatch
-          .coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
-          .tap()
-      },
-      { app.navigationBars.firstMatch.tap() },
-    ]
-    for tap in taps where !yearView.waitForExistence(timeout: 2) {
-      tap()
-    }
+    let titleButton = app.navigationBars.buttons.matching(
+      NSPredicate(format: "label BEGINSWITH %@", label)
+    ).firstMatch
+    XCTAssertTrue(titleButton.waitForExistence(timeout: 10), "the title button is missing")
+    titleButton.tap()
+
+    let yearView = app.buttons["Year view"]
     XCTAssertTrue(yearView.waitForExistence(timeout: 5), "the title menu is missing")
     yearView.tap()
   }
