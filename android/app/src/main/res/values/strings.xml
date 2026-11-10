@@ -71,7 +71,7 @@
     <string name="widget_today_name">Today</string>
     <string name="widget_today_description">The Bikram Sambat date, weekday and next holiday.</string>
     <string name="widget_upcoming_name">Today and upcoming</string>
-    <string name="widget_upcoming_description">Today\'s date and the next four holidays or events.</string>
+    <string name="widget_upcoming_description">Today\'s date and the coming days that have holidays or events.</string>
     <string name="widget_month_name">Month</string>
     <string name="widget_month_description">A Bikram Sambat month with holidays, events and today.</string>
     <string name="widget_nepal">Nepal</string>
