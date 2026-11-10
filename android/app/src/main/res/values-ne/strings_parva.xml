@@ -30,7 +30,8 @@
     <string name="search_recent">हालै खोजिएका</string>
     <string name="search_jump_title">मिति टाइप गर्नुहोस्, सिधै जानुहोस्</string>
     <string name="search_jump_example" tools:ignore="TypographyDashes">जस्तै %1$s (वि.सं.) वा %2$s (ई.सं.)</string>
-    <string name="search_jump_open">%1$s मा जानुहोस्</string>
+    <string name="search_jump_open_bs">वि.सं. %1$s मा जानुहोस्</string>
+    <string name="search_jump_open_ad">ई.सं. %1$s मा जानुहोस्</string>
     <plurals name="search_results">
         <item quantity="one">%1$d नतिजा</item>
         <item quantity="other">%1$d नतिजा</item>

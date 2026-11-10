@@ -22,8 +22,8 @@ android {
         minSdk = 26
         targetSdk = 37
         // Tester builds pass -PversionCode=N so each one installs over the last as an update.
-        versionCode = providers.gradleProperty("versionCode").orNull?.toInt() ?: 1
-        versionName = "1.0.0"
+        versionCode = providers.gradleProperty("versionCode").orNull?.toInt() ?: 10
+        versionName = "1.0.0-beta.1"
         buildConfigField("String", "NEPDATE_VERSION", "\"${libs.versions.nepdate.get()}\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"

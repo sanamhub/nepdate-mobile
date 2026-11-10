@@ -89,11 +89,15 @@ public struct MonthScreen: View {
         .onChange(of: scrolledMonth) { _, newValue in
           guard !isRecentring, let newValue, newValue != model.month else { return }
           model.go(to: newValue)
-          if let index = window.firstIndex(of: newValue),
+        }
+        .onScrollPhaseChange { _, phase in
+          // Recentre only once paging has settled. Swapping the pages while a swipe is still
+          // moving lands that swipe on whatever month sits at the old offset.
+          guard phase == .idle, !isRecentring,
+            let index = window.firstIndex(of: model.month),
             index < 5 || index >= window.count - 5
-          {
-            recentre(on: newValue, proxy: proxy)
-          }
+          else { return }
+          recentre(on: model.month, proxy: proxy)
         }
       }
     }

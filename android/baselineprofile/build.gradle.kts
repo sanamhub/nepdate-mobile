@@ -29,6 +29,13 @@ android {
             apiLevel = 34
             systemImageSource = "aosp-atd"
         }
+        // The benchmarks need frame timing, and the automated-test image draws no frames the
+        // trace can read (no RenderThread or frame-timeline slices). The full image does.
+        create("pixel6Api34Aosp") {
+            device = "Pixel 6"
+            apiLevel = 34
+            systemImageSource = "aosp"
+        }
     }
 }
 

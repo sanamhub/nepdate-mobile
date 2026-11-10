@@ -42,10 +42,12 @@ private data class TodayFace(
 private fun TodayWidgetModel.face(showAd: Boolean): TodayFace {
     // A holiday without a named event still gets its pill.
     val events = eventNames.ifEmpty { listOfNotNull(holidayName) }
+    // The next holiday comes last so that it is the first line dropped when the face runs short.
+    val next = nextHoliday?.let { "${it.name} ${it.relative}" }.orEmpty()
     return if (showAd) {
-        TodayFace(adMonthYear, adMonthShort, adDay, weekday, details(bsShortLine, tithi), events, isHoliday)
+        TodayFace(adMonthYear, adMonthShort, adDay, weekday, details(bsShortLine, tithi, next), events, isHoliday)
     } else {
-        TodayFace(bsMonthYear, monthName, bsDay, weekday, details(tithi, adLine), events, isHoliday)
+        TodayFace(bsMonthYear, monthName, bsDay, weekday, details(tithi, adLine, next), events, isHoliday)
     }
 }
 
@@ -152,7 +154,7 @@ private fun TodayFaceStacked(
     Column(modifier = GlanceModifier.fillMaxSize().padding(FACE_PADDING)) {
         SunnyNumeral(face.day, sunny)
         Spacer(GlanceModifier.defaultWeight())
-        FaceText(face.weekday, WEEKDAY_SIZE * scale, weekdayColor(model), FontWeight.Bold)
+        WeekdayLine(face.weekday, WEEKDAY_SIZE * scale, weekdayColor(model), model.nepalLabel, scale)
         FaceText(top, TOP_SIZE * scale, faceInk(), FontWeight.Medium)
         FaceExtraLines(extras, scale)
     }
@@ -185,7 +187,7 @@ private fun TodayFaceWide(
                 style = faceStyle(TOP_SIZE * scale, FontWeight.Medium),
                 maxLines = 1,
             )
-            FaceText(face.weekday, WEEKDAY_SIZE * WIDE_WEEKDAY * scale, weekdayColor(model), FontWeight.Bold)
+            WeekdayLine(face.weekday, WEEKDAY_SIZE * WIDE_WEEKDAY * scale, weekdayColor(model), model.nepalLabel, scale)
             FaceExtraLines(extras, scale)
         }
     }

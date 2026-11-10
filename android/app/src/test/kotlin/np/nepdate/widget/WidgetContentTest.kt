@@ -251,6 +251,60 @@ class WidgetContentTest {
         org.junit.Assert.assertEquals(date, dateFromIntent(intent))
     }
 
+    @Test
+    fun w01TheNextHolidayLineShowsOnceTheFaceHasRoom() =
+        runGlanceAppWidgetUnitTest {
+            setContext(context)
+            setAppWidgetSize(DpSize(250.dp, 180.dp))
+            provideComposable {
+                GlanceTheme {
+                    TodayWidgetContent(modelOn(PLAIN_DAY), WidgetOpacity.SOLID)
+                }
+            }
+
+            onNode(hasText("Fulpati in 5 days")).assertExists()
+        }
+
+    @Test
+    fun w01TheNextHolidayLineIsTheFirstToGoWhenTheFaceRunsShort() =
+        runGlanceAppWidgetUnitTest {
+            setContext(context)
+            setAppWidgetSize(GlanceAppWidgetSize.SMALL)
+            provideComposable {
+                GlanceTheme {
+                    TodayWidgetContent(modelOn(PLAIN_DAY), WidgetOpacity.SOLID)
+                }
+            }
+
+            onNode(hasText("Fulpati in 5 days")).assertDoesNotExist()
+        }
+
+    @Test
+    fun w01NepalShowsBesideTheWeekdayOnlyWhenTheDateFollowsNepal() =
+        runGlanceAppWidgetUnitTest {
+            setContext(context)
+            setAppWidgetSize(DpSize(250.dp, 180.dp))
+            provideComposable {
+                GlanceTheme {
+                    TodayWidgetContent(modelOn(PLAIN_DAY, showNepal = true), WidgetOpacity.SOLID)
+                }
+            }
+
+            onNode(hasText("Nepal")).assertExists()
+        }
+
+    private fun modelOn(
+        date: NepaliDate,
+        showNepal: Boolean = false,
+    ): TodayWidgetModel =
+        todayWidgetModel(
+            date = date,
+            lang = Lang.ENGLISH,
+            digits = Digits.ENGLISH,
+            copy = englishCopy,
+            showNepal = showNepal,
+        )
+
     private fun todayModel(
         digits: Digits,
         lang: Lang,
@@ -349,6 +403,9 @@ private val AD_MONTHS_NE =
         "नोभेम्बर",
         "डिसेम्बर",
     )
+
+/** A day with a tithi and no holiday or event, so the optional lines below it get the room. */
+private val PLAIN_DAY = NepaliDate.of(2083, 6, 26)
 
 private val englishCopy =
     WidgetCopy(
