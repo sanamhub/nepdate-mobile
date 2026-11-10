@@ -17,8 +17,12 @@ enum AccessibilityAudit {
     _ type: XCUIAccessibilityAuditType,
     handler: @escaping (XCUIAccessibilityAuditIssue) -> Bool
   ) throws {
+    // XCTest calls the handler synchronously on the test's thread, but its signature hands the
+    // closure to another isolation domain. The box states that fact instead of forcing every test
+    // to make its finding counter Sendable.
+    let box = HandlerBox(handler: handler)
     do {
-      try app.performAccessibilityAudit(for: type, handler)
+      try app.performAccessibilityAudit(for: type) { issue in box.handler(issue) }
     } catch {
       let failure = error as NSError
       guard failure.code == -56 else { throw error }
@@ -26,7 +30,11 @@ enum AccessibilityAudit {
         "AUDIT retry category=\(type.rawValue) domain=\(failure.domain) code=\(failure.code) "
           + "\(failure.localizedDescription)"
       )
-      try app.performAccessibilityAudit(for: type, handler)
+      try app.performAccessibilityAudit(for: type) { issue in box.handler(issue) }
     }
+  }
+
+  private struct HandlerBox: @unchecked Sendable {
+    let handler: (XCUIAccessibilityAuditIssue) -> Bool
   }
 }
