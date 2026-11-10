@@ -62,10 +62,12 @@ struct TodayConfigurationIntent: WidgetConfigurationIntent {
 }
 
 extension MainCalendar: AppEnum {
+  /// The calendar setting's name in the widget's configuration.
   public static var typeDisplayRepresentation: TypeDisplayRepresentation {
     TypeDisplayRepresentation(name: "Main calendar")
   }
 
+  /// The label of each calendar in the configuration picker.
   public static var caseDisplayRepresentations: [MainCalendar: DisplayRepresentation] {
     [
       .bs: DisplayRepresentation(title: "Bikram Sambat"),
