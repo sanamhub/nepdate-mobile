@@ -22,7 +22,7 @@ import org.robolectric.annotation.Config
 
 /** A1-05 and MR-04 AC1 to AC4 in the Converter screen. */
 @RunWith(AndroidJUnit4::class)
-@Config(sdk = [35], qualifiers = "w360dp-h800dp-xhdpi")
+@Config(qualifiers = "w360dp-h800dp-xhdpi")
 class ConverterScreenTest {
     @get:Rule
     val composeRule = createComposeRule()

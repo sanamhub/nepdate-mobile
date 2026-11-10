@@ -13,7 +13,6 @@ import np.nepdate.data.TodayProvider
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.annotation.Config
 import java.time.Clock
 import java.time.Duration
 import java.time.Instant
@@ -23,7 +22,6 @@ import java.util.TimeZone
 
 /** Today follows local midnight, a clock change, a time-zone change and a return to the foreground. */
 @RunWith(AndroidJUnit4::class)
-@Config(sdk = [35])
 class RememberTodayTest {
     @get:Rule
     val composeRule = createAndroidComposeRule<ComponentActivity>()
@@ -92,8 +90,9 @@ class RememberTodayTest {
         setToday(provider)
         composeRule.onNodeWithText("2081-04-15").assertExists()
 
-        // Real time passes here, so the wait allows for a slow runner; the rollover itself is 0.5 s away.
-        composeRule.waitUntil(10_000) {
+        // Real time passes here, so the wait allows for a slow runner; the rollover itself is 0.5 s
+        // away. Unit test forks share the runner, so the margin has to cover a busy machine.
+        composeRule.waitUntil(30_000) {
             composeRule.onAllNodesWithText("2081-04-16").fetchSemanticsNodes().isNotEmpty()
         }
     }

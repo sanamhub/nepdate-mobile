@@ -47,7 +47,7 @@ import java.util.Locale
  */
 @RunWith(AndroidJUnit4::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
-@Config(sdk = [35], qualifiers = "w360dp-h800dp-xhdpi")
+@Config(qualifiers = "w360dp-h800dp-xhdpi")
 class WidgetGalleryScreenshotTest {
     private val base: Context = ApplicationProvider.getApplicationContext()
 

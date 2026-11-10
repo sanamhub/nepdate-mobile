@@ -29,7 +29,7 @@ import java.util.Locale
 
 /** MR-07 AC1: the default digits follow the resolved app language; explicit choices override it. */
 @RunWith(AndroidJUnit4::class)
-@Config(sdk = [35], qualifiers = "w360dp-h640dp-xhdpi")
+@Config(qualifiers = "w360dp-h640dp-xhdpi")
 class FollowLanguageDigitsTest {
     @get:Rule
     val composeRule = createComposeRule()

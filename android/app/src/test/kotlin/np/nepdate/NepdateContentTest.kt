@@ -16,7 +16,7 @@ import org.robolectric.annotation.Config
 
 /** A1-05: the three design-system tabs open their screens. */
 @RunWith(AndroidJUnit4::class)
-@Config(sdk = [35], qualifiers = "w360dp-h640dp-xhdpi")
+@Config(qualifiers = "w360dp-h640dp-xhdpi")
 class NepdateContentTest {
     @get:Rule
     val composeRule = createComposeRule()
