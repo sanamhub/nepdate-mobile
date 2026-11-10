@@ -13,6 +13,11 @@ final class ShellUITests: XCTestCase {
     ("trait", .trait),
   ]
 
+  /// The promises in two columns are reported as partially supporting Dynamic Type at the default
+  /// size, on the two labels of the last row. The grid wraps them and the `.accessibility2`
+  /// reference shows them whole, so the exact count is tolerated and anything else fails.
+  private static let firstRunTolerated = ["dynamicType text": 2]
+
   @MainActor
   func testFirstRunHasOnlyTheToleratedAuditFindings() throws {
     let app = Self.launch(screen: "firstRun")
@@ -21,19 +26,22 @@ final class ShellUITests: XCTestCase {
       "the first-run screen did not open"
     )
 
-    let counts: [String: Int] = [:]
+    var counts: [String: Int] = [:]
     for audit in Self.audits {
       try AccessibilityAudit.perform(on: app, audit.type) { issue in
         let label = issue.element?.label ?? ""
+        let kind = label.allSatisfy(\.isNumber) ? "numeral" : "text"
         print(
-          "AUDIT \(audit.name) label=\(label) \(issue.compactDescription) | "
+          "AUDIT \(audit.name) \(kind) label=\(label) \(issue.compactDescription) | "
             + issue.detailedDescription
         )
-        return false
+        guard Self.firstRunTolerated["\(audit.name) \(kind)"] != nil else { return false }
+        counts["\(audit.name) \(kind)", default: 0] += 1
+        return true
       }
     }
     print("AUDIT tolerated \(counts.sorted { $0.key < $1.key })")
-    XCTAssertEqual(counts, [:])
+    XCTAssertEqual(counts, Self.firstRunTolerated)
   }
 
   @MainActor
