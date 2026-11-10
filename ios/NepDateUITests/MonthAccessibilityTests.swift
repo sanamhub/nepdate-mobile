@@ -54,6 +54,7 @@ final class MonthAccessibilityTests: XCTestCase {
     "contrast numeral",
     "contrast text",
     "dynamicType numeral",
+    "dynamicType text",
     "elementDetection other",
   ]
   private static let listCategories: Set<String> = [
@@ -233,22 +234,27 @@ final class MonthAccessibilityTests: XCTestCase {
   /// Taps the navigation title so its menu opens. XCTest exposes the title as a static text, so
   /// the tap goes through the navigation bar's centre and falls back to the title element.
   @MainActor
-  /// Opens the title menu and picks the year view. The month title is a button with an identifier
-  /// on the newer Patro screens and a plain navigation title on the older ones, so the button is
-  /// tried first, then the navigation bar's centre, then the title itself.
+  /// Opens the title menu and picks the year view. The menu belongs to the navigation title, which
+  /// is a large title text on the Patro tab, so the title is tapped, then the navigation bar's
+  /// centre, then the bar itself; the item is looked up by any element type because a title menu
+  /// presents its items as buttons on some iOS builds and as menu items on others.
   private static func openYearView(_ app: XCUIApplication, label: String) {
-    let yearView = app.buttons["Year view"]
+    let yearView = app.descendants(matching: .any)["Year view"]
     let titleButton = app.buttons["Choose month and year"]
-    if titleButton.waitForExistence(timeout: 5) {
+    if titleButton.waitForExistence(timeout: 3) {
       titleButton.tap()
     }
-    if !yearView.waitForExistence(timeout: 2) {
-      app.navigationBars.firstMatch
-        .coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
-        .tap()
-    }
-    if !yearView.waitForExistence(timeout: 2) {
-      title(label, in: app).tap()
+    let taps: [() -> Void] = [
+      { title(label, in: app).tap() },
+      {
+        app.navigationBars.firstMatch
+          .coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
+          .tap()
+      },
+      { app.navigationBars.firstMatch.tap() },
+    ]
+    for tap in taps where !yearView.waitForExistence(timeout: 2) {
+      tap()
     }
     XCTAssertTrue(yearView.waitForExistence(timeout: 5), "the title menu is missing")
     yearView.tap()
