@@ -12,7 +12,7 @@ The iPhone and iPad app and the widget extension. The Xcode project is generated
 | `Packages/CalendarKit` | Local SwiftPM package: dates, month layout, widget summaries, settings (I1) |
 | `Packages/CalendarUI` | Local SwiftPM package: product `CalendarUI` (views and colours shared by app and widget) and product `CalendarScreens` (the app-only month, day, Upcoming, Converter, Settings and About screens and their view models) |
 | `NepDateTests/` | Swift Testing tests and the committed snapshot references; renders the screenshot artefact |
-| `NepDateUITests/` | XCUITests: opening on today, the picker at both range ends, the pager recentre, the month, day and I1-05 accessibility audits, Copy date, diagnostic copy and the widget routing (`WidgetRoutingUITests`) |
+| `NepDateUITests/` | XCUITests: opening on today, the picker at both range ends, one month per swipe, the month, day and I1-05 accessibility audits, Copy date, diagnostic copy and the widget routing (`WidgetRoutingUITests`) |
 | `Resources/` | `Localizable.xcstrings` (English and Nepali) |
 | `Config/` | Info.plists and the App Group entitlements for both targets |
 | `scripts/ci.sh` | The gates of ADR-0008 |
@@ -73,7 +73,7 @@ The XCUITests in `NepDateUITests` run inside gate 4, so the gate count is unchan
 read `NEPDATE_UI_TEST_TODAY` (for example `2083-06-20`) to pin today, so every UI test sees Asoj
 2083 and the audit counts are exact; a release build always uses the clock. The tests check that the
 pager opens on today, that the picker reaches Chaitra 2199 and Baisakh 1901 with the next and
-previous buttons disabled at those ends, and that 21 swipes cross the window recentre and land on
+previous buttons disabled at those ends, and that 21 swipes move one month each and land on
 Asar 2085. The day sheet test taps Asoj 25, checks every spoken field and event, taps Copy date and
 reads the action's accessibility value, then audits the sheet.
 

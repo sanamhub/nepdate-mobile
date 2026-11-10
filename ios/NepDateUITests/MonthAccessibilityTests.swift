@@ -3,7 +3,7 @@ import CalendarScreens
 import XCTest
 
 /// MR-01 and MR-10 on the running app: the month screen opens on today, the picker reaches both
-/// ends of the range, the pager recentres its window, and the system accessibility audit passes.
+/// ends of the range, every swipe moves one month, and the system accessibility audit passes.
 ///
 /// Every test pins today to Asoj 20, 2083 (`NEPDATE_UI_TEST_TODAY`, read by Debug builds only), so
 /// the audit inspects the same month on every run and its counts below are exact.
@@ -97,10 +97,10 @@ final class MonthAccessibilityTests: XCTestCase {
     XCTAssertEqual(title.value as? String, "Asoj 2083")
   }
 
-  /// The pager holds 49 months around the shown one and recentres when a swipe comes within five
-  /// pages of an edge. Twenty-one swipes from Asoj 2083 cross that point once (at the twentieth).
+  /// Every swipe moves exactly one month. Twenty-one swipes from Asoj 2083 land on Asar 2085. When
+  /// the pager held a 49-month window, the twentieth swipe recentred it and could overshoot.
   @MainActor
-  func testSwipesCrossTheWindowRecentre() throws {
+  func testEverySwipeMovesOneMonth() throws {
     let app = Self.launch()
     let title = app.buttons["Choose month and year"]
     XCTAssertTrue(title.waitForExistence(timeout: 10))
@@ -117,7 +117,7 @@ final class MonthAccessibilityTests: XCTestCase {
     XCTAssertEqual(title.value as? String, "Asar 2085")
     XCTAssertTrue(
       Self.cell(beginningWith: "Asar 1, 2085,", in: app).waitForExistence(timeout: 10),
-      "the page after the recentre is not Asar 2085"
+      "the page after twenty-one swipes is not Asar 2085"
     )
   }
 

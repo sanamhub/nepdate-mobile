@@ -9,10 +9,8 @@ import UIKit
 public struct MonthScreen: View {
   @State private var model: MonthViewModel
   @State private var scrolledMonth: MonthKey?
-  @State private var window: [MonthKey]
   @State private var showsPicker = false
   @State private var detail: MonthDate?
-  @State private var isRecentring = false
   private let onSettings: (() -> Void)?
   private let route: AppRoute?
   private let onRouteHandled: () -> Void
@@ -31,7 +29,6 @@ public struct MonthScreen: View {
   ) {
     _model = State(initialValue: model)
     _scrolledMonth = State(initialValue: model.month)
-    _window = State(initialValue: Self.window(around: model.month))
     self.onSettings = onSettings
     self.route = route
     self.onRouteHandled = onRouteHandled
@@ -48,41 +45,34 @@ public struct MonthScreen: View {
         onChoose: { showsPicker = true },
         onSettings: onSettings
       )
-      ScrollViewReader { proxy in
-        ScrollView(.horizontal) {
-          LazyHStack(spacing: 0) {
-            ForEach(window) { key in
-              MonthPageView(
-                key: key,
-                today: model.today,
-                showTithi: model.showTithi,
-                language: model.language,
-                digits: model.digits,
-                selected: model.selected,
-                onSelect: { date in
-                  guard key == model.month else { return }
-                  select(date)
-                }
-              )
-              .accessibilityHidden(key != (scrolledMonth ?? model.month))
-              .containerRelativeFrame([.horizontal, .vertical])
-              .id(key)
-            }
-          }
-          .scrollTargetLayout()
-        }
-        .scrollTargetBehavior(.paging)
-        .scrollPosition(id: $scrolledMonth)
-        .scrollIndicators(.hidden)
-        .onChange(of: scrolledMonth) { _, newValue in
-          guard !isRecentring, let newValue, newValue != model.month else { return }
-          model.go(to: newValue)
-          if let index = window.firstIndex(of: newValue),
-            index < 5 || index >= window.count - 5
-          {
-            recentre(on: newValue, proxy: proxy)
+      ScrollView(.horizontal) {
+        LazyHStack(spacing: 0) {
+          ForEach(Self.allMonths) { key in
+            MonthPageView(
+              key: key,
+              today: model.today,
+              showTithi: model.showTithi,
+              language: model.language,
+              digits: model.digits,
+              selected: model.selected,
+              onSelect: { date in
+                guard key == model.month else { return }
+                select(date)
+              }
+            )
+            .accessibilityHidden(key != (scrolledMonth ?? model.month))
+            .containerRelativeFrame([.horizontal, .vertical])
+            .id(key)
           }
         }
+        .scrollTargetLayout()
+      }
+      .scrollTargetBehavior(.paging)
+      .scrollPosition(id: $scrolledMonth)
+      .scrollIndicators(.hidden)
+      .onChange(of: scrolledMonth) { _, newValue in
+        guard let newValue, newValue != model.month else { return }
+        model.go(to: newValue)
       }
     }
     .background(Color(uiColor: .systemBackground))
@@ -158,45 +148,21 @@ public struct MonthScreen: View {
 
   private func go(to key: MonthKey?) {
     guard let key, key != model.month else { return }
+    let isNeighbour = abs(key.id - model.month.id) == 1
     model.go(to: key)
-    if !window.contains(key) {
-      window = Self.window(around: key)
-    }
-    withAnimation(.snappy) {
+    // Paging to the next or previous month slides; a jump from the picker or Today lands at once
+    // instead of scrolling through every month in between.
+    if isNeighbour {
+      withAnimation(.snappy) { scrolledMonth = key }
+    } else {
       scrolledMonth = key
     }
   }
 
-  /// Replaces the window around a month the user swiped to near its edge. Swapping the pages
-  /// keeps the scroll offset, not the page, so the offset would then show another month; the
-  /// scroll position is reported back while that happens. Paging changes are ignored until the
-  /// pager is put back on the month.
-  private func recentre(on key: MonthKey, proxy: ScrollViewProxy) {
-    isRecentring = true
-    window = Self.window(around: key)
-    Task { @MainActor in
-      proxy.scrollTo(key, anchor: .leading)
-      scrolledMonth = key
-      isRecentring = false
-    }
-  }
-
-  /// The pages the pager holds. A window around the shown month keeps the number of views small;
-  /// the picker can still reach every month and `go(to:)` recentres the window first.
-  private static func window(around key: MonthKey) -> [MonthKey] {
-    let radius = 24
-    var start = key.id - radius
-    var end = key.id + radius
-    if start < 0 {
-      end = min(MonthKey.count - 1, radius * 2)
-      start = 0
-    }
-    if end >= MonthKey.count {
-      start = max(0, MonthKey.count - 1 - radius * 2)
-      end = MonthKey.count - 1
-    }
-    return (start...end).compactMap { MonthKey(id: $0) }
-  }
+  /// Every month the library covers, 1901 to 2199. The stack is lazy, so only the pages on screen
+  /// and their neighbours are built; holding all of them means a swipe never has to recentre a
+  /// smaller window, which raced with paging and could land on the wrong month.
+  private static let allMonths: [MonthKey] = (0..<MonthKey.count).compactMap { MonthKey(id: $0) }
 }
 
 /// The header and one month page, without the pager. The snapshot tests render this, because a
