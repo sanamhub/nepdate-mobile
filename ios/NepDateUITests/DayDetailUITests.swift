@@ -64,17 +64,20 @@ final class DayDetailUITests: XCTestCase {
   private func audit(_ app: XCUIApplication) throws -> [String: Int] {
     var counts: [String: Int] = [:]
     for audit in Self.audits {
-      try app.performAccessibilityAudit(for: audit.type) { issue in
-        let label = issue.element?.label ?? ""
-        let frame = issue.element?.frame ?? .zero
-        let kind = label.allSatisfy(\.isNumber) ? "numeral" : "text"
-        print(
-          "AUDIT \(audit.name) \(kind) label=\(label) frame=\(frame) "
-            + "\(issue.compactDescription) | \(issue.detailedDescription)"
-        )
-        guard Self.tolerated["\(audit.name) \(kind)"] != nil else { return false }
-        counts["\(audit.name) \(kind)", default: 0] += 1
-        return true
+      let before = counts
+      try retryingAuditTimeout(reset: { counts = before }) {
+        try app.performAccessibilityAudit(for: audit.type) { issue in
+          let label = issue.element?.label ?? ""
+          let frame = issue.element?.frame ?? .zero
+          let kind = label.allSatisfy(\.isNumber) ? "numeral" : "text"
+          print(
+            "AUDIT \(audit.name) \(kind) label=\(label) frame=\(frame) "
+              + "\(issue.compactDescription) | \(issue.detailedDescription)"
+          )
+          guard Self.tolerated["\(audit.name) \(kind)"] != nil else { return false }
+          counts["\(audit.name) \(kind)", default: 0] += 1
+          return true
+        }
       }
     }
     print("AUDIT tolerated \(counts.sorted { $0.key < $1.key })")
