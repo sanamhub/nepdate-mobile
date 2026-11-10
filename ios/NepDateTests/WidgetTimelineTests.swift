@@ -123,7 +123,7 @@ struct WidgetTimelineTests {
     #expect(!device[0].day.showsNepalLabel)
   }
 
-  @Test("an entry carries the day, the next holiday and three upcoming entries")
+  @Test("an entry carries the day, the next holiday and four upcoming entries")
   func entryContent() throws {
     let zone = try #require(TimeZone(identifier: "Asia/Kathmandu"))
     let now = try Self.bsInstant(
@@ -147,7 +147,8 @@ struct WidgetTimelineTests {
     #expect(entry.nextHoliday?.date == MonthDate(year: 2083, month: 6, day: 25))
     #expect(entry.nextHoliday?.name == "Ghatasthapana Brata")
     #expect(entry.nextHoliday?.daysFromToday == 5)
-    #expect(entry.upcoming.count == 3)
+    // The medium widget draws the next four events, so the entry carries four.
+    #expect(entry.upcoming.count == 4)
     #expect(entry.upcoming[0].name == "Indira Ekadashi Brata")
     #expect(entry.upcoming[1].name == "Ekadashi Shraddha")
     #expect(entry.dataEndsOn == nil)
