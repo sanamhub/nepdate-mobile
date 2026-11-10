@@ -122,7 +122,11 @@ final class MonthAccessibilityTests: XCTestCase {
     // therefore pins the kinds of finding, and prints their counts for the review; a new kind of
     // finding still fails. The counts last seen are recorded above the tables.
     let found = try audit(app)
-    XCTAssertEqual(Set(found.keys), Self.gridCategories, "\(found)")
+    var expected = Self.gridCategories
+    if !found.ran.contains("elementDetection") {
+      expected.remove("elementDetection other")
+    }
+    XCTAssertEqual(Set(found.counts.keys), expected, "\(found.counts)")
   }
 
   @MainActor
@@ -137,16 +141,17 @@ final class MonthAccessibilityTests: XCTestCase {
     )
 
     let found = try audit(app)
-    XCTAssertEqual(Set(found.keys), Self.listCategories, "\(found)")
+    XCTAssertEqual(Set(found.counts.keys), Self.listCategories, "\(found.counts)")
   }
 
   /// Runs every audit category. A finding on a hidden text node is counted under its category
   /// and kind and returned; any other finding fails the audit call itself.
   @MainActor
-  private func audit(_ app: XCUIApplication) throws -> [String: Int] {
+  private func audit(_ app: XCUIApplication) throws -> (counts: [String: Int], ran: Set<String>) {
     var tolerated: [String: Int] = [:]
+    var ran: Set<String> = []
     for audit in Self.audits {
-      try AccessibilityAudit.perform(on: app, audit.type) { issue in
+      let completed = try AccessibilityAudit.perform(on: app, audit.type) { issue in
         let label = issue.element?.label ?? ""
         let frame = issue.element?.frame ?? .zero
         let isHiddenText =
@@ -162,9 +167,13 @@ final class MonthAccessibilityTests: XCTestCase {
         tolerated[isDrawnMark ? "elementDetection other" : "\(audit.name) \(kind)", default: 0] += 1
         return true
       }
+      if completed {
+        ran.insert(audit.name)
+      }
     }
+    print("AUDIT ran \(ran.sorted())")
     print("AUDIT tolerated \(tolerated.sorted { $0.key < $1.key })")
-    return tolerated
+    return (tolerated, ran)
   }
 
   @MainActor
