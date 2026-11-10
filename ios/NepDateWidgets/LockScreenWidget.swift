@@ -10,7 +10,7 @@ struct LockScreenWidget: Widget {
       LockScreenWidgetView(entry: entry.entry)
         .containerBackground(.background, for: .widget)
     }
-    .configurationDisplayName("NepDate")
+    .configurationDisplayName("NepDate lock screen")
     .description("Today's date and the next holiday.")
     .supportedFamilies([.accessoryInline, .accessoryCircular, .accessoryRectangular])
   }

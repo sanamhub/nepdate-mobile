@@ -1,3 +1,4 @@
+import AppIntents
 import CalendarKit
 import CalendarUI
 import Foundation
@@ -7,25 +8,33 @@ import WidgetKit
 /// The small Today widget (W-01): the Bikram Sambat date at a glance.
 struct TodayWidget: Widget {
   var body: some WidgetConfiguration {
-    StaticConfiguration(kind: "TodayWidget", provider: TodayTimeline()) { entry in
-      TodayWidgetView(entry: entry.entry)
-        .containerBackground(.background, for: .widget)
+    AppIntentConfiguration(
+      kind: "TodayWidget",
+      intent: TodayConfigurationIntent.self,
+      provider: TodayIntentProvider()
+    ) { entry in
+      TodayWidgetView(
+        entry: entry.entry,
+        mainCalendar: entry.mainCalendar,
+        showsDetails: entry.showsDetails
+      )
+      .containerBackground(.background, for: .widget)
     }
-    .configurationDisplayName("NepDate")
-    .description("Today's Bikram Sambat date.")
+    .configurationDisplayName("NepDate today")
+    .description("Shows today's date, its tithi and the next holiday.")
     .supportedFamilies([.systemSmall])
   }
 }
 
-/// The medium Today and upcoming widget (W-02): today on the left and the next three events.
+/// The medium Today and upcoming widget (W-02): today on the left and the next four events.
 struct UpcomingWidget: Widget {
   var body: some WidgetConfiguration {
     StaticConfiguration(kind: "UpcomingWidget", provider: TodayTimeline()) { entry in
       UpcomingWidgetView(entry: entry.entry)
         .containerBackground(.background, for: .widget)
     }
-    .configurationDisplayName("NepDate")
-    .description("Today and the next three holidays or events.")
+    .configurationDisplayName("NepDate upcoming")
+    .description("Shows today and the next four days with a holiday or event.")
     .supportedFamilies([.systemMedium])
   }
 }
@@ -34,6 +43,68 @@ struct UpcomingWidget: Widget {
 struct TodayEntry: TimelineEntry {
   let date: Date
   let entry: WidgetEntry
+  var mainCalendar: MainCalendar = .bs
+  var showsDetails = true
+}
+
+/// The Today widget's configuration (W-01): the main calendar and whether the details show.
+struct TodayConfigurationIntent: WidgetConfigurationIntent {
+  static let title: LocalizedStringResource = "Today"
+  static let description = IntentDescription(
+    "Choose the main calendar and whether the tithi and the next holiday show."
+  )
+
+  @Parameter(title: "Main calendar", default: MainCalendar.bs)
+  var calendar: MainCalendar
+
+  @Parameter(title: "Show details", default: true)
+  var showDetails: Bool
+}
+
+extension MainCalendar: AppEnum {
+  static var typeDisplayRepresentation: TypeDisplayRepresentation {
+    TypeDisplayRepresentation(name: "Main calendar")
+  }
+
+  static var caseDisplayRepresentations: [MainCalendar: DisplayRepresentation] {
+    [
+      .bs: DisplayRepresentation(title: "Bikram Sambat"),
+      .ad: DisplayRepresentation(title: "Gregorian"),
+    ]
+  }
+}
+
+/// Supplies the Today widget's entries from the shared settings.
+struct TodayIntentProvider: AppIntentTimelineProvider {
+  func placeholder(in context: Context) -> TodayEntry {
+    TodayEntry(date: Date(), entry: WidgetTimeline.preview())
+  }
+
+  func snapshot(for configuration: TodayConfigurationIntent, in context: Context) async
+    -> TodayEntry
+  {
+    TodayEntry(
+      date: Date(),
+      entry: WidgetTimeline.preview(),
+      mainCalendar: configuration.calendar,
+      showsDetails: configuration.showDetails
+    )
+  }
+
+  func timeline(for configuration: TodayConfigurationIntent, in context: Context) async
+    -> Timeline<TodayEntry>
+  {
+    let settings = SettingsStore().load()
+    let entries = WidgetTimeline.entries(now: Date(), settings: settings).map { entry in
+      TodayEntry(
+        date: entry.date,
+        entry: entry,
+        mainCalendar: configuration.calendar,
+        showsDetails: configuration.showDetails
+      )
+    }
+    return Timeline(entries: entries, policy: .atEnd)
+  }
 }
 
 /// Supplies the widget's entries from the shared settings, so the widgets show the same day,
@@ -54,13 +125,5 @@ struct TodayTimeline: TimelineProvider {
     let entries = WidgetTimeline.entries(now: Date(), settings: settings)
     let timelineEntries = entries.map { TodayEntry(date: $0.date, entry: $0) }
     completion(Timeline(entries: timelineEntries, policy: .atEnd))
-  }
-
-  private var current: TodayEntry {
-    let settings = SettingsStore().load()
-    let entry =
-      WidgetTimeline.entries(now: Date(), settings: settings).first
-      ?? WidgetTimeline.preview(settings: settings)
-    return TodayEntry(date: entry.date, entry: entry)
   }
 }

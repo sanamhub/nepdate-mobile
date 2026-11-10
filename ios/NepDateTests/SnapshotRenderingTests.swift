@@ -5,6 +5,7 @@ import Foundation
 import SwiftUI
 import Testing
 import UIKit
+import WidgetKit
 
 /// Renders the screens and the widget to PNG files for review on the workflow artefact. The
 /// comparison snapshots are in `MonthSnapshotTests`; this suite is the human-readable artefact.
@@ -293,6 +294,62 @@ struct SnapshotRenderingTests {
     )
   }
 
+  @Test("W-06, W-07 and W-10 render in every mode and both languages")
+  func newWidgets() throws {
+    for language in [AppLanguage.english, .nepali] {
+      let locale = Locale(identifier: language == .nepali ? "ne" : "en")
+      let suffix = language == .nepali ? "ne" : "en"
+      let entry = try WidgetTestData.entry(
+        MonthDate(year: 2083, month: 6, day: 25),
+        language: language
+      )
+      let window = WidgetTimeline.festivalWindow(
+        now: entry.date,
+        settings: WidgetTestData.settings(language: language),
+        deviceZone: CalendarDates.nepal
+      )
+      let week = WidgetWeekBuilder.week(
+        now: entry.date,
+        settings: WidgetTestData.settings(language: language),
+        deviceZone: CalendarDates.nepal
+      )
+      let days = FestivalDirectory.next(
+        after: MonthDate(year: 2083, month: 6, day: 25),
+        limit: 6
+      )
+
+      for mode in [WidgetRenderingMode.fullColor, .accented, .vibrant] {
+        let name = "\(modeName(mode))"
+        try render(
+          FestivalCountdownView(event: window[0]),
+          name: "widget-countdown-\(suffix)-\(name)",
+          size: CGSize(width: 170, height: 170),
+          scheme: .light,
+          locale: locale,
+          renderingMode: mode
+        )
+        try render(
+          FestivalsListWidgetView(days: days, language: language),
+          name: "widget-festivals-\(suffix)-\(name)",
+          size: CGSize(width: 329, height: 345),
+          scheme: .light,
+          locale: locale,
+          renderingMode: mode
+        )
+        if let week {
+          try render(
+            ThisWeekWidgetView(week: week),
+            name: "widget-week-\(suffix)-\(name)",
+            size: CGSize(width: 329, height: 155),
+            scheme: .light,
+            locale: locale,
+            renderingMode: mode
+          )
+        }
+      }
+    }
+  }
+
   @Test("the four brand marks render in light and dark")
   func brandMarks() throws {
     for (scheme, suffix) in [(ColorScheme.light, "light"), (.dark, "dark")] {
@@ -312,13 +369,15 @@ struct SnapshotRenderingTests {
     size: CGSize,
     scheme: ColorScheme,
     locale: Locale,
-    type: DynamicTypeSize = .large
+    type: DynamicTypeSize = .large,
+    renderingMode: WidgetRenderingMode = .fullColor
   ) throws {
     let content = AnyView(
       view
         .environment(\.colorScheme, scheme)
         .environment(\.dynamicTypeSize, type)
         .environment(\.locale, locale)
+        .environment(\.widgetRenderingMode, renderingMode)
         .frame(width: size.width, height: size.height)
         .background(Color(uiColor: .systemBackground))
     )
@@ -332,6 +391,15 @@ struct SnapshotRenderingTests {
       withIntermediateDirectories: true
     )
     try data.write(to: Self.outputDirectory.appendingPathComponent("\(name).png"))
+  }
+
+  private func modeName(_ mode: WidgetRenderingMode) -> String {
+    switch mode {
+    case .fullColor: return "full"
+    case .accented: return "accented"
+    case .vibrant: return "vibrant"
+    @unknown default: return "other"
+    }
   }
 
   private static var outputDirectory: URL {
