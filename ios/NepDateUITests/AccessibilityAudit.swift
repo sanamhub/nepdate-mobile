@@ -3,8 +3,10 @@ import XCTest
 /// The accessibility audit helper every UI test uses (ADR-0008).
 ///
 /// The tool occasionally fails to finish inside its own time budget with the error code -56,
-/// "Audit failed to complete in time", without reporting any finding; a second call passes. Only
-/// that exact code is retried. Any other error and any finding still fails on the first call.
+/// "Audit failed to complete in time", without reporting any finding; a later call passes. Only
+/// that exact code is retried, up to three calls with a short pause between them, because an
+/// immediate second call still times out on a busy runner (runs 42779655430 and 42783292544).
+/// Any other error and any finding still fails on the first call.
 enum AccessibilityAudit {
   /// Runs one audit category.
   /// - Parameters:
@@ -21,16 +23,19 @@ enum AccessibilityAudit {
     // closure to another isolation domain. The box states that fact instead of forcing every test
     // to make its finding counter Sendable.
     let box = HandlerBox(handler: handler)
-    do {
-      try app.performAccessibilityAudit(for: type) { issue in box.handler(issue) }
-    } catch {
-      let failure = error as NSError
-      guard failure.code == -56 else { throw error }
-      print(
-        "AUDIT retry category=\(type.rawValue) domain=\(failure.domain) code=\(failure.code) "
-          + "\(failure.localizedDescription)"
-      )
-      try app.performAccessibilityAudit(for: type) { issue in box.handler(issue) }
+    for attempt in 1...3 {
+      do {
+        try app.performAccessibilityAudit(for: type) { issue in box.handler(issue) }
+        return
+      } catch {
+        let failure = error as NSError
+        guard failure.code == -56, attempt < 3 else { throw error }
+        print(
+          "AUDIT retry \(attempt) category=\(type.rawValue) domain=\(failure.domain) "
+            + "code=\(failure.code) \(failure.localizedDescription)"
+        )
+        Thread.sleep(forTimeInterval: 2)
+      }
     }
   }
 
