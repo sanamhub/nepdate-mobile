@@ -29,7 +29,7 @@ open NepDate.xcodeproj        # after ci.sh, on a Mac
 `ci.sh` downloads XcodeGen 2.46.0, checks its SHA-256, generates the project and runs six gates:
 xcodegen, format, build, test, coverage, network. It ends with `ci: 6/6 gates passed`. The test gate
 runs the Swift Testing suites and the XCUITest, renders the month screen, the first run and the
-widgets to `build/snapshots`, and compares the fifty-two reference snapshots. `ios.yml` uploads
+widgets to `build/snapshots`, and compares the fifty-three reference snapshots. `ios.yml` uploads
 the screenshots and the references as artefacts.
 
 The coverage gate reads the test result bundle with `xcrun xccov` and fails below 80 % line

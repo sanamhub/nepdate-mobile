@@ -15,6 +15,7 @@ public struct MonthScreen: View {
   @State private var isRecentring = false
   @State private var showsYear = false
   @Namespace private var yearZoom
+  @Namespace private var detailZoom
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
   private let settings: Settings
   private let today: MonthDate
@@ -100,17 +101,16 @@ public struct MonthScreen: View {
     .onChange(of: monthCommand) { _, command in apply(command) }
     .onChange(of: settings) { _, newValue in apply(newValue, today: today) }
     .onChange(of: today) { _, newValue in apply(settings, today: newValue) }
-    .sheet(isPresented: detailSheet) {
-      if let detail,
-        let detailModel = DayDetailViewModel(
-          date: detail,
-          language: model.language,
-          digits: model.digits
-        )
-      {
-        DayDetailSheet(model: detailModel)
-      }
-    }
+    .modifier(
+      DayDetailPresentation(
+        date: $detail,
+        today: today,
+        language: model.language,
+        digits: model.digits,
+        zoom: detailZoom,
+        reduceMotion: reduceMotion
+      )
+    )
   }
 
   private var monthSpan: some View {
@@ -138,6 +138,7 @@ public struct MonthScreen: View {
               showTithi: model.showTithi,
               showsADDates: model.showsADDates,
               selected: model.selected,
+              zoom: detailZoom,
               onSelect: select,
               onOpenDay: openDay
             )
@@ -180,15 +181,6 @@ public struct MonthScreen: View {
         }
       }
     }
-  }
-
-  private var detailSheet: Binding<Bool> {
-    Binding(
-      get: { detail != nil },
-      set: { isPresented in
-        if !isPresented { detail = nil }
-      }
-    )
   }
 
   private var previousMonth: MonthKey? {
@@ -324,6 +316,7 @@ private struct MonthPage: View {
   let showTithi: Bool
   let showsADDates: Bool
   let selected: MonthDate?
+  let zoom: Namespace.ID
   let onSelect: (MonthDate) -> Void
   let onOpenDay: (MonthDate) -> Void
   @Environment(\.dynamicTypeSize) private var dynamicTypeSize
@@ -369,6 +362,7 @@ private struct MonthPage: View {
               showsADDates: showsADDates,
               publicHoliday: AppText.string("public holiday", language),
               todayLabel: AppText.string("Today", language),
+              zoomNamespace: zoom,
               onSelect: onSelect
             )
             .padding(.horizontal, 8)
@@ -406,6 +400,7 @@ private struct MonthPage: View {
 /// The content of the month screen without the pager and the navigation, for the snapshot tests.
 public struct MonthScreenContent: View {
   private let model: MonthViewModel
+  @Namespace private var detailZoom
 
   /// Creates the content.
   /// - Parameter model: The month to draw and the settings to draw it with.
@@ -423,9 +418,57 @@ public struct MonthScreenContent: View {
       showTithi: model.showTithi,
       showsADDates: model.showsADDates,
       selected: model.selected,
+      zoom: detailZoom,
       onSelect: { _ in },
       onOpenDay: { _ in }
     )
     .background(Color(uiColor: .systemBackground))
+  }
+}
+
+/// Presents the day sheet as a sheet on a phone and as an inspector on a regular-width screen
+/// (iPad), with the zoom transition from the tapped cell unless Reduce Motion is on (MR-20).
+private struct DayDetailPresentation: ViewModifier {
+  @Binding var date: MonthDate?
+  let today: MonthDate
+  let language: AppLanguage
+  let digits: Digits
+  let zoom: Namespace.ID
+  let reduceMotion: Bool
+  @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+
+  func body(content: Content) -> some View {
+    if horizontalSizeClass == .regular {
+      content.inspector(isPresented: presented) {
+        destination
+      }
+    } else {
+      content.sheet(isPresented: presented) {
+        destination
+      }
+    }
+  }
+
+  private var presented: Binding<Bool> {
+    Binding(
+      get: { date != nil },
+      set: { isPresented in
+        if !isPresented { date = nil }
+      }
+    )
+  }
+
+  @ViewBuilder
+  private var destination: some View {
+    if let date,
+      let model = DayDetailViewModel(date: date, language: language, digits: digits)
+    {
+      let sheet = DayDetailSheet(model: model, today: today)
+      if reduceMotion {
+        sheet
+      } else {
+        sheet.navigationTransition(.zoom(sourceID: date, in: zoom))
+      }
+    }
   }
 }

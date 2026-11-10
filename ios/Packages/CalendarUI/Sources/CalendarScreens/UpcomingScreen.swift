@@ -79,7 +79,7 @@ public struct UpcomingScreen: View {
           digits: digits
         )
       {
-        DayDetailSheet(model: detail)
+        DayDetailSheet(model: detail, today: model.today)
       }
     }
   }

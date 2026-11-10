@@ -45,9 +45,18 @@ struct DayDetailSnapshotTests {
       locale: "en",
       showsCopied: true
     )
+    snapshot(
+      try Self.model(MonthDate(year: 2083, month: 6, day: 25)),
+      named: "today",
+      scheme: .light,
+      type: .large,
+      locale: "en",
+      today: MonthDate(year: 2083, month: 6, day: 25)
+    )
   }
 
   private static func model(
+    _ date: MonthDate = DayDetailSnapshotTests.date,
     language: AppLanguage = .english,
     digits: Digits = .english
   ) throws -> DayDetailViewModel {
@@ -62,10 +71,12 @@ struct DayDetailSnapshotTests {
     scheme: ColorScheme,
     type: DynamicTypeSize,
     locale: String,
+    today: MonthDate? = nil,
     showsCopied: Bool = false
   ) {
     let content = DayDetailContent(
       model: model,
+      today: today,
       onClose: {},
       showsCopiedInitially: showsCopied
     )

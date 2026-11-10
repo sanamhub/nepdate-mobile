@@ -177,4 +177,51 @@ struct DayDetailViewModelTests {
       ) == nil
     )
   }
+
+  @Test("MR-20: the relative chip is Today, Tomorrow, Yesterday or a day count")
+  func relativeDay() throws {
+    let model = try Self.model(MonthDate(year: 2083, month: 6, day: 25))
+    #expect(
+      model.relativeDay(from: MonthDate(year: 2083, month: 6, day: 25)) == .today
+    )
+    #expect(
+      model.relativeDay(from: MonthDate(year: 2083, month: 6, day: 24)) == .tomorrow
+    )
+    #expect(
+      model.relativeDay(from: MonthDate(year: 2083, month: 6, day: 26)) == .yesterday
+    )
+    #expect(
+      model.relativeDay(from: MonthDate(year: 2083, month: 6, day: 20)) == .inDays(5)
+    )
+    #expect(
+      model.relativeDay(from: MonthDate(year: 2083, month: 6, day: 30)) == .daysAgo(5)
+    )
+  }
+
+  @Test("MR-20: the sheet moves one day and stops at the library's range")
+  func neighbouringDays() throws {
+    let model = try Self.model(MonthDate(year: 2083, month: 6, day: 25))
+    let next = try #require(model.day(offset: 1))
+    #expect(next.date == MonthDate(year: 2083, month: 6, day: 26))
+    #expect(model.day(offset: -1)?.date == MonthDate(year: 2083, month: 6, day: 24))
+
+    let first = try Self.model(MonthDate(year: 1901, month: 1, day: 1))
+    #expect(first.canGoPrevious == false)
+    #expect(first.canGoNext)
+
+    let last = try Self.model(MonthDate(year: 2199, month: 12, day: 30))
+    #expect(last.canGoNext == false)
+    #expect(last.canGoPrevious)
+  }
+
+  @Test("MR-20: Share sends the BS date, the weekday and AD date, then each event")
+  func shareText() throws {
+    let model = try Self.model(MonthDate(year: 2083, month: 6, day: 9))
+    #expect(
+      model.shareText
+        == "Asoj 9, 2083\nFriday, 25 September 2026\n"
+        + "Indra Jatra (Kathmandu Valley Holiday)\n"
+        + "Ananta Chaturdashi Brata\nWorld Pharmacist Day"
+    )
+  }
 }

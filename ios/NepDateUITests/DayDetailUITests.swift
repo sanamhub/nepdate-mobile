@@ -54,6 +54,21 @@ final class DayDetailUITests: XCTestCase {
   }
 
   @MainActor
+  func testNextAndPreviousDayStayInTheSheet() throws {
+    let app = try Self.openSheet()
+
+    let next = app.buttons["Next day"]
+    XCTAssertTrue(next.waitForExistence(timeout: 5))
+    next.tap()
+    XCTAssertTrue(app.staticTexts["Asoj 26, 2083"].waitForExistence(timeout: 5))
+
+    let previous = app.buttons["Previous day"]
+    XCTAssertTrue(previous.exists)
+    previous.tap()
+    XCTAssertTrue(app.staticTexts["Asoj 25, 2083"].waitForExistence(timeout: 5))
+  }
+
+  @MainActor
   func testSheetHasOnlyTheToleratedAuditFindings() throws {
     let app = try Self.openSheet()
 
