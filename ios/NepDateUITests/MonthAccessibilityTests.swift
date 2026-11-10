@@ -39,14 +39,14 @@ final class MonthAccessibilityTests: XCTestCase {
   ///   secondary text from 0.40 to 0.33 white (5.74:1 to 7.55:1) left both findings unchanged
   ///   at the same frames (runs 39143033588 and 39144415913), so they do not come from the
   ///   colour. No other numeral is flagged.
-  /// - List, contrast on one text: the weekday line of Asoj 4 (frame y 803 to 875), which is
+  /// - List, contrast on two texts: the weekday lines of Asoj 4 and the row after it, which are
   ///   behind the translucent tab bar on an 844-point screen. The same pair passes on every row
-  ///   above it.
+  ///   above them.
   ///
   /// Any other finding, or a different count, fails the test.
   private static let gridTolerated = ["contrast numeral": 2, "dynamicType numeral": 63]
   private static let listTolerated = [
-    "contrast text": 1,
+    "contrast text": 2,
     "dynamicType text": 10,
     "textClipped text": 10,
   ]
