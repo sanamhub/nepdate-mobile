@@ -15,7 +15,7 @@ enum AccessibilityAudit {
   static func perform(
     on app: XCUIApplication,
     _ type: XCUIAccessibilityAuditType,
-    handler: (XCUIAccessibilityAuditIssue) -> Bool
+    handler: @escaping (XCUIAccessibilityAuditIssue) -> Bool
   ) throws {
     do {
       try app.performAccessibilityAudit(for: type, handler)
