@@ -1,10 +1,29 @@
 @testable import CalendarScreens
 import Testing
 
-/// The day sheet's copy confirmation: a later copy gets its full interval.
+/// The day sheet's copy confirmation: it appears as soon as a copy runs, and a later copy gets its
+/// full interval.
 @MainActor
 @Suite("Copy confirmation")
 struct CopyConfirmationTests {
+  @Test("showing the confirmation reveals it before the interval ends")
+  func showRevealsTheConfirmation() async throws {
+    let gate = SleepGate()
+    let confirmation = CopyConfirmationTimer(
+      duration: .seconds(1),
+      sleep: { _ in try await gate.sleep() }
+    )
+
+    #expect(!confirmation.isShowing)
+    confirmation.show()
+    #expect(confirmation.isShowing)
+
+    await gate.waitForSleepers(1)
+    await gate.releaseNext()
+    await confirmation.hideTask?.value
+    #expect(!confirmation.isShowing)
+  }
+
   @Test("a second copy keeps the confirmation visible after the first interval ends")
   func secondCopyKeepsTheConfirmation() async throws {
     let gate = SleepGate()
