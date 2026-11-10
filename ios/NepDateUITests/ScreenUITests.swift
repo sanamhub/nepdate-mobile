@@ -14,19 +14,21 @@ final class ScreenUITests: XCTestCase {
     ("trait", .trait),
   ]
 
-  /// No finding is tolerated on Upcoming or Converter. The other tables have these reasons:
+  /// No finding is tolerated on Upcoming. The other tables have these reasons:
   ///
   /// - Settings: the toolbar title and Close button are reported as partially supporting Dynamic
   ///   Type even though both use system text styles.
   /// - About: the toolbar title and the two-line info rows are reported as partially supporting
   ///   Dynamic Type although the `.accessibility2` reference wraps them; the Privacy link at the
   ///   bottom sits behind the home indicator, and the same tint passes on the links above it. The
-  ///   promises section added with the converter work gives nine findings at the default size and
-  ///   three at accessibility2 (run 42787285560); the counts are printed for the review.
-  private static let converterTolerated: [String: Int] = [:]
-  /// The converter at accessibility2 clips the result line on the narrow width; the audit reports
-  /// it as a clipped text (run 42791913219). The kind is tolerated, the count is printed.
-  private static let converterAccessibilityTolerated = ["textClipped text": 1]
+  ///   promises section gives nine findings at the default size and three at accessibility2 (run
+  ///   42787285560); the counts are printed for the review.
+  /// - Converter: the from and to date labels are reported as possibly clipped at larger sizes, at
+  ///   the default size and at accessibility2 (runs 42791913219 and 42808682568). Both are date
+  ///   values the user has to read, so the screen wraps them instead of shrinking them onto one
+  ///   line; the kind is tolerated and the labels are printed for the review.
+  private static let converterTolerated = ["textClipped text": 2]
+  private static let converterAccessibilityTolerated = ["textClipped text": 2]
   /// The festivals list draws its rows as plain buttons over the system background. The audit
   /// reports the holiday names and the one holiday numeral in the first visible section, and the
   /// small Open in Patro header button; the same pairs pass on the rows below. Nothing else is
@@ -42,6 +44,37 @@ final class ScreenUITests: XCTestCase {
   private static let settingsTolerated = ["dynamicType text": 2]
   private static let aboutTolerated = ["dynamicType text": 9]
   private static let aboutAccessibilityTolerated = ["dynamicType text": 3]
+
+  /// The promises About shows, by their accessibility labels.
+  private static let promises = [
+    "Works offline",
+    "No ads",
+    "Collects no data",
+    "Free and open source",
+    "Fast and light",
+    "Nepali and English",
+  ]
+
+  /// The links About shows, in order.
+  private static let aboutLinks = [
+    "Web patro",
+    "Known data questions",
+    "Report a wrong date",
+    "Licences",
+    "Privacy",
+    "Source code",
+  ]
+
+  /// The version and build the app shows. The app and this bundle are built from the same project
+  /// settings, so the bundle's own Info.plist carries the same values and a release bump changes
+  /// the expected string without touching this test.
+  private static let appVersion: String = {
+    let bundle = Bundle(for: ScreenUITests.self)
+    let version =
+      bundle.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "?"
+    let build = bundle.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "?"
+    return "\(version) (\(build))"
+  }()
 
   @MainActor
   func testUpcomingShowsTodayAndOpensTheDay() throws {
@@ -83,16 +116,25 @@ final class ScreenUITests: XCTestCase {
     app.staticTexts["About"].tap()
     XCTAssertTrue(app.staticTexts["App version"].waitForExistence(timeout: 10))
     XCTAssertTrue(app.staticTexts["Library version"].exists)
-    XCTAssertTrue(app.staticTexts["0.1.0 (1)"].exists)
+    XCTAssertTrue(
+      app.staticTexts[Self.appVersion].exists,
+      "the app does not show the version the build was given: \(Self.appVersion)"
+    )
     XCTAssertTrue(app.staticTexts["Baisakh 1, 2077 – Mangsir 20, 2084"].exists)
-    XCTAssertTrue(app.buttons["Known data questions"].exists)
-    XCTAssertTrue(app.buttons["Report a wrong date"].exists)
-    XCTAssertTrue(app.buttons["Licences"].exists)
-    XCTAssertTrue(app.buttons["Privacy"].exists)
-    XCTAssertTrue(app.buttons["Web patro"].exists)
-    app.swipeUp()
-    XCTAssertTrue(app.buttons["Source code"].exists)
-    app.swipeUp()
+    XCTAssertTrue(app.staticTexts["Promises"].exists)
+    for promise in Self.promises {
+      XCTAssertTrue(app.staticTexts[promise].exists, "the promise \(promise) is missing")
+    }
+
+    // The list builds its rows as they scroll into view, so each link is scrolled to before it is
+    // asserted.
+    for link in Self.aboutLinks {
+      let element = app.buttons[link]
+      for _ in 0..<5 where !element.exists {
+        app.swipeUp()
+      }
+      XCTAssertTrue(element.exists, "the \(link) link is missing")
+    }
     XCTAssertFalse(app.buttons["Subscribe to Nepal holidays"].exists)
 
     app.buttons["Copy diagnostic info"].tap()
