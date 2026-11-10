@@ -71,15 +71,6 @@ public struct MonthScreen: View {
       }
     }
     .toolbar {
-      ToolbarItem(placement: .topBarLeading) {
-        Button {
-          showsYear = true
-        } label: {
-          Label("Year view", systemImage: "calendar")
-        }
-        .accessibilityLabel(Text("Year view"))
-      }
-
       ToolbarItemGroup(placement: .topBarTrailing) {
         Button(action: { go(to: previousMonth) }) {
           Image(systemName: "chevron.left")
