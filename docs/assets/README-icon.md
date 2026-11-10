@@ -36,3 +36,6 @@ icon next to the date, such as the status bar and the notification shade.
 | `nepdate-mobile-128.png` | The same crop at 128 x 128 with rounded corners, for the README. |
 | `android/app/src/main/res/mipmap-*/ic_launcher_fg.png` | The foreground layer rendered at 108 dp for each density; the adaptive icon uses these. |
 | `android/app/src/main/res/drawable-nodpi/widget_picker_icon.png` | The same crop at 256 x 256 with rounded corners. The widget picker uses it because some launchers draw vector and adaptive icons there as a blank tile. |
+| `ios/Resources/Assets.xcassets/AppIcon.appiconset/AppIcon-Light.png` | The same crop at 1024 x 1024, opaque and full bleed: an iOS icon has no adaptive safe area. |
+| `ios/Resources/Assets.xcassets/AppIcon.appiconset/AppIcon-Dark.png` | The same crop at 1024 x 1024 on a transparent ground, which is what Apple's dark icons ask for: the system supplies the dark background. |
+| `ios/Resources/Assets.xcassets/AppIcon.appiconset/AppIcon-Tinted.png` | The light render converted to grayscale, which the system then tints. |

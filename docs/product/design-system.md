@@ -29,6 +29,7 @@ which the iOS asset catalog carries as the same values:
 | `today` | `#E8A33D` | `#F0B456` | the Sunny "today" mark: a filled shape, not a ring |
 | `onToday` | `#271900` | `#271900` | the numeral and marks drawn on the Sunny shape |
 | `accent` | `#7C5800` | `#F5BF62` | the app accent, from the Material primary |
+| `onAccent` | `#FFFFFF` | `#422C00` | the label of a control filled with `accent`, from the Material on-primary |
 | `event` | system secondary label | system secondary label | the Diamond event mark |
 | `dimmed` | secondary text, white 0.33 | secondary text, white 0.78 | days of neighbouring months, AD numerals |
 

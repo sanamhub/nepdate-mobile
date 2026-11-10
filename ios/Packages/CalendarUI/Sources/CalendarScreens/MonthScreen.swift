@@ -305,7 +305,7 @@ private struct MonthHeader: View {
           Text("Today")
             .font(.subheadline)
             .fontWeight(.semibold)
-            .foregroundStyle(BrandColor.today)
+            .foregroundStyle(BrandColor.accent)
             .frame(minWidth: 44, minHeight: 44)
             .contentShape(Rectangle())
         }
@@ -619,7 +619,7 @@ private struct MonthListRow: View {
             Text(todayLabel)
               .font(.caption)
               .fontWeight(.semibold)
-              .foregroundStyle(BrandColor.today)
+              .foregroundStyle(BrandColor.accent)
           }
         }
         Text(verbatim: adLine)
