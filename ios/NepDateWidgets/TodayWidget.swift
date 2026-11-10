@@ -62,11 +62,11 @@ struct TodayConfigurationIntent: WidgetConfigurationIntent {
 }
 
 extension MainCalendar: AppEnum {
-  static var typeDisplayRepresentation: TypeDisplayRepresentation {
+  public static var typeDisplayRepresentation: TypeDisplayRepresentation {
     TypeDisplayRepresentation(name: "Main calendar")
   }
 
-  static var caseDisplayRepresentations: [MainCalendar: DisplayRepresentation] {
+  public static var caseDisplayRepresentations: [MainCalendar: DisplayRepresentation] {
     [
       .bs: DisplayRepresentation(title: "Bikram Sambat"),
       .ad: DisplayRepresentation(title: "Gregorian"),
