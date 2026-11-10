@@ -9,7 +9,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.annotation.Config
 
 /**
  * MR-10 AC3: every colour pair of the design system reaches 4.5:1. The schemes are the ones
@@ -17,7 +16,6 @@ import org.robolectric.annotation.Config
  * functions as the cell, so a change to a scheme, an alpha or the surface fails here.
  */
 @RunWith(AndroidJUnit4::class)
-@Config(sdk = [35])
 class HolidayCellContrastTest {
     @Test
     fun lightTheme() = assertContrast(LightColors, darkTheme = false)

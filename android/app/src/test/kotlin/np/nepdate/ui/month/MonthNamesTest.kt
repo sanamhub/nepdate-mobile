@@ -17,7 +17,6 @@ import org.robolectric.annotation.Config
  * cannot drift from it unnoticed.
  */
 @RunWith(AndroidJUnit4::class)
-@Config(sdk = [35])
 class MonthNamesTest {
     private val context = ApplicationProvider.getApplicationContext<Context>()
 
