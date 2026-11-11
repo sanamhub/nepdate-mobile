@@ -6,6 +6,12 @@ All notable changes to the iOS app. The format follows
 
 ## [Unreleased]
 
+### Fixed
+
+- The month pager no longer lets a quick pair of swipes across its window recentre start from the
+  offset the rebuild left behind. The window is rebuilt once paging is at rest, and the offset moves
+  with it in the same update.
+
 ### Added
 
 - The parity work: the four tabs with the search role, the first run, the today card and the

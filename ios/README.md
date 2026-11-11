@@ -74,7 +74,8 @@ The XCUITests in `NepDateUITests` run inside gate 4, so the gate count is unchan
 read `NEPDATE_UI_TEST_TODAY` (for example `2083-06-20`) to pin today, so every UI test sees Asoj
 2083 and the audit counts are exact; a release build always uses the clock. The tests check that the
 pager opens on today, that a swipe moves one month each way and stops at Chaitra 2199 and Baisakh
-1901, and that 21 swipes cross the window recentre and land on Asar 2085. The day sheet test taps
+1901, that 21 swipes cross the window recentre and land on Asar 2085, and that two swipes taken
+without a pause across the recentre still move exactly two months. The day sheet test taps
 Asoj 25, checks every spoken field and event, taps Copy date and reads the action's accessibility
 value, then audits the sheet.
 
@@ -95,9 +96,12 @@ together with the arrow keys. `MonthPagingTests` checks that a swipe pages one m
 swipe past either end does not move.
 
 The pager holds 49 months around the shown one, because a 3588-page accessibility tree made the
-audit time out. When a swipe comes within five pages of an edge the window is rebuilt around the
-month. Rebuilding keeps the scroll offset, not the page, so the screen now ignores paging updates
-until it has scrolled back to the month; before that fix the swipe test landed on Asoj 2093.
+audit time out. When a swipe comes within five pages of an edge, and only after paging has come to
+rest, the window is rebuilt around the month. Rebuilding keeps the pixel offset, not the page, so
+the window and the offset are swapped in one update, the pager takes no gesture during that update,
+and paging changes are ignored until the offset is back on the month. Before that, a second quick
+swipe could start from the offset the rebuild left behind: the existing test hid it with a two
+second wait, and run 43014018570 ended on Kartik 2088 after the twenty-first swipe.
 
 The audit runs one category per call (contrast, Dynamic Type, element detection, hit region,
 element description, clipped text, traits), on the grid at the default size and on the list at

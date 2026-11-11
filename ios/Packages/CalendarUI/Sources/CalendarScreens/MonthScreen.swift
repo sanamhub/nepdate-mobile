@@ -186,12 +186,19 @@ public struct MonthScreen: View {
       .onChange(of: scrolledMonth) { _, newValue in
         guard !isRecentring, let newValue, newValue != model.month else { return }
         model.go(to: newValue)
-        if let index = window.firstIndex(of: newValue),
-          index < 5 || index >= window.count - 5
-        {
-          recentre(on: newValue, proxy: proxy)
-        }
       }
+      .onScrollPhaseChange { _, phase in
+        // Rebuild only once paging has settled. A rebuild swaps the pages but keeps the pixel
+        // offset, so a swipe that starts before the offset has been put back on the shown month
+        // begins from another month. Waiting for idle means every gesture of a quick pair is
+        // applied to a window whose offset still names the month on screen.
+        guard phase == .idle, !isRecentring,
+          let index = window.firstIndex(of: model.month),
+          index < 5 || index >= window.count - 5
+        else { return }
+        recentre(on: model.month, proxy: proxy)
+      }
+      .scrollDisabled(isRecentring)
     }
   }
 
@@ -310,15 +317,17 @@ public struct MonthScreen: View {
   }
 
   /// Replaces the window around a month the user swiped to near its edge. Swapping the pages
-  /// keeps the scroll offset, not the page, so the offset would then show another month; the
-  /// scroll position is reported back while that happens. Paging changes are ignored until the
-  /// pager is put back on the month.
+  /// keeps the pixel offset, not the page, so the offset has to be put back on the month in the
+  /// same update. The pager is disabled for that update, so no gesture can start from the old
+  /// offset, and paging changes are ignored until the offset is back.
   private func recentre(on key: MonthKey, proxy: ScrollViewProxy) {
     isRecentring = true
     window = Self.window(around: key)
+    proxy.scrollTo(key, anchor: .leading)
+    scrolledMonth = key
     Task { @MainActor in
-      proxy.scrollTo(key, anchor: .leading)
-      scrolledMonth = key
+      // One run-loop turn lets the rebuilt pages lay out before the pager takes gestures again.
+      await Task.yield()
       isRecentring = false
     }
   }
