@@ -23,8 +23,9 @@ A full-width 7-column month grid, Sunday first (the Nepali week), for one BS mon
 - AC3: the Saturday column and public holidays use the holiday colour **and** a mark (rule H1);
   days with events show an event dot.
 - AC4: today has the today ring; the selected day has the selection fill.
-- AC5: horizontal swipe and previous/next buttons change the month; a "Today" button appears only
-  when another month is shown.
+- AC5: horizontal swipe changes the month; Android also has previous and next buttons, and on iOS the
+  pager pages from the hardware arrow keys and from named VoiceOver actions. A "Today" button
+  appears only when another month is shown.
 - AC6: tapping the header opens a month and year picker covering BS 1901–2199 on Android; on iOS the
   header opens the year view (MR-14), and the picker sheet is removed.
 - AC7: a 5- or 6-row grid; cells from neighbouring months are dimmed and not tappable.

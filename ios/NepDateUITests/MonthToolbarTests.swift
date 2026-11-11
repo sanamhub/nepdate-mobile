@@ -2,22 +2,15 @@ import CalendarKit
 import CalendarScreens
 import XCTest
 
-/// The month bar, which has four buttons to place on a month away from today: Settings from the
-/// shell, Previous month, Today and Next month.
+/// The month bar after the paging arrows left it: Settings, which the shell puts in the bar, and
+/// the Today button, which shows only on a month away from today. Paging is by swipe, by the
+/// named VoiceOver actions and by the hardware arrow keys, so the bar has two items at most and
+/// cannot run out of room.
 ///
-/// Whether all four fit depends on the month and on the text size, and this class records what the
-/// system does with them, measured on the 402-point iPhone 17 on 2026-11-11:
-///
-/// - Chaitra 2199 and Falgun 2199 at the default text size hold Settings, Previous month, Today
-///   and Next month, so Next month is one tap.
-/// - Baisakh 1901 at the default text size, the start of the range, does not: Next month is not in
-///   the bar, so it takes the bar's More menu and a second tap. The paging pair sits at the edge of
-///   what the bar can hold, and one month more of title width tips it over.
-/// - At accessibility2 the bar holds Settings, Previous month and a More menu on a month away from
-///   today, and Next month takes two taps there as well.
-///
-/// The screenshots of the bar, on today's month and on a month away, at both text sizes, are
-/// attached to the test run for the design review.
+/// The cases below are today's month, a month away from it and the start of the range, at the
+/// default text size and at accessibility2. Each one asserts the same three things: Settings is in
+/// the bar, Today is there only away from today's month, and no button has moved into a More menu.
+/// The screenshots of the bar are attached to the test run for the design review.
 final class MonthToolbarTests: XCTestCase {
   private static let todayTitle = "Asoj 2083"
 
@@ -26,111 +19,36 @@ final class MonthToolbarTests: XCTestCase {
     "-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryAccessibilityL",
   ]
 
-  /// Two months away from today where the bar holds every button, the end of the range among
-  /// them, so Next month is disabled there.
+  /// Settings stays, Today shows only away from today's month, the paging buttons are gone, and
+  /// nothing overflows into a More menu, at both text sizes.
   @MainActor
-  func testBarKeepsEveryButtonOnAMonthAwayFromToday() throws {
-    for month in [(year: 2199, month: 12), (year: 2199, month: 11)] {
-      let key = try XCTUnwrap(MonthKey(year: month.year, month: month.month))
-      let title = Self.title(of: key)
-      let hasNext = key.id < MonthKey.count - 1
-      let app = Self.launch(month: key.description)
-      let bar = app.navigationBars[title]
-      XCTAssertTrue(bar.waitForExistence(timeout: 10), "the bar does not name \(title)")
-
-      for label in ["Previous month", "Next month", "Today"] {
-        let button = bar.buttons[label]
-        XCTAssertTrue(
-          button.waitForExistence(timeout: 5),
-          "\(label) is missing from the bar of \(title): \(Self.labels(of: bar))"
-        )
-        XCTAssertTrue(button.isHittable, "\(label) is not hittable in the bar of \(title)")
-      }
-      XCTAssertEqual(
-        bar.buttons["Next month"].isEnabled,
-        hasNext,
-        "Next month is enabled wrongly in the bar of \(title)"
+  func testBarHoldsSettingsAndTodayAtBothTextSizes() throws {
+    let away = try XCTUnwrap(MonthKey(year: 2199, month: 11))
+    let first = try XCTUnwrap(MonthKey(year: 1901, month: 1))
+    for arguments in [[], Self.accessibility2] {
+      let size = arguments.isEmpty ? "default" : "accessibility2"
+      Self.checkBar(
+        month: nil,
+        title: Self.todayTitle,
+        isToday: true,
+        size: size,
+        arguments: arguments
       )
-      XCTAssertFalse(
-        bar.buttons["More"].exists,
-        "the bar of \(title) moved a button into a More menu: \(Self.labels(of: bar))"
+      Self.checkBar(
+        month: away.description,
+        title: Self.title(of: away),
+        isToday: false,
+        size: size,
+        arguments: arguments
       )
-
-      if hasNext {
-        let next = try XCTUnwrap(MonthKey(id: key.id + 1))
-        bar.buttons["Next month"].tap()
-        XCTAssertTrue(
-          app.navigationBars[Self.title(of: next)].waitForExistence(timeout: 10),
-          "one tap on Next month did not open \(Self.title(of: next))"
-        )
-      }
-
-      let today = app.navigationBars.buttons["Today"]
-      XCTAssertTrue(
-        today.waitForExistence(timeout: 5),
-        "Today left the bar of \(title) after paging"
+      Self.checkBar(
+        month: first.description,
+        title: Self.title(of: first),
+        isToday: false,
+        size: size,
+        arguments: arguments
       )
-      today.tap()
-      XCTAssertTrue(
-        app.navigationBars[Self.todayTitle].waitForExistence(timeout: 10),
-        "Today did not return to \(Self.todayTitle)"
-      )
-      app.terminate()
     }
-  }
-
-  /// The start of the range is where the bar runs out of room at the default text size: Next
-  /// month is not in the bar, so it takes the More menu and a second tap.
-  @MainActor
-  func testBarMovesNextMonthIntoTheMoreMenuAtTheStartOfTheRange() throws {
-    let key = try XCTUnwrap(MonthKey(year: 1901, month: 1))
-    let title = Self.title(of: key)
-    let app = Self.launch(month: key.description)
-    let bar = app.navigationBars[title]
-    XCTAssertTrue(bar.waitForExistence(timeout: 10), "the bar does not name \(title)")
-
-    let previous = bar.buttons["Previous month"]
-    XCTAssertTrue(
-      previous.waitForExistence(timeout: 5),
-      "Previous month is missing from the bar of \(title): \(Self.labels(of: bar))"
-    )
-    XCTAssertFalse(previous.isEnabled, "Previous month is enabled at the start of the range")
-    XCTAssertFalse(
-      bar.buttons["Next month"].exists,
-      "Next month is in the bar of \(title) now: \(Self.labels(of: bar))"
-    )
-    print("BAR \(title) default buttons=\(Self.labels(of: bar))")
-  }
-
-  /// At accessibility2 the bar holds Settings, Previous month and the More menu, and the menu
-  /// carries the Today button.
-  @MainActor
-  func testBarMovesTodayIntoTheMoreMenuAtAccessibility2() throws {
-    let key = try XCTUnwrap(MonthKey(year: 2199, month: 11))
-    let title = Self.title(of: key)
-    let app = Self.launch(arguments: Self.accessibility2, month: key.description)
-    let bar = app.navigationBars[title]
-    XCTAssertTrue(bar.waitForExistence(timeout: 10), "the bar does not name \(title)")
-
-    XCTAssertTrue(
-      bar.buttons["Previous month"].waitForExistence(timeout: 5),
-      "Previous month is missing from the bar of \(title): \(Self.labels(of: bar))"
-    )
-    XCTAssertFalse(
-      bar.buttons["Next month"].exists,
-      "Next month is in the bar of \(title) now: \(Self.labels(of: bar))"
-    )
-
-    let more = bar.buttons["More"]
-    XCTAssertTrue(
-      more.waitForExistence(timeout: 5),
-      "the bar of \(title) has no More menu: \(Self.labels(of: bar))"
-    )
-    more.tap()
-    XCTAssertTrue(
-      app.buttons["Today"].waitForExistence(timeout: 5),
-      "the More menu of \(title) does not list Today"
-    )
   }
 
   /// The bar on today's month and on a month away from today, at the default text size and at
@@ -161,6 +79,59 @@ final class MonthToolbarTests: XCTestCase {
       add(shot)
       app.terminate()
     }
+  }
+
+  /// Opens one month and checks its bar, then taps Today when it is there to prove one tap returns
+  /// to today's month.
+  @MainActor
+  private static func checkBar(
+    month: String?,
+    title: String,
+    isToday: Bool,
+    size: String,
+    arguments: [String]
+  ) {
+    let app = launch(arguments: arguments, month: month)
+    let bar = app.navigationBars[title]
+    XCTAssertTrue(bar.waitForExistence(timeout: 10), "the bar does not name \(title)")
+    print("BAR \(title) \(size) buttons=\(labels(of: bar))")
+
+    XCTAssertTrue(
+      bar.buttons["Settings"].exists,
+      "Settings is missing from the bar of \(title): \(labels(of: bar))"
+    )
+    XCTAssertFalse(
+      bar.buttons["More"].exists,
+      "the bar of \(title) moved a button into a More menu: \(labels(of: bar))"
+    )
+    for label in ["Previous month", "Next month"] {
+      XCTAssertFalse(
+        bar.buttons[label].exists,
+        "\(label) is back in the bar of \(title): \(labels(of: bar))"
+      )
+    }
+
+    let today = bar.buttons["Today"]
+    if isToday {
+      XCTAssertFalse(today.exists, "Today is in the bar of today's month: \(labels(of: bar))")
+      app.terminate()
+      return
+    }
+
+    XCTAssertTrue(
+      today.waitForExistence(timeout: 5),
+      "Today is missing from the bar of \(title): \(labels(of: bar))"
+    )
+    XCTAssertTrue(today.isHittable, "Today is not hittable in the bar of \(title)")
+    today.tap()
+
+    let home = app.navigationBars[todayTitle]
+    XCTAssertTrue(home.waitForExistence(timeout: 10), "Today did not return to \(todayTitle)")
+    XCTAssertFalse(
+      home.buttons["Today"].exists,
+      "Today stayed in the bar of today's month: \(labels(of: home))"
+    )
+    app.terminate()
   }
 
   /// The accessible buttons the bar holds, for the log and the failure messages.

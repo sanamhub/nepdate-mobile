@@ -84,11 +84,20 @@ final class MonthAccessibilityTests: XCTestCase {
     let last = Self.launch(month: "2199-12")
     let lastTitle = Self.title("Chaitra 2199", in: last)
     XCTAssertTrue(lastTitle.waitForExistence(timeout: 10))
-    // At the end of the range the bar holds both paging buttons, with Next month disabled. At the
-    // start it does not: Next month is behind the bar's More menu there, so only Previous month is
-    // asserted; `MonthToolbarTests` records where the bar runs out of room.
-    XCTAssertTrue(last.buttons["Previous month"].isEnabled)
-    XCTAssertFalse(last.buttons["Next month"].isEnabled)
+    // At the end of the range a left swipe does not page past Chaitra 2199: the pager has no page
+    // after it. The cell below proves the screen still draws that month after the swipe.
+    let lastPager = last.scrollViews["month_pager"]
+    XCTAssertTrue(lastPager.waitForExistence(timeout: 10), "the pager is missing")
+    lastPager.swipeLeft(velocity: .slow)
+    Thread.sleep(forTimeInterval: 2)
+    XCTAssertTrue(
+      Self.title("Chaitra 2199", in: last).exists,
+      "a left swipe paged past Chaitra 2199, the end of the range"
+    )
+    XCTAssertTrue(
+      Self.cell(beginningWith: "Chaitra 1, 2199,", in: last).exists,
+      "the pager no longer draws Chaitra 2199 after the swipe"
+    )
 
     Self.openYearView(last, label: "Chaitra 2199")
     XCTAssertTrue(last.navigationBars["2199"].waitForExistence(timeout: 10))
@@ -110,7 +119,15 @@ final class MonthAccessibilityTests: XCTestCase {
     let first = Self.launch(month: "1901-01")
     let firstTitle = Self.title("Baisakh 1901", in: first)
     XCTAssertTrue(firstTitle.waitForExistence(timeout: 10))
-    XCTAssertFalse(first.buttons["Previous month"].isEnabled)
+    // At the start of the range a right swipe does not page before Baisakh 1901.
+    let firstPager = first.scrollViews["month_pager"]
+    XCTAssertTrue(firstPager.waitForExistence(timeout: 10), "the pager is missing")
+    firstPager.swipeRight(velocity: .slow)
+    Thread.sleep(forTimeInterval: 2)
+    XCTAssertTrue(
+      Self.title("Baisakh 1901", in: first).exists,
+      "a right swipe paged before Baisakh 1901, the start of the range"
+    )
 
     Self.openYearView(first, label: "Baisakh 1901")
     XCTAssertTrue(first.navigationBars["1901"].waitForExistence(timeout: 10))

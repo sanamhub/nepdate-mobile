@@ -12,7 +12,7 @@ The iPhone and iPad app and the widget extension. The Xcode project is generated
 | `Packages/CalendarKit` | Local SwiftPM package: dates, month layout, widget summaries, settings (I1) |
 | `Packages/CalendarUI` | Local SwiftPM package: product `CalendarUI` (views, brand marks and the brand asset catalogue shared by app and widget) and product `CalendarScreens` (the app-only first run, month, day, Upcoming, Converter, Settings and About screens and their view models) |
 | `NepDateTests/` | Swift Testing tests and the committed snapshot references; renders the screenshot artefact |
-| `NepDateUITests/` | XCUITests: opening on today, the picker at both range ends, the pager recentre, the month, day detail and remaining screens' accessibility audits, the shell, Copy date, diagnostic copy and the widget routing (`WidgetRoutingUITests`) |
+| `NepDateUITests/` | XCUITests: opening on today, the month bar, the swipe bounds at both range ends, the pager recentre, the month, day detail and remaining screens' accessibility audits, the shell, Copy date, diagnostic copy and the widget routing (`WidgetRoutingUITests`) |
 | `Resources/` | The app's asset catalogue (`AppIcon`, `AccentColor`) and `Localizable.xcstrings` (English and Nepali) |
 | `NepDateWidgets/Resources/` | The widget extension's own asset catalogue (`AccentColor`); it no longer ships the app icons or the brand sets |
 | `Config/` | Info.plists and the App Group entitlements for both targets |
@@ -73,10 +73,23 @@ from the test bundle, fixed by linking the library products directly.
 The XCUITests in `NepDateUITests` run inside gate 4, so the gate count is unchanged. Debug builds
 read `NEPDATE_UI_TEST_TODAY` (for example `2083-06-20`) to pin today, so every UI test sees Asoj
 2083 and the audit counts are exact; a release build always uses the clock. The tests check that the
-pager opens on today, that the picker reaches Chaitra 2199 and Baisakh 1901 with the next and
-previous buttons disabled at those ends, and that 21 swipes cross the window recentre and land on
-Asar 2085. The day sheet test taps Asoj 25, checks every spoken field and event, taps Copy date and
-reads the action's accessibility value, then audits the sheet.
+pager opens on today, that a swipe moves one month each way and stops at Chaitra 2199 and Baisakh
+1901, and that 21 swipes cross the window recentre and land on Asar 2085. The day sheet test taps
+Asoj 25, checks every spoken field and event, taps Copy date and reads the action's accessibility
+value, then audits the sheet.
+
+The month bar holds Settings, which the shell puts in the bar, and the Today button, which appears
+only on a month away from today (MR-01 AC5). The Previous month and Next month buttons left the bar
+on 2026-11-11: on a month away from today the bar had four items, and the measured runs showed the
+system moving them into its More menu at accessibility2 on every month, and at Baisakh 1901 even at
+the default size, so paging could take two taps and the pair could not be relied on to sit in the
+bar. The bar now matches the system Calendar. VoiceOver gets a named Previous month
+and Next month action on the pager, added only while that direction is inside the range, and a
+hardware keyboard pages with the left and right arrows while the pager has focus; both run the same
+`go(to:)` the buttons ran, so both stop at the ends of the range. `MonthPagerAccessibilityTests`
+reads the two actions from the hosted screen's accessibility tree instead of a copy of the rule, and
+`MonthPagingTests` checks that a swipe pages one month and that a swipe past either end does not
+move.
 
 The pager holds 49 months around the shown one, because a 3588-page accessibility tree made the
 audit time out. When a swipe comes within five pages of an edge the window is rebuilt around the

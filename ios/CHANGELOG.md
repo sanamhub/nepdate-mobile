@@ -22,7 +22,7 @@ All notable changes to the iOS app. The format follows
 - The CalendarKit coverage gate at 80 %.
 - The Today widget reads the shared settings for its day, language and digits.
 - The month screen: `TabView` with Month, Upcoming and Converter, month paging, the BS 1901 to 2199
-  picker, previous and next buttons, the Today button, day selection, VoiceOver labels and the list
+  picker, the Today button, day selection, VoiceOver labels and the list
   layout at accessibility text sizes (MR-01, MR-10).
 - Six reference snapshots of Asoj 2083 in light, dark, Nepali, `.xxxLarge` and `.accessibility2`,
   compared with `swift-snapshot-testing` 1.19.6.
@@ -72,4 +72,8 @@ All notable changes to the iOS app. The format follows
   bytes above the day detail build from linker layout; no widget source changed.
 - Copy date now shows "Date copied" and announces it once to VoiceOver.
 - Light secondary text is 0.33 white (7.55:1 on the background).
+- The month bar keeps Settings and the Today button, and the Previous month and Next month buttons
+  are gone. Paging is by swipe, by the pager's named VoiceOver actions and by the hardware arrow
+  keys, all of which stop at the ends of the range (MR-01 AC5). On a month away from today the bar
+  had four items, and at accessibility2 the system moved a paging button into its More menu.
 

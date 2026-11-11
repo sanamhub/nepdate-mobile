@@ -6,7 +6,9 @@ import UIKit
 
 /// The Patro tab (MR-01, MR-14, MR-22, MR-23): a pager of month pages with the today card, the
 /// grid and the month's holidays and events, a title menu for today and the year view, and the
-/// previous, today and next buttons.
+/// Today button. The bar holds no paging buttons: a swipe, the pager's named VoiceOver actions and
+/// the hardware arrow keys while it has focus page the month, and each of them stops at the ends of
+/// the range because it runs the same guarded month change.
 public struct MonthScreen: View {
   @State private var model: MonthViewModel
   @State private var scrolledMonth: MonthKey?
@@ -84,24 +86,12 @@ public struct MonthScreen: View {
     }
     .toolbar {
       ToolbarItemGroup(placement: .topBarTrailing) {
-        Button(action: { go(to: previousMonth) }) {
-          Image(systemName: "chevron.left")
-        }
-        .disabled(!model.canGoPrevious)
-        .accessibilityLabel(Text("Previous month"))
-
         if model.showsTodayButton {
           Button(action: { go(to: todayMonth) }) {
             Text("Today")
           }
           .accessibilityLabel(Text("Today"))
         }
-
-        Button(action: { go(to: nextMonth) }) {
-          Image(systemName: "chevron.right")
-        }
-        .disabled(!model.canGoNext)
-        .accessibilityLabel(Text("Next month"))
       }
     }
     .navigationDestination(isPresented: $showsYear) {
@@ -165,6 +155,32 @@ public struct MonthScreen: View {
       .scrollPosition(id: $scrolledMonth)
       .scrollIndicators(.hidden)
       .accessibilityIdentifier("month_pager")
+      .accessibilityScrollAction { edge in
+        if edge == .leading {
+          go(to: previousMonth)
+        } else {
+          go(to: nextMonth)
+        }
+      }
+      .modifier(
+        MonthPagerActions(
+          canGoPrevious: model.canGoPrevious,
+          canGoNext: model.canGoNext,
+          onPrevious: { go(to: previousMonth) },
+          onNext: { go(to: nextMonth) }
+        )
+      )
+      // A hardware keyboard pages the month with the arrow keys while the pager has focus, which
+      // is the same gesture the system Calendar answers.
+      .focusable()
+      .onKeyPress(.leftArrow) {
+        go(to: previousMonth)
+        return .handled
+      }
+      .onKeyPress(.rightArrow) {
+        go(to: nextMonth)
+        return .handled
+      }
       .onChange(of: scrolledMonth) { _, newValue in
         guard !isRecentring, let newValue, newValue != model.month else { return }
         model.go(to: newValue)
@@ -442,6 +458,30 @@ public struct MonthScreenContent: View {
       onOpenDay: { _ in }
     )
     .background(Color(uiColor: .systemBackground))
+  }
+}
+
+/// The month screen's paging without buttons: the pager's named VoiceOver actions. Each action runs
+/// the same guarded month change the arrow buttons ran, and it exists only while that direction is
+/// inside the picker range, so the rotor never offers a month the app cannot show.
+private struct MonthPagerActions: ViewModifier {
+  let canGoPrevious: Bool
+  let canGoNext: Bool
+  let onPrevious: () -> Void
+  let onNext: () -> Void
+
+  func body(content: Content) -> some View {
+    if canGoPrevious, canGoNext {
+      content
+        .accessibilityAction(named: Text("Previous month"), onPrevious)
+        .accessibilityAction(named: Text("Next month"), onNext)
+    } else if canGoPrevious {
+      content.accessibilityAction(named: Text("Previous month"), onPrevious)
+    } else if canGoNext {
+      content.accessibilityAction(named: Text("Next month"), onNext)
+    } else {
+      content
+    }
   }
 }
 
