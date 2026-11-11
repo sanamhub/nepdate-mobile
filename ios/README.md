@@ -87,9 +87,12 @@ bar. The bar now matches the system Calendar. VoiceOver gets a named Previous mo
 action on the pager, added only while that direction is inside the range, plus a three-finger scroll
 action, and a hardware keyboard's left and right arrows page it while the keyboard focus is inside
 the pager. Each of them runs the same `go(to:)` the buttons ran, so each stops at the ends of the
-range. `MonthPagerAccessibilityTests` hosts the real screen and reads the two actions from its
-accessibility tree instead of a copy of the rule, and `MonthPagingTests` checks that a swipe pages
-one month and that a swipe past either end does not move.
+range. The two actions cannot be read from a test: XCUITest does not list custom actions, and
+without an accessibility client SwiftUI does not publish its accessibility elements, so a unit test
+that hosts the screen sees only plain UIKit views (231 of them, with no identifiers). They are
+therefore checked by hand with VoiceOver on the MR-01 AC5 row of `docs/runbooks/manual-test.md`,
+together with the arrow keys. `MonthPagingTests` checks that a swipe pages one month and that a
+swipe past either end does not move.
 
 The pager holds 49 months around the shown one, because a 3588-page accessibility tree made the
 audit time out. When a swipe comes within five pages of an edge the window is rebuilt around the
@@ -99,10 +102,9 @@ until it has scrolled back to the month; before that fix the swipe test landed o
 The audit runs one category per call (contrast, Dynamic Type, element detection, hit region,
 element description, clipped text, traits), on the grid at the default size and on the list at
 the accessibility L size. It inspects the text drawn inside a day cell or list row even though
-that text is hidden and the cell's element is the full spoken date. The test counts findings on
-those hidden text nodes per category and kind and compares them with an exact table; any other
-finding, or a different count, fails. The table and the evidence for each entry are in
-`MonthAccessibilityTests.swift`:
+that text is hidden and the cell's element is the full spoken date. The test counts findings per
+category and kind and compares them with an exact table; any other finding, or a different count,
+fails. The table and the evidence for each entry are in `MonthAccessibilityTests.swift`:
 
 | Layout | Finding | Count | Why it is tolerated |
 |---|---|---|---|
@@ -110,6 +112,7 @@ finding, or a different count, fails. The table and the evidence for each entry 
 | Grid | Contrast on AD numerals 13 and 27 | 2 | The pair measures 7.55:1; changing the colour from 5.74:1 to 7.55:1 left both findings at the same frames |
 | List | Dynamic Type and clipped text on date, weekday and event lines | 10 and 10 | The lines have no line limit and wrap (`month.accessibility2.png`) |
 | List | Contrast on the weekday line of Asoj 4 | 1 | The line is behind the translucent tab bar; the same pair passes on every row above |
+| Grid | Too small a hit region on the holidays and events heading | 1 | The heading is 144 by 18 points with the header trait and no control inside it; the finding appeared with the pager's named paging actions (runs 42955347573 and 42966820203) and the list audit, which does not draw the heading, has none |
 
 The day sheet audit has no tolerated findings. It opens from Asoj 25 and runs the same seven
 categories; the green run prints `AUDIT tolerated []`. The contrast fix was to tint both actions
