@@ -84,12 +84,11 @@ final class MonthAccessibilityTests: XCTestCase {
     let last = Self.launch(month: "2199-12")
     let lastTitle = Self.title("Chaitra 2199", in: last)
     XCTAssertTrue(lastTitle.waitForExistence(timeout: 10))
-    // A month away from today draws four trailing items, and four do not fit beside an inline title
-    // on the 402-point screen: the system moves the Today and Next month buttons into the bar's
-    // More menu (run 42833678656). Previous month stays in the bar, so each end of the range is
-    // asserted here through it and through the year view's own year buttons, and
-    // `MonthViewModelTests` asserts the model's `canGoPrevious` and `canGoNext` at both ends.
+    // At the end of the range the bar holds both paging buttons, with Next month disabled. At the
+    // start it does not: Next month is behind the bar's More menu there, so only Previous month is
+    // asserted; `MonthToolbarTests` records where the bar runs out of room.
     XCTAssertTrue(last.buttons["Previous month"].isEnabled)
+    XCTAssertFalse(last.buttons["Next month"].isEnabled)
 
     Self.openYearView(last, label: "Chaitra 2199")
     XCTAssertTrue(last.navigationBars["2199"].waitForExistence(timeout: 10))
