@@ -55,8 +55,8 @@ struct MonthPagerAccessibilityTests {
     window.rootViewController = controller
     window.makeKeyAndVisible()
     window.layoutIfNeeded()
-    // SwiftUI builds the month's pages and their accessibility elements over the next run loop turn,
-    // so the walk below waits one out.
+    // SwiftUI builds the month's pages and their accessibility elements over the next run loop
+    // turn, so the walk below waits one out.
     RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.5))
 
     let tree = nodes(in: controller.view)
