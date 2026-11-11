@@ -96,6 +96,12 @@ final class MonthToolbarTests: XCTestCase {
     XCTAssertTrue(bar.waitForExistence(timeout: 10), "the bar does not name \(title)")
     print("BAR \(title) \(size) buttons=\(labels(of: bar))")
 
+    // The title button plus Settings, and Today when the month is away from today's: nothing else.
+    XCTAssertEqual(
+      labels(of: bar).count,
+      isToday ? 2 : 3,
+      "the bar of \(title) holds more than Settings and Today: \(labels(of: bar))"
+    )
     XCTAssertTrue(
       bar.buttons["Settings"].exists,
       "Settings is missing from the bar of \(title): \(labels(of: bar))"
