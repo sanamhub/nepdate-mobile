@@ -33,13 +33,14 @@ replace `privacy_policy_url.txt` with the Pages URL and keep the same text.
 ## Not in this directory yet
 
 Play also needs a 512x512 app icon and a 1024x500 feature graphic for the listing. They are not
-generated here and are part of the A3-04 human gate. Gradle Play Publisher in `android-release.yml`
+generated here and are part of the release human gate. Gradle Play Publisher in `android-release.yml`
 uploads only the AAB; the listing text and images are entered in Play Console by hand.
 
 ## Data safety and content rating
 
 The answers are drafts in `docs/legal/play-data-safety.md` and
-`docs/legal/play-content-rating.md`. Enter them in Play Console by hand; A3-04 is the human gate.
+`docs/legal/play-content-rating.md`. Enter them in Play Console by hand; submitting them is the
+human gate.
 
 ## Non-Play stores
 

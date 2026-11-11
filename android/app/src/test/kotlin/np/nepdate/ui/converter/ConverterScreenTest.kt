@@ -20,7 +20,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 
-/** A1-05 and MR-04 AC1 to AC4 in the Converter screen. */
+/** MR-04 AC1 to AC4 in the Converter screen. */
 @RunWith(AndroidJUnit4::class)
 @Config(qualifiers = "w360dp-h800dp-xhdpi")
 class ConverterScreenTest {

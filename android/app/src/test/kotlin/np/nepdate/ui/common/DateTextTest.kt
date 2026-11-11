@@ -11,7 +11,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.util.Locale
 
-/** A1-03: the date text helpers used by the month header, cells and labels. */
+/** The date text helpers used by the month header, cells and labels. */
 class DateTextTest {
     private val longMonths =
         listOf(

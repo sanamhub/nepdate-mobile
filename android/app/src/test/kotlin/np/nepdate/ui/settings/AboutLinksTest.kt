@@ -9,7 +9,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import java.lang.reflect.Modifier
 
-/** A1-06 and MR-07 AC2 and MR-12 AC2 link and share constants. */
+/** MR-07 AC2 and MR-12 AC2 link and share constants. */
 @RunWith(AndroidJUnit4::class)
 class AboutLinksTest {
     @Test

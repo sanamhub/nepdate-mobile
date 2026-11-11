@@ -37,14 +37,14 @@ The first pre-release, published on GitHub only while Play access is pending.
   same Digits, Date follows and Show tithi settings as the app, holiday marks, month navigation,
   today and day-detail deep links, generated and static previews, a background-opacity setting in
   each widget's configuration, and one inexact midnight alarm that survives doze.
-- Reproducible release builds (A3-01): fixed JDK in CI, no VCS metadata or build timestamp, PNG
+- Reproducible release builds: fixed JDK in CI, no VCS metadata or build timestamp, PNG
   crunching off, and two clean CI builds without Gradle caches compared by SHA-256.
-- Release workflow (A3-02): tag and manual dry runs, tag/version/changelog preflight, the 183-day
+- Release workflow: tag and manual dry runs, tag/version/changelog preflight, the 183-day
   data freshness gate, a production-gated signed AAB and APK, Play internal upload and a draft GitHub
   Release from the checksummed artifacts, and a provenance attestation.
 - The About data-questions link now opens the copy in `docs/product/known-data-questions.md`; a
-  test rejects links outside the public repository allow-list (A3-00).
-- Play listing text, screenshots and the Data safety and content-rating drafts (A3-03).
+  test rejects links outside the public repository allow-list.
+- Play listing text, screenshots and the Data safety and content-rating drafts.
 
 ### Changed
 

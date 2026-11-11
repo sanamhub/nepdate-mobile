@@ -10,7 +10,7 @@ import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.setWidgetPreviews
 
 /**
- * Publishes generated previews on Android 15+ (A2-04). Android 12 to 14 launchers use the static
+ * Publishes generated previews on Android 15+. Android 12 to 14 launchers use the static
  * `previewLayout` in each `appwidget-provider` XML, and older ones its vector `previewImage`.
  */
 internal class WidgetPreviewPublisher(

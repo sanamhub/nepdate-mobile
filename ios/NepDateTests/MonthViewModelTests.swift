@@ -2,7 +2,7 @@ import CalendarKit
 import CalendarScreens
 import Testing
 
-/// I1-03: the month view model. The screen's rules live here so they run without a simulator.
+/// The month view model. The screen's rules live here so they run without a simulator.
 @Suite("Month view model")
 struct MonthViewModelTests {
   private static let today = MonthDate(year: 2083, month: 6, day: 20)
@@ -120,7 +120,7 @@ struct MonthViewModelTests {
     )
   }
 
-  @Test("I1-03: a view model needs a date inside the library's range")
+  @Test("a view model needs a date inside the library's range")
   func invalidToday() {
     #expect(
       MonthViewModel(
@@ -195,7 +195,7 @@ struct MonthViewModelTests {
     #expect(crossYear.adSpan == "Dec 2026 – Jan 2027")
   }
 
-  @Test("I1-03: the product month names replace the library's spellings")
+  @Test("the product month names replace the library's spellings")
   func monthNames() {
     #expect(MonthNames.bs(1, .english) == "Baisakh")
     #expect(MonthNames.bs(3, .english) == "Asar")

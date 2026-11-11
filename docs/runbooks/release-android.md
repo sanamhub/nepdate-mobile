@@ -43,7 +43,7 @@ Then, by hand:
    publishes once its rebuild matches).
 3. Promote in Play Console from internal to production with a staged rollout, 20 % then 100 % after
    48 hours without new crashes in Android vitals. For 1.0 the build goes through the closed test
-   first (A3-04).
+   first.
 
 ## Pre-release, GitHub only
 

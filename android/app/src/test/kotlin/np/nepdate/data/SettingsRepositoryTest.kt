@@ -14,7 +14,7 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
-/** A1-01 and MR-06 AC1: the settings store and its fresh-install defaults. */
+/** The settings store and its fresh-install defaults (MR-06 AC1). */
 class SettingsRepositoryTest {
     @Test
     fun freshInstallFollowsTheDevice() =

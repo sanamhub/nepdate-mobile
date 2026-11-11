@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.map
 import java.io.IOException
 
 /**
- * Reads and writes [Settings] in a Preferences DataStore (A1-01).
+ * Reads and writes [Settings] in a Preferences DataStore.
  *
  * The flow emits the defaults on a fresh install. A read error from the file is treated as an empty
  * store, so a corrupt file shows the defaults instead of crashing; a write error still fails.

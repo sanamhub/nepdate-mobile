@@ -101,7 +101,7 @@ widget there has its own ACs (W-xx). Common ACs:
   source (C# NepDate via the hub, MIT), the official sources it follows (Ministry of Home Affairs
   holiday notice, Nepal Panchanga Nirnayak Samiti), a link to the "Known data questions" list
   (`docs/product/known-data-questions.md`, a copy of the hub section) and to "Report a wrong date"
-  (the issue form from M0-01), licences, privacy statement, source code. Links open in the system
+  (the issue form), licences, privacy statement, source code. Links open in the system
   browser; the app itself makes no request.
 - AC3: changing a setting updates open widgets within 1 second (iOS `reloadAllTimelines`, Android
   `updateAll`).

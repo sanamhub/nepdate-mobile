@@ -18,7 +18,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 
-/** A1-05 and MR-03 AC1 to AC3 in the Upcoming screen. */
+/** MR-03 AC1 to AC3 in the Upcoming screen. */
 @RunWith(AndroidJUnit4::class)
 @Config(qualifiers = "w360dp-h800dp-xhdpi")
 class UpcomingScreenTest {

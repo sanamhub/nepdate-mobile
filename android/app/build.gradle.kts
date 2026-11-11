@@ -36,7 +36,7 @@ android {
         localeFilters += listOf("en", "ne")
     }
 
-    // A3-02: the production environment provides these variables. Without them the release build
+    // The production environment provides these variables. Without them the release build
     // stays unsigned, which is what the reproducible-build job compares.
     signingConfigs {
         val keystore = providers.environmentVariable("ANDROID_KEYSTORE_PATH").orNull
@@ -57,11 +57,11 @@ android {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
-            // A3-01: no commit hash or build timestamp in the APK.
+            // No commit hash or build timestamp in the APK.
             vcsInfo {
                 include = false
             }
-            // A3-01: PNG optimisation must not depend on the host or a timestamp.
+            // PNG optimisation must not depend on the host or a timestamp.
             isCrunchPngs = false
             signingConfigs.findByName("release")?.let { signingConfig = it }
             proguardFiles(
@@ -131,13 +131,13 @@ android {
     }
 }
 
-// A3-02: a human promotes from the internal track after checking the draft release.
+// A human promotes from the internal track after checking the draft release.
 play {
     defaultToAppBundles.set(true)
     track.set("internal")
 }
 
-// A2-05: widgets must not carry bitmaps. Colours, numerals and marks are text, shapes or vector
+// Widgets must not carry bitmaps. Colours, numerals and marks are text, shapes or vector
 // drawables. A drawable loaded by resource id (ImageProvider(R.drawable.x)) is fine: the launcher
 // inflates it. A bitmap, an Icon or a content Uri travels inside the RemoteViews parcel, which has
 // a size limit, and draws blurred when scaled, so those are what this check refuses.

@@ -12,7 +12,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.time.LocalDate
 
-/** A1-02 and the month-layout parts of MR-01 and MR-02. */
+/** The month-layout parts of MR-01 and MR-02. */
 class MonthLayoutTest {
     private val today = NepaliDate.of(2083, 6, 20)
 

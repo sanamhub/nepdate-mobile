@@ -7,7 +7,7 @@ import np.nepdate.data.Settings
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
-/** A1-03 and MR-10 AC1: the exact spoken label for Asoj 25 2083. */
+/** MR-10 AC1: the exact spoken label for Asoj 25 2083. */
 class MonthLabelsTest {
     private val bsMonthNames =
         listOf(

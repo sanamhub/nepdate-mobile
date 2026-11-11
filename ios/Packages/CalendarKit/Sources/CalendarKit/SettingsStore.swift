@@ -1,6 +1,6 @@
 import Foundation
 
-/// Reads and writes ``Settings`` in the App Group's `UserDefaults` (I1-01).
+/// Reads and writes ``Settings`` in the App Group's `UserDefaults`.
 ///
 /// The store holds no state: every call opens the suite, so the app and the widget extension see
 /// the same values. A test passes its own suite name and never touches `group.np.nepdate`.

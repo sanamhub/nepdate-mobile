@@ -7,7 +7,7 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
-/** A1-05 and MR-03 AC1 and AC3. */
+/** MR-03 AC1 and AC3. */
 class UpcomingTest {
     @Test
     fun firstTwentyEntriesStartWithTodaysEvents() {

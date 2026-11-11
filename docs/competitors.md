@@ -69,7 +69,7 @@ reviews. Android APK sizes were not available; iOS sizes are shown. [U] = unveri
   employees, or for a community, and some dates are "to be determined" (ADR-0003 §7).
 - **Panchang:** Nepal Panchanga Nirnayak (Bikas) Samiti, under the Ministry of Culture, Tourism and
   Civil Aviation. Printed and wall calendars need its prior approval. **Whether a digital app needs
-  approval is not stated anywhere found [U]**: human task before the first public release (M0-07).
+  approval is not stated anywhere found [U]**: human task before the first public release.
 - Dates and tithis are facts, but a publisher's compiled panchang may be protected as a compilation
   [U, lawyer]. This app takes data only from MIT-licensed NepDate through the hub and never scrapes.
   Open question: NepDate's own solution references an unpublished `HamroPatroScraper` tool, so the

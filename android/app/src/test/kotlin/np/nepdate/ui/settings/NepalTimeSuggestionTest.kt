@@ -15,7 +15,7 @@ import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 import java.time.ZoneId
 
-/** A1-06 and MR-06 AC1: the first-launch suggestion shows only when it should, once. */
+/** MR-06 AC1: the first-launch suggestion shows only when it should, once. */
 @RunWith(AndroidJUnit4::class)
 @Config(qualifiers = "w360dp-h800dp-xhdpi")
 class NepalTimeSuggestionTest {

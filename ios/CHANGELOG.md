@@ -39,7 +39,7 @@ All notable changes to the iOS app. The format follows
 - Upcoming (MR-03), Converter (MR-04), Settings (MR-06, MR-07) and About (MR-12), with the
   `DayDetail` day sheet, the system per-app language row, the Nepal time suggestion, the five
   allow-listed links, the injected webcal row and Copy diagnostic info.
-- Sixteen I1-05 reference snapshots: Upcoming, Converter, Settings and About in light, dark, Nepali
+- Sixteen reference snapshots of Upcoming, Converter, Settings and About in light, dark, Nepali
   and `.accessibility2`, plus `daydetail.copied.png` for the Copy date confirmation.
 - `ci.sh` checks `NepDateLibraryVersion` against the nepdate-swift pin and every catalog key for a
   translated `ne` value.
@@ -68,8 +68,8 @@ All notable changes to the iOS app. The format follows
 - nepdate-swift is pinned to the release `1.0.0-rc.1` instead of a commit. About shows the same
   version, and `ci.sh` fails when the pins differ.
 - The month screen, its view model, its month keys, Upcoming, Converter, Settings and About are in
-  the `CalendarScreens` product. The widget executable is 615,656 bytes in I1-05, 272 bytes above
-  I1-04 from linker layout; no widget source changed.
+  the `CalendarScreens` product. The widget executable is 615,656 bytes with these screens in, 272
+  bytes above the day detail build from linker layout; no widget source changed.
 - Copy date now shows "Date copied" and announces it once to VoiceOver.
 - Light secondary text is 0.33 white (7.55:1 on the background).
 

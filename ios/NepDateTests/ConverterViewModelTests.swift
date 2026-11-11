@@ -2,7 +2,7 @@ import CalendarKit
 import CalendarScreens
 import Testing
 
-/// MR-04: the Converter view model, same cases as A1-05.
+/// MR-04: the Converter view model, the same cases as the Android Converter tests.
 @Suite("Converter view model")
 struct ConverterViewModelTests {
   private static let today = MonthDate(year: 2083, month: 6, day: 20)

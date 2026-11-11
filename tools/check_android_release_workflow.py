@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Static checks for .github/workflows/android-release.yml (A3-02).
+"""Static checks for .github/workflows/android-release.yml.
 
 The workflow cannot run until a human creates an android-v* tag and approves the production
 environment. This test parses the YAML with PyYAML, checks the structure the plan requires, and

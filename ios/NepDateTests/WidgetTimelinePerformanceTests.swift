@@ -3,7 +3,7 @@ import Darwin
 import Foundation
 import XCTest
 
-/// I2-05: building the 7-day month widget timeline stays small. The number is a regression signal;
+/// Building the 7-day month widget timeline stays small. The number is a regression signal;
 /// the device peak with every widget placed is a manual check (`docs/benchmarks.md`).
 final class WidgetTimelinePerformanceTests: XCTestCase {
   func testMemory() throws {

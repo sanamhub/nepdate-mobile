@@ -11,7 +11,7 @@ import org.junit.runner.RunWith
 import java.time.LocalDate
 import java.time.ZoneId
 
-/** A1-04 and MR-02 AC2: the event-editor intent's extras. */
+/** MR-02 AC2: the event-editor intent's extras. */
 @RunWith(AndroidJUnit4::class)
 class CalendarInsertTest {
     private val asoj9 = NepaliDate.of(2083, 6, 9)

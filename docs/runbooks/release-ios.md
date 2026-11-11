@@ -43,7 +43,7 @@ git push origin ios-vX.Y.Z
 ```
 
 `ios-release.yml` archives and uploads to App Store Connect after the `production` approval. That
-workflow is not written yet: it waits for the Apple account and the key (I3-01), so the two commands
+workflow is not written yet: it waits for the Apple account and the key, so the two commands
 above cannot be run today. Once it exists, by hand:
 1. TestFlight: install on a device; check today's date, each widget family, lock-screen widgets, the
    controls, and that no permission prompt appears.

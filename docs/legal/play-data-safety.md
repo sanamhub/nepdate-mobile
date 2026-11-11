@@ -31,5 +31,5 @@ come from ADR-0007 and `docs/product/privacy-policy.md`; change them only with a
 
 ## Remaining human step
 
-Enter these answers in Play Console. The store listing text must keep the same claims. A3-04 is the
-human gate for the closed test and production rollout.
+Enter these answers in Play Console. The store listing text must keep the same claims. The closed
+test and the production rollout are a human gate.

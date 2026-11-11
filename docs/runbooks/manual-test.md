@@ -129,7 +129,7 @@ layout, view models, scheduling and settings; this file covers the rest.
 
 ## A2 widget Tier 1 (Android)
 
-The A2-04 checklist. These rows need a device or emulator; issue
+The widget preview checklist. These rows need a device or emulator; issue
 [#11](https://github.com/sanamhub/nepdate-mobile/issues/11) tracks the missing hardware.
 
 | Check | iPhone | Android A15 class | Android low-end |

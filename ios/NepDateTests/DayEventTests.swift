@@ -4,7 +4,7 @@ import EventKit
 import Foundation
 import Testing
 
-/// I1-04: the event handed to `EKEventEditViewController` (MR-02 AC2). The store is only a
+/// The event handed to `EKEventEditViewController` (MR-02 AC2). The store is only a
 /// container here; the test never requests calendar access and the event belongs to no calendar.
 @MainActor
 @Suite("Day event")

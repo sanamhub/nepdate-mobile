@@ -38,7 +38,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 
-/** A1-03 and the Compose parts of MR-01 and MR-10. */
+/** The Compose parts of MR-01 and MR-10. */
 @RunWith(AndroidJUnit4::class)
 @Config(qualifiers = "w360dp-h640dp-xhdpi")
 class MonthScreenTest {
