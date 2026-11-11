@@ -112,7 +112,6 @@ fails. The table and the evidence for each entry are in `MonthAccessibilityTests
 | Grid | Contrast on AD numerals 13 and 27 | 2 | The pair measures 7.55:1; changing the colour from 5.74:1 to 7.55:1 left both findings at the same frames |
 | List | Dynamic Type and clipped text on date, weekday and event lines | 10 and 10 | The lines have no line limit and wrap (`month.accessibility2.png`) |
 | List | Contrast on the weekday line of Asoj 4 | 1 | The line is behind the translucent tab bar; the same pair passes on every row above |
-| Grid | Too small a hit region on the holidays and events heading | 1 | The heading is 144 by 18 points with the header trait and no control inside it; the finding appeared with the pager's named paging actions (runs 42955347573 and 42966820203) and the list audit, which does not draw the heading, has none |
 
 The day sheet audit has no tolerated findings. It opens from Asoj 25 and runs the same seven
 categories; the green run prints `AUDIT tolerated []`. The contrast fix was to tint both actions
