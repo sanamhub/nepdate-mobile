@@ -127,10 +127,9 @@ final class MonthToolbarTests: XCTestCase {
   /// come from the running bar, so this is the width the same buttons need on any phone.
   @MainActor
   private static func footprint(of bar: XCUIElement) -> CGFloat {
-    let trailing = ["Settings", "Previous month", "Next month"]
-      .map { bar.buttons[$0].frame.minX }
-      .min() ?? bar.frame.maxX
-    let trailingWidth = bar.frame.maxX - trailing
+    let labels = ["Settings", "Previous month", "Next month"]
+    let left = labels.map { bar.buttons[$0].frame.minX }.min() ?? bar.frame.maxX
+    let trailingWidth = bar.frame.maxX - left
     let today = bar.buttons["Today"]
     guard today.exists else { return trailingWidth }
     return today.frame.maxX - bar.frame.minX + trailingWidth
