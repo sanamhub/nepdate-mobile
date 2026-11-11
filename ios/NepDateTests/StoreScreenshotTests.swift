@@ -132,14 +132,22 @@ struct StoreScreenshotTests {
     controller.overrideUserInterfaceStyle = .light
     controller.view.frame = CGRect(origin: .zero, size: Self.size)
     controller.view.backgroundColor = .systemBackground
+
+    // SwiftUI lays out text and lists only when its hosting controller is in a window. The window
+    // is not shown over the test runner; it exists for the layout pass and the layer render.
+    let window = UIWindow(frame: CGRect(origin: .zero, size: Self.size))
+    window.rootViewController = controller
+    window.isHidden = false
+    controller.view.setNeedsLayout()
     controller.view.layoutIfNeeded()
 
     let format = UIGraphicsImageRendererFormat()
     format.scale = Self.scale
     format.opaque = true
-    let image = UIGraphicsImageRenderer(size: Self.size, format: format).image { _ in
-      controller.view.drawHierarchy(in: controller.view.bounds, afterScreenUpdates: true)
+    let image = UIGraphicsImageRenderer(size: Self.size, format: format).image { context in
+      controller.view.layer.render(in: context.cgContext)
     }
+    window.isHidden = true
     guard let data = image.pngData() else {
       throw StoreScreenshotFailure(name: name)
     }
