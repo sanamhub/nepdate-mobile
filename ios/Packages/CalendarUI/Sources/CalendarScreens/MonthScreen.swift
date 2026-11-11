@@ -198,7 +198,6 @@ public struct MonthScreen: View {
         else { return }
         recentre(on: model.month, proxy: proxy)
       }
-      .scrollDisabled(isRecentring)
     }
   }
 
@@ -325,11 +324,7 @@ public struct MonthScreen: View {
     window = Self.window(around: key)
     proxy.scrollTo(key, anchor: .leading)
     scrolledMonth = key
-    Task { @MainActor in
-      // One run-loop turn lets the rebuilt pages lay out before the pager takes gestures again.
-      await Task.yield()
-      isRecentring = false
-    }
+    isRecentring = false
   }
 
   /// The pages the pager holds. A window around the shown month keeps the number of views small;
