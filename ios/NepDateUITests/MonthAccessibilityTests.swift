@@ -200,6 +200,15 @@ final class MonthAccessibilityTests: XCTestCase {
     let app = Self.launch()
     XCTAssertTrue(Self.title("Asoj 2083", in: app).waitForExistence(timeout: 10))
 
+    // The holiday list's heading is the one text under the pager that the audit has reported as
+    // interactive, so it has to stay exposed as text while the pager's named actions sit on a
+    // container of their own. The audit below cannot tell a heading that is still read from one
+    // that the container swallowed, because the heading had no tolerated finding of its own.
+    XCTAssertTrue(
+      app.staticTexts["Holidays and events"].exists,
+      "the holidays and events heading is not exposed to VoiceOver"
+    )
+
     // The audit's counts move by one or two between runs of identical builds, because SwiftUI
     // settles rows while the audit samples them (runs 42771648138 and 42774078748). The test
     // therefore pins the kinds of finding, and prints their counts for the review; a new kind of
