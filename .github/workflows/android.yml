@@ -255,7 +255,10 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Install PyYAML
-        run: python3 -m pip install --disable-pip-version-check pyyaml==6.0.3
+        run: >-
+          python3 -m pip install --disable-pip-version-check --only-binary=:all:
+          --require-hashes pyyaml==6.0.3
+          --hash=sha256:ba1cc08a7ccde2d2ec775841541641e4548226580ab850948cbfda66a1befcdc
 
       - name: Check the release workflow
         run: python3 tools/check_android_release_workflow.py
