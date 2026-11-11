@@ -155,11 +155,6 @@ public struct MonthScreen: View {
       .scrollPosition(id: $scrolledMonth)
       .scrollIndicators(.hidden)
       .accessibilityIdentifier("month_pager")
-      // The pager is a container element of its own, and the paging actions attach to that element
-      // rather than to the scroll view that also carries the page content. Without it the actions
-      // put the whole page under an interactive element, and the audit then reported the holiday
-      // list's heading as too small to interact with (runs 42966820203 and 42995574157).
-      .accessibilityElement(children: .contain)
       .accessibilityScrollAction { edge in
         if edge == .leading {
           go(to: previousMonth)

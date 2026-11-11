@@ -113,6 +113,8 @@ fails. The table and the evidence for each entry are in `MonthAccessibilityTests
 | List | Dynamic Type and clipped text on date, weekday and event lines | 10 and 10 | The lines have no line limit and wrap (`month.accessibility2.png`) |
 | List | Contrast on the weekday line of Asoj 4 | 1 | The line is behind the translucent tab bar; the same pair passes on every row above |
 
+The holiday list's heading is text with no control inside it, so it declares that it does not respond to user interaction and the hit region audit leaves it alone. Without that the audit reports its 144 by 18 point frame as too small to interact with (runs 42966820203 and 43009488402), whether the pager's named actions sit on the scroll view or on a container element of their own.
+
 The day sheet audit has no tolerated findings. It opens from Asoj 25 and runs the same seven
 categories; the green run prints `AUDIT tolerated []`. The contrast fix was to tint both actions
 with `BrandColor.today`; the default bordered button's blue failed on "Copy date" in run

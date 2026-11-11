@@ -44,10 +44,10 @@ final class MonthAccessibilityTests: XCTestCase {
   ///   behind the translucent tab bar on an 844-point screen. The same pair passes on every row
   ///   above them.
   /// - Grid, hitRegion: nothing. The holiday list's heading is a 144 by 18 point static text with
-  ///   the header trait and no control inside it, and the audit reported it as too small to
-  ///   interact with while the pager's named actions sat on the scroll view that also carries the
-  ///   page content (runs 42966820203 and 42995574157). The pager now holds those actions on a
-  ///   container element of its own.
+  ///   the header trait and no control inside it, so it declares that it does not respond to user
+  ///   interaction. The audit reported it as too small to interact with before that (runs
+  ///   42966820203, 42995574157 and 43009488402); the pager's actions on a container element of
+  ///   their own did not change it.
   ///
   /// A finding outside these kinds still fails the test. The counts last measured on this branch
   /// were: grid contrast numeral 1, contrast text 6, Dynamic Type numeral 71, 12 Dynamic Type
@@ -201,9 +201,9 @@ final class MonthAccessibilityTests: XCTestCase {
     XCTAssertTrue(Self.title("Asoj 2083", in: app).waitForExistence(timeout: 10))
 
     // The holiday list's heading is the one text under the pager that the audit has reported as
-    // interactive, so it has to stay exposed as text while the pager's named actions sit on a
-    // container of their own. The audit below cannot tell a heading that is still read from one
-    // that the container swallowed, because the heading had no tolerated finding of its own.
+    // interactive. It now declares that it does not respond to user interaction, which is what the
+    // audit's hit region check honours, so the check above would also pass on a heading that
+    // VoiceOver had stopped exposing. Ask for it by label to keep that from slipping through.
     XCTAssertTrue(
       app.staticTexts["Holidays and events"].exists,
       "the holidays and events heading is not exposed to VoiceOver"

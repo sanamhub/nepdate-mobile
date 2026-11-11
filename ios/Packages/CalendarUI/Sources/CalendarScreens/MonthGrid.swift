@@ -253,6 +253,11 @@ struct MonthDayList: View {
         .padding(.top, 8)
         .padding(.bottom, 2)
         .accessibilityAddTraits(.isHeader)
+        // The heading is text: nothing inside it is a control and its 144 by 18 point frame is not
+        // a tap target. Saying so keeps the hit region audit off it, which otherwise reports it as
+        // too small to interact with (runs 42966820203, 42995574157 and 43009488402). The header
+        // trait above stays, so VoiceOver still reads it as a heading.
+        .accessibilityRespondsToUserInteraction(false)
 
       ForEach(cells, id: \.date) { cell in
         if let date = cell.date {
