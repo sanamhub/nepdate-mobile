@@ -5,32 +5,32 @@ import XCTest
 /// The month bar on a month away from today, which has four buttons to place: Settings from the
 /// shell, Previous month, Today and Next month.
 ///
-/// The bar cannot hold all four. With an inline title the title sits against the leading edge and
-/// the trailing cluster gets the rest of the bar: on the 402-point iPhone 17 it starts at about
-/// 230 points for the current month, so it has about 152 points, which is what Settings, Previous
-/// month and Next month need. A leading button moves the title to about 137 points, because the
-/// title follows the leading item, and the cluster is then left with about 143 points. That is
-/// short by about 9, so the system moves Next month and Today into the bar's More menu and Next
-/// month takes two taps (measured on 2026-11-11, run 42944867382).
+/// At the default text size all four are in the bar and Next month is one tap. At accessibility2
+/// the system no longer fits them: it keeps Settings and Previous month and moves Today and Next
+/// month into the bar's More menu, so Next month takes two taps at that size (measured on the
+/// iPhone 17, run 42947768870).
 ///
-/// The test records that behaviour so a change to it is noticed, and prints the buttons the bar
-/// holds. The screenshots of the bar, on today's month and on a month away, at the default text
-/// size and at accessibility2, are attached to the test run for the design review.
+/// The screenshots of the bar, on today's month and on a month away, at both text sizes, are
+/// attached to the test run for the design review.
 final class MonthToolbarTests: XCTestCase {
   private static let todayTitle = "Asoj 2083"
 
-  /// A month at each end of the range, both away from today.
-  private static let awayMonths = [(year: 2199, month: 11), (year: 1901, month: 2)]
+  /// A month at each end of the range and one in the middle, all away from today. The end of the
+  /// range has no next month to open.
+  private static let awayMonths = [
+    (year: 2199, month: 12, hasNext: false),
+    (year: 2199, month: 11, hasNext: true),
+    (year: 1901, month: 2, hasNext: true),
+  ]
 
   /// `UICTContentSizeCategoryAccessibilityL` is Dynamic Type's accessibility2.
   private static let accessibility2 = [
     "-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryAccessibilityL",
   ]
 
-  /// What the bar does with four buttons: Previous month stays in it, and the More menu holds
-  /// Today and Next month.
+  /// Every button of a month away from today is in the bar, and Next month is one tap.
   @MainActor
-  func testBarMovesTodayAndNextMonthIntoTheMoreMenu() throws {
+  func testBarKeepsEveryButtonAwayFromToday() throws {
     for month in Self.awayMonths {
       let key = try XCTUnwrap(MonthKey(year: month.year, month: month.month))
       let title = Self.title(of: key)
@@ -38,44 +38,77 @@ final class MonthToolbarTests: XCTestCase {
       let bar = app.navigationBars[title]
       XCTAssertTrue(bar.waitForExistence(timeout: 10), "the bar does not name \(title)")
 
-      let previous = bar.buttons["Previous month"]
-      XCTAssertTrue(
-        previous.waitForExistence(timeout: 5),
-        "Previous month is missing from the bar of \(title): \(Self.labels(of: bar))"
-      )
-      XCTAssertTrue(previous.isHittable, "Previous month is not hittable in the bar of \(title)")
-
-      // Both work when they are in the bar; when either appears, this test needs rewriting.
-      XCTAssertFalse(
-        bar.buttons["Next month"].exists,
-        "Next month is in the bar of \(title) now: \(Self.labels(of: bar))"
-      )
-      XCTAssertFalse(
-        bar.buttons["Today"].exists,
-        "Today is in the bar of \(title) now: \(Self.labels(of: bar))"
-      )
-
-      // Next month is two taps: the More menu, then the item.
-      let more = bar.buttons["More"]
-      XCTAssertTrue(
-        more.waitForExistence(timeout: 5),
-        "the bar of \(title) has no More menu: \(Self.labels(of: bar))"
-      )
-      more.tap()
-      for label in ["Today", "Next month"] {
+      for label in ["Previous month", "Next month", "Today"] {
+        let button = bar.buttons[label]
         XCTAssertTrue(
-          app.buttons[label].waitForExistence(timeout: 5),
-          "the More menu of \(title) does not list \(label)"
+          button.waitForExistence(timeout: 5),
+          "\(label) is missing from the bar of \(title): \(Self.labels(of: bar))"
+        )
+        XCTAssertTrue(button.isHittable, "\(label) is not hittable in the bar of \(title)")
+      }
+      XCTAssertEqual(
+        bar.buttons["Next month"].isEnabled,
+        month.hasNext,
+        "Next month is enabled wrongly in the bar of \(title)"
+      )
+      XCTAssertFalse(
+        bar.buttons["More"].exists,
+        "the bar of \(title) moved a button into a More menu: \(Self.labels(of: bar))"
+      )
+
+      if month.hasNext {
+        let next = try XCTUnwrap(MonthKey(id: key.id + 1))
+        bar.buttons["Next month"].tap()
+        XCTAssertTrue(
+          app.navigationBars[Self.title(of: next)].waitForExistence(timeout: 10),
+          "one tap on Next month did not open \(Self.title(of: next))"
         )
       }
 
-      let next = try XCTUnwrap(MonthKey(id: key.id + 1))
-      app.buttons["Next month"].tap()
+      let today = app.navigationBars.buttons["Today"]
       XCTAssertTrue(
-        app.navigationBars[Self.title(of: next)].waitForExistence(timeout: 10),
-        "Next month from the More menu did not open \(Self.title(of: next))"
+        today.waitForExistence(timeout: 5),
+        "Today left the bar of \(title) after paging"
+      )
+      today.tap()
+      XCTAssertTrue(
+        app.navigationBars[Self.todayTitle].waitForExistence(timeout: 10),
+        "Today did not return to \(Self.todayTitle)"
       )
       app.terminate()
+    }
+  }
+
+  /// At accessibility2 the bar holds Settings and Previous month, and Today and Next month move
+  /// into the More menu.
+  @MainActor
+  func testBarCollapsesTheTodayButtonAtAccessibility2() throws {
+    let key = try XCTUnwrap(MonthKey(year: 2199, month: 11))
+    let title = Self.title(of: key)
+    let app = Self.launch(arguments: Self.accessibility2, month: key.description)
+    let bar = app.navigationBars[title]
+    XCTAssertTrue(bar.waitForExistence(timeout: 10), "the bar does not name \(title)")
+
+    XCTAssertTrue(
+      bar.buttons["Previous month"].waitForExistence(timeout: 5),
+      "Previous month is missing from the bar of \(title): \(Self.labels(of: bar))"
+    )
+    XCTAssertFalse(
+      bar.buttons["Next month"].exists,
+      "Next month is in the bar of \(title) now: \(Self.labels(of: bar))"
+    )
+
+    let more = bar.buttons["More"]
+    XCTAssertTrue(
+      more.waitForExistence(timeout: 5),
+      "the bar of \(title) has no More menu: \(Self.labels(of: bar))"
+    )
+    more.tap()
+    for label in ["Today", "Next month"] {
+      XCTAssertTrue(
+        app.buttons[label].waitForExistence(timeout: 5),
+        "the More menu of \(title) does not list \(label)"
+      )
     }
   }
 
