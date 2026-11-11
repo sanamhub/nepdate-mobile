@@ -6,7 +6,7 @@ import UIKit
 
 /// The Patro tab (MR-01, MR-14, MR-22, MR-23): a pager of month pages with the today card, the
 /// grid and the month's holidays and events, a title menu for today and the year view, and the
-/// previous and next buttons beside Today on the leading side.
+/// previous, today and next buttons.
 public struct MonthScreen: View {
   @State private var model: MonthViewModel
   @State private var scrolledMonth: MonthKey?
@@ -83,25 +83,19 @@ public struct MonthScreen: View {
       }
     }
     .toolbar {
-      // The bar's leading side is empty with an inline title, so Today sits there and the paging
-      // pair stays together on the trailing side, beside the shell's Settings button. All four
-      // buttons in one group did not fit: iOS moved Today and Next month into a More menu, so
-      // Next month took two taps on every month but the current one.
-      ToolbarItemGroup(placement: .topBarLeading) {
-        if model.showsTodayButton {
-          Button(action: { go(to: todayMonth) }) {
-            Text("Today")
-          }
-          .accessibilityLabel(Text("Today"))
-        }
-      }
-
       ToolbarItemGroup(placement: .topBarTrailing) {
         Button(action: { go(to: previousMonth) }) {
           Image(systemName: "chevron.left")
         }
         .disabled(!model.canGoPrevious)
         .accessibilityLabel(Text("Previous month"))
+
+        if model.showsTodayButton {
+          Button(action: { go(to: todayMonth) }) {
+            Text("Today")
+          }
+          .accessibilityLabel(Text("Today"))
+        }
 
         Button(action: { go(to: nextMonth) }) {
           Image(systemName: "chevron.right")
