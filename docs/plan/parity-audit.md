@@ -30,8 +30,8 @@ surface does not exist on that platform; **gate** means a CI script.
 | MR-19 Haptics | manual | manual | `Haptics.kt`; `Haptics.swift` | haptic feel is a device row |
 | MR-20 Day sheet navigation and share | code only | tested | `DayDetail.kt`, `DayActions.kt`; `DayDetailUITests.testNextAndPreviousDayStayInTheSheet`, `DayDetailViewModelTests.shareText` | Android next/previous and share have no test |
 | MR-21 Converter between dates | tested | tested | `ConverterTest.secondDateGivesYearsMonthsAndDays`; `ConverterViewModelTests.comparison` | none |
-| MR-22 Today card | code only | partial | `TodayHero.kt`; `MonthAccessibilityTests.testTodayCardOpensTheDaySheet` | chips and hide rules have no test on either platform |
-| MR-23 Holidays and events under the grid | code only | code only | `MonthHighlights.kt`; `MonthViewModel.daysWithHolidayOrEvent` | rows and hide rules have no test on either platform |
+| MR-22 Today card | code only | partial | `TodayHero.kt`; `MonthViewModelTests.todayCard`, `MonthAccessibilityTests.testTodayCardOpensTheDaySheet` | chips and hide rules have no test on either platform |
+| MR-23 Holidays and events under the grid | code only | code only | `MonthHighlights.kt`; `MonthViewModelTests.highlightDays` | rows and hide rules have no test on either platform |
 | W-01 Today | tested | tested | `WidgetModelTest.w01NormalDayHasTheExpectedStrings`; `WidgetTimelineTests.holidayAndNormalDay` | iOS AD face has no test |
 | W-02 Today and upcoming | tested | tested | `WidgetModelTest.w02ListsTheNextDaysAfterTodayAndUsesTheCoverageFooterAtTheEnd`; `WidgetTimelineTests.entryContent` | none |
 | W-03 Month | tested | tested | `WidgetContentTest.w03NavigationCallbacksCarryTheAdjacentMonths`; `MonthWidgetTests.MonthWidgetIntentTests.previousNextToday` | `systemExtraLargePortrait` is not implemented; see the note below |
@@ -40,8 +40,8 @@ surface does not exist on that platform; **gate** means a CI script.
 | W-06 Festival countdown | tested | tested | `WidgetControlsTest.nextFestivalStartsAtTheNearestDayAndStopsAtBothEnds`; `FestivalWindowNavigationTests`, `FestivalWindowTests`, `FestivalGaugeTests` | none after the twelve-day window fix and the gauge |
 | W-07 Festivals list | tested | code only | `WidgetControlsTest.theListShowsEventsAndHolidaysByDefaultAndTheFilterKeepsOnlyHolidays`; `FestivalsListProvider` | iOS holidays-only has no test |
 | W-08 Date chip | tested | tested | `NewWidgetsTest.theDateChipShowsTheMonthAndOpensTheApp`; `LockScreenWidgetModelTests.content` | none |
-| W-09 Date and tithi | tested | partial | `WidgetContentTest.theDateStripShowsTheWeekdayDateAndTithiInEnglishDigits`; `LockScreenWidgetModelTests.content` | iOS rectangular tithi has no test |
-| W-10 This week | tested | code only | `NewWidgetsTest.theWeekRunsSundayToSaturdayAroundToday`; `WidgetWeekBuilder` | iOS week builder has no test |
+| W-09 Date and tithi | tested | partial | `WidgetContentTest.theDateStripShowsTheWeekdayDateAndTithiInEnglishDigits`; `LockScreenWidgetModelTests.rectangularTithi` | iOS rectangular tithi has no test |
+| W-10 This week | tested | code only | `NewWidgetsTest.theWeekRunsSundayToSaturdayAroundToday`; `WidgetWeekTests.week`, `agenda` | iOS week builder has no test |
 | W-11 Date text | code only | tested | `TextDateWidget.kt`; `LockScreenWidgetModelTests.content` | Android one-line face has no test |
 | Android Glance: W-03 previous, next, today, day link | tested | n/a | `WidgetContentTest.w03NavigationCallbacksCarryTheAdjacentMonths`, `w03TodayCallbackRestoresTheCurrentMonth`, `w03DayTapCarriesTheDeepLinkExtra` | none |
 | Android Glance: W-06 previous and next | tested | n/a | `WidgetControlsTest.theFestivalArrowsCarryTheIndexToShow` | none |

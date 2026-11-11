@@ -132,6 +132,30 @@ struct MonthViewModelTests {
     )
   }
 
+  @Test("MR-22: the today card is only on today's month and has the next holiday")
+  func todayCard() throws {
+    let model = try Self.model()
+    #expect(model.showsTodayCard)
+    #expect(model.todayCell?.bsDay == 20)
+    let next = try #require(model.nextHoliday)
+    #expect(next.days > 0)
+
+    let other = try Self.model(month: MonthKey(year: 2083, month: 7))
+    #expect(!other.showsTodayCard)
+    #expect(other.todayCell == nil)
+  }
+
+  @Test("MR-23: the under-grid rows are the month's holiday and event days in date order")
+  func highlightDays() throws {
+    let model = try Self.model()
+    let days = model.daysWithHolidayOrEvent
+    let dates = days.compactMap(\.date)
+
+    #expect(!days.isEmpty)
+    #expect(days.allSatisfy { $0.isHoliday || $0.hasEvents })
+    #expect(dates == dates.sorted())
+  }
+
   @Test("MR-10 AC1: Asoj 25 2083 has the requirement's label")
   func asoj25Label() throws {
     let model = try Self.model()
