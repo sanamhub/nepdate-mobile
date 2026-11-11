@@ -145,7 +145,12 @@ struct StoreScreenshotTests {
     format.scale = Self.scale
     format.opaque = true
     let image = UIGraphicsImageRenderer(size: Self.size, format: format).image { context in
-      controller.view.layer.render(in: context.cgContext)
+      if !controller.view.drawHierarchy(
+        in: controller.view.bounds,
+        afterScreenUpdates: true
+      ) {
+        controller.view.layer.render(in: context.cgContext)
+      }
     }
     window.isHidden = true
     guard let data = image.pngData() else {
