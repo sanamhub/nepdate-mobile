@@ -34,8 +34,9 @@ struct WidgetWeekTests {
     )
     let next = try #require(week.nextEvent)
 
-    #expect(next.date == MonthDate(year: 2083, month: 6, day: 25))
-    #expect(next.daysFromToday == 5)
-    #expect(next.isHoliday)
+    #expect(next.date == MonthDate(year: 2083, month: 6, day: 21))
+    #expect(next.daysFromToday == 1)
+    #expect(!next.isHoliday)
+    #expect(next.name == "Dwadashi Shraddha")
   }
 }
