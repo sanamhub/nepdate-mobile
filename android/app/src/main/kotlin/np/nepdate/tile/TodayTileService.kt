@@ -1,5 +1,6 @@
 package np.nepdate.tile
 
+import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.Intent
 import android.graphics.drawable.Icon
@@ -64,14 +65,17 @@ class TodayTileService : TileService() {
             qsTile?.apply {
                 state = Tile.STATE_INACTIVE
                 label = getString(R.string.tile_label)
-                subtitle = text.subtitle
-                contentDescription = text.title
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    subtitle = text.subtitle
+                    contentDescription = text.title
+                }
                 icon = Icon.createWithResource(this@TodayTileService, R.drawable.ic_sym_calendar_month)
                 updateTile()
             }
         }
     }
 
+    @SuppressLint("StartActivityAndCollapseDeprecated")
     override fun onClick() {
         super.onClick()
         val intent =
