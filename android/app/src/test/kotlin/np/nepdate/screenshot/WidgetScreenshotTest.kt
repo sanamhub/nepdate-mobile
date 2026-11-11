@@ -41,7 +41,7 @@ import java.util.Locale
 /**
  * Renders the Glance RemoteViews through a real Android view tree, the same way the launcher
  * inflates them. The matrix covers W-01 and W-02 at their three sizes, W-03 at its three sizes,
- * both dates and all three opacities in light, dark and Nepali (A2-02, A2-03).
+ * both dates and all three opacities in light, dark and Nepali.
  */
 @RunWith(AndroidJUnit4::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)

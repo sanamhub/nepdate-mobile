@@ -43,10 +43,7 @@ struct MonthLayoutTests {
     return months
   }()
 
-  @Test(
-    "I1-02: known months have 35 or 42 cells, Sunday first",
-    arguments: MonthLayoutTests.knownMonths
-  )
+  @Test("known months have 35 or 42 cells, Sunday first", arguments: MonthLayoutTests.knownMonths)
   func knownMonth(_ month: KnownMonth) throws {
     let layout = try #require(
       MonthLayout(year: month.year, month: month.month, showTithi: false, today: Self.today)
@@ -65,7 +62,7 @@ struct MonthLayoutTests {
     }
   }
 
-  @Test("I1-02: Asoj 2083 marks its holidays, Saturdays, today and events")
+  @Test("Asoj 2083 marks its holidays, Saturdays, today and events")
   func asoj2083() throws {
     let layout = try #require(
       MonthLayout(year: 2083, month: 6, showTithi: false, today: Self.today)
@@ -79,7 +76,7 @@ struct MonthLayoutTests {
     #expect(layout.cells.first { $0.bsDay == 20 }?.isInMonth == true)
   }
 
-  @Test("I1-02: Baisakh 2084 day 1 has a holiday, events and no tithi")
+  @Test("Baisakh 2084 day 1 has a holiday, events and no tithi")
   func baisakh2084() throws {
     let layout = try #require(MonthLayout(year: 2084, month: 1, showTithi: true, today: Self.today))
     let dayOne = try #require(layout.cells.first { $0.isInMonth })
@@ -90,7 +87,7 @@ struct MonthLayoutTests {
     #expect(dayOne.tithi == nil)
   }
 
-  @Test("I1-02: the tithi line follows the setting")
+  @Test("the tithi line follows the setting")
   func tithi() throws {
     let off = try #require(MonthLayout(year: 2083, month: 6, showTithi: false, today: Self.today))
     let on = try #require(MonthLayout(year: 2083, month: 6, showTithi: true, today: Self.today))
@@ -109,7 +106,7 @@ struct MonthLayoutTests {
   }
 
   @Test(
-    "I1-02: every month in the patro coverage matches the library",
+    "every month in the patro coverage matches the library",
     arguments: MonthLayoutTests.coverageMonths
   )
   func coverageMonth(_ start: MonthDate) throws {
@@ -159,7 +156,7 @@ struct MonthLayoutTests {
     }
   }
 
-  @Test("I1-02: the edges of the library range leave blank cells")
+  @Test("the edges of the library range leave blank cells")
   func edges() throws {
     let first = try #require(
       MonthLayout(year: 1901, month: 1, showTithi: false, today: Self.today)
@@ -174,13 +171,13 @@ struct MonthLayoutTests {
     #expect(last.cells.contains { $0.date == nil && !$0.isInMonth })
   }
 
-  @Test("I1-02: a month outside the library's range is refused")
+  @Test("a month outside the library's range is refused")
   func outOfRange() {
     #expect(MonthLayout(year: 2083, month: 13, showTithi: false, today: Self.today) == nil)
     #expect(MonthLayout(year: 1800, month: 1, showTithi: false, today: Self.today) == nil)
   }
 
-  @Test("I1-01: BS and AD numbers use the resolved digits")
+  @Test("BS and AD numbers use the resolved digits")
   func digits() throws {
     let layout = try #require(
       MonthLayout(year: 2083, month: 6, showTithi: false, today: Self.today)
@@ -193,7 +190,7 @@ struct MonthLayoutTests {
     #expect(first.adNumber(.english) == "17")
   }
 
-  @Test("I1-02: the title and weekday row follow the language")
+  @Test("the title and weekday row follow the language")
   func language() throws {
     let nepali = try #require(
       MonthLayout(year: 2083, month: 6, showTithi: false, today: Self.today)
@@ -208,7 +205,7 @@ struct MonthLayoutTests {
     #expect(MonthLayout.weekdayNames(.english).first == "Sun")
   }
 
-  @Test("I1-02: a named text keeps both languages")
+  @Test("a named text keeps both languages")
   func namedText() throws {
     let layout = try #require(MonthLayout(year: 2083, month: 6, showTithi: true, today: Self.today))
     let event = try #require(layout.cells.first { $0.hasEvents }?.events.first)

@@ -58,7 +58,7 @@ no iOS Simulator, no SwiftUI preview, no Instruments and no Console on Windows.
   preview.
 - Development-certificate builds (running a debug build on the iPhone by cable) are not possible;
   every on-device build is a TestFlight build in the release configuration. Debug-only screens from
-  the design spike (M0-05) compile only when `ios-beta.yml` sets the `DESIGN_SPIKE` compilation
+  the design spike compile only when `ios-beta.yml` sets the `DESIGN_SPIKE` compilation
   condition; `ios-release.yml` never sets it.
 - Xcode Cloud is not used: setting it up needs Xcode.
 

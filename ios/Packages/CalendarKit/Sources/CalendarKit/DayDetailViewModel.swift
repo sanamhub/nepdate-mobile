@@ -19,7 +19,7 @@ public enum RelativeDay: Sendable, Hashable {
   case daysAgo(Int)
 }
 
-/// The day detail sheet's text (MR-02, A1-04).
+/// The day detail sheet's text (MR-02).
 ///
 /// The date, weekday, tithi, holiday flag and events are computed here so the sheet only draws
 /// values and the strings are tested without a simulator. The patro data covers BS 2077-01-01 to

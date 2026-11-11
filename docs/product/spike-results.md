@@ -1,7 +1,7 @@
 # Design spike results
 
 Status: Android screenshots recorded, **not verified on a device**. The human check on an A15-class
-phone and a low-end phone is open. iOS is not started (M0-03).
+phone and a low-end phone is open. iOS is not started.
 
 ## How to reproduce
 
@@ -118,4 +118,4 @@ The holiday cell in the colour shots carries the H1 mark: the holiday colour and
 - A15-class and low-end device check for broken conjuncts, clipped vowel signs and the Android 16
   `elegantTextHeight` change.
 - Dynamic colour with a real wallpaper on Android 12+.
-- iOS screenshots and device check (M0-03, the Swift agent).
+- iOS screenshots and device check (the Swift agent).

@@ -79,7 +79,7 @@ private final class ReloadCounter: @unchecked Sendable {
   nonisolated(unsafe) var count = 0
 }
 
-/// I2-05: when the app asks WidgetKit to reload.
+/// When the app asks WidgetKit to reload.
 @Suite("Widget refresh")
 struct WidgetRefreshTests {
   private static func suiteName() -> String {

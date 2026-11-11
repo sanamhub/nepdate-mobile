@@ -23,7 +23,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 
-/** A1-06 and MR-06, MR-07, MR-12 in the Settings screen. */
+/** MR-06, MR-07 and MR-12 in the Settings screen. */
 @RunWith(AndroidJUnit4::class)
 @Config(qualifiers = "w360dp-h800dp-xhdpi")
 class SettingsScreenTest {

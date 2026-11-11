@@ -5,7 +5,7 @@ import SwiftUI
 import Testing
 import UIKit
 
-/// I1-03: the reference images of Asoj 2083 with today = Asoj 20 (MR-01 AC1–AC4, AC7, AC8 and
+/// The reference images of Asoj 2083 with today = Asoj 20 (MR-01 AC1–AC4, AC7, AC8 and
 /// MR-10 AC2). The PNGs live in `__Snapshots__/MonthSnapshotTests` and are committed; the test gate
 /// compares them with `SNAPSHOT_TESTING_RECORD=never`.
 @MainActor
@@ -14,7 +14,7 @@ struct MonthSnapshotTests {
   private static let today = MonthDate(year: 2083, month: 6, day: 20)
   private static let size = CGSize(width: 390, height: 844)
 
-  @Test("I1-03: Asoj 2083 reference images")
+  @Test("Asoj 2083 reference images")
   func asoj2083() throws {
     var light = try Self.model()
     light.select(MonthDate(year: 2083, month: 6, day: 25))

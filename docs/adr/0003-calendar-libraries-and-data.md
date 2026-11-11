@@ -20,7 +20,7 @@
    library patch release, then an app patch release, through normal store auto-updates.
 4. **Freshness gate:** each app's release preflight fails when the bundled public-holiday data ends
    less than 183 days after the release date, the same rule as the hub's `tools/data_status.py`
-   (hub task H1-02). Tithi or events ending within 183 days is a warning printed by the preflight
+   (hub task). Tithi or events ending within 183 days is a warning printed by the preflight
    and copied into the release PR, not a failure: tithi ends on BS 2083-12-30 (AD 2027-04-13) with
    today's data, and blocking every release from 2026-10-12 would help nobody. After the data ends,
    the app shows "no data" (MR-02), never a wrong value. The hub's weekly sync warns months ahead.

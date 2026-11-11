@@ -2,7 +2,7 @@ import Foundation
 import NepDate
 
 /// Turns an injected clock into today's Bikram Sambat date in the zone the settings choose
-/// (MR-06, I1-01).
+/// (MR-06).
 public struct TodayProvider: Sendable {
   private let now: @Sendable () -> Date
   private let deviceZone: TimeZone

@@ -3,7 +3,7 @@ package np.nepdate.ui.month
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
-/** A1-03 and MR-01 AC6: the pager covers BS 1901-01 to 2199-12 without gaps. */
+/** MR-01 AC6: the pager covers BS 1901-01 to 2199-12 without gaps. */
 class MonthPagingTest {
     @Test
     fun firstAndLastPageAreThePickerRange() {

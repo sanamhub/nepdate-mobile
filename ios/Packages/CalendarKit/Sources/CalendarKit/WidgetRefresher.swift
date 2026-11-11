@@ -1,6 +1,6 @@
 import Foundation
 
-/// Decides when the app asks WidgetKit to reload the widgets (I2-05).
+/// Decides when the app asks WidgetKit to reload the widgets.
 ///
 /// The reload call is injected, so a test counts the calls and the app passes
 /// `WidgetCenter.shared.reloadAllTimelines`. The last day the app was active is kept in the App

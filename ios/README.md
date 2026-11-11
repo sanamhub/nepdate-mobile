@@ -12,7 +12,7 @@ The iPhone and iPad app and the widget extension. The Xcode project is generated
 | `Packages/CalendarKit` | Local SwiftPM package: dates, month layout, widget summaries, settings (I1) |
 | `Packages/CalendarUI` | Local SwiftPM package: product `CalendarUI` (views, brand marks and the brand asset catalogue shared by app and widget) and product `CalendarScreens` (the app-only first run, month, day, Upcoming, Converter, Settings and About screens and their view models) |
 | `NepDateTests/` | Swift Testing tests and the committed snapshot references; renders the screenshot artefact |
-| `NepDateUITests/` | XCUITests: opening on today, the picker at both range ends, the pager recentre, the month, day and I1-05 accessibility audits, the shell, Copy date, diagnostic copy and the widget routing (`WidgetRoutingUITests`) |
+| `NepDateUITests/` | XCUITests: opening on today, the picker at both range ends, the pager recentre, the month, day detail and remaining screens' accessibility audits, the shell, Copy date, diagnostic copy and the widget routing (`WidgetRoutingUITests`) |
 | `Resources/` | The app's asset catalogue (`AppIcon`, `AccentColor`) and `Localizable.xcstrings` (English and Nepali) |
 | `NepDateWidgets/Resources/` | The widget extension's own asset catalogue (`AccentColor`); it no longer ships the app icons or the brand sets |
 | `Config/` | Info.plists and the App Group entitlements for both targets |
@@ -68,7 +68,7 @@ that product always compiles its SwiftUI file, so no product leaves SwiftUI out.
 UIKit `.image` strategy on a `UIHostingController`, which is the renderer the SwiftUI overload uses
 too. Run 39111474141 linked the package and recorded an image. It showed no `SwiftUICore` or
 `UIUtilities` link warnings. The failure in run 39102808714 was undefined `NepDatePatro` symbols
-from the test bundle, fixed in I1-01 by linking the library products directly.
+from the test bundle, fixed by linking the library products directly.
 
 The XCUITests in `NepDateUITests` run inside gate 4, so the gate count is unchanged. Debug builds
 read `NEPDATE_UI_TEST_TODAY` (for example `2083-06-20`) to pin today, so every UI test sees Asoj
@@ -120,11 +120,11 @@ Control on a device, and the list at the largest text size, are still manual che
 (MR-10 AC4); there is no device in this repository's CI.
 
 The month screen and the day sheet are in the `CalendarScreens` product, which only the app links;
-the month view model and the month keys moved there in I1-04 as well. Their types are app-only, and
-keeping them out of `CalendarKit` stops the widget extension carrying them. The widget executable
-was 640,528 bytes after the I1-03 split, grew to 649,072 bytes when `DayDetailViewModel` joined
-`CalendarKit`, and is 615,384 bytes with the month view model and keys moved out (Release build
-sizes from `ci.sh`, runs 39143033588, 39188791325 and 39190060914).
+the month view model and the month keys moved there with the day sheet as well. Their types are
+app-only, and keeping them out of `CalendarKit` stops the widget extension carrying them. The widget
+executable was 640,528 bytes after the month screen split, grew to 649,072 bytes when
+`DayDetailViewModel` joined `CalendarKit`, and is 615,384 bytes with the month view model and keys
+moved out (Release build sizes from `ci.sh`, runs 39143033588, 39188791325 and 39190060914).
 
 The day sheet opens from a grid cell or a list row with medium and large detents. It shows the BS
 long date, the Devanagari line in English, the weekday and AD date, the tithi, Public holiday and
@@ -144,14 +144,14 @@ render time, so changing the language changes the digits without writing the set
 The App Group is `group.np.nepdate`; the bundle identifier is `np.nepdate` for the app and
 `np.nepdate.widgets` for the extension.
 
-## I1-05 screens
+## Upcoming, Converter, Settings and About
 
 Upcoming, Converter, Settings and About live in `CalendarScreens`, with the Upcoming and Converter
 view models. Settings opens from the gear in the Month, Upcoming and Converter headers. About is a
 row inside the Settings `NavigationStack`. The Language row opens
 `UIApplication.openSettingsURLString`; the app does not implement a second in-app language picker.
 
-Upcoming uses the same 20 entries, BS-month groups, holiday marks and coverage footer as A1-05.
+Upcoming uses the same 20 entries, BS-month groups, holiday marks and coverage footer as Android.
 Converter uses the library's lenient BS parser, a platform AD `DatePicker`, the comparison breakdown
 and the invalid-day message. Settings persists Language, Digits, Date follows and Show tithi through
 `SettingsStore`; the first-launch Nepal time suggestion is shown once when the device zone differs.

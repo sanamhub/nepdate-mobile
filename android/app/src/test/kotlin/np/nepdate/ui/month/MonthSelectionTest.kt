@@ -15,7 +15,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 
-/** A1-03 and MR-01 AC4: the selected day is exposed as selected. */
+/** MR-01 AC4: the selected day is exposed as selected. */
 @RunWith(AndroidJUnit4::class)
 @Config(qualifiers = "w360dp-h800dp-xhdpi")
 class MonthSelectionTest {

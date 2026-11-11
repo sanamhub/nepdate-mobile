@@ -32,7 +32,7 @@ add: layout of the month, view models, settings, scheduling, widgets, accessibil
 4. Network check: no `URLSession`/`Network` symbols in the release build.
 5. Size of the archived `.app` logged on every run as a regression signal, and an XCTest memory
    metric for the widget timeline provider. The MR-09 AC3 and AC4 numbers are measured on the
-   TestFlight build (I1-06, I2-05), because the simulator and the archive don't give thinned size
+   TestFlight build, because the simulator and the archive don't give thinned size
    or extension memory.
 
 **Both:** coverage ≥ 80 % for view models and scheduling code (org target): Android packages

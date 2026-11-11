@@ -7,7 +7,7 @@ import org.junit.Assert.assertNull
 import org.junit.Test
 import java.time.LocalDate
 
-/** A1-05 and MR-04 AC1 to AC4. */
+/** MR-04 AC1 to AC4. */
 class ConverterTest {
     private val today = NepaliDate.of(2083, 6, 20)
 

@@ -15,7 +15,7 @@ import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 
-/** A1-05 Upcoming screenshots. A human still checks the PNGs and the device. */
+/** Upcoming screenshots. A human still checks the PNGs and the device. */
 @RunWith(AndroidJUnit4::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @Config(qualifiers = "w360dp-h800dp-xhdpi")

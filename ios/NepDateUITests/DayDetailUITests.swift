@@ -1,6 +1,6 @@
 import XCTest
 
-/// I1-04 and MR-02: the day sheet opens from a day cell, speaks its fields, copies the date and
+/// MR-02: the day sheet opens from a day cell, speaks its fields, copies the date and
 /// passes the system accessibility audit with only the findings listed below.
 final class DayDetailUITests: XCTestCase {
   /// The audit categories, one per call, as in the month screen's audit.

@@ -9,7 +9,7 @@ import java.time.ZoneId
 import java.time.ZonedDateTime
 
 /**
- * Turns the injected [clock] into today's BS date in the zone the settings choose (MR-06, A1-01).
+ * Turns the injected [clock] into today's BS date in the zone the settings choose (MR-06).
  *
  * The device zone can be injected for a test. When it is null, the zone is read on every call, so a
  * time-zone change is seen without rebuilding the provider.

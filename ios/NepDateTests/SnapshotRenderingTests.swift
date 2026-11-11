@@ -12,7 +12,7 @@ import WidgetKit
 @MainActor
 @Suite("Screenshots", .serialized)
 struct SnapshotRenderingTests {
-  @Test("I1-03: the month screen renders in English and Nepali, light and dark")
+  @Test("the month screen renders in English and Nepali, light and dark")
   func monthScreen() throws {
     let today = MonthDate(year: 2083, month: 6, day: 20)
     let english = try #require(

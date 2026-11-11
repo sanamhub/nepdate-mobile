@@ -12,7 +12,7 @@ import java.time.LocalDate
 import java.time.ZoneId
 
 /**
- * A1-04 and MR-02 AC2 on a device: the exact extras the day sheet sends to the calendar editor.
+ * MR-02 AC2 on a device: the exact extras the day sheet sends to the calendar editor.
  * ADR-0008 runs instrumented tests on the nightly managed devices, not on every pull request.
  */
 @RunWith(AndroidJUnit4::class)

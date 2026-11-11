@@ -29,7 +29,7 @@ internal class MidnightScheduler(
     }
 
     companion object {
-        /** The inexact window from A2-01 and ADR-0006. */
+        /** The inexact window from ADR-0006. */
         const val WINDOW_MILLIS: Long = 10 * 60 * 1000L
     }
 }

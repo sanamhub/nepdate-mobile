@@ -1,6 +1,6 @@
 import XCTest
 
-/// I2-05: a widget or control URL opens the right place in the app.
+/// A widget or control URL opens the right place in the app.
 final class WidgetRoutingUITests: XCTestCase {
   @MainActor
   func testDayAndConverter() throws {

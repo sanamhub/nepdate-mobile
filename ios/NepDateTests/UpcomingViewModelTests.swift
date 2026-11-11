@@ -2,7 +2,7 @@ import CalendarKit
 import CalendarScreens
 import Testing
 
-/// MR-03: the Upcoming view model, same cases as A1-05.
+/// MR-03: the Upcoming view model, the same cases as the Android Upcoming tests.
 @Suite("Upcoming view model")
 struct UpcomingViewModelTests {
   private static func model(

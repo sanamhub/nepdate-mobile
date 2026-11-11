@@ -19,7 +19,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 
-/** A2-05: logs the 5x5 W-03 RemoteViews parcel size; the number is recorded in docs/benchmarks.md. */
+/** Logs the 5x5 W-03 RemoteViews parcel size; the number is recorded in docs/benchmarks.md. */
 @RunWith(AndroidJUnit4::class)
 @Config(qualifiers = "w360dp-h800dp-xhdpi")
 class WidgetParcelSizeTest {

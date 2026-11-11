@@ -12,7 +12,7 @@ struct SettingsStoreTests {
     UserDefaults(suiteName: store.suiteName)?.removePersistentDomain(forName: store.suiteName)
   }
 
-  @Test("I1-01: a fresh store reads the defaults")
+  @Test("a fresh store reads the defaults")
   func freshStore() {
     let store = Self.makeStore()
     defer { Self.remove(store) }
@@ -29,7 +29,7 @@ struct SettingsStoreTests {
     #expect(settings.hapticsEnabled)
   }
 
-  @Test("I1-01: every setting round-trips")
+  @Test("every setting round-trips")
   func roundTrip() {
     let store = Self.makeStore()
     defer { Self.remove(store) }
@@ -63,7 +63,7 @@ struct SettingsStoreTests {
     #expect(OpensOn.converter.tab == .converter)
   }
 
-  @Test("I1-01: unknown stored values fall back to the defaults")
+  @Test("unknown stored values fall back to the defaults")
   func unknownValues() throws {
     let store = Self.makeStore()
     defer { Self.remove(store) }
@@ -78,13 +78,13 @@ struct SettingsStoreTests {
     #expect(settings.digits == .followLanguage)
   }
 
-  @Test("I1-01: the default store is the App Group")
+  @Test("the default store is the App Group")
   func appGroup() {
     #expect(SettingsStore().suiteName == AppGroup.identifier)
     #expect(AppGroup.identifier == "group.np.nepdate")
   }
 
-  @Test("I1-01: the stored language overrides the bundle, System follows it")
+  @Test("the stored language overrides the bundle, System follows it")
   func displayLanguage() {
     #expect(LanguageSetting.english.resolved == .english)
     #expect(LanguageSetting.nepali.resolved == .nepali)
@@ -94,7 +94,7 @@ struct SettingsStoreTests {
     #expect(AppLanguage.preferred(from: []) == .english)
   }
 
-  @Test("I1-01: the app ships Nepali strings")
+  @Test("the app ships Nepali strings")
   func bundleLanguage() {
     #expect(Bundle.main.localizations.contains("ne"))
   }

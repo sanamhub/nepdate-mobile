@@ -70,7 +70,7 @@ import java.time.format.DateTimeFormatter
 
 /**
  * The app shell: the three tabs and the shared today value. The settings screen and the first-launch
- * suggestion arrive in A1-06.
+ * suggestion arrive in the Settings and About screen.
  */
 @Composable
 fun NepdateApp(

@@ -5,15 +5,15 @@ import SwiftUI
 import Testing
 import UIKit
 
-/// I1-04: the reference images of the day detail sheet for Asoj 9 2083, the A1-04 holiday with
-/// scoped events (MR-02 AC1 and AC5). The PNGs live in `__Snapshots__/DayDetailSnapshotTests`.
+/// The reference images of the day detail sheet for Asoj 9 2083, the holiday with scoped events
+/// (MR-02 AC1 and AC5). The PNGs live in `__Snapshots__/DayDetailSnapshotTests`.
 @MainActor
 @Suite("Day detail snapshots", .serialized)
 struct DayDetailSnapshotTests {
   private static let date = MonthDate(year: 2083, month: 6, day: 9)
   private static let size = CGSize(width: 390, height: 844)
 
-  @Test("I1-04: Asoj 9 2083 reference images")
+  @Test("Asoj 9 2083 reference images")
   func asoj9() throws {
     snapshot(try Self.model(), named: "light", scheme: .light, type: .large, locale: "en")
     snapshot(

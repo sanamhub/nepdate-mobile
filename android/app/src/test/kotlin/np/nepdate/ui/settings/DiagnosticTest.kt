@@ -6,7 +6,7 @@ import np.nepdate.data.Settings
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
-/** A1-06 and ADR-0007 §5: the diagnostic text has the app, OS and settings and nothing else. */
+/** ADR-0007 §5: the diagnostic text has the app, OS and settings and nothing else. */
 class DiagnosticTest {
     private val labels =
         DiagnosticLabels(

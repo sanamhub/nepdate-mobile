@@ -1,7 +1,7 @@
 import CalendarKit
 import Testing
 
-/// I1-04: the day detail strings for the three A1-04 dates (MR-02 AC1, AC3, AC4, AC5 and AC6).
+/// The day detail strings for the three day sheet dates (MR-02 AC1, AC3, AC4, AC5 and AC6).
 @Suite("Day detail view model")
 struct DayDetailViewModelTests {
   private static func model(
@@ -167,7 +167,7 @@ struct DayDetailViewModelTests {
     #expect(outside.calendarTitle(publicHoliday: "Public holiday") == "Baisakh 1, 2090")
   }
 
-  @Test("I1-04: a date outside the library's range gives no view model")
+  @Test("a date outside the library's range gives no view model")
   func invalidDate() {
     #expect(
       DayDetailViewModel(

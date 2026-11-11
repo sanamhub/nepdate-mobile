@@ -89,7 +89,7 @@ private struct RootView: View {
 
   let commands: AppCommands
 
-  /// Asks WidgetKit to reload when the settings, the day or the clock change (I2-05).
+  /// Asks WidgetKit to reload when the settings, the day or the clock change.
   private let refresher = WidgetRefresher { WidgetCenter.shared.reloadAllTimelines() }
 
   init(commands: AppCommands) {

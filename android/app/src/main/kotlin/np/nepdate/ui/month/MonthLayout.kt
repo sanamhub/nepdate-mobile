@@ -57,7 +57,7 @@ data class MonthLayout(
 }
 
 /**
- * Lays out one BS month from the library's calendar and patro data (A1-02). No calendar arithmetic
+ * Lays out one BS month from the library's calendar and patro data. No calendar arithmetic
  * happens here: the month length, the weekday and the neighbouring dates all come from [NepaliDate].
  *
  * @param year the BS year, 1901..2199

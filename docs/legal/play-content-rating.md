@@ -26,4 +26,4 @@ certificate. Enter the answers in Play Console and use the certificate IARC retu
 - Holiday and event names come from the bundled calendar data. They are not user-generated.
 - The app opens external links in the system browser. It has no embedded web view.
 - The app does not collect analytics, crash reports or advertising identifiers.
-- A3-04 is the human gate for submitting the questionnaire and publishing the listing.
+- Submitting the questionnaire and publishing the listing is a human gate.

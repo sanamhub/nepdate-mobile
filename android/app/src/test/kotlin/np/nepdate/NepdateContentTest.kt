@@ -14,7 +14,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 
-/** A1-05: the three design-system tabs open their screens. */
+/** The three design-system tabs open their screens. */
 @RunWith(AndroidJUnit4::class)
 @Config(qualifiers = "w360dp-h640dp-xhdpi")
 class NepdateContentTest {

@@ -20,7 +20,7 @@ import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 
 /**
- * A1-03 screenshots. They are not a pass: a human checks the PNGs and then the device
+ * Month screenshots. They are not a pass: a human checks the PNGs and then the device
  * (docs/runbooks/manual-test.md).
  */
 @RunWith(AndroidJUnit4::class)

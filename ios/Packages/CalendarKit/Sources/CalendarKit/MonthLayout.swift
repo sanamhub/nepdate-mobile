@@ -1,7 +1,6 @@
 import NepDate
 
-/// The layout of one Bikram Sambat month: five or six weeks of cells, Sunday first (A1-02,
-/// MR-01 AC7).
+/// The layout of one Bikram Sambat month: five or six weeks of cells, Sunday first (MR-01 AC7).
 ///
 /// No calendar arithmetic happens here. The month length, the weekday and the neighbouring dates
 /// all come from the library.

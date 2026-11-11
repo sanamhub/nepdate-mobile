@@ -47,7 +47,7 @@ backgrounds. `onSurfaceVariant` measures 9.11:1 in light and 10.05:1 in dark, so
 4.5:1.
 
 On iOS the system tertiary label falls below 4.5:1, so `dimmed` uses the app's secondary text colour:
-7.55:1 on the light background and 12.41:1 on the dark one (I1-03 review, `ios/README.md`).
+7.55:1 on the light background and 12.41:1 on the dark one (the month screen review, `ios/README.md`).
 
 On Android 12+ with dynamic colour, surfaces and the selection follow the wallpaper when Appearance is
 System (MR-16); `holiday` and `today` stay fixed, because their meaning is cultural, not decorative.
