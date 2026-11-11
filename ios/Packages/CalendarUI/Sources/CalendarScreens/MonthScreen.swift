@@ -189,23 +189,27 @@ public struct MonthScreen: View {
         model.go(to: newValue)
       }
       .onScrollPhaseChange { _, phase in
-        // Rebuild only after paging has stopped and the pager has stayed still for a moment. A
-        // rebuild swaps the pages but keeps the pixel offset, so a swipe that starts before the
-        // offset has been put back on the shown month begins from another month. The short pause
-        // lets a quick second swipe land first; any new gesture cancels the pending rebuild.
-        if phase != .idle {
-          recentreTask?.cancel()
+        guard phase == .idle, !isRecentring,
+          let index = window.firstIndex(of: model.month)
+        else {
+          if phase != .idle { recentreTask?.cancel() }
           return
         }
-        guard !isRecentring,
-          let index = window.firstIndex(of: model.month),
-          index < 5 || index >= window.count - 5
-        else { return }
-        recentreTask?.cancel()
-        recentreTask = Task { @MainActor in
-          try? await Task.sleep(for: .seconds(2))
-          guard !Task.isCancelled else { return }
-          recentre(on: model.month, proxy: proxy)
+        if index >= window.count - 5 {
+          // The next pages are in front of the pager, so add them after the window. Existing
+          // pages keep their positions and the pixel offset keeps naming the shown month, which
+          // is why a quick swipe can continue immediately instead of waiting for a rebuild.
+          extendWindowForward()
+        } else if index < 5 {
+          // The earlier pages are behind the pager. Prepending pages shifts every position, so
+          // this side needs the offset put back; wait for a pause and let any new gesture cancel
+          // the rebuild.
+          recentreTask?.cancel()
+          recentreTask = Task { @MainActor in
+            try? await Task.sleep(for: .seconds(2))
+            guard !Task.isCancelled else { return }
+            recentre(on: model.month, proxy: proxy)
+          }
         }
       }
       .onDisappear { recentreTask?.cancel() }
@@ -326,10 +330,17 @@ public struct MonthScreen: View {
     }
   }
 
+  /// Adds the next months after the window when the shown month nears its end. The existing pages
+  /// keep their positions, so neither the scroll offset nor the shown page moves.
+  private func extendWindowForward() {
+    guard let last = window.last, last.id < MonthKey.count - 1 else { return }
+    let end = min(MonthKey.count - 1, last.id + 24)
+    window.append(contentsOf: ((last.id + 1)...end).compactMap { MonthKey(id: $0) })
+  }
+
   /// Replaces the window around a month the user swiped to near its edge. Swapping the pages
   /// keeps the pixel offset, not the page, so the offset has to be put back on the month in the
-  /// same update. The pager is disabled for that update, so no gesture can start from the old
-  /// offset, and paging changes are ignored until the offset is back.
+  /// same update. Paging changes are ignored until the offset is back.
   private func recentre(on key: MonthKey, proxy: ScrollViewProxy) {
     isRecentring = true
     window = Self.window(around: key)
