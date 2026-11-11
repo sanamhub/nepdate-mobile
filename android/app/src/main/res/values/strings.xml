@@ -32,6 +32,8 @@
     <string name="nav_month">Patro</string>
     <string name="nav_upcoming">Festivals</string>
     <string name="nav_converter">Converter</string>
+    <string name="tile_label">NepDate</string>
+
     <string name="settings_title">Settings</string>
     <string name="settings_language">Language</string>
     <string name="settings_language_system">System</string>

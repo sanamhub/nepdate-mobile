@@ -32,6 +32,8 @@
     <string name="nav_month">पात्रो</string>
     <string name="nav_upcoming">पर्व</string>
     <string name="nav_converter">रूपान्तर</string>
+    <string name="tile_label">नेपडेट</string>
+
     <string name="settings_title">सेटिङ</string>
     <string name="settings_language">भाषा</string>
     <string name="settings_language_system">प्रणाली</string>

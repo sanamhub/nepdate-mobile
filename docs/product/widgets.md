@@ -11,7 +11,7 @@ natively on each platform (WidgetKit, Glance); nothing here is shared code excep
 | W-03 | Month | `systemLarge`, `systemExtraLargePortrait` (iOS 27+) | 4×4, resizes to 4×3 and 5×5 | previous / next / today |
 | W-04 | Lock screen | `accessoryInline`, `accessoryCircular`, `accessoryRectangular` | lock screen (Android 16 QPR1+) uses W-01 and W-02 | no |
 | W-05 | Control | Control Center / Lock Screen / Action button control | (no equivalent) | opens converter or today |
-| W-06 | Festival countdown | `systemSmall`, `accessoryRectangular` | 2×2, 3×3, 4×1, 4×4 | previous / next |
+| W-06 | Festival countdown | `systemSmall`, `accessoryCircular`, `accessoryRectangular` | 2×2, 3×3, 4×1, 4×4 | previous / next |
 | W-07 | Festivals list | `systemLarge` | 4×2, 5×5 | no |
 | W-08 | Date chip | `accessoryCircular` | 1×1, 2×2 | no |
 | W-09 | Date and tithi | `accessoryRectangular` | 4×1, 5×2 | no |
@@ -81,6 +81,8 @@ buttons that step through the same twelve-day window on both platforms and stop 
   and in Glance state on Android, and resets to the next festival at midnight.
 - AC2: on a public holiday the numeral or the title carries the holiday mark (H1).
 - AC3: tapping opens the shown day; on iOS the same view is offered as `accessoryRectangular`.
+- AC4: on iOS the `accessoryCircular` face is a countdown gauge: the ring fills as the festival
+  comes closer, with the day count in the middle. The window is twelve days on both platforms.
 
 ## W-07 Festivals list
 
@@ -114,6 +116,13 @@ The seven days of the current BS week and the next holiday or event.
 One line: the BS date, the weekday and the AD date, or the holiday name when the day is one.
 - AC1: reads correctly in `accessoryInline` where the system supplies the font size, and does not
   rely on colour.
+
+## Android Quick Settings tile
+
+A Quick Settings tile shows today's BS date, for example "Asoj 20, 2083", with the app icon, and
+opens the Patro tab on today. It is added by the person from the Quick Settings editor; the app
+does not add or remove it. It follows the app language and Digits setting and uses no runtime
+permission.
 
 ## Quality bar
 

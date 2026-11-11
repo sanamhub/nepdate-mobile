@@ -18,7 +18,7 @@ struct FestivalCountdownWidget: Widget {
     }
     .configurationDisplayName("NepDate countdown")
     .description("Counts down to the next festival and steps to the one after it.")
-    .supportedFamilies([.systemSmall, .accessoryRectangular])
+    .supportedFamilies([.systemSmall, .accessoryCircular, .accessoryRectangular])
   }
 }
 
@@ -45,7 +45,13 @@ struct FestivalCountdownWidgetView: View {
   @Environment(\.widgetFamily) private var family
 
   var body: some View {
-    if family == .accessoryRectangular {
+    if family == .accessoryCircular {
+      if let event = entry.shown {
+        FestivalCountdownGaugeView(event: event)
+      } else {
+        Text("No festivals left")
+      }
+    } else if family == .accessoryRectangular {
       content
     } else {
       VStack(spacing: 4) {
