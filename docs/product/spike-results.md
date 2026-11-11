@@ -118,4 +118,4 @@ The holiday cell in the colour shots carries the H1 mark: the holiday colour and
 - A15-class and low-end device check for broken conjuncts, clipped vowel signs and the Android 16
   `elegantTextHeight` change.
 - Dynamic colour with a real wallpaper on Android 12+.
-- iOS screenshots and device check (the Swift agent).
+- iOS screenshots and device check.
