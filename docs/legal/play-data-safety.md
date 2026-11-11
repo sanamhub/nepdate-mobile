@@ -15,14 +15,14 @@ come from ADR-0007 and `docs/product/privacy-policy.md`; change them only with a
 | Does the app contain ads? | No |
 | Does the app use analytics, crash reporting or tracking SDKs? | No |
 | Does the app request the internet permission? | No |
-| Does the app request runtime permissions? | No |
+| Does the app request runtime permissions? | Only `POST_NOTIFICATIONS`, and only when the person turns on "Day in status bar" or "Date in notifications" (ADR-0013). Refusing it leaves both switches off |
 
 ## Evidence
 
 - `AndroidManifest.xml` has no `INTERNET` permission; `checkNoInternet` reads the merged release
   manifest.
-- `checkPermissions` allows only `RECEIVE_BOOT_COMPLETED` and the app's AndroidX dynamic-receiver
-  permission.
+- `checkPermissions` allows only `RECEIVE_BOOT_COMPLETED`, the opt-in `POST_NOTIFICATIONS` and the
+  app's AndroidX dynamic-receiver permission.
 - Settings are stored in Preferences DataStore on the device and shared only with the app's widgets.
 - "Add to calendar" opens the system editor. "Copy date" writes to the clipboard at the user's
   request. Neither sends data to the app.

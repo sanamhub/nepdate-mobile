@@ -1,0 +1,3 @@
+The first release of NepDate for iPhone and iPad.
+
+A month grid with Bikram Sambat and Gregorian dates, public holidays, tithi and the day's events. A year view, a festivals list, search, and a converter between the two calendars. Home Screen and Lock Screen widgets, and two controls for Control Center. English and Nepali, offline, with no ads, no account and no network calls.
