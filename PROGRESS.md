@@ -32,6 +32,15 @@ The public releases wait on the owner, the Apple account and the two open legal 
   2027-04-13 and only warns.
 - The two open rows in `docs/legal/README.md` gate any public release.
 
+## Parity
+
+The full table is in `docs/plan/parity-audit.md`. Every requirement and widget has code on both
+platforms. Android still lacks automated evidence for the year view, today card, the under-grid
+rows, the day sheet's stepping and Share, name search and the one-line date widget. iOS still lacks
+tests for the Today widget's AD face and the Festivals list filter. The extra-large month widget,
+all placement and rendering-mode passes, and the device numbers are in the owner or device list
+below.
+
 ## What is left, and who it waits on
 
 | Item | Waits on |
