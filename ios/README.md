@@ -83,13 +83,13 @@ only on a month away from today (MR-01 AC5). The Previous month and Next month b
 on 2026-11-11: on a month away from today the bar had four items, and the measured runs showed the
 system moving them into its More menu at accessibility2 on every month, and at Baisakh 1901 even at
 the default size, so paging could take two taps and the pair could not be relied on to sit in the
-bar. The bar now matches the system Calendar. VoiceOver gets a named Previous month
-and Next month action on the pager, added only while that direction is inside the range, and a
-hardware keyboard pages with the left and right arrows while the pager has focus; both run the same
-`go(to:)` the buttons ran, so both stop at the ends of the range. `MonthPagerAccessibilityTests`
-reads the two actions from the hosted screen's accessibility tree instead of a copy of the rule, and
-`MonthPagingTests` checks that a swipe pages one month and that a swipe past either end does not
-move.
+bar. The bar now matches the system Calendar. VoiceOver gets a named Previous month and Next month
+action on the pager, added only while that direction is inside the range, plus a three-finger scroll
+action, and a hardware keyboard's left and right arrows page it while the keyboard focus is inside
+the pager. Each of them runs the same `go(to:)` the buttons ran, so each stops at the ends of the
+range. `MonthPagerAccessibilityTests` hosts the real screen and reads the two actions from its
+accessibility tree instead of a copy of the rule, and `MonthPagingTests` checks that a swipe pages
+one month and that a swipe past either end does not move.
 
 The pager holds 49 months around the shown one, because a 3588-page accessibility tree made the
 audit time out. When a swipe comes within five pages of an edge the window is rebuilt around the

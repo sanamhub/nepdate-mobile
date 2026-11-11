@@ -7,8 +7,8 @@ import UIKit
 /// The Patro tab (MR-01, MR-14, MR-22, MR-23): a pager of month pages with the today card, the
 /// grid and the month's holidays and events, a title menu for today and the year view, and the
 /// Today button. The bar holds no paging buttons: a swipe, the pager's named VoiceOver actions and
-/// the hardware arrow keys while it has focus page the month, and each of them stops at the ends of
-/// the range because it runs the same guarded month change.
+/// the hardware arrow keys page the month, and each of them stops at the ends of the range because
+/// it runs the same guarded month change.
 public struct MonthScreen: View {
   @State private var model: MonthViewModel
   @State private var scrolledMonth: MonthKey?
@@ -170,9 +170,10 @@ public struct MonthScreen: View {
           onNext: { go(to: nextMonth) }
         )
       )
-      // A hardware keyboard pages the month with the arrow keys while the pager has focus, which
-      // is the same gesture the system Calendar answers.
-      .focusable()
+      // A hardware keyboard pages the month with the left and right arrows, which is the gesture
+      // the system Calendar answers. The pager is deliberately not made focusable of its own: that
+      // moved the accessibility audit's grid findings (a hit region on the holiday list's header),
+      // so the keys are handled for the focus the pager's day cells already take.
       .onKeyPress(.leftArrow) {
         go(to: previousMonth)
         return .handled

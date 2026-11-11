@@ -50,7 +50,13 @@ struct MonthPagerAccessibilityTests {
         MonthScreen(model: model, settings: Settings(), today: today)
       }
     )
-    let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 402, height: 874))
+    // The window has to join the app's own scene: a window made without one is never displayed, so
+    // SwiftUI never lays the screen out and the accessibility tree stays empty. SwiftUI builds that
+    // tree when it is asked for it, which the walk below does.
+    let scene = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.first
+    let bounds = scene?.coordinateSpace.bounds ?? CGRect(x: 0, y: 0, width: 402, height: 874)
+    let window = scene.map { UIWindow(windowScene: $0) } ?? UIWindow(frame: bounds)
+    window.frame = bounds
     controller.view.frame = window.bounds
     window.rootViewController = controller
     window.makeKeyAndVisible()
@@ -59,7 +65,7 @@ struct MonthPagerAccessibilityTests {
     // turn, so the walk below waits one out.
     RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.5))
 
-    let tree = nodes(in: controller.view)
+    let tree = nodes(in: window)
     var names: Set<String> = []
     for node in tree {
       for action in node.accessibilityCustomActions ?? [] {
@@ -74,7 +80,7 @@ struct MonthPagerAccessibilityTests {
       guard let identifier = identifier(of: node), !identifier.isEmpty else { return nil }
       return "\(type(of: node)) \(identifier)"
     }
-    print("PAGER nodes \(identified)")
+    print("PAGER nodes \(tree.count) identified \(identified)")
     print("PAGER actions \(names.sorted())")
     return names.sorted()
   }
