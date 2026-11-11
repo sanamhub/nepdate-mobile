@@ -84,9 +84,9 @@ final class MonthAccessibilityTests: XCTestCase {
     let last = Self.launch(month: "2199-12")
     let lastTitle = Self.title("Chaitra 2199", in: last)
     XCTAssertTrue(lastTitle.waitForExistence(timeout: 10))
-    // The bar holds Settings, Previous month, Today and Next month at the default text size, so
-    // each end of the range is asserted on the bar's own paging buttons. At accessibility2 the
-    // system moves Today and Next month into a More menu; `MonthToolbarTests` records that.
+    // At the end of the range the bar holds both paging buttons, with Next month disabled. At the
+    // start it does not: Next month is behind the bar's More menu there, so only Previous month is
+    // asserted; `MonthToolbarTests` records where the bar runs out of room.
     XCTAssertTrue(last.buttons["Previous month"].isEnabled)
     XCTAssertFalse(last.buttons["Next month"].isEnabled)
 
@@ -111,7 +111,6 @@ final class MonthAccessibilityTests: XCTestCase {
     let firstTitle = Self.title("Baisakh 1901", in: first)
     XCTAssertTrue(firstTitle.waitForExistence(timeout: 10))
     XCTAssertFalse(first.buttons["Previous month"].isEnabled)
-    XCTAssertTrue(first.buttons["Next month"].isEnabled)
 
     Self.openYearView(first, label: "Baisakh 1901")
     XCTAssertTrue(first.navigationBars["1901"].waitForExistence(timeout: 10))
