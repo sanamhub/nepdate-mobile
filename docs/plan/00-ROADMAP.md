@@ -21,15 +21,15 @@ Preconditions:
 - MR-12 AC2 (holiday subscription) needs the hub's `holidays.ics` (hub task H4); if it is
   not ready, the button is hidden and the requirement moves to the next release.
 
-| Phase | File | Output |
-|---|---|---|
-| M0 | `M0-repo-ci-and-design-spike.md` | repo files, CI skeletons, Devanagari and colour spike on both platforms, manual-test checklist |
-| A1 | `A1-android-app.md` | month, day detail, upcoming, converter, settings (MR-01–04, MR-06–12) |
-| A2 | `A2-android-widgets.md` | W-01–W-04 on Glance, midnight refresh, previews, opacity setting (MR-05, MR-07 AC3, MR-09 AC4–AC5) |
-| A3 | `A3-android-release.md` | reproducible signed builds, Play closed test, IzzyOnDroid, F-Droid, v1.0 |
-| I1 | `I1-ios-app.md` | the same screens in SwiftUI (MR-01–04, MR-06–12) |
-| I2 | `I2-ios-widgets.md` | W-01–W-05 on WidgetKit, App Intents, rendering modes (MR-05, MR-07 AC3, MR-09 AC4–AC5) |
-| I3 | `I3-ios-release.md` | TestFlight, App Store review, v1.0 |
+| Phase | File | Output | Status today |
+|---|---|---|---|
+| M0 | `M0-repo-ci-and-design-spike.md` | repo files, CI skeletons, Devanagari and colour spike on both platforms, manual-test checklist | Done |
+| A1 | `A1-android-app.md` | month, day detail, upcoming, converter, settings (MR-01–04, MR-06–12) | Done |
+| A2 | `A2-android-widgets.md` | W-01–W-04 on Glance, midnight refresh, previews, opacity setting (MR-05, MR-07 AC3, MR-09 AC4–AC5) | Done; the six later widgets and the tile are in |
+| A3 | `A3-android-release.md` | reproducible signed builds, Play closed test, IzzyOnDroid, F-Droid, v1.0 | A3-01 to A3-03 done; A3-04 and A3-05 wait for the owner |
+| I1 | `I1-ios-app.md` | the same screens in SwiftUI (MR-01–04, MR-06–12) | Done |
+| I2 | `I2-ios-widgets.md` | W-01–W-05 on WidgetKit, App Intents, rendering modes (MR-05, MR-07 AC3, MR-09 AC4–AC5) | Done; W-06, W-07 and W-10 are also in; `systemExtraLargePortrait` waits for the Xcode 27 migration |
+| I3 | `I3-ios-release.md` | TestFlight, App Store review, v1.0 | I3-02 is drafted; I3-01, I3-03 and I3-04 wait for the Apple account |
 
 ## Definition of Done (every task)
 
@@ -42,8 +42,8 @@ Preconditions:
 
 ## Milestones
 
-| Milestone | Exit |
-|---|---|
-| M1 Android beta | A1–A2 done, plus A3-01, A3-02 and A3-05; closed test on Play started with 12+ testers |
-| M2 Android 1.0 | A3 done; on Play, IzzyOnDroid, GitHub; F-Droid submission open |
-| M3 iOS 1.0 | I1–I3 done; on the App Store |
+| Milestone | Exit | Status today |
+|---|---|---|
+| M1 Android beta | A1–A2 done, plus A3-01, A3-02 and A3-05; closed test on Play started with 12+ testers | Tester build on GitHub; Play closed test waits for the account |
+| M2 Android 1.0 | A3 done; on Play, IzzyOnDroid, GitHub; F-Droid submission open | Waits for A3-04 and A3-05 |
+| M3 iOS 1.0 | I1–I3 done; on the App Store | I1 and I2 done; I3 waits for the Apple account |
