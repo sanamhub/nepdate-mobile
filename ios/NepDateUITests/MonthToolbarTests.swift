@@ -8,8 +8,8 @@ import XCTest
 final class MonthToolbarTests: XCTestCase {
   private static let todayTitle = "Asoj 2083"
 
-  /// The width of the phone the tests run on, and of the smallest supported phone: the iPhone SE
-  /// the first-run snapshot renders at 375 by 667 points.
+  /// The width of the smallest supported phone: the iPhone SE the first-run snapshot renders at
+  /// 375 by 667 points. The bar's buttons must not need more than that.
   private static let smallestPhoneWidth: CGFloat = 375
 
   /// A month at each end of the range, both away from today.
@@ -42,7 +42,7 @@ final class MonthToolbarTests: XCTestCase {
         "the bar of \(title) moved a button into a More menu"
       )
       // The trailing group holds Settings, Previous month and Next month; three items fit where
-      // the four of the old layout did not.
+      // the four of the old layout did not. Today is on the leading side.
       for label in ["Settings", "Previous month", "Next month"] {
         let trailing = bar.buttons[label]
         XCTAssertGreaterThan(
@@ -51,6 +51,11 @@ final class MonthToolbarTests: XCTestCase {
           "\(label) is not in the trailing group of \(title)"
         )
       }
+      XCTAssertLessThan(
+        bar.buttons["Today"].frame.midX,
+        bar.frame.midX,
+        "Today is not in the leading group of \(title)"
+      )
 
       // Next month takes one tap from here, with no menu in between.
       let next = try XCTUnwrap(MonthKey(id: key.id + 1))
@@ -122,8 +127,10 @@ final class MonthToolbarTests: XCTestCase {
   /// come from the running bar, so this is the width the same buttons need on any phone.
   @MainActor
   private static func footprint(of bar: XCUIElement) -> CGFloat {
-    let trailing = bar.buttons["Previous month"].frame
-    let trailingWidth = bar.frame.maxX - trailing.minX
+    let trailing = ["Settings", "Previous month", "Next month"]
+      .map { bar.buttons[$0].frame.minX }
+      .min() ?? bar.frame.maxX
+    let trailingWidth = bar.frame.maxX - trailing
     let today = bar.buttons["Today"]
     guard today.exists else { return trailingWidth }
     return today.frame.maxX - bar.frame.minX + trailingWidth
