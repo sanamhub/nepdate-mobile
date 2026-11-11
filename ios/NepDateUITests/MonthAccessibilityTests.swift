@@ -23,10 +23,10 @@ final class MonthAccessibilityTests: XCTestCase {
     ("trait", .trait),
   ]
 
-  /// The findings the audit tolerates, per category and kind, exactly. Every one is on a text
-  /// node drawn inside a day cell or list row whose accessibility element is the full spoken date
-  /// (`numeral` when the text is digits only, `text` otherwise). Those nodes are hidden from
-  /// VoiceOver, but the audit still inspects them.
+  /// The findings the audit tolerates, per category and kind. Most are on a text node drawn inside
+  /// a day cell or list row whose accessibility element is the full spoken date (`numeral` when
+  /// the text is digits only, `text` otherwise). Those nodes are hidden from VoiceOver, but the
+  /// audit still inspects them.
   ///
   /// - Grid, dynamicType on numerals: the grid keeps its BS and AD numerals at a size that fits
   ///   seven columns. At every accessibility text size the list replaces the grid (MR-10 AC2),
@@ -43,13 +43,19 @@ final class MonthAccessibilityTests: XCTestCase {
   /// - List, contrast on two texts: the weekday lines of Asoj 4 and the row after it, which are
   ///   behind the translucent tab bar on an 844-point screen. The same pair passes on every row
   ///   above them.
+  /// - Grid, hitRegion: nothing. The holiday list's heading is a 144 by 18 point static text with
+  ///   the header trait and no control inside it, so it declares that it does not respond to user
+  ///   interaction. The audit reported it as too small to interact with before that (runs
+  ///   42966820203, 42995574157 and 43009488402); the pager's actions on a container element of
+  ///   their own did not change it.
   ///
   /// A finding outside these kinds still fails the test. The counts last measured on this branch
-  /// were: grid contrast numeral 1, contrast text 6, Dynamic Type numeral 71, and six element
-  /// detections at a zero frame (the drawn Sunny mark and its events); list contrast text 1 to 2,
-  /// Dynamic Type text 8 to 10 and ten clipped texts. Those counts move by one or two between runs
-  /// of identical builds, because SwiftUI settles rows while the audit samples them (runs
-  /// 42771648138 and 42774078748), so the test pins the kinds and prints the counts.
+  /// were: grid contrast numeral 1, contrast text 6, Dynamic Type numeral 71, 12 Dynamic Type
+  /// texts and six element detections at a zero frame (the drawn Sunny mark and its events); list
+  /// contrast text 1 to 2, Dynamic Type text 8 to 11 and 10 to 11 clipped texts. Those counts move
+  /// by one or two between runs of identical builds, because SwiftUI settles rows while the audit
+  /// samples them (runs 42771648138 and 42774078748), so the test pins the kinds and prints the
+  /// counts.
   private static let gridCategories: Set<String> = [
     "contrast numeral",
     "contrast text",
@@ -84,11 +90,20 @@ final class MonthAccessibilityTests: XCTestCase {
     let last = Self.launch(month: "2199-12")
     let lastTitle = Self.title("Chaitra 2199", in: last)
     XCTAssertTrue(lastTitle.waitForExistence(timeout: 10))
-    // At the end of the range the bar holds both paging buttons, with Next month disabled. At the
-    // start it does not: Next month is behind the bar's More menu there, so only Previous month is
-    // asserted; `MonthToolbarTests` records where the bar runs out of room.
-    XCTAssertTrue(last.buttons["Previous month"].isEnabled)
-    XCTAssertFalse(last.buttons["Next month"].isEnabled)
+    // At the end of the range a left swipe does not page past Chaitra 2199: the pager has no page
+    // after it. The cell below proves the screen still draws that month after the swipe.
+    let lastPager = last.scrollViews["month_pager"]
+    XCTAssertTrue(lastPager.waitForExistence(timeout: 10), "the pager is missing")
+    lastPager.swipeLeft(velocity: .slow)
+    Thread.sleep(forTimeInterval: 2)
+    XCTAssertTrue(
+      Self.title("Chaitra 2199", in: last).exists,
+      "a left swipe paged past Chaitra 2199, the end of the range"
+    )
+    XCTAssertTrue(
+      Self.cell(beginningWith: "Chaitra 1, 2199,", in: last).exists,
+      "the pager no longer draws Chaitra 2199 after the swipe"
+    )
 
     Self.openYearView(last, label: "Chaitra 2199")
     XCTAssertTrue(last.navigationBars["2199"].waitForExistence(timeout: 10))
@@ -110,7 +125,15 @@ final class MonthAccessibilityTests: XCTestCase {
     let first = Self.launch(month: "1901-01")
     let firstTitle = Self.title("Baisakh 1901", in: first)
     XCTAssertTrue(firstTitle.waitForExistence(timeout: 10))
-    XCTAssertFalse(first.buttons["Previous month"].isEnabled)
+    // At the start of the range a right swipe does not page before Baisakh 1901.
+    let firstPager = first.scrollViews["month_pager"]
+    XCTAssertTrue(firstPager.waitForExistence(timeout: 10), "the pager is missing")
+    firstPager.swipeRight(velocity: .slow)
+    Thread.sleep(forTimeInterval: 2)
+    XCTAssertTrue(
+      Self.title("Baisakh 1901", in: first).exists,
+      "a right swipe paged before Baisakh 1901, the start of the range"
+    )
 
     Self.openYearView(first, label: "Baisakh 1901")
     XCTAssertTrue(first.navigationBars["1901"].waitForExistence(timeout: 10))
@@ -137,7 +160,7 @@ final class MonthAccessibilityTests: XCTestCase {
 
     let pager = app.scrollViews["month_pager"]
     var key = try XCTUnwrap(MonthKey(year: 2083, month: 6))
-    for _ in 0..<21 {
+    for step in 0..<21 {
       key = try XCTUnwrap(MonthKey(id: key.id + 1))
       let expected = "\(MonthNames.bs(key.month, .english)) \(key.year)"
       // The month is the navigation bar's identifier, so a wait for the bar of that month is the
@@ -153,6 +176,15 @@ final class MonthAccessibilityTests: XCTestCase {
         reached = Self.title(expected, in: app).waitForExistence(timeout: 10)
       }
       XCTAssertTrue(reached, "the pager did not reach \(expected)")
+      // The twentieth swipe is the one that recentres the window: 24 pages sit on each side of the
+      // shown month and the pager rebuilds when a swipe comes within five of an edge. The rebuild
+      // keeps the scroll offset while the pages change, and the pager is then scrolled back to the
+      // month, so for a moment the offset points at another month. A swipe taken in that moment
+      // starts from that offset: run 43014018570 ended on Kartik 2088 after the twenty-first swipe.
+      // The pager is therefore given time to settle before the next swipe.
+      if step == 19 {
+        Thread.sleep(forTimeInterval: 2)
+      }
     }
     // The loop above landed on Asar 2085; its first cell proves the pager draws that month after
     // the recentre, not only that the bar names it.
@@ -176,6 +208,15 @@ final class MonthAccessibilityTests: XCTestCase {
   func testGridHasOnlyTheToleratedAuditFindings() throws {
     let app = Self.launch()
     XCTAssertTrue(Self.title("Asoj 2083", in: app).waitForExistence(timeout: 10))
+
+    // The holiday list's heading is the one text under the pager that the audit has reported as
+    // interactive. It now declares that it does not respond to user interaction, which is what the
+    // audit's hit region check honours, so the check above would also pass on a heading that
+    // VoiceOver had stopped exposing. Ask for it by label to keep that from slipping through.
+    XCTAssertTrue(
+      app.staticTexts["Holidays and events"].exists,
+      "the holidays and events heading is not exposed to VoiceOver"
+    )
 
     // The audit's counts move by one or two between runs of identical builds, because SwiftUI
     // settles rows while the audit samples them (runs 42771648138 and 42774078748). The test

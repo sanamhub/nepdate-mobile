@@ -12,7 +12,7 @@ The iPhone and iPad app and the widget extension. The Xcode project is generated
 | `Packages/CalendarKit` | Local SwiftPM package: dates, month layout, widget summaries, settings (I1) |
 | `Packages/CalendarUI` | Local SwiftPM package: product `CalendarUI` (views, brand marks and the brand asset catalogue shared by app and widget) and product `CalendarScreens` (the app-only first run, month, day, Upcoming, Converter, Settings and About screens and their view models) |
 | `NepDateTests/` | Swift Testing tests and the committed snapshot references; renders the screenshot artefact |
-| `NepDateUITests/` | XCUITests: opening on today, the picker at both range ends, the pager recentre, the month, day detail and remaining screens' accessibility audits, the shell, Copy date, diagnostic copy and the widget routing (`WidgetRoutingUITests`) |
+| `NepDateUITests/` | XCUITests: opening on today, the month bar, the swipe bounds at both range ends, the pager recentre, the month, day detail and remaining screens' accessibility audits, the shell, Copy date, diagnostic copy and the widget routing (`WidgetRoutingUITests`) |
 | `Resources/` | The app's asset catalogue (`AppIcon`, `AccentColor`) and `Localizable.xcstrings` (English and Nepali) |
 | `NepDateWidgets/Resources/` | The widget extension's own asset catalogue (`AccentColor`); it no longer ships the app icons or the brand sets |
 | `Config/` | Info.plists and the App Group entitlements for both targets |
@@ -73,10 +73,26 @@ from the test bundle, fixed by linking the library products directly.
 The XCUITests in `NepDateUITests` run inside gate 4, so the gate count is unchanged. Debug builds
 read `NEPDATE_UI_TEST_TODAY` (for example `2083-06-20`) to pin today, so every UI test sees Asoj
 2083 and the audit counts are exact; a release build always uses the clock. The tests check that the
-pager opens on today, that the picker reaches Chaitra 2199 and Baisakh 1901 with the next and
-previous buttons disabled at those ends, and that 21 swipes cross the window recentre and land on
-Asar 2085. The day sheet test taps Asoj 25, checks every spoken field and event, taps Copy date and
-reads the action's accessibility value, then audits the sheet.
+pager opens on today, that a swipe moves one month each way and stops at Chaitra 2199 and Baisakh
+1901, and that 21 swipes cross the window recentre and land on Asar 2085. The day sheet test taps
+Asoj 25, checks every spoken field and event, taps Copy date and reads the action's accessibility
+value, then audits the sheet.
+
+The month bar holds Settings, which the shell puts in the bar, and the Today button, which appears
+only on a month away from today (MR-01 AC5). The Previous month and Next month buttons left the bar
+on 2026-11-11: on a month away from today the bar had four items, and the measured runs showed the
+system moving them into its More menu at accessibility2 on every month, and at Baisakh 1901 even at
+the default size, so paging could take two taps and the pair could not be relied on to sit in the
+bar. The bar now matches the system Calendar. VoiceOver gets a named Previous month and Next month
+action on the pager, added only while that direction is inside the range, plus a three-finger scroll
+action, and a hardware keyboard's left and right arrows page it while the pager has focus. Each of
+them runs the same `go(to:)` the buttons ran, so each stops at the ends of the range. The two actions
+cannot be read from a test: XCUITest does not list custom actions, and
+without an accessibility client SwiftUI does not publish its accessibility elements, so a unit test
+that hosts the screen sees only plain UIKit views (231 of them, with no identifiers). They are
+therefore checked by hand with VoiceOver on the MR-01 AC5 row of `docs/runbooks/manual-test.md`,
+together with the arrow keys. `MonthPagingTests` checks that a swipe pages one month and that a
+swipe past either end does not move.
 
 The pager holds 49 months around the shown one, because a 3588-page accessibility tree made the
 audit time out. When a swipe comes within five pages of an edge the window is rebuilt around the
@@ -86,10 +102,9 @@ until it has scrolled back to the month; before that fix the swipe test landed o
 The audit runs one category per call (contrast, Dynamic Type, element detection, hit region,
 element description, clipped text, traits), on the grid at the default size and on the list at
 the accessibility L size. It inspects the text drawn inside a day cell or list row even though
-that text is hidden and the cell's element is the full spoken date. The test counts findings on
-those hidden text nodes per category and kind and compares them with an exact table; any other
-finding, or a different count, fails. The table and the evidence for each entry are in
-`MonthAccessibilityTests.swift`:
+that text is hidden and the cell's element is the full spoken date. The test counts findings per
+category and kind and compares them with an exact table; any other finding, or a different count,
+fails. The table and the evidence for each entry are in `MonthAccessibilityTests.swift`:
 
 | Layout | Finding | Count | Why it is tolerated |
 |---|---|---|---|
@@ -97,6 +112,8 @@ finding, or a different count, fails. The table and the evidence for each entry 
 | Grid | Contrast on AD numerals 13 and 27 | 2 | The pair measures 7.55:1; changing the colour from 5.74:1 to 7.55:1 left both findings at the same frames |
 | List | Dynamic Type and clipped text on date, weekday and event lines | 10 and 10 | The lines have no line limit and wrap (`month.accessibility2.png`) |
 | List | Contrast on the weekday line of Asoj 4 | 1 | The line is behind the translucent tab bar; the same pair passes on every row above |
+
+The holiday list's heading is text with no control inside it, so it declares that it does not respond to user interaction and the hit region audit leaves it alone. Without that the audit reports its 144 by 18 point frame as too small to interact with (runs 42966820203 and 43009488402), whether the pager's named actions sit on the scroll view or on a container element of their own.
 
 The day sheet audit has no tolerated findings. It opens from Asoj 25 and runs the same seven
 categories; the green run prints `AUDIT tolerated []`. The contrast fix was to tint both actions

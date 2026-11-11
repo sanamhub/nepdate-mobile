@@ -35,7 +35,7 @@ layout, view models, scheduling and settings; this file covers the rest.
 
 | Check | iPhone | Android A15 class | Android low-end |
 |---|---|---|---|
-| AC5: swipe left and right, then use the previous and next buttons. The month changes each time. "Today" shows only on another month. | Not run |  |  |
+| AC5: swipe left and right. The month changes each time. On Android use the previous and next buttons as well; on iOS turn VoiceOver on and check that the pager offers Previous month and Next month in the rotor and that "Holidays and events" is still read as a heading, then try the left and right arrow keys with a hardware keyboard. "Today" shows only on another month, and one tap returns to it. | Not run |  |  |
 | AC6: tap the header. The month and year picker opens and reaches BS 1901 and 2199. | Not run |  |  |
 | AC7: open a 5-row month and a 6-row month. Neighbouring-month days are dimmed and do not open the day sheet. | Not run |  |  |
 | AC8: turn on the tithi line. A conjunct is never cut mid-character in a cell. | Not run |  |  |
