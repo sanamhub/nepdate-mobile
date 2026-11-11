@@ -203,7 +203,7 @@ public struct MonthScreen: View {
         else { return }
         recentreTask?.cancel()
         recentreTask = Task { @MainActor in
-          try? await Task.sleep(for: .milliseconds(400))
+          try? await Task.sleep(for: .seconds(2))
           guard !Task.isCancelled else { return }
           recentre(on: model.month, proxy: proxy)
         }
