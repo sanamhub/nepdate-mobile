@@ -85,9 +85,9 @@ system moving them into its More menu at accessibility2 on every month, and at B
 the default size, so paging could take two taps and the pair could not be relied on to sit in the
 bar. The bar now matches the system Calendar. VoiceOver gets a named Previous month and Next month
 action on the pager, added only while that direction is inside the range, plus a three-finger scroll
-action, and a hardware keyboard's left and right arrows page it while the keyboard focus is inside
-the pager. Each of them runs the same `go(to:)` the buttons ran, so each stops at the ends of the
-range. The two actions cannot be read from a test: XCUITest does not list custom actions, and
+action, and a hardware keyboard's left and right arrows page it while the pager has focus. Each of
+them runs the same `go(to:)` the buttons ran, so each stops at the ends of the range. The two actions
+cannot be read from a test: XCUITest does not list custom actions, and
 without an accessibility client SwiftUI does not publish its accessibility elements, so a unit test
 that hosts the screen sees only plain UIKit views (231 of them, with no identifiers). They are
 therefore checked by hand with VoiceOver on the MR-01 AC5 row of `docs/runbooks/manual-test.md`,

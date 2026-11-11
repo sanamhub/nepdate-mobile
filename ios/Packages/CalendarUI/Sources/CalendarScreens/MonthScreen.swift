@@ -170,10 +170,11 @@ public struct MonthScreen: View {
           onNext: { go(to: nextMonth) }
         )
       )
-      // A hardware keyboard pages the month with the left and right arrows, which is the gesture
-      // the system Calendar answers. The pager is deliberately not made focusable of its own: that
-      // moved the accessibility audit's grid findings (a hit region on the holiday list's header),
-      // so the keys are handled for the focus the pager's day cells already take.
+      // A hardware keyboard pages the month with the left and right arrows while the pager has
+      // focus, which is the gesture the system Calendar answers. The pager has to be focusable for
+      // those keys to arrive; the audit's findings are the same with and without it (runs
+      // 42966820203 and 42991475401).
+      .focusable()
       .onKeyPress(.leftArrow) {
         go(to: previousMonth)
         return .handled
