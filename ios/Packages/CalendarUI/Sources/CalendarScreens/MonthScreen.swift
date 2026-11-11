@@ -15,6 +15,7 @@ public struct MonthScreen: View {
   @State private var window: [MonthKey]
   @State private var detail: MonthDate?
   @State private var isRecentring = false
+  @State private var recentreTask: Task<Void, Never>?
   @State private var showsYear = false
   @Namespace private var yearZoom
   @Namespace private var detailZoom
@@ -186,12 +187,32 @@ public struct MonthScreen: View {
       .onChange(of: scrolledMonth) { _, newValue in
         guard !isRecentring, let newValue, newValue != model.month else { return }
         model.go(to: newValue)
-        if let index = window.firstIndex(of: newValue),
-          index < 5 || index >= window.count - 5
-        {
-          recentre(on: newValue, proxy: proxy)
+      }
+      .onScrollPhaseChange { _, phase in
+        guard phase == .idle, !isRecentring,
+          let index = window.firstIndex(of: model.month)
+        else {
+          if phase != .idle { recentreTask?.cancel() }
+          return
+        }
+        if index >= window.count - 5 {
+          // The next pages are in front of the pager, so add them after the window. Existing
+          // pages keep their positions and the pixel offset keeps naming the shown month, which
+          // is why a quick swipe can continue immediately instead of waiting for a rebuild.
+          extendWindowForward()
+        } else if index < 5 {
+          // The earlier pages are behind the pager. Prepending pages shifts every position, so
+          // this side needs the offset put back; wait for a pause and let any new gesture cancel
+          // the rebuild.
+          recentreTask?.cancel()
+          recentreTask = Task { @MainActor in
+            try? await Task.sleep(for: .seconds(2))
+            guard !Task.isCancelled else { return }
+            recentre(on: model.month, proxy: proxy)
+          }
         }
       }
+      .onDisappear { recentreTask?.cancel() }
     }
   }
 
@@ -309,18 +330,23 @@ public struct MonthScreen: View {
     }
   }
 
+  /// Adds the next months after the window when the shown month nears its end. The existing pages
+  /// keep their positions, so neither the scroll offset nor the shown page moves.
+  private func extendWindowForward() {
+    guard let last = window.last, last.id < MonthKey.count - 1 else { return }
+    let end = min(MonthKey.count - 1, last.id + 24)
+    window.append(contentsOf: ((last.id + 1)...end).compactMap { MonthKey(id: $0) })
+  }
+
   /// Replaces the window around a month the user swiped to near its edge. Swapping the pages
-  /// keeps the scroll offset, not the page, so the offset would then show another month; the
-  /// scroll position is reported back while that happens. Paging changes are ignored until the
-  /// pager is put back on the month.
+  /// keeps the pixel offset, not the page, so the offset has to be put back on the month in the
+  /// same update. Paging changes are ignored until the offset is back.
   private func recentre(on key: MonthKey, proxy: ScrollViewProxy) {
     isRecentring = true
     window = Self.window(around: key)
-    Task { @MainActor in
-      proxy.scrollTo(key, anchor: .leading)
-      scrolledMonth = key
-      isRecentring = false
-    }
+    proxy.scrollTo(key, anchor: .leading)
+    scrolledMonth = key
+    isRecentring = false
   }
 
   /// The pages the pager holds. A window around the shown month keeps the number of views small;

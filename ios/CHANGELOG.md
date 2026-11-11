@@ -6,6 +6,13 @@ All notable changes to the iOS app. The format follows
 
 ## [Unreleased]
 
+### Fixed
+
+- The month pager no longer lets a quick pair of swipes across its window recentre start from the
+  offset the rebuild left behind. Forward paging appends the next months without moving the pages
+  already on screen; the backward edge rebuilds only after a pause, with the offset moved in the
+  same update.
+
 ### Added
 
 - The parity work: the four tabs with the search role, the first run, the today card and the
