@@ -96,12 +96,13 @@ together with the arrow keys. `MonthPagingTests` checks that a swipe pages one m
 swipe past either end does not move.
 
 The pager holds 49 months around the shown one, because a 3588-page accessibility tree made the
-audit time out. When a swipe comes within five pages of an edge, and only after paging has come to
-rest, the window is rebuilt around the month. Rebuilding keeps the pixel offset, not the page, so
-the window and the offset are swapped in one update, the pager takes no gesture during that update,
-and paging changes are ignored until the offset is back on the month. Before that, a second quick
-swipe could start from the offset the rebuild left behind: the existing test hid it with a two
-second wait, and run 43014018570 ended on Kartik 2088 after the twenty-first swipe.
+audit time out. When the shown month comes within five pages of the forward edge, the next months
+are appended after the window. Existing pages keep their positions, so the pixel offset and the
+shown page do not move and a quick next swipe can continue immediately. The backward edge still
+replaces the window around the month, after a pause and with the offset put back on the month in
+the same update; any new gesture cancels that pending rebuild. Before this, a second quick swipe
+could start from the offset a rebuild left behind: the existing test hid it with a two second wait,
+and run 43014018570 ended on Kartik 2088 after the twenty-first swipe.
 
 The audit runs one category per call (contrast, Dynamic Type, element detection, hit region,
 element description, clipped text, traits), on the grid at the default size and on the list at

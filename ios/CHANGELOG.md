@@ -9,8 +9,9 @@ All notable changes to the iOS app. The format follows
 ### Fixed
 
 - The month pager no longer lets a quick pair of swipes across its window recentre start from the
-  offset the rebuild left behind. The window is rebuilt once paging is at rest, and the offset moves
-  with it in the same update.
+  offset the rebuild left behind. Forward paging appends the next months without moving the pages
+  already on screen; the backward edge rebuilds only after a pause, with the offset moved in the
+  same update.
 
 ### Added
 
