@@ -15,6 +15,7 @@ public struct MonthScreen: View {
   @State private var window: [MonthKey]
   @State private var detail: MonthDate?
   @State private var isRecentring = false
+  @State private var recentreTask: Task<Void, Never>?
   @State private var showsYear = false
   @Namespace private var yearZoom
   @Namespace private var detailZoom
@@ -188,16 +189,26 @@ public struct MonthScreen: View {
         model.go(to: newValue)
       }
       .onScrollPhaseChange { _, phase in
-        // Rebuild only once paging has settled. A rebuild swaps the pages but keeps the pixel
-        // offset, so a swipe that starts before the offset has been put back on the shown month
-        // begins from another month. Waiting for idle means every gesture of a quick pair is
-        // applied to a window whose offset still names the month on screen.
-        guard phase == .idle, !isRecentring,
+        // Rebuild only after paging has stopped and the pager has stayed still for a moment. A
+        // rebuild swaps the pages but keeps the pixel offset, so a swipe that starts before the
+        // offset has been put back on the shown month begins from another month. The short pause
+        // lets a quick second swipe land first; any new gesture cancels the pending rebuild.
+        if phase != .idle {
+          recentreTask?.cancel()
+          return
+        }
+        guard !isRecentring,
           let index = window.firstIndex(of: model.month),
           index < 5 || index >= window.count - 5
         else { return }
-        recentre(on: model.month, proxy: proxy)
+        recentreTask?.cancel()
+        recentreTask = Task { @MainActor in
+          try? await Task.sleep(for: .milliseconds(400))
+          guard !Task.isCancelled else { return }
+          recentre(on: model.month, proxy: proxy)
+        }
       }
+      .onDisappear { recentreTask?.cancel() }
     }
   }
 
