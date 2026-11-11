@@ -28,18 +28,30 @@ struct StoreScreenshotTests {
       let suffix = language == .nepali ? "ne" : "en"
       let locale = Locale(identifier: suffix)
       let digits: Digits = language == .nepali ? .nepali : .english
+      let month = try #require(
+        MonthViewModel(
+          today: Self.today,
+          language: language,
+          digits: digits,
+          showTithi: false
+        )
+      )
+      let day = try #require(
+        DayDetailViewModel(date: Self.dataDay, language: language, digits: digits)
+      )
+      let year = try #require(
+        YearViewModel(
+          year: Self.today.year,
+          today: Self.today,
+          language: language,
+          digits: digits
+        )
+      )
 
       try render(
         NavigationStack {
           MonthScreen(
-            model: try #require(
-              MonthViewModel(
-                today: Self.today,
-                language: language,
-                digits: digits,
-                showTithi: false
-              )
-            ),
+            model: month,
             settings: Self.settings(language),
             today: Self.today
           )
@@ -52,9 +64,7 @@ struct StoreScreenshotTests {
       try render(
         NavigationStack {
           DayDetailContent(
-            model: try #require(
-              DayDetailViewModel(date: Self.dataDay, language: language, digits: digits)
-            ),
+            model: day,
             today: Self.today,
             onClose: {}
           )
@@ -91,17 +101,7 @@ struct StoreScreenshotTests {
 
       try render(
         NavigationStack {
-          YearScreen(
-            model: try #require(
-              YearViewModel(
-                year: Self.today.year,
-                today: Self.today,
-                language: language,
-                digits: digits
-              )
-            ),
-            onPick: { _ in }
-          )
+          YearScreen(model: year, onPick: { _ in })
         },
         name: "05-year-\(suffix)",
         locale: locale
