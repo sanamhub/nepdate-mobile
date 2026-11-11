@@ -128,10 +128,19 @@ struct StoreScreenshotTests {
         .frame(width: Self.size.width, height: Self.size.height)
         .background(Color(uiColor: .systemBackground))
     )
-    let renderer = ImageRenderer(content: content)
-    renderer.scale = Self.scale
-    renderer.isOpaque = true
-    guard let image = renderer.uiImage, let data = image.pngData() else {
+    let controller = UIHostingController(rootView: content)
+    controller.overrideUserInterfaceStyle = .light
+    controller.view.frame = CGRect(origin: .zero, size: Self.size)
+    controller.view.backgroundColor = .systemBackground
+    controller.view.layoutIfNeeded()
+
+    let format = UIGraphicsImageRendererFormat()
+    format.scale = Self.scale
+    format.opaque = true
+    let image = UIGraphicsImageRenderer(size: Self.size, format: format).image { _ in
+      controller.view.drawHierarchy(in: controller.view.bounds, afterScreenUpdates: true)
+    }
+    guard let data = image.pngData() else {
       throw StoreScreenshotFailure(name: name)
     }
     try FileManager.default.createDirectory(
