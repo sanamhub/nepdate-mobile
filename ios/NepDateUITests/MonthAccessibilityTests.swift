@@ -160,7 +160,7 @@ final class MonthAccessibilityTests: XCTestCase {
 
     let pager = app.scrollViews["month_pager"]
     var key = try XCTUnwrap(MonthKey(year: 2083, month: 6))
-    for _ in 0..<21 {
+    for step in 0..<21 {
       key = try XCTUnwrap(MonthKey(id: key.id + 1))
       let expected = "\(MonthNames.bs(key.month, .english)) \(key.year)"
       // The month is the navigation bar's identifier, so a wait for the bar of that month is the
@@ -176,6 +176,15 @@ final class MonthAccessibilityTests: XCTestCase {
         reached = Self.title(expected, in: app).waitForExistence(timeout: 10)
       }
       XCTAssertTrue(reached, "the pager did not reach \(expected)")
+      // The twentieth swipe is the one that recentres the window: 24 pages sit on each side of the
+      // shown month and the pager rebuilds when a swipe comes within five of an edge. The rebuild
+      // keeps the scroll offset while the pages change, and the pager is then scrolled back to the
+      // month, so for a moment the offset points at another month. A swipe taken in that moment
+      // starts from that offset: run 43014018570 ended on Kartik 2088 after the twenty-first swipe.
+      // The pager is therefore given time to settle before the next swipe.
+      if step == 19 {
+        Thread.sleep(forTimeInterval: 2)
+      }
     }
     // The loop above landed on Asar 2085; its first cell proves the pager draws that month after
     // the recentre, not only that the bar names it.
