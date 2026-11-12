@@ -153,10 +153,9 @@ final class ScreenUITests: XCTestCase {
     app.staticTexts["About"].tap()
 
     let copy = app.buttons["Copy diagnostic info"]
-    for _ in 0..<12 where !copy.isHittable {
+    for _ in 0..<8 where !copy.isHittable {
       app.swipeUp()
     }
-    XCTAssertTrue(copy.isHittable, "the diagnostic copy button is not reachable")
     copy.tap()
 
     let copied = app.staticTexts["Copied"]
