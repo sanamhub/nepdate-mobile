@@ -44,8 +44,12 @@ enum WidgetTestData {
 }
 
 extension WidgetTestData {
-  /// The month widget's entry for Jestha 2083, a six-week month, with today on the 10th.
-  static func monthEntry(language: AppLanguage = .english) throws -> MonthWidgetEntry {
+  /// The month widget's entry for Jestha 2083, a six-week month, with today on the 10th, or for
+  /// the month of a supplied day.
+  static func monthEntry(
+    language: AppLanguage = .english,
+    at date: MonthDate = MonthDate(year: 2083, month: 2, day: 10)
+  ) throws -> MonthWidgetEntry {
     let settings = Settings(
       language: language == .nepali ? .nepali : .english,
       digits: language == .nepali ? .nepali : .english,
@@ -53,7 +57,7 @@ extension WidgetTestData {
     )
     return try #require(
       MonthWidgetTimeline.entry(
-        at: try noon(MonthDate(year: 2083, month: 2, day: 10)),
+        at: try noon(date),
         shown: nil,
         settings: settings,
         deviceZone: zone

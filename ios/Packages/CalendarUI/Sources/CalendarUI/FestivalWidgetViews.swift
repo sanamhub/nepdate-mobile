@@ -1,6 +1,21 @@
 import CalendarKit
+import Foundation
 import SwiftUI
 import WidgetKit
+
+/// The words inside the countdown's disc and gauge (W-06). On the festival day the count is zero,
+/// which reads as a bug, so the disc says Today in the widget's language instead.
+public enum FestivalCountdownText {
+  /// The disc's text for a day count.
+  /// - Parameters:
+  ///   - days: Whole days until the festival; zero is the festival day.
+  ///   - count: The day count in the resolved digits.
+  ///   - locale: The locale whose string table is read.
+  /// - Returns: The count, or the localised word for Today.
+  public static func disc(days: Int, count: String, locale: Locale = .current) -> String {
+    days == 0 ? String(localized: "Today", locale: locale) : count
+  }
+}
 
 /// The festival countdown (W-06): the next festival's name, its day count on the SoftBurst, and
 /// the holiday mark when the day is a public holiday.
@@ -20,8 +35,13 @@ public struct FestivalCountdownView: View {
         ZStack {
           SoftBurstShape()
             .fill(BrandColor.holidayContainer)
-          Text(verbatim: event.count)
-            .font(.headline.weight(.bold))
+          Text(
+            verbatim: FestivalCountdownText.disc(
+              days: event.daysFromToday,
+              count: event.count
+            )
+          )
+          .font(.headline.weight(.bold))
             .foregroundStyle(BrandColor.onHolidayContainer)
             .minimumScaleFactor(0.6)
             .lineLimit(1)

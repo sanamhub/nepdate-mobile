@@ -8,6 +8,11 @@ All notable changes to the iOS app. The format follows
 
 ### Fixed
 
+- The festival countdown's disc and Lock Screen gauge say "Today" on the festival day instead of
+  showing a zero day count.
+- The festivals list reserves the floating search field's height at the end of its content, so the
+  last row no longer sits behind the field.
+
 - The month pager no longer lets a quick pair of swipes across its window recentre start from the
   offset the rebuild left behind. Forward paging appends the next months without moving the pages
   already on screen; the backward edge rebuilds when the pager comes to rest, with the offset moved

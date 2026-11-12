@@ -87,6 +87,27 @@ struct ScreenSnapshotTests {
     }
   }
 
+  @Test("Festivals reference images")
+  func festivals() {
+    for (name, language, digits, scheme, type, locale) in variants() {
+      snapshot(
+        NavigationStack {
+          FestivalsScreen(
+            today: Self.today,
+            language: language,
+            digits: digits,
+            onOpenDay: { _ in },
+            onOpenMonth: { _ in }
+          )
+        },
+        named: "festivals-\(name)",
+        scheme: scheme,
+        type: type,
+        locale: locale
+      )
+    }
+  }
+
   private func variants() -> [(String, AppLanguage, Digits, ColorScheme, DynamicTypeSize, String)] {
     [
       ("light", .english, .english, .light, .large, "en"),

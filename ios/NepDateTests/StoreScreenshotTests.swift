@@ -19,8 +19,8 @@ struct StoreScreenshotTests {
   /// 440 by 956 points at three times, the accepted 6.9-inch size.
   private static let size = CGSize(width: 440, height: 956)
   private static let scale: CGFloat = 3
-  fileprivate static let today = MonthDate(year: 2083, month: 6, day: 20)
-  fileprivate static let dataDay = MonthDate(year: 2083, month: 6, day: 25)
+  fileprivate static let today = MonthDate(year: 2083, month: 6, day: 25)
+  fileprivate static let dataDay = today
 
   @Test("six screens in English and Nepali at 1320 by 2868")
   func screens() throws {
@@ -47,61 +47,76 @@ struct StoreScreenshotTests {
           digits: digits
         )
       )
+      var converter = ConverterViewModel(today: Self.today, language: language, digits: digits)
+      converter.fromBs("2083-06-25")
+      converter.compareWithBs("2083-06-20")
 
       try render(
-        NavigationStack {
-          MonthScreen(
-            model: month,
-            settings: Self.settings(language),
-            today: Self.today
-          )
-          .navigationBarTitleDisplayMode(.inline)
+        StoreRoot(tab: .patro) {
+          NavigationStack {
+            MonthScreen(
+              model: month,
+              settings: Self.settings(language),
+              today: Self.today
+            )
+            .navigationBarTitleDisplayMode(.inline)
+          }
         },
         name: "01-patro-\(suffix)",
         locale: locale
       )
 
       try render(
-        NavigationStack {
-          DayDetailContent(
-            model: day,
-            today: Self.today,
-            onClose: {}
-          )
-          .navigationTitle(Text("Day"))
-          .navigationBarTitleDisplayMode(.inline)
+        StoreRoot(tab: .patro) {
+          NavigationStack {
+            DayDetailContent(
+              model: day,
+              today: Self.today,
+              onClose: {}
+            )
+            .navigationTitle(Text("Day"))
+            .navigationBarTitleDisplayMode(.inline)
+          }
         },
         name: "02-day-\(suffix)",
         locale: locale
       )
 
       try render(
-        NavigationStack {
-          FestivalsScreen(
-            today: Self.today,
-            language: language,
-            digits: digits,
-            onOpenDay: { _ in },
-            onOpenMonth: { _ in }
-          )
+        StoreRoot(tab: .festivals) {
+          NavigationStack {
+            FestivalsScreen(
+              today: Self.today,
+              language: language,
+              digits: digits,
+              onOpenDay: { _ in },
+              onOpenMonth: { _ in }
+            )
+          }
         },
         name: "03-parva-\(suffix)",
         locale: locale
       )
 
       try render(
-        NavigationStack {
-          ConverterScreen(
-            model: ConverterViewModel(today: Self.today, language: language, digits: digits)
-          )
+        StoreRoot(tab: .converter) {
+          NavigationStack {
+            ConverterScreen(
+              model: converter,
+              bsInput: "2083-06-25",
+              compareInput: "2083-06-20"
+            )
+          }
         },
         name: "04-converter-\(suffix)",
         locale: locale
       )
 
       try render(
-        NavigationStack {
-          YearScreen(model: year, onPick: { _ in })
+        StoreRoot(tab: .patro) {
+          NavigationStack {
+            YearScreen(model: year, onPick: { _ in })
+          }
         },
         name: "05-year-\(suffix)",
         locale: locale
@@ -179,6 +194,44 @@ struct StoreScreenshotTests {
   }
 }
 
+/// The app's tab shell around one store screenshot, so the shot shows the real tab bar.
+private struct StoreRoot<Content: View>: View {
+  let tab: AppTab
+  let content: Content
+
+  init(tab: AppTab, @ViewBuilder content: () -> Content) {
+    self.tab = tab
+    self.content = content()
+  }
+
+  var body: some View {
+    TabView(selection: .constant(tab)) {
+      Tab("Patro", systemImage: "calendar", value: AppTab.patro) {
+        page(.patro)
+      }
+      Tab("Festivals", systemImage: "sparkles", value: AppTab.festivals) {
+        page(.festivals)
+      }
+      Tab("Converter", systemImage: "arrow.left.arrow.right", value: AppTab.converter) {
+        page(.converter)
+      }
+      Tab("Search", systemImage: "magnifyingglass", value: AppTab.search, role: .search) {
+        page(.search)
+      }
+    }
+    .tabViewStyle(.sidebarAdaptable)
+  }
+
+  @ViewBuilder
+  private func page(_ value: AppTab) -> some View {
+    if value == tab {
+      content
+    } else {
+      Color.clear
+    }
+  }
+}
+
 private struct StoreScreenshotFailure: Error {
   let name: String
 }
@@ -191,7 +244,7 @@ private struct WidgetGallery: View {
   var body: some View {
     let suffix = language == .nepali ? "ne" : "en"
     let entry = try? WidgetTestData.entry(StoreScreenshotTests.dataDay, language: language)
-    let month = try? WidgetTestData.monthEntry(language: language)
+    let month = try? WidgetTestData.monthEntry(language: language, at: StoreScreenshotTests.today)
     let window: [WidgetEvent]? = {
       guard let entry = try? WidgetTestData.entry(StoreScreenshotTests.dataDay, language: language)
       else { return nil }
