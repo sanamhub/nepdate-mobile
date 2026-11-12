@@ -141,13 +141,28 @@ final class ScreenUITests: XCTestCase {
       }
       XCTAssertTrue(element.exists, "the \(link) link is missing")
     }
+  }
+
+  @MainActor
+  func testAboutCopiesDiagnosticInfo() throws {
+    let app = Self.launch(screen: "settings")
+
+    for _ in 0..<6 where !app.staticTexts["About"].exists {
+      app.swipeUp()
+    }
+    app.staticTexts["About"].tap()
+
     let copy = app.buttons["Copy diagnostic info"]
     for _ in 0..<12 where !copy.isHittable {
       app.swipeUp()
     }
     XCTAssertTrue(copy.isHittable, "the diagnostic copy button is not reachable")
     copy.tap()
+
     let copied = app.staticTexts["Copied"]
+    if !copied.exists {
+      app.swipeUp()
+    }
     XCTAssertTrue(copied.waitForExistence(timeout: 2))
 
     let hidden = expectation(for: NSPredicate(format: "exists == false"), evaluatedWith: copied)
