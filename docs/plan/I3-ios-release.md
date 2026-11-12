@@ -2,13 +2,14 @@
 
 ## Status on 2026-11-05
 
-Nothing in I3 has started. The maintainer has no Mac and no Apple Developer account (ADR-0010), so
-the plan splits into what can be done now and what waits for the account.
+The listing copy and screenshots are drafted. The workflow, TestFlight and submission have not
+started. The maintainer has no Mac and no Apple Developer account (ADR-0010), so the plan splits
+into what can be done now and what waits for the account.
 
 | Task | Status | What is possible now |
 |---|---|---|
 | I3-01 Release workflow | Not started, on purpose | Nothing runnable. `ios-release.yml` and `ios-beta.yml` need the App Store Connect key and the `production` environment, so a workflow written now could not be dispatched or tested. It is written after the account exists, together with a static check like the Android one |
-| I3-02 App Store listing | Not started | The English text, the "Data Not Collected" privacy label answers, the age rating answers, the review notes and the privacy policy URL can be drafted in the repository, as the Android listing was. `ITSAppUsesNonExemptEncryption` is already `false` in the app's Info.plist. Screenshots need the required iPhone sizes, which the simulator on the CI runner can render; the current snapshot images are one size only |
+| I3-02 App Store listing | Drafted, waiting for the account | English name, subtitle, description, keywords, release notes and privacy URL are in `fastlane/metadata/ios/en-US`. App Privacy (Data Not Collected), age rating, App Review notes and export compliance are checked in beside them. Nepali is not an App Store Connect metadata language, so the listing stays English; the in-app language is still Nepali. Six screens in English and Nepali are rendered at 1320 by 2868 by `StoreScreenshotTests` and uploaded as `ios-store-screenshots`. The App Store Connect record is still the owner's |
 | I3-03 TestFlight, then 1.0 | Blocked | Needs the account, a build, and both open rows in `docs/legal/README.md` closed with a record (ADR-0009) |
 | I3-04 Human tasks | Blocked | The key check names `ios-beta.yml`, which does not exist yet; it can run only after I3-01 |
 
