@@ -54,6 +54,22 @@
             </intent-filter>
         </activity>
 
+        <!-- The Quick Settings tile. BIND_QUICK_SETTINGS_TILE is enforced by the system on the
+             service and is not a user permission. -->
+        <service
+            android:name=".tile.TodayTileService"
+            android:exported="true"
+            android:icon="@drawable/ic_sym_calendar_month"
+            android:label="@string/tile_label"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.service.quicksettings.TILE"
+                android:value="true" />
+        </service>
+
         <!-- Widget receivers. android:icon is a PNG, not a vector or the adaptive launcher icon:
              the OnePlus widget list drew both as a red tile with a blank white square. -->
         <receiver

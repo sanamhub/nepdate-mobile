@@ -216,7 +216,7 @@ public enum WidgetTimeline {
         && deviceZone.secondsFromGMT(for: instant)
           != CalendarDates.nepal.secondsFromGMT(for: instant)
     )
-    let upcoming = upcomingEvents(
+    let upcoming = events(
       after: date,
       limit: 4,
       language: language,
@@ -264,13 +264,14 @@ public enum WidgetTimeline {
   ///   - now: The instant the entry stands for.
   ///   - settings: The stored settings.
   ///   - deviceZone: The device's zone, injected for tests.
-  ///   - count: The window size in events; 12 by default.
+  ///   - days: The window size in days, today included; 12 by default. A day with several events
+  ///     contributes all of them, so the window matches Android's twelve days.
   /// - Returns: The events in date order.
   public static func festivalWindow(
     now: Date,
     settings: Settings,
     deviceZone: TimeZone = .current,
-    count: Int = 12
+    days: Int = 12
   ) -> [WidgetEvent] {
     let today = TodayProvider(now: { now }, deviceZone: deviceZone)
       .today(dateFollows: settings.dateFollows)
@@ -278,10 +279,42 @@ public enum WidgetTimeline {
     else { return [] }
     let language = settings.language.resolved
     let digits = settings.digits.resolved(for: language)
-    return upcomingEvents(after: date, limit: count, language: language, digits: digits)
+    return upcomingEvents(after: date, days: days, language: language, digits: digits)
   }
 
   private static func upcomingEvents(
+    after today: NepaliDate,
+    days: Int,
+    language: AppLanguage,
+    digits: Digits
+  ) -> [WidgetEvent] {
+    guard days > 0, let last = try? today.adding(days: days - 1) else { return [] }
+    var date = max(today, Patro.coverage.lowerBound)
+    let end = min(last, Patro.coverage.upperBound)
+    var events: [WidgetEvent] = []
+    while date <= end {
+      let info = date.calendarInfo
+      for (index, named) in info.events.enumerated() {
+        let name = digits.applying(to: named.name(language.lang))
+        events.append(
+          event(
+            date: date,
+            today: today,
+            name: name,
+            isHoliday: info.isPublicHoliday,
+            suffix: "\(index)",
+            digits: digits
+          )
+        )
+      }
+      guard let next = try? date.adding(days: 1) else { break }
+      date = next
+    }
+    return events
+  }
+
+  /// The next `limit` events, used by the Today and upcoming widget's fixed four rows.
+  private static func events(
     after today: NepaliDate,
     limit: Int,
     language: AppLanguage,
@@ -293,12 +326,11 @@ public enum WidgetTimeline {
       let info = date.calendarInfo
       for (index, named) in info.events.enumerated() {
         guard events.count < limit else { break }
-        let name = digits.applying(to: named.name(language.lang))
         events.append(
           event(
             date: date,
             today: today,
-            name: name,
+            name: digits.applying(to: named.name(language.lang)),
             isHoliday: info.isPublicHoliday,
             suffix: "\(index)",
             digits: digits

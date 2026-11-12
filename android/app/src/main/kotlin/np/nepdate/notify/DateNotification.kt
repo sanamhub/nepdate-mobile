@@ -148,20 +148,11 @@ internal class DateNotification(
         context.getSystemService(NotificationManager::class.java).createNotificationChannel(channel)
     }
 
-    /**
-     * The status bar icon for [day]: one of the 64 generated vector drawables (days 1 to 32, Latin
-     * and Devanagari digits). Android 16 replaces a bitmap small icon with the app icon, so the day
-     * has to be a resource; the status bar keeps only its alpha and tints it like every other icon.
-     */
-    @SuppressLint("DiscouragedApi") // 64 generated names; res/raw/keep_day_icons.xml keeps them.
     @DrawableRes
     private fun dayIcon(
         day: Int,
         nepaliDigits: Boolean,
-    ): Int =
-        context.resources
-            .getIdentifier("ic_day_${if (nepaliDigits) "ne" else "en"}_$day", "drawable", context.packageName)
-            .takeIf { it != 0 } ?: R.drawable.ic_sym_event_available
+    ): Int = dayIconRes(context, day, nepaliDigits)
 
     internal companion object {
         const val ICON_CHANNEL = "status_bar_date"
@@ -169,3 +160,20 @@ internal class DateNotification(
         const val NOTIFICATION_ID = 2083
     }
 }
+
+/**
+ * Today's BS day as an icon: one of the 64 generated vector drawables (days 1 to 32, Latin and
+ * Devanagari digits). Android 16 replaces a bitmap small icon with the app icon, so the day has to
+ * be a resource; the status bar and the Quick Settings tile keep only its alpha and tint it like
+ * every other icon.
+ */
+@SuppressLint("DiscouragedApi") // 64 generated names; res/raw/keep_day_icons.xml keeps them.
+@DrawableRes
+internal fun dayIconRes(
+    context: Context,
+    day: Int,
+    nepaliDigits: Boolean,
+): Int =
+    context.resources
+        .getIdentifier("ic_day_${if (nepaliDigits) "ne" else "en"}_$day", "drawable", context.packageName)
+        .takeIf { it != 0 } ?: R.drawable.ic_sym_event_available

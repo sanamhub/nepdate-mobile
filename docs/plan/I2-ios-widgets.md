@@ -18,8 +18,10 @@ checklist cover placement, refresh and rendering modes.
 ## Constraints
 
 - Deployment target stays iOS 18.0.
-- `systemExtraLargePortrait` is iOS 27.0. The `macos-26` runner has Xcode 26.6, so the extra-large
-  W-03 family cannot compile yet. It is deferred to a later phase and is not part of I2.
+- `systemExtraLargePortrait` is iOS 27.0. The app target supports iPad (`TARGETED_DEVICE_FAMILY`
+  is `1,2`), so the family is applicable, not "iPhone only". The `macos-26` runner is pinned to
+  Xcode 26.6 by ADR-0014 because the measured Xcode 27 run failed the gates, so the extra-large
+  W-03 family cannot compile or be checked yet. It is deferred to the Xcode 27 migration.
 - The app has no URL scheme or route parser yet. Both are added here because every widget tap and
   every control needs one.
 - No new dependency, permission, background mode or network call. I2-01 adds the
@@ -107,8 +109,9 @@ and records no state that survives the next midnight. Each in-month day is a `Li
   used by W-02.
   Test: `AppRouteTests.monthDayURL`.
 
-`systemExtraLargePortrait` and its holiday/event list are deferred until the runner has Xcode 27;
-the code is not written against an SDK that cannot compile it. This is recorded in `PROGRESS.md`.
+`systemExtraLargePortrait` and its holiday/event list are deferred until the Xcode 27 migration
+(ADR-0014); the code is not written against an SDK that cannot compile it. The app builds for iPad,
+so this is not marked "iPhone only". This is recorded in `PROGRESS.md`.
 
 ### I2-04 W-04 Lock screen and W-05 Controls
 
