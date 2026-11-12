@@ -28,7 +28,7 @@ struct TodayWidgetTests {
     let holidays = FestivalDirectory.next(after: Self.day, limit: 24, holidaysOnly: true)
 
     #expect(!holidays.isEmpty)
-    #expect(holidays.allSatisfy(\.isHoliday))
+    #expect(holidays.allSatisfy { $0.isHoliday })
     #expect(holidays.count < all.count)
     #expect(holidays.allSatisfy { all.contains($0) })
   }
