@@ -11,10 +11,9 @@ import UIKit
 /// it runs the same guarded month change.
 public struct MonthScreen: View {
   @State private var model: MonthViewModel
-  @State private var scrolledMonth: MonthKey?
+  @State private var position: ScrollPosition
   @State private var window: [MonthKey]
   @State private var detail: MonthDate?
-  @State private var isRecentring = false
   @State private var showsYear = false
   @Namespace private var yearZoom
   @Namespace private var detailZoom
@@ -51,7 +50,7 @@ public struct MonthScreen: View {
     onMonthRequestHandled: @escaping () -> Void = {}
   ) {
     _model = State(initialValue: model)
-    _scrolledMonth = State(initialValue: model.month)
+    _position = State(initialValue: ScrollPosition(id: model.month))
     _window = State(initialValue: Self.window(around: model.month))
     self.settings = settings
     self.today = today
@@ -128,82 +127,80 @@ public struct MonthScreen: View {
   }
 
   private var pager: some View {
-    ScrollViewReader { proxy in
-      ScrollView(.horizontal) {
-        LazyHStack(spacing: 0) {
-          ForEach(window) { key in
-            MonthPage(
-              key: key,
-              today: today,
-              language: model.language,
-              digits: model.digits,
-              showTithi: model.showTithi,
-              showsADDates: model.showsADDates,
-              selected: model.selected,
-              zoom: detailZoom,
-              onSelect: select,
-              onOpenDay: openDay
-            )
-            .accessibilityHidden(key != (scrolledMonth ?? model.month))
-            .containerRelativeFrame([.horizontal, .vertical])
-            .id(key)
-          }
-        }
-        .scrollTargetLayout()
-      }
-      .scrollTargetBehavior(.paging)
-      .scrollPosition(id: $scrolledMonth)
-      .scrollIndicators(.hidden)
-      .accessibilityIdentifier("month_pager")
-      .accessibilityScrollAction { edge in
-        if edge == .leading {
-          go(to: previousMonth)
-        } else {
-          go(to: nextMonth)
+    ScrollView(.horizontal) {
+      LazyHStack(spacing: 0) {
+        ForEach(window) { key in
+          MonthPage(
+            key: key,
+            today: today,
+            language: model.language,
+            digits: model.digits,
+            showTithi: model.showTithi,
+            showsADDates: model.showsADDates,
+            selected: model.selected,
+            zoom: detailZoom,
+            onSelect: select,
+            onOpenDay: openDay
+          )
+          .accessibilityHidden(key != (scrolledMonth ?? model.month))
+          .containerRelativeFrame([.horizontal, .vertical])
+          .id(key)
         }
       }
-      .modifier(
-        MonthPagerActions(
-          canGoPrevious: model.canGoPrevious,
-          canGoNext: model.canGoNext,
-          onPrevious: { go(to: previousMonth) },
-          onNext: { go(to: nextMonth) }
-        )
-      )
-      // A hardware keyboard pages the month with the left and right arrows while the pager has
-      // focus, which is the gesture the system Calendar answers. The pager has to be focusable for
-      // those keys to arrive; the audit's findings are the same with and without it (runs
-      // 42966820203 and 42991475401).
-      .focusable()
-      .onKeyPress(.leftArrow) {
+      .scrollTargetLayout()
+    }
+    .scrollTargetBehavior(.paging)
+    .scrollPosition($position)
+    .scrollIndicators(.hidden)
+    .accessibilityIdentifier("month_pager")
+    .accessibilityScrollAction { edge in
+      if edge == .leading {
         go(to: previousMonth)
-        return .handled
-      }
-      .onKeyPress(.rightArrow) {
+      } else {
         go(to: nextMonth)
-        return .handled
       }
-      .onChange(of: scrolledMonth) { _, newValue in
-        guard !isRecentring, let newValue, newValue != model.month else { return }
-        model.go(to: newValue)
-      }
-      .onScrollPhaseChange { _, phase in
-        // Only at rest: no finger is down and nothing is decelerating, so no gesture can start
-        // from an offset that is about to change.
-        guard phase == .idle, !isRecentring,
-          let index = window.firstIndex(of: model.month)
-        else { return }
-        if index < 5 || window.count > Self.maximumWindow {
-          // The earlier pages are behind the pager, or forward paging has grown the window past
-          // its bound. Either way the pages before the month change, which shifts every position,
-          // so the window is rebuilt and the offset put back on the month in the same update.
-          recentre(on: model.month, proxy: proxy)
-        } else if index >= window.count - 5 {
-          // The next pages are in front of the pager, so add them after the window. Existing
-          // pages keep their positions and the pixel offset keeps naming the shown month, so a
-          // quick swipe can continue at once.
-          extendWindowForward()
-        }
+    }
+    .modifier(
+      MonthPagerActions(
+        canGoPrevious: model.canGoPrevious,
+        canGoNext: model.canGoNext,
+        onPrevious: { go(to: previousMonth) },
+        onNext: { go(to: nextMonth) }
+      )
+    )
+    // A hardware keyboard pages the month with the left and right arrows while the pager has
+    // focus, which is the gesture the system Calendar answers. The pager has to be focusable for
+    // those keys to arrive; the audit's findings are the same with and without it (runs
+    // 42966820203 and 42991475401).
+    .focusable()
+    .onKeyPress(.leftArrow) {
+      go(to: previousMonth)
+      return .handled
+    }
+    .onKeyPress(.rightArrow) {
+      go(to: nextMonth)
+      return .handled
+    }
+    .onChange(of: scrolledMonth) { _, newValue in
+      guard let newValue, newValue != model.month else { return }
+      model.go(to: newValue)
+    }
+    .onScrollPhaseChange { _, phase in
+      // Only at rest: no finger is down and nothing is decelerating, so no gesture can start
+      // from an offset that is about to change.
+      guard phase == .idle,
+        let index = window.firstIndex(of: model.month)
+      else { return }
+      if index < 5 || window.count > Self.maximumWindow {
+        // The earlier pages are behind the pager, or forward paging has grown the window past
+        // its bound. Either way the pages before the month change, which shifts every position,
+        // so the window is rebuilt and the offset put back on the month in the same update.
+        recentre(on: model.month)
+      } else if index >= window.count - 5 {
+        // The next pages are in front of the pager, so add them after the window. Existing
+        // pages keep their positions and the pixel offset keeps naming the shown month, so a
+        // quick swipe can continue at once.
+        extendWindowForward()
       }
     }
   }
@@ -318,7 +315,7 @@ public struct MonthScreen: View {
       window = Self.window(around: key)
     }
     withAnimation(Motion.animation(.snappy, reduceMotion: reduceMotion)) {
-      scrolledMonth = key
+      position.scrollTo(id: key)
     }
   }
 
@@ -332,13 +329,17 @@ public struct MonthScreen: View {
 
   /// Replaces the window around a month the user swiped to near its edge. Swapping the pages
   /// keeps the pixel offset, not the page, so the offset has to be put back on the month in the
-  /// same update. Paging changes are ignored until the offset is back.
-  private func recentre(on key: MonthKey, proxy: ScrollViewProxy) {
-    isRecentring = true
+  /// same update. The position names the same month before and after, so it is told to scroll
+  /// rather than assigned: assigning an unchanged id moves nothing, which left the offset on the
+  /// old index and sent the next swipe twenty months back (run 43151347513).
+  private func recentre(on key: MonthKey) {
     window = Self.window(around: key)
-    proxy.scrollTo(key, anchor: .leading)
-    scrolledMonth = key
-    isRecentring = false
+    position.scrollTo(id: key)
+  }
+
+  /// The month the pager shows, as the scroll position last reported it.
+  private var scrolledMonth: MonthKey? {
+    position.viewID(type: MonthKey.self)
   }
 
   /// The most pages forward paging may grow the window to before it is rebuilt around the month:
