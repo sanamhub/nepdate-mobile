@@ -227,6 +227,43 @@ final class MonthAccessibilityTests: XCTestCase {
     )
   }
 
+  /// The same across the backward edge, where the window is rebuilt: the twentieth swipe back
+  /// brings the shown month within five pages of the window's start, and the rebuild at rest puts
+  /// the offset back on the month in the same update, so a second quick swipe still moves exactly
+  /// one month.
+  @MainActor
+  func testTwoQuickSwipesBackCrossTheWindowRebuild() throws {
+    let app = Self.launch()
+    XCTAssertTrue(Self.title("Asoj 2083", in: app).waitForExistence(timeout: 10))
+
+    let pager = app.scrollViews["month_pager"]
+    var key = try XCTUnwrap(MonthKey(year: 2083, month: 6))
+    for _ in 0..<19 {
+      key = try XCTUnwrap(MonthKey(id: key.id - 1))
+      let expected = "\(MonthNames.bs(key.month, .english)) \(key.year)"
+      var reached = false
+      for _ in 0..<2 where !reached {
+        pager.swipeRight(velocity: .slow)
+        reached = Self.title(expected, in: app).waitForExistence(timeout: 10)
+      }
+      XCTAssertTrue(reached, "the pager did not reach \(expected)")
+    }
+
+    pager.swipeRight(velocity: .slow)
+    pager.swipeRight(velocity: .slow)
+
+    let target = try XCTUnwrap(MonthKey(id: key.id - 2))
+    let name = MonthNames.bs(target.month, .english)
+    XCTAssertTrue(
+      Self.title("\(name) \(target.year)", in: app).waitForExistence(timeout: 10),
+      "two quick swipes back across the rebuild did not land on \(name) \(target.year)"
+    )
+    XCTAssertTrue(
+      Self.cell(beginningWith: "\(name) 1, \(target.year),", in: app).waitForExistence(timeout: 10),
+      "the pager named \(name) \(target.year) but did not draw it"
+    )
+  }
+
   @MainActor
   func testTodayCardOpensTheDaySheet() throws {
     let app = Self.launch(today: "2083-06-25")

@@ -15,7 +15,6 @@ public struct MonthScreen: View {
   @State private var window: [MonthKey]
   @State private var detail: MonthDate?
   @State private var isRecentring = false
-  @State private var recentreTask: Task<Void, Never>?
   @State private var showsYear = false
   @Namespace private var yearZoom
   @Namespace private var detailZoom
@@ -189,30 +188,23 @@ public struct MonthScreen: View {
         model.go(to: newValue)
       }
       .onScrollPhaseChange { _, phase in
+        // Only at rest: no finger is down and nothing is decelerating, so no gesture can start
+        // from an offset that is about to change.
         guard phase == .idle, !isRecentring,
           let index = window.firstIndex(of: model.month)
-        else {
-          if phase != .idle { recentreTask?.cancel() }
-          return
-        }
-        if index >= window.count - 5 {
+        else { return }
+        if index < 5 || window.count > Self.maximumWindow {
+          // The earlier pages are behind the pager, or forward paging has grown the window past
+          // its bound. Either way the pages before the month change, which shifts every position,
+          // so the window is rebuilt and the offset put back on the month in the same update.
+          recentre(on: model.month, proxy: proxy)
+        } else if index >= window.count - 5 {
           // The next pages are in front of the pager, so add them after the window. Existing
-          // pages keep their positions and the pixel offset keeps naming the shown month, which
-          // is why a quick swipe can continue immediately instead of waiting for a rebuild.
+          // pages keep their positions and the pixel offset keeps naming the shown month, so a
+          // quick swipe can continue at once.
           extendWindowForward()
-        } else if index < 5 {
-          // The earlier pages are behind the pager. Prepending pages shifts every position, so
-          // this side needs the offset put back; wait for a pause and let any new gesture cancel
-          // the rebuild.
-          recentreTask?.cancel()
-          recentreTask = Task { @MainActor in
-            try? await Task.sleep(for: .seconds(2))
-            guard !Task.isCancelled else { return }
-            recentre(on: model.month, proxy: proxy)
-          }
         }
       }
-      .onDisappear { recentreTask?.cancel() }
     }
   }
 
@@ -348,6 +340,11 @@ public struct MonthScreen: View {
     scrolledMonth = key
     isRecentring = false
   }
+
+  /// The most pages forward paging may grow the window to before it is rebuilt around the month:
+  /// two windows' worth, so the accessibility tree stays small (a 3588-page tree made the audit
+  /// time out).
+  private static let maximumWindow = 97
 
   /// The pages the pager holds. A window around the shown month keeps the number of views small;
   /// the year view can still reach every month and `go(to:)` recentres the window first.
