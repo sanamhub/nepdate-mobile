@@ -18,8 +18,8 @@ Preconditions:
   released, use them from a local path (ADR-0003 §6).
 - The first public release of either app (A3-04, I3-03) needs both **open** rows in
   `docs/legal/README.md` closed (ADR-0009, release gates).
-- MR-12 AC2 (holiday subscription) needs the hub's `holidays.ics` (hub task H4); if it is
-  not ready, the button is hidden and the requirement moves to the next release.
+- MR-12 AC2 (holiday subscription) uses the live feed at `https://patro.nepdate.com/holidays.ics`.
+  The apps open or share the address and never fetch it (ADR-0007).
 
 | Phase | File | Output | Status today |
 |---|---|---|---|
