@@ -92,6 +92,9 @@ public struct FestivalsScreen: View {
         }
       }
       .listStyle(.plain)
+      // The system puts the search field over the list's lower edge. The content inset keeps the
+      // last row and the coverage line above it instead of behind it.
+      .contentMargins(.bottom, Self.searchFieldInset, for: .scrollContent)
       .overlay {
         if model.isEmpty {
           ContentUnavailableView.search(text: query)
@@ -103,6 +106,9 @@ public struct FestivalsScreen: View {
     .onChange(of: query) { _, _ in rebuild() }
     .onChange(of: holidaysOnly) { _, _ in rebuild() }
   }
+
+  /// The floating search field's height, reserved at the end of the list.
+  private static let searchFieldInset: CGFloat = 72
 
   private func row(_ day: FestivalDay) -> some View {
     Button {

@@ -16,9 +16,9 @@ public struct FestivalCountdownGaugeView: View {
   /// The gauge's content.
   public var body: some View {
     Gauge(value: Self.fraction(days: event.daysFromToday), in: 0...1) {
-      Text(verbatim: event.count)
+      Text(verbatim: discText)
     } currentValueLabel: {
-      Text(verbatim: event.count)
+      Text(verbatim: discText)
     }
     .gaugeStyle(.accessoryCircularCapacity)
     .widgetAccentable()
@@ -29,6 +29,10 @@ public struct FestivalCountdownGaugeView: View {
   /// window is twelve days, so a longer wait is clamped rather than drawn as a full ring.
   public static func fraction(days: Int) -> Double {
     Double(min(max(days, 0), 12)) / 12
+  }
+
+  private var discText: String {
+    FestivalCountdownText.disc(days: event.daysFromToday, count: event.count)
   }
 
   private var spoken: String {

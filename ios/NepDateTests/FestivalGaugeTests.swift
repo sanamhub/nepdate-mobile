@@ -15,4 +15,21 @@ struct FestivalGaugeTests {
     #expect(FestivalCountdownGaugeView.fraction(days: -3) == 0)
     #expect(FestivalCountdownGaugeView.fraction(days: 30) == 1)
   }
+
+  @Test("the disc says Today on the festival day instead of zero")
+  func festivalDay() {
+    #expect(
+      FestivalCountdownText.disc(days: 0, count: "0", today: "Today") == "Today"
+    )
+    #expect(
+      FestivalCountdownText.disc(days: 0, count: "०", today: "आज") == "आज"
+    )
+  }
+
+  @Test("the disc keeps the day count before the festival")
+  func beforeTheFestival() {
+    #expect(
+      FestivalCountdownText.disc(days: 2, count: "2", today: "Today") == "2"
+    )
+  }
 }

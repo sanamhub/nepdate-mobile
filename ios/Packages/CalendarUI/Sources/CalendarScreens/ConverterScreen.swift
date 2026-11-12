@@ -40,8 +40,8 @@ public struct ConverterScreen: View {
     _day = State(initialValue: model.today.day)
     _bsInput = State(initialValue: bsInput)
     _adDate = State(initialValue: Self.date(for: model.today))
-    _from = State(initialValue: model.today)
-    _to = State(initialValue: model.today)
+    _from = State(initialValue: model.comparison?.from ?? model.today)
+    _to = State(initialValue: model.comparison?.to ?? model.today)
     self.onOpenDay = onOpenDay
   }
 
