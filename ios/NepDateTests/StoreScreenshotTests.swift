@@ -215,11 +215,10 @@ private struct StoreRoot<Content: View>: View {
       Tab("Converter", systemImage: "arrow.left.arrow.right", value: AppTab.converter) {
         page(.converter)
       }
-      Tab("Search", systemImage: "magnifyingglass", value: AppTab.search, role: .search) {
+      Tab("Search", systemImage: "magnifyingglass", value: AppTab.search) {
         page(.search)
       }
     }
-    .tabViewStyle(.sidebarAdaptable)
   }
 
   @ViewBuilder
