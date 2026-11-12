@@ -10,10 +10,14 @@ public enum FestivalCountdownText {
   /// - Parameters:
   ///   - days: Whole days until the festival; zero is the festival day.
   ///   - count: The day count in the resolved digits.
-  ///   - locale: The locale whose string table is read.
-  /// - Returns: The count, or the localised word for Today.
-  public static func disc(days: Int, count: String, locale: Locale = .current) -> String {
-    days == 0 ? String(localized: "Today", locale: locale) : count
+  ///   - today: The localised word for today, read by the caller from its string table.
+  /// - Returns: The count, or [today].
+  public static func disc(
+    days: Int,
+    count: String,
+    today: String = String(localized: "Today")
+  ) -> String {
+    days == 0 ? today : count
   }
 }
 
