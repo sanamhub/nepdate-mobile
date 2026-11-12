@@ -18,6 +18,7 @@ import kotlinx.coroutines.launch
 import np.nepdate.MainActivity
 import np.nepdate.R
 import np.nepdate.data.Digits
+import np.nepdate.notify.dayIconRes
 import np.nepdate.ui.common.inDigits
 import np.nepdate.ui.common.languageFor
 import np.nepdate.ui.common.resolve
@@ -26,8 +27,9 @@ import np.nepdate.widget.appContainer
 
 /** The two lines a Quick Settings tile can show. */
 internal data class TodayTileText(
-    val title: String,
+    val label: String,
     val subtitle: String,
+    val description: String,
 )
 
 /**
@@ -62,14 +64,14 @@ class TodayTileService : TileService() {
             val today = container.todayProvider.today(settings.dateFollows)
             val months = resources.getStringArray(R.array.bs_month_long).toList()
             val text = todayTileText(today, digits, months, lang)
+            val dayIcon = dayIconRes(applicationContext, today.dayOfMonth, nepaliDigits = digits == Digits.NEPALI)
             qsTile?.apply {
                 state = Tile.STATE_INACTIVE
-                label = getString(R.string.tile_label)
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    subtitle = text.subtitle
-                    contentDescription = text.title
-                }
-                icon = Icon.createWithResource(this@TodayTileService, R.drawable.ic_sym_calendar_month)
+                // The date is the tile's label, so it reads at a glance like the status bar day.
+                label = text.label
+                contentDescription = text.description
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) subtitle = text.subtitle
+                icon = Icon.createWithResource(this@TodayTileService, dayIcon)
                 updateTile()
             }
         }
@@ -98,8 +100,9 @@ class TodayTileService : TileService() {
 }
 
 /**
- * The tile's subtitle, for example `Asoj 20, 2083` or `असोज २०, २०८३`. Kept pure so it can be
- * tested without the Android tile host.
+ * The tile's text: the label `Asoj 20` (`असोज २०`), the subtitle `Tuesday, 2083`, and the full
+ * date for TalkBack. A tile label is cut after a dozen characters, so the year moves to the
+ * subtitle. Kept pure so it can be tested without the Android tile host.
  */
 internal fun todayTileText(
     today: NepaliDate,
@@ -112,7 +115,8 @@ internal fun todayTileText(
     val year = today.year.toString().inDigits(digits)
     val weekday = weekdayName(today, lang)
     return TodayTileText(
-        title = "$weekday, $month $day, $year",
-        subtitle = "$month $day, $year",
+        label = "$month $day",
+        subtitle = "$weekday, $year",
+        description = "$weekday, $month $day, $year",
     )
 }

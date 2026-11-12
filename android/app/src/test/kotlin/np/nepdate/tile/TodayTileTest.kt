@@ -29,8 +29,9 @@ class TodayTileTest {
     fun englishTileNamesTheWeekdayAndDate() {
         val text = todayTileText(NepaliDate.of(2083, 6, 20), Digits.ENGLISH, months, Lang.ENGLISH)
 
-        assertEquals("Tuesday, Asoj 20, 2083", text.title)
-        assertEquals("Asoj 20, 2083", text.subtitle)
+        assertEquals("Asoj 20", text.label)
+        assertEquals("Tuesday, 2083", text.subtitle)
+        assertEquals("Tuesday, Asoj 20, 2083", text.description)
     }
 
     @Test
@@ -38,8 +39,9 @@ class TodayTileTest {
         val today = NepaliDate.of(2083, 6, 20)
         val text = todayTileText(today, Digits.NEPALI, months, Lang.NEPALI)
 
-        assertEquals("${weekdayName(today, Lang.NEPALI)}, Asoj २०, २०८३", text.title)
-        assertEquals("Asoj २०, २०८३", text.subtitle)
+        assertEquals("Asoj २०", text.label)
+        assertEquals("${weekdayName(today, Lang.NEPALI)}, २०८३", text.subtitle)
+        assertEquals("${weekdayName(today, Lang.NEPALI)}, Asoj २०, २०८३", text.description)
     }
 
     @Test
@@ -47,6 +49,6 @@ class TodayTileTest {
         val today = NepaliDate.of(2083, 6, 20)
         val text = todayTileText(today, Digits.ENGLISH, months, Lang.NEPALI)
 
-        assertEquals("${weekdayName(today, Lang.NEPALI)}, Asoj 20, 2083", text.title)
+        assertEquals("${weekdayName(today, Lang.NEPALI)}, Asoj 20, 2083", text.description)
     }
 }
