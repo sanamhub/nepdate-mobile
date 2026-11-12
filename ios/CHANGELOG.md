@@ -15,6 +15,9 @@ All notable changes to the iOS app. The format follows
 
 ### Added
 
+- The About subscription row opens `webcal://patro.nepdate.com/holidays.ics`, so Calendar can
+  subscribe to the public holiday feed. The app opens the address and never fetches it.
+
 - The parity work: the four tabs with the search role, the first run, the today card and the
   rebuilt month grid, the year view, the day sheet's stepping and Share, the festivals list and
   search, the rebuilt converter, the six promises in About, the new widget families, the App

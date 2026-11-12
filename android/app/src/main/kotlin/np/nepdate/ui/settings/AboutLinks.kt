@@ -18,8 +18,8 @@ internal const val SOURCE_URL = "https://github.com/sanamhub/nepdate-mobile"
 internal const val NEPDATE_SITE_URL = "https://nepdate.com"
 internal const val WEB_PATRO_URL = "https://patro.nepdate.com"
 
-/** Empty until the hub publishes `holidays.ics` (hub task H4; ADR-0003). */
-internal const val HOLIDAYS_ICS_URL = ""
+/** The hub's public holiday feed (ADR-0003). Calendar apps take the https URL as text. */
+internal const val HOLIDAYS_ICS_URL = "https://patro.nepdate.com/holidays.ics"
 
 /** Only repositories whose pages are public today; a dead data-questions link may not ship. */
 internal val ALLOWED_ABOUT_REPOSITORIES = setOf("sanamhub/nepdate-mobile")

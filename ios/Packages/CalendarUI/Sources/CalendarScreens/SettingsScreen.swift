@@ -394,9 +394,21 @@ public struct AboutContent: View {
       if links.showsSubscription {
         Section {
           Button(action: openSubscription) {
-            Text("Subscribe to Nepal holidays")
-              .frame(minHeight: 44)
+            VStack(alignment: .leading, spacing: 2) {
+              Text("Subscribe to Nepal holidays")
+              Text("Public holidays in your calendar app, updated weekly")
+                .font(.subheadline)
+                .foregroundStyle(BrandColor.secondaryText)
+                .fixedSize(horizontal: false, vertical: true)
+            }
+            .frame(minHeight: 44, alignment: .leading)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .contentShape(Rectangle())
           }
+          .buttonStyle(.plain)
+          .foregroundStyle(.primary)
+          .accessibilityElement(children: .combine)
+          .accessibilityIdentifier("subscribe_holidays")
         }
       }
 

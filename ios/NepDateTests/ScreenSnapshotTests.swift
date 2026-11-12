@@ -87,6 +87,29 @@ struct ScreenSnapshotTests {
     }
   }
 
+  @Test("About subscription reference images")
+  func aboutSubscription() {
+    for (name, language, digits, locale) in [
+      ("light", AppLanguage.english, Digits.english, "en"),
+      ("nepali", .nepali, .nepali, "ne"),
+    ] {
+      let screen = AboutSnapshot(
+        info: Self.info,
+        language: language,
+        digits: digits,
+        settings: Settings(language: language == .nepali ? .nepali : .english)
+      )
+      snapshot(
+        screen,
+        named: "about-subscription-\(name)",
+        scheme: .light,
+        type: .large,
+        locale: locale,
+        size: CGSize(width: 390, height: 1_500)
+      )
+    }
+  }
+
   private func variants() -> [(String, AppLanguage, Digits, ColorScheme, DynamicTypeSize, String)] {
     [
       ("light", .english, .english, .light, .large, "en"),
@@ -101,7 +124,8 @@ struct ScreenSnapshotTests {
     named name: String,
     scheme: ColorScheme,
     type: DynamicTypeSize,
-    locale: String
+    locale: String,
+    size: CGSize = Self.size
   ) {
     let content =
       view
@@ -117,7 +141,7 @@ struct ScreenSnapshotTests {
 
     assertSnapshot(
       of: controller,
-      as: .image(size: Self.size, traits: traits),
+      as: .image(size: size, traits: traits),
       named: name,
       testName: "screen"
     )

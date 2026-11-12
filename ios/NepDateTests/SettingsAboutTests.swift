@@ -124,7 +124,19 @@ struct SettingsAboutTests {
   func subscription() {
     #expect(!AboutLinksState(holidaysURL: "").showsSubscription)
     #expect(AboutLinksState(holidaysURL: "webcal://example.test/holidays.ics").showsSubscription)
-    #expect(AboutLinks.holidaysICSURL.isEmpty)
+    #expect(
+      AboutLinks.holidaysICSURL == "webcal://patro.nepdate.com/holidays.ics"
+    )
+  }
+
+  @Test("MR-12 AC2: the subscription opens the published feed through Calendar")
+  func subscriptionURL() throws {
+    let url = try #require(URL(string: AboutLinks.holidaysICSURL))
+
+    #expect(url.scheme == "webcal")
+    #expect(url.host == "patro.nepdate.com")
+    #expect(url.path == "/holidays.ics")
+    #expect(AboutLinksState().showsSubscription)
   }
 
   @Test("MR-07 AC2: the About values have the expected coverage and versions")

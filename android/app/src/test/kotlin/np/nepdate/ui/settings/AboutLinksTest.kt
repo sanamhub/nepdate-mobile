@@ -22,7 +22,7 @@ class AboutLinksTest {
             "https://github.com/sanamhub/nepdate-mobile/issues/new?template=wrong-date.yml",
             REPORT_DATE_URL,
         )
-        assertEquals("", HOLIDAYS_ICS_URL)
+        assertEquals("https://patro.nepdate.com/holidays.ics", HOLIDAYS_ICS_URL)
     }
 
     @Test
@@ -38,6 +38,7 @@ class AboutLinksTest {
                 SOURCE_URL,
                 NEPDATE_SITE_URL,
                 WEB_PATRO_URL,
+                HOLIDAYS_ICS_URL,
             ),
             urls.toSet(),
         )
@@ -53,6 +54,12 @@ class AboutLinksTest {
         assertNotNull(aboutUrlProblem("http://nepdate.com"))
         assertNotNull(aboutUrlProblem("https://nepdate.com.example.test"))
         assertNotNull(aboutUrlProblem("https://nepdate.com:8443"))
+    }
+
+    @Test
+    fun thePublishedHolidayFeedIsAnAllowedProjectSite() {
+        assertNull(aboutUrlProblem(HOLIDAYS_ICS_URL))
+        assertEquals("https://patro.nepdate.com/holidays.ics", HOLIDAYS_ICS_URL)
     }
 
     @Test

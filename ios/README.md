@@ -179,7 +179,9 @@ Converter uses the library's lenient BS parser, a platform AD `DatePicker`, the 
 and the invalid-day message. Settings persists Language, Digits, Date follows and Show tithi through
 `SettingsStore`; the first-launch Nepal time suggestion is shown once when the device zone differs.
 About shows the app version, `NepDateLibraryVersion`, coverage, data and official sources, the five
-allow-listed links, the injected webcal row and the diagnostic copy.
+allow-listed links, the webcal subscription row and the diagnostic copy. The subscription row opens
+`webcal://patro.nepdate.com/holidays.ics`, which hands the public holiday feed to Calendar; the app
+never fetches it.
 
 `ci.sh` checks that `NEPDATE_LIBRARY_VERSION` in `project.yml` equals the nepdate-swift version in
 both package manifests. It also fails when any key in `Localizable.xcstrings` lacks a translated

@@ -14,6 +14,11 @@ A Nepali calendar for Android and iPhone that does one job: show the Bikram Samb
 month, and its holidays and events, on the home screen and in the app. No ads, no account, no
 news, no horoscope, no network.
 
+Both apps can hand the public holiday feed to your calendar app from Settings: Android shares
+`https://patro.nepdate.com/holidays.ics` as text and iOS opens
+`webcal://patro.nepdate.com/holidays.ics`. The app only opens or shares the address; it never
+fetches it.
+
 | | Android (`android/`) | iOS (`ios/`) |
 |---|---|---|
 | UI | Jetpack Compose, Material 3 | SwiftUI |
