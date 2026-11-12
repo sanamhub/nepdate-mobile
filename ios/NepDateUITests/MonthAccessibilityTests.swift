@@ -160,7 +160,7 @@ final class MonthAccessibilityTests: XCTestCase {
 
     let pager = app.scrollViews["month_pager"]
     var key = try XCTUnwrap(MonthKey(year: 2083, month: 6))
-    for step in 0..<21 {
+    for _ in 0..<21 {
       key = try XCTUnwrap(MonthKey(id: key.id + 1))
       let expected = "\(MonthNames.bs(key.month, .english)) \(key.year)"
       // The month is the navigation bar's identifier, so a wait for the bar of that month is the
@@ -176,21 +176,91 @@ final class MonthAccessibilityTests: XCTestCase {
         reached = Self.title(expected, in: app).waitForExistence(timeout: 10)
       }
       XCTAssertTrue(reached, "the pager did not reach \(expected)")
-      // The twentieth swipe is the one that recentres the window: 24 pages sit on each side of the
-      // shown month and the pager rebuilds when a swipe comes within five of an edge. The rebuild
-      // keeps the scroll offset while the pages change, and the pager is then scrolled back to the
-      // month, so for a moment the offset points at another month. A swipe taken in that moment
-      // starts from that offset: run 43014018570 ended on Kartik 2088 after the twenty-first swipe.
-      // The pager is therefore given time to settle before the next swipe.
-      if step == 19 {
-        Thread.sleep(forTimeInterval: 2)
-      }
     }
     // The loop above landed on Asar 2085; its first cell proves the pager draws that month after
     // the recentre, not only that the bar names it.
     XCTAssertTrue(
       Self.cell(beginningWith: "Asar 1, 2085,", in: app).waitForExistence(timeout: 10),
       "the page after the recentre is not Asar 2085"
+    )
+  }
+
+  /// Two swipes taken without a pause across the recentre still move exactly two months. The
+  /// twentieth swipe rebuilds the 49-month window; a swipe that starts before the pager has put
+  /// its offset back on the shown month used to start from the rebuilt window's old offset and
+  /// jump many months (run 43014018570). The first nineteen swipes are allowed to settle so the
+  /// test reaches the edge predictably; the last two are not.
+  @MainActor
+  func testTwoQuickSwipesCrossTheWindowRecentre() throws {
+    let app = Self.launch()
+    XCTAssertTrue(Self.title("Asoj 2083", in: app).waitForExistence(timeout: 10))
+
+    let pager = app.scrollViews["month_pager"]
+    var key = try XCTUnwrap(MonthKey(year: 2083, month: 6))
+    for _ in 0..<19 {
+      key = try XCTUnwrap(MonthKey(id: key.id + 1))
+      let expected = "\(MonthNames.bs(key.month, .english)) \(key.year)"
+      var reached = false
+      for _ in 0..<2 where !reached {
+        pager.swipeLeft(velocity: .slow)
+        reached = Self.title(expected, in: app).waitForExistence(timeout: 10)
+      }
+      XCTAssertTrue(reached, "the pager did not reach \(expected)")
+    }
+    XCTAssertTrue(
+      Self.title("Baisakh 2085", in: app).exists,
+      "the pager is not on the month before the recentre"
+    )
+
+    // The twentieth swipe takes the pager to the edge and rebuilds the window. The twenty-first
+    // follows at once, with no wait for the rebuild or for the scroll offset.
+    pager.swipeLeft(velocity: .slow)
+    pager.swipeLeft(velocity: .slow)
+
+    XCTAssertTrue(
+      Self.title("Asar 2085", in: app).waitForExistence(timeout: 10),
+      "two quick swipes across the recentre did not land on Asar 2085"
+    )
+    XCTAssertTrue(
+      Self.cell(beginningWith: "Asar 1, 2085,", in: app).waitForExistence(timeout: 10),
+      "the pager named Asar 2085 but did not draw it"
+    )
+  }
+
+  /// The same across the backward edge, where the window is rebuilt: the twentieth swipe back
+  /// brings the shown month within five pages of the window's start, and the rebuild at rest puts
+  /// the offset back on the month in the same update, so a second quick swipe still moves exactly
+  /// one month.
+  @MainActor
+  func testTwoQuickSwipesBackCrossTheWindowRebuild() throws {
+    let app = Self.launch()
+    XCTAssertTrue(Self.title("Asoj 2083", in: app).waitForExistence(timeout: 10))
+
+    let pager = app.scrollViews["month_pager"]
+    var key = try XCTUnwrap(MonthKey(year: 2083, month: 6))
+    for _ in 0..<19 {
+      key = try XCTUnwrap(MonthKey(id: key.id - 1))
+      let expected = "\(MonthNames.bs(key.month, .english)) \(key.year)"
+      var reached = false
+      for _ in 0..<2 where !reached {
+        pager.swipeRight(velocity: .slow)
+        reached = Self.title(expected, in: app).waitForExistence(timeout: 10)
+      }
+      XCTAssertTrue(reached, "the pager did not reach \(expected)")
+    }
+
+    pager.swipeRight(velocity: .slow)
+    pager.swipeRight(velocity: .slow)
+
+    let target = try XCTUnwrap(MonthKey(id: key.id - 2))
+    let name = MonthNames.bs(target.month, .english)
+    XCTAssertTrue(
+      Self.title("\(name) \(target.year)", in: app).waitForExistence(timeout: 10),
+      "two quick swipes back across the rebuild did not land on \(name) \(target.year)"
+    )
+    XCTAssertTrue(
+      Self.cell(beginningWith: "\(name) 1, \(target.year),", in: app).waitForExistence(timeout: 10),
+      "the pager named \(name) \(target.year) but did not draw it"
     )
   }
 
