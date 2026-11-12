@@ -35,6 +35,19 @@ struct SettingsAboutTests {
     #expect(model.settings.showTithi)
   }
 
+  @Test("MR-16: an appearance change applies to the model and the store at once")
+  func appearanceAtOnce() throws {
+    let store = Self.store()
+    defer { Self.remove(store) }
+    var model = SettingsViewModel(settings: Settings(), store: store)
+
+    #expect(model.settings.appearance == .system)
+    model.setAppearance(.dark)
+
+    #expect(model.settings.appearance == .dark)
+    #expect(store.load().appearance == .dark)
+  }
+
   @Test("MR-06 AC1: the suggestion shows only for another zone and an unhandled install")
   func suggestionCondition() throws {
     let london = try #require(TimeZone(identifier: "Europe/London"))

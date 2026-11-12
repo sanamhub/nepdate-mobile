@@ -217,7 +217,8 @@ private fun HeroChips(
     ) {
         // A festival day can carry five or more events. The card shows the first two on one line
         // each and a "+N more" chip that opens the day, so it never grows taller than the grid.
-        val shown = if (events.size > MAX_EVENT_CHIPS) events.take(MAX_EVENT_CHIPS - 1) else events
+        val plan = todayChipPlan(events.size, hasNextHoliday = nextHoliday != null)
+        val shown = plan.eventIndices.map(events::get)
         shown.forEachIndexed { index, name ->
             if (isHoliday && index == 0) {
                 HeroChip(
@@ -233,12 +234,12 @@ private fun HeroChips(
                 }
             }
         }
-        if (shown.size < events.size) {
+        if (plan.moreCount > 0) {
             HeroChip(
                 text =
                     stringResource(
                         R.string.home_more_events,
-                        (events.size - shown.size).toString().inDigits(digits),
+                        plan.moreCount.toString().inDigits(digits),
                     ),
                 container = chip,
                 content = onContainer,
@@ -248,7 +249,7 @@ private fun HeroChips(
             }
         }
         // Only a quiet day has room to point at the next holiday.
-        nextHoliday?.takeIf { events.size < MAX_EVENT_CHIPS }?.let { entry ->
+        nextHoliday?.takeIf { plan.showsNextHoliday }?.let { entry ->
             HeroChip(
                 text = nextHolidayText(entry.name.name(lang).inDigits(digits), entry.daysFromToday, digits),
                 container = chip,
@@ -303,6 +304,29 @@ private fun HeroChip(
             overflow = TextOverflow.Ellipsis,
         )
     }
+}
+
+/** Which of the today card's chips show for [eventCount] events and whether a next holiday exists. */
+internal data class TodayChipPlan(
+    val eventIndices: List<Int>,
+    val moreCount: Int,
+    val showsNextHoliday: Boolean,
+)
+
+/**
+ * The today card's chip rule: up to three event chips, with a "+N more" chip replacing the third
+ * event when there are more, and the next holiday only when fewer than three events fill the row.
+ */
+internal fun todayChipPlan(
+    eventCount: Int,
+    hasNextHoliday: Boolean,
+): TodayChipPlan {
+    val shown = if (eventCount > MAX_EVENT_CHIPS) MAX_EVENT_CHIPS - 1 else eventCount
+    return TodayChipPlan(
+        eventIndices = (0 until shown).toList(),
+        moreCount = eventCount - shown,
+        showsNextHoliday = hasNextHoliday && eventCount < MAX_EVENT_CHIPS,
+    )
 }
 
 private const val HOLIDAY_LOOKAHEAD = 60

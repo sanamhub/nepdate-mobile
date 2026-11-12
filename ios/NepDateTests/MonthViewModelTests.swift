@@ -152,8 +152,11 @@ struct MonthViewModelTests {
     let dates = days.compactMap(\.date)
 
     #expect(!days.isEmpty)
+    #expect(days.count > 3)
+    #expect(days.allSatisfy { $0.isInMonth })
     #expect(days.allSatisfy { $0.isHoliday || $0.hasEvents })
     #expect(dates == dates.sorted())
+    #expect(Set(dates).count == dates.count)
   }
 
   @Test("MR-10 AC1: Asoj 25 2083 has the requirement's label")

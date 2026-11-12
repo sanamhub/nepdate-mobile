@@ -70,10 +70,18 @@ public enum FestivalDirectory {
   /// - Parameters:
   ///   - date: The first day to include.
   ///   - limit: The maximum number of days.
+  ///   - holidaysOnly: Whether public holidays are the only days kept; off by default.
   /// - Returns: The days in date order.
-  public static func next(after date: MonthDate, limit: Int) -> [FestivalDay] {
+  public static func next(
+    after date: MonthDate,
+    limit: Int,
+    holidaysOnly: Bool = false
+  ) -> [FestivalDay] {
     guard limit > 0 else { return [] }
-    return Array(all.lazy.filter { $0.date >= date }.prefix(limit))
+    let kept = all.lazy.filter { day in
+      day.date >= date && (!holidaysOnly || day.isHoliday)
+    }
+    return Array(kept.prefix(limit))
   }
 
   private static func build() -> [FestivalDay] {
