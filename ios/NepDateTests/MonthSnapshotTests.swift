@@ -49,28 +49,19 @@ struct MonthSnapshotTests {
       type: .accessibility2,
       locale: "en"
     )
-    snapshot(
-      try Self.model(showsADDates: false),
-      named: "no-ad",
-      scheme: .light,
-      type: .large,
-      locale: "en"
-    )
   }
 
   private static func model(
     language: AppLanguage = .english,
     digits: Digits = .english,
-    showTithi: Bool = false,
-    showsADDates: Bool = true
+    showTithi: Bool = false
   ) throws -> MonthViewModel {
     try #require(
       MonthViewModel(
         today: today,
         language: language,
         digits: digits,
-        showTithi: showTithi,
-        showsADDates: showsADDates
+        showTithi: showTithi
       )
     )
   }

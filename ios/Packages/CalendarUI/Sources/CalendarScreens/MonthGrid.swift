@@ -2,6 +2,23 @@ import CalendarKit
 import CalendarUI
 import SwiftUI
 
+/// The small AD number a grid cell draws, or `nil` when the setting turns it off (MR-17).
+public enum MonthCellText {
+  /// The AD day to draw above the BS numeral.
+  /// - Parameters:
+  ///   - cell: The grid cell.
+  ///   - digits: The resolved Digits setting.
+  ///   - showsADDates: Whether the setting is on.
+  /// - Returns: The formatted AD day, or `nil`.
+  public static func adNumber(
+    _ cell: MonthCell,
+    digits: Digits,
+    showsADDates: Bool
+  ) -> String? {
+    showsADDates ? cell.adNumber(digits) : nil
+  }
+}
+
 /// The 7-column month grid (MR-01, MR-10): the BS numeral, the small AD day, the today mark, the
 /// holiday fill, the event diamond and the optional tithi line.
 ///
@@ -131,8 +148,12 @@ private struct DayCell: View {
 
   private var content: some View {
     VStack(spacing: 1) {
-      if showsADDates {
-        Text(verbatim: cell.adNumber(digits))
+      if let adNumber = MonthCellText.adNumber(
+        cell,
+        digits: digits,
+        showsADDates: showsADDates
+      ) {
+        Text(verbatim: adNumber)
           .font(.system(size: 10))
           .foregroundStyle(secondaryInk)
           .lineLimit(1)

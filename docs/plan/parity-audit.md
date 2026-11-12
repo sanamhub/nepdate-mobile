@@ -25,7 +25,7 @@ surface does not exist on that platform; **gate** means a CI script.
 | MR-14 Year view | tested | tested | `YearScreenTest.theYearShowsTwelveMonthsAndTappingOneOpensIt`, `theRangeStartsAtTheFirstYear`; `YearViewModelTests.months`, `MonthAccessibilityTests.testYearViewReachesBothEndsOfTheRange` | none |
 | MR-15 First run | tested | tested | `FirstRunTest.aFreshInstallShowsTheFirstRunThenRemembersIt`, `theShellShowsTheFirstRunUntilTheFlagIsSet`; `ShellModelTests.firstRunFlag`, `ShellUITests.testFirstRunShowsOnceAndOpensThePatro` | none |
 | MR-16 Appearance | tested | tested | `ThemeTest.changingTheLookRepaintsAtOnce`; `SettingsAboutTests.appearanceAtOnce` | none |
-| MR-17 Show AD dates | tested | tested | `MonthSettingsTest.theAdDayIsGoneWhenTheSettingIsOff`; `MonthSnapshotTests.asoj2083` (`no-ad`) | none |
+| MR-17 Show AD dates | tested | tested | `MonthSettingsTest.theAdDayIsGoneWhenTheSettingIsOff`; `MonthViewModelTests.adNumberSetting` | none |
 | MR-18 Opens on | tested | tested | `SettingsRepositoryTest.displayPreferencesDefaultAndWrite`; `SettingsStoreTests.opensOnTabs` | none |
 | MR-19 Haptics | manual | manual | `Haptics.kt`; `Haptics.swift` | haptic feel is a device row |
 | MR-20 Day sheet navigation and share | tested | tested | `DayDetailTest.mr20SteppingCrossesTheMonthEndAndStaysInTheSheet`, `DayShareTextTest`; `DayDetailUITests.testNextAndPreviousDayStayInTheSheet`, `DayDetailViewModelTests.shareText` | none |
