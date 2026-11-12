@@ -1,6 +1,7 @@
 # Progress
 
 Current phase: 1.0 readiness. The Android tester build and the iOS parity screens are in place.
+M5 adds the holiday subscription, closes the parity test gaps and fixes the App Store screenshots.
 The public releases wait on the owner, the Apple account and the two open legal rows.
 
 ## Android
@@ -35,11 +36,9 @@ The public releases wait on the owner, the Apple account and the two open legal 
 ## Parity
 
 The full table is in `docs/plan/parity-audit.md`. Every requirement and widget has code on both
-platforms. Android still lacks automated evidence for the year view, today card, the under-grid
-rows, the day sheet's stepping and Share, name search and the one-line date widget. iOS still lacks
-tests for the Today widget's AD face and the Festivals list filter. The extra-large month widget,
-all placement and rendering-mode passes, and the device numbers are in the owner or device list
-below.
+platforms, and every audited row now has automated evidence except the Android one-line date widget
+(W-11) and the Android gate for a missing Nepali string (MR-11). The extra-large month widget, all
+placement and rendering-mode passes, and the device numbers are in the owner or device list below.
 
 ## What is left, and who it waits on
 
@@ -51,7 +50,6 @@ below.
 | `systemExtraLargePortrait` (W-03) | Xcode 27 migration and a device review |
 | Cold start, frame trace, download size, widget peak memory | Device or reference hardware |
 | VoiceOver, TalkBack, Switch Access, haptics, notification permission dialog | Device pass |
-| `holidays.ics` subscription | The Settings row; the hub feed is live at patro.nepdate.com |
 | Library 1.0.0 | The library release |
 
 ## Earlier phases
@@ -65,3 +63,5 @@ below.
   pass. Done, merged in #45, #49, #50, #52 and #58.
 - M4: pager race, parity audit and store listings. Done, merged in #74, #75, #77, #78, #79
   and #80.
+- M5: holiday subscription, the parity test gaps and the App Store screenshot fixes. Done, in
+  review.
