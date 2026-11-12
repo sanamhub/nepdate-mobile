@@ -28,18 +28,24 @@ SCREEN = "#0B0C0E"
 
 SELECTIONS = {
     "en-US": [
-        ("a1-month-light.png", "01-month"),
+        ("a1-month-light.png", "01-patro"),
         ("a1-day-detail-light.png", "02-day-detail"),
-        ("a1-upcoming-light.png", "03-upcoming"),
+        ("a1-upcoming-light.png", "03-festivals"),
         ("a1-converter-light.png", "04-converter"),
-        ("a1-month-tithi.png", "05-tithi"),
-        ("a1-month-font-scale-200.png", "06-large-text"),
+        ("a1-search-two-cards.png", "05-search"),
+        ("a1-settings-light.png", "06-settings"),
+        ("a1-first-run-light.png", "07-first-run"),
+        ("a1-month-font-scale-200.png", "08-large-text"),
     ],
     "ne-NP": [
-        ("a1-month-ne.png", "01-month"),
+        ("a1-month-ne.png", "01-patro"),
         ("a1-day-detail-ne.png", "02-day-detail"),
-        ("a1-upcoming-ne.png", "03-upcoming"),
+        ("a1-upcoming-ne.png", "03-festivals"),
         ("a1-converter-ne.png", "04-converter"),
+        ("a1-search-two-cards-ne.png", "05-search"),
+        ("a1-settings-ne.png", "06-settings"),
+        ("a1-first-run-ne-dark.png", "07-first-run"),
+        ("a1-month-font-scale-200.png", "08-large-text"),
     ],
 }
 

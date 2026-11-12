@@ -16,7 +16,9 @@ permission, no analytics, no crash reporting, no ads and no account.
 
 The screenshots come from the Roborazzi set in `android/app/src/test/screenshots`. The red
 "Not verified on a device" test label is cropped, then the image is placed in a phone frame by
-`tools/frame_store_screenshots.py`. Regenerate them with:
+`tools/frame_store_screenshots.py`. The set is Patro, day detail, Festivals, Converter, Search,
+Settings, first run and the 200 % text layout, in English and Nepali, all 1080x1920. Regenerate
+them with:
 
 ```bash
 python tools/frame_store_screenshots.py
