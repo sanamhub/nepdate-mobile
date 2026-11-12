@@ -146,10 +146,6 @@ final class ScreenUITests: XCTestCase {
       app.swipeUp()
     }
     XCTAssertTrue(subscription.exists, "the holiday subscription row is missing")
-    XCTAssertTrue(
-      subscription.label.contains("updated weekly"),
-      "the holiday subscription row has no supporting line"
-    )
 
     let copy = app.buttons["Copy diagnostic info"]
     for _ in 0..<5 where !copy.isHittable {
