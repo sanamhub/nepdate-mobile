@@ -17,6 +17,9 @@ public struct LockScreenContent: Sendable, Hashable {
   /// The rectangular view's date line, for example `Asoj 25 · Sunday`.
   public let rectangularDate: String
 
+  /// The rectangular view's tithi line, when the day has one (W-09).
+  public let rectangularTithi: String?
+
   /// Today when it is a holiday, otherwise the next holiday; `nil` when the data has no more.
   public let rectangularHoliday: WidgetEvent?
 }
@@ -43,6 +46,7 @@ extension WidgetEntry {
       circularMonth: day.shortMonth,
       isHoliday: day.isHoliday,
       rectangularDate: "\(day.month) \(day.day) · \(day.weekday)",
+      rectangularTithi: day.tithi,
       rectangularHoliday: holiday
     )
   }

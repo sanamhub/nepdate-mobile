@@ -8,6 +8,30 @@ import SwiftUI
 /// It follows Android's `TodayHero.kt`: the holiday chip comes first and takes the holiday tile,
 /// a day with more than three events shows two and a "+N more" chip, and only a day with fewer
 /// than three events points at the next holiday.
+/// Which chips the today card shows (MR-22 AC2), tested without drawing the card.
+public struct TodayCardPlan: Sendable, Hashable {
+  /// The event indices that get a chip.
+  public let eventIndices: [Int]
+
+  /// How many events the "+N more" chip stands for; zero when there is no such chip.
+  public let moreCount: Int
+
+  /// Whether the next holiday fills the last chip.
+  public let showsNextHoliday: Bool
+
+  /// Plans the chips for a day.
+  /// - Parameters:
+  ///   - eventCount: The number of events on the day.
+  ///   - hasNextHoliday: Whether a next holiday exists.
+  ///   - maximumChips: The card's chip limit; three by default.
+  public init(eventCount: Int, hasNextHoliday: Bool, maximumChips: Int = 3) {
+    let shown = eventCount > maximumChips ? maximumChips - 1 : eventCount
+    self.eventIndices = Array(0..<shown)
+    self.moreCount = eventCount - shown
+    self.showsNextHoliday = hasNextHoliday && eventCount < maximumChips
+  }
+}
+
 struct TodayCard: View {
   let cell: MonthCell
   let nextHoliday: HolidayCountdown?
@@ -80,7 +104,8 @@ struct TodayCard: View {
   @ViewBuilder
   private var chips: some View {
     let names = cell.events.map { digits.applying(to: $0.name(language)) }
-    let shown = names.count > 3 ? Array(names.prefix(2)) : names
+    let plan = TodayCardPlan(eventCount: names.count, hasNextHoliday: nextHoliday != nil)
+    let shown = plan.eventIndices.map { names[$0] }
     ForEach(shown.indices, id: \.self) { index in
       if cell.isHoliday && index == 0 {
         chip(
@@ -103,16 +128,16 @@ struct TodayCard: View {
       }
     }
 
-    if shown.count < names.count {
+    if plan.moreCount > 0 {
       chip(
-        text: "+\(digits.format(names.count - shown.count)) \(AppText.string("more", language))",
+        text: "+\(digits.format(plan.moreCount)) \(AppText.string("more", language))",
         container: Color.primary.opacity(0.1),
         ink: .primary,
         mark: .event
       ) {
         open(cell)
       }
-    } else if names.count < 3, let nextHoliday {
+    } else if plan.showsNextHoliday, let nextHoliday {
       chip(
         text: nextHolidayText(nextHoliday),
         container: Color.primary.opacity(0.1),

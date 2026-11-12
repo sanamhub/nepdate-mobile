@@ -24,13 +24,15 @@ struct LockScreenWidgetModelTests {
     #expect(nepali.circularDay == "२०")
   }
 
-  @Test("W-09: the rectangular Lock Screen view has the tithi in both languages")
+  @Test("W-09: the rectangular Lock Screen view carries the tithi line in both languages")
   func rectangularTithi() throws {
-    let english = try WidgetTestData.entry(Self.normal).day.tithi
-    let nepali = try WidgetTestData.entry(Self.normal, language: .nepali).day.tithi
+    let englishEntry = try WidgetTestData.entry(Self.normal)
+    let nepaliEntry = try WidgetTestData.entry(Self.normal, language: .nepali)
+    let english = try #require(englishEntry.day.tithi)
+    let nepali = try #require(nepaliEntry.day.tithi)
 
-    #expect(english != nil)
-    #expect(nepali != nil)
+    #expect(englishEntry.lockScreen.rectangularTithi == english)
+    #expect(nepaliEntry.lockScreen.rectangularTithi == nepali)
     #expect(english != nepali)
   }
 

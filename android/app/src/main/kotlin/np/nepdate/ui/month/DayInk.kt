@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.text.TextStyle
@@ -104,6 +105,7 @@ internal fun BoxScope.DayCellContent(
             Box(modifier = Modifier.height(AD_ROW), contentAlignment = Alignment.BottomCenter) {
                 Text(
                     text = cell.adDay.toString().inDigits(digits),
+                    modifier = Modifier.testTag("ad_${cell.bsDay}"),
                     color = ink.secondary,
                     style = MaterialTheme.typography.labelSmall.copy(lineHeight = AD_LINE),
                     maxLines = 1,

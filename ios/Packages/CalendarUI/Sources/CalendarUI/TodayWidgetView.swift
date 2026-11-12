@@ -2,6 +2,32 @@ import CalendarKit
 import SwiftUI
 import WidgetKit
 
+/// What the Today widget leads with (W-01), so the main-calendar choice can be tested without a
+/// rendered widget.
+public struct TodayWidgetPresentation: Sendable, Hashable {
+  /// The large numeral: the BS day, or the AD day when Gregorian leads.
+  public let heroDay: String
+
+  /// The month under the numeral, in the same calendar.
+  public let heroMonth: String
+
+  /// The other calendar's date.
+  public let otherCalendarLine: String
+
+  /// Reads the presentation from an entry.
+  /// - Parameters:
+  ///   - entry: The entry the widget draws.
+  ///   - mainCalendar: The calendar whose date is the hero.
+  public init(entry: WidgetEntry, mainCalendar: MainCalendar = .bs) {
+    self.heroDay = mainCalendar == .bs ? entry.day.day : entry.day.adDayText
+    self.heroMonth = mainCalendar == .bs ? entry.day.month : entry.day.adMonthName
+    self.otherCalendarLine =
+      mainCalendar == .bs
+      ? entry.day.adDate
+      : "\(entry.day.month) \(entry.day.day)"
+  }
+}
+
 /// The small Today widget (W-01): the main calendar's date, the other calendar's date or the
 /// holiday name, the holiday mark, and, when details are on, the tithi and the next holiday.
 public struct TodayWidgetView: View {
@@ -26,9 +52,10 @@ public struct TodayWidgetView: View {
 
   /// The view's content.
   public var body: some View {
+    let presentation = TodayWidgetPresentation(entry: entry, mainCalendar: mainCalendar)
     VStack(alignment: .leading, spacing: 4) {
       HStack(alignment: .firstTextBaseline, spacing: 8) {
-        Text(verbatim: heroDay)
+        Text(verbatim: presentation.heroDay)
           .font(.system(size: 56, weight: .semibold, design: .rounded))
           .monospacedDigit()
           .foregroundStyle(entry.day.isHoliday ? BrandColor.holiday : Color.primary)
@@ -39,7 +66,7 @@ public struct TodayWidgetView: View {
           .foregroundStyle(.secondary)
       }
 
-      Text(verbatim: heroMonth)
+      Text(verbatim: presentation.heroMonth)
         .font(.headline)
 
       if entry.day.isHoliday {
@@ -55,7 +82,7 @@ public struct TodayWidgetView: View {
           .foregroundStyle(BrandColor.secondaryText)
           .lineLimit(1)
       } else {
-        Text(verbatim: otherCalendarLine)
+        Text(verbatim: presentation.otherCalendarLine)
           .font(.caption2)
           .foregroundStyle(BrandColor.secondaryText)
           .lineLimit(1)
@@ -93,18 +120,6 @@ public struct TodayWidgetView: View {
     .widgetURL(AppRoute.today.url)
     .accessibilityElement(children: .ignore)
     .accessibilityLabel(Text(verbatim: spoken))
-  }
-
-  private var heroDay: String {
-    mainCalendar == .bs ? entry.day.day : entry.day.adDayText
-  }
-
-  private var heroMonth: String {
-    mainCalendar == .bs ? entry.day.month : entry.day.adMonthName
-  }
-
-  private var otherCalendarLine: String {
-    mainCalendar == .bs ? entry.day.adDate : "\(entry.day.month) \(entry.day.day)"
   }
 
   /// The numeral, the holiday and the next holiday's count, spoken as one label.

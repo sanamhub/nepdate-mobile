@@ -75,7 +75,7 @@ public struct LockScreenRectangularView: View {
         .font(.headline)
         .lineLimit(1)
         .widgetAccentable()
-      if let tithi = entry.day.tithi {
+      if let tithi = content.rectangularTithi {
         Text(verbatim: tithi)
           .font(.caption2)
           .foregroundStyle(.secondary)

@@ -145,6 +145,15 @@ struct MonthViewModelTests {
     #expect(other.todayCell == nil)
   }
 
+  @Test("MR-17: the AD cell number is formatted only while the setting is on")
+  func adNumberSetting() throws {
+    let model = try Self.model()
+    let cell = try #require(model.layout.cells.first { $0.isInMonth && $0.bsDay == 25 })
+
+    #expect(MonthCellText.adNumber(cell, digits: .english, showsADDates: true) == "11")
+    #expect(MonthCellText.adNumber(cell, digits: .english, showsADDates: false) == nil)
+  }
+
   @Test("MR-23: the under-grid rows are the month's holiday and event days in date order")
   func highlightDays() throws {
     let model = try Self.model()
@@ -152,8 +161,11 @@ struct MonthViewModelTests {
     let dates = days.compactMap(\.date)
 
     #expect(!days.isEmpty)
+    #expect(days.count > 3)
+    #expect(days.allSatisfy { $0.isInMonth })
     #expect(days.allSatisfy { $0.isHoliday || $0.hasEvents })
     #expect(dates == dates.sorted())
+    #expect(Set(dates).count == dates.count)
   }
 
   @Test("MR-10 AC1: Asoj 25 2083 has the requirement's label")

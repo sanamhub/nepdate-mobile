@@ -4,6 +4,7 @@ import android.content.ClipboardManager
 import android.content.Context
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -65,6 +66,41 @@ class DayDetailTest {
         composeRule.onNodeWithText("New Year 2084").assertExists()
         composeRule.onNodeWithText("Tithi").assertDoesNotExist()
     }
+
+    @Test
+    fun mr20SteppingCrossesTheMonthEndAndStaysInTheSheet() {
+        val monthEnd = NepaliDate.of(2083, 6, 1).lastDayOfMonth()
+        val nextMonth = monthEnd.plusDays(1)
+        setDayDetail(monthEnd)
+        composeRule.onNodeWithText(label(monthEnd)).assertExists()
+
+        composeRule.onNodeWithContentDescription("Next day").performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithTag("day_detail").assertExists()
+        composeRule.onNodeWithText(label(nextMonth)).assertExists()
+
+        composeRule.onNodeWithContentDescription("Previous day").performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText(label(monthEnd)).assertExists()
+    }
+
+    private fun label(date: NepaliDate): String = "${months[date.monthValue - 1]} ${date.dayOfMonth}, ${date.year}"
+
+    private val months =
+        listOf(
+            "Baisakh",
+            "Jestha",
+            "Asar",
+            "Shrawan",
+            "Bhadra",
+            "Asoj",
+            "Kartik",
+            "Mangsir",
+            "Poush",
+            "Magh",
+            "Falgun",
+            "Chaitra",
+        )
 
     @Test
     fun mr02Ac3CopyDateCopiesTheBsLongDate() {

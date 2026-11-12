@@ -21,6 +21,11 @@ struct WidgetWeekTests {
     #expect(week.days[2].isToday)
     #expect(week.days[2].day == "20")
     #expect(week.days[6].date == MonthDate(year: 2083, month: 6, day: 24))
+    #expect(week.days.filter(\.isToday).count == 1)
+    #expect(
+      week.days.map(\.date)
+        == (0..<7).map { MonthDate(year: 2083, month: 6, day: 18 + $0) }
+    )
   }
 
   @Test("the agenda names the next holiday in the week")

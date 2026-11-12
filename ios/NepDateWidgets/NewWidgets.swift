@@ -234,8 +234,7 @@ struct FestivalsListProvider: AppIntentTimelineProvider {
     let digits = settings.digits.resolved(for: language)
     let today = TodayProvider(now: { now }, deviceZone: zone)
       .today(dateFollows: settings.dateFollows)
-    let all = FestivalDirectory.next(after: today, limit: 24)
-    let days = holidaysOnly ? all.filter(\.isHoliday) : all
+    let days = FestivalDirectory.next(after: today, limit: 24, holidaysOnly: holidaysOnly)
     let end = FestivalDirectory.coverageEnd
     let dataEndsOn: String? =
       days.count < 8

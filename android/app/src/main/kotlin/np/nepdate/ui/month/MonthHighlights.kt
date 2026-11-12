@@ -49,7 +49,7 @@ internal fun MonthHighlights(
     onDayClick: (NepaliDate) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val days = layout.cells.filter { it.isInMonth && it.date != null && (it.isHoliday || it.hasEvents) }
+    val days = highlightDays(layout)
     if (days.isEmpty()) return
     val adMonths = stringArrayResource(R.array.ad_month_long).toList()
     Column(
@@ -67,6 +67,10 @@ internal fun MonthHighlights(
         }
     }
 }
+
+/** The month's own days with a public holiday or an event, in date order. */
+internal fun highlightDays(layout: MonthLayout): List<MonthCell> =
+    layout.cells.filter { it.isInMonth && it.date != null && (it.isHoliday || it.hasEvents) }
 
 @Composable
 private fun HighlightRow(

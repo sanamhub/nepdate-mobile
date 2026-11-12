@@ -19,13 +19,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -108,9 +108,10 @@ private fun MonthTile(
                 .background(container)
                 .clickable(role = Role.Button, onClick = onClick)
                 // The day numbers are decoration here; TalkBack reads the month and its holiday count.
-                .clearAndSetSemantics { contentDescription = description }
-                .testTag("year_month_${layout.month.value}")
-                .padding(start = 8.dp, end = 8.dp, top = 10.dp, bottom = 8.dp),
+                .clearAndSetSemantics {
+                    contentDescription = description
+                    testTag = "year_month_${layout.month.value}"
+                }.padding(start = 8.dp, end = 8.dp, top = 10.dp, bottom = 8.dp),
         verticalArrangement = Arrangement.spacedBy(6.dp),
     ) {
         TileHeader(name = name, holidays = holidays, ink = ink, digits = digits)

@@ -65,12 +65,7 @@ internal fun DayDetailActions(
             adDate(date, adMonthNames, settings.digits),
         )
     val chooserTitle = stringResource(R.string.day_share_chooser)
-    val shareText =
-        buildList {
-            add(bsLong(date, bsMonthNames[date.monthValue - 1], settings.digits))
-            add(weekdayAd)
-            info?.events?.forEach { add(it.name(lang)) }
-        }.joinToString("\n")
+    val shareText = dayShareText(date, info, lang, settings, bsMonthNames, weekdayAd)
     Row(
         modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Min),
         horizontalArrangement = Arrangement.spacedBy(2.dp),
@@ -146,6 +141,21 @@ private fun ActionButton(
         ) { content() }
     }
 }
+
+/** The plain text Share hands to another app: the BS date, the weekday and AD date, then events. */
+internal fun dayShareText(
+    date: NepaliDate,
+    info: CalendarInfo?,
+    lang: Lang,
+    settings: Settings,
+    bsMonthNames: List<String>,
+    weekdayAd: String,
+): String =
+    buildList {
+        add(bsLong(date, bsMonthNames[date.monthValue - 1], settings.digits))
+        add(weekdayAd)
+        info?.events?.forEach { add(it.name(lang)) }
+    }.joinToString("\n")
 
 private fun eventTitle(
     date: NepaliDate,
