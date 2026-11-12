@@ -155,9 +155,19 @@ final class ScreenUITests: XCTestCase {
       .completed,
       "the Copied confirmation stayed visible"
     )
+  }
+
+  @MainActor
+  func testAboutShowsTheHolidaySubscription() throws {
+    let app = Self.launch(screen: "settings")
+
+    for _ in 0..<6 where !app.staticTexts["About"].exists {
+      app.swipeUp()
+    }
+    app.staticTexts["About"].tap()
 
     let subscription = app.buttons["subscribe_holidays"]
-    for _ in 0..<5 where !subscription.exists {
+    for _ in 0..<10 where !subscription.exists {
       app.swipeUp()
     }
     XCTAssertTrue(subscription.exists, "the holiday subscription row is missing")

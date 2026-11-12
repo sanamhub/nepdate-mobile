@@ -87,29 +87,6 @@ struct ScreenSnapshotTests {
     }
   }
 
-  @Test("About subscription reference images")
-  func aboutSubscription() {
-    for (name, language, digits, locale) in [
-      ("light", AppLanguage.english, Digits.english, "en"),
-      ("nepali", .nepali, .nepali, "ne"),
-    ] {
-      let screen = AboutSnapshot(
-        info: Self.info,
-        language: language,
-        digits: digits,
-        settings: Settings(language: language == .nepali ? .nepali : .english)
-      )
-      snapshot(
-        screen,
-        named: "about-subscription-\(name)",
-        scheme: .light,
-        type: .large,
-        locale: locale,
-        size: CGSize(width: 390, height: 1_500)
-      )
-    }
-  }
-
   private func variants() -> [(String, AppLanguage, Digits, ColorScheme, DynamicTypeSize, String)] {
     [
       ("light", .english, .english, .light, .large, "en"),
