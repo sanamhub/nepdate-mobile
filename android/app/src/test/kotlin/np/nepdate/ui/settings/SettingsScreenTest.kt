@@ -98,6 +98,10 @@ class SettingsScreenTest {
         composeRule.onNodeWithText("Privacy").assertExists()
         composeRule.onNodeWithText("Source code").assertExists()
         composeRule.onNodeWithText("Web patro").assertExists()
+        composeRule.onNodeWithText("Subscribe to Nepal holidays").performScrollTo().assertExists()
+        composeRule
+            .onNodeWithText("Public holidays in your calendar app, updated weekly")
+            .assertExists()
     }
 
     @Test

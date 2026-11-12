@@ -1242,6 +1242,23 @@
         }
       }
     },
+    "Public holidays in your calendar app, updated weekly": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Public holidays in your calendar app, updated weekly"
+          }
+        },
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "तपाईंको क्यालेन्डर एपमा सार्वजनिक बिदाहरू, हरेक हप्ता अद्यावधिक"
+          }
+        }
+      }
+    },
     "That date is outside the BS range": {
       "extractionState": "manual",
       "localizations": {

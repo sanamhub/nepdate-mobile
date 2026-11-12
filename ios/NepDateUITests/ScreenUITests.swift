@@ -141,14 +141,27 @@ final class ScreenUITests: XCTestCase {
       }
       XCTAssertTrue(element.exists, "the \(link) link is missing")
     }
-    XCTAssertFalse(app.buttons["Subscribe to Nepal holidays"].exists)
+  }
+
+  @MainActor
+  func testAboutCopiesDiagnosticInfo() throws {
+    let app = Self.launch(screen: "settings")
+
+    for _ in 0..<6 where !app.staticTexts["About"].exists {
+      app.swipeUp()
+    }
+    app.staticTexts["About"].tap()
 
     let copy = app.buttons["Copy diagnostic info"]
-    for _ in 0..<5 where !copy.isHittable {
+    for _ in 0..<8 where !copy.isHittable {
       app.swipeUp()
     }
     copy.tap()
+
     let copied = app.staticTexts["Copied"]
+    if !copied.exists {
+      app.swipeUp()
+    }
     XCTAssertTrue(copied.waitForExistence(timeout: 2))
 
     let hidden = expectation(for: NSPredicate(format: "exists == false"), evaluatedWith: copied)
@@ -157,6 +170,22 @@ final class ScreenUITests: XCTestCase {
       .completed,
       "the Copied confirmation stayed visible"
     )
+  }
+
+  @MainActor
+  func testAboutShowsTheHolidaySubscription() throws {
+    let app = Self.launch(screen: "settings")
+
+    for _ in 0..<6 where !app.staticTexts["About"].exists {
+      app.swipeUp()
+    }
+    app.staticTexts["About"].tap()
+
+    let subscription = app.buttons["subscribe_holidays"]
+    for _ in 0..<10 where !subscription.exists {
+      app.swipeUp()
+    }
+    XCTAssertTrue(subscription.exists, "the holiday subscription row is missing")
   }
 
   @MainActor

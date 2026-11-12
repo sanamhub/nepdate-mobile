@@ -51,7 +51,6 @@ below.
 | `systemExtraLargePortrait` (W-03) | Xcode 27 migration and a device review |
 | Cold start, frame trace, download size, widget peak memory | Device or reference hardware |
 | VoiceOver, TalkBack, Switch Access, haptics, notification permission dialog | Device pass |
-| `holidays.ics` subscription | The Settings row; the hub feed is live at patro.nepdate.com |
 | Library 1.0.0 | The library release |
 
 ## Earlier phases

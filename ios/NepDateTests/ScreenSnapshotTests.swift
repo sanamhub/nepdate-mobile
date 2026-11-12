@@ -101,7 +101,8 @@ struct ScreenSnapshotTests {
     named name: String,
     scheme: ColorScheme,
     type: DynamicTypeSize,
-    locale: String
+    locale: String,
+    size: CGSize = Self.size
   ) {
     let content =
       view
@@ -117,7 +118,7 @@ struct ScreenSnapshotTests {
 
     assertSnapshot(
       of: controller,
-      as: .image(size: Self.size, traits: traits),
+      as: .image(size: size, traits: traits),
       named: name,
       testName: "screen"
     )

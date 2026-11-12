@@ -61,6 +61,7 @@
     <string name="settings_privacy">गोपनीयता</string>
     <string name="settings_source_code">स्रोत कोड</string>
     <string name="settings_subscribe">नेपालका बिदाहरू सदस्यता लिनुहोस्</string>
+    <string name="settings_subscribe_supporting">तपाईंको क्यालेन्डर एपमा सार्वजनिक बिदाहरू, हरेक हप्ता अद्यावधिक</string>
     <string name="settings_copy_diagnostic">डायग्नोस्टिक जानकारी प्रतिलिपि गर्नुहोस्</string>
     <string name="settings_copied">प्रतिलिपि भयो</string>
     <string name="settings_nepal_time_title">नेपालको समय प्रयोग गर्ने?</string>

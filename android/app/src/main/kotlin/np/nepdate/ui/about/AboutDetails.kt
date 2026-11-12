@@ -201,7 +201,11 @@ private fun aboutLinks(): List<AboutLink> =
         add(AboutLink(R.drawable.ic_sym_license, R.string.settings_licences, null, browse(LICENCES_URL)))
         if (HOLIDAYS_ICS_URL.isNotEmpty()) {
             add(
-                AboutLink(R.drawable.ic_sym_share, R.string.settings_subscribe, null) {
+                AboutLink(
+                    R.drawable.ic_sym_share,
+                    R.string.settings_subscribe,
+                    R.string.settings_subscribe_supporting,
+                ) {
                     Intent.createChooser(holidayShareIntent(HOLIDAYS_ICS_URL), null)
                 },
             )

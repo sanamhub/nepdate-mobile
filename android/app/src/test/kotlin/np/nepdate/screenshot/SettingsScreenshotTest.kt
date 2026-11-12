@@ -1,10 +1,16 @@
 package np.nepdate.screenshot
 
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.takahirom.roborazzi.captureRoboImage
 import np.nepdate.data.Settings
+import np.nepdate.ui.about.AboutDetails
 import np.nepdate.ui.settings.SettingsScreen
 import np.nepdate.ui.theme.NepdateTheme
 import org.junit.Rule
@@ -30,6 +36,38 @@ class SettingsScreenshotTest {
     @Test
     @Config(qualifiers = "ne-w360dp-h1400dp-xhdpi")
     fun nepali() = capture("a1-settings-ne", darkTheme = false)
+
+    @Test
+    @Config(qualifiers = "w360dp-h1500dp-xhdpi")
+    fun aboutLight() = captureAbout("a1-about-light", darkTheme = false)
+
+    @Test
+    @Config(qualifiers = "w360dp-h1500dp-xhdpi")
+    fun aboutDark() = captureAbout("a1-about-dark", darkTheme = true)
+
+    @Test
+    @Config(qualifiers = "ne-w360dp-h1500dp-xhdpi")
+    fun aboutNepali() = captureAbout("a1-about-ne", darkTheme = false)
+
+    private fun captureAbout(
+        name: String,
+        darkTheme: Boolean,
+    ) {
+        composeRule.setContent {
+            NepdateTheme(darkTheme = darkTheme, dynamicColor = false) {
+                ScreenshotFrame {
+                    Column(Modifier.fillMaxSize().padding(vertical = 16.dp)) {
+                        AboutDetails(
+                            appVersion = "0.0.1 (1)",
+                            libraryVersion = "0.1.0",
+                            osVersion = "14",
+                        )
+                    }
+                }
+            }
+        }
+        composeRule.onRoot().captureRoboImage("$name.png")
+    }
 
     private fun capture(
         name: String,

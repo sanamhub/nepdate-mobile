@@ -61,6 +61,7 @@
     <string name="settings_privacy">Privacy</string>
     <string name="settings_source_code">Source code</string>
     <string name="settings_subscribe">Subscribe to Nepal holidays</string>
+    <string name="settings_subscribe_supporting">Public holidays in your calendar app, updated weekly</string>
     <string name="settings_copy_diagnostic">Copy diagnostic info</string>
     <string name="settings_copied">Copied</string>
     <string name="settings_nepal_time_title">Use Nepal time?</string>

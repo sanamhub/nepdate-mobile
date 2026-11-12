@@ -26,8 +26,8 @@ public enum AboutLinks {
   /// The web patro, which runs in any browser and needs no install.
   public static let webPatro = "https://patro.nepdate.com"
 
-  /// Empty until the hub publishes `holidays.ics` (ADR-0003).
-  public static let holidaysICSURL = ""
+  /// The hub's public holiday feed (ADR-0003). Opening a `webcal` URL hands it to Calendar.
+  public static let holidaysICSURL = "webcal://patro.nepdate.com/holidays.ics"
 
   /// The six links the requirement names, in display order.
   public static let all = [webPatro, reportDate, knownData, privacy, sourceCode, licences]

@@ -6,6 +6,11 @@ All notable changes to the Android app. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- The About subscription row shares `https://patro.nepdate.com/holidays.ics` as text, so a calendar
+  app can subscribe to the public holiday feed. The app shares the address and never fetches it.
+
 ## [1.0.0-beta.1] - 2026-11-09
 
 The first pre-release, published on GitHub only while Play access is pending.
