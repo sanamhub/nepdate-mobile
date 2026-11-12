@@ -141,12 +141,6 @@ final class ScreenUITests: XCTestCase {
       }
       XCTAssertTrue(element.exists, "the \(link) link is missing")
     }
-    let subscription = app.buttons["subscribe_holidays"]
-    for _ in 0..<5 where !subscription.exists {
-      app.swipeUp()
-    }
-    XCTAssertTrue(subscription.exists, "the holiday subscription row is missing")
-
     let copy = app.buttons["Copy diagnostic info"]
     for _ in 0..<5 where !copy.isHittable {
       app.swipeUp()
@@ -161,6 +155,12 @@ final class ScreenUITests: XCTestCase {
       .completed,
       "the Copied confirmation stayed visible"
     )
+
+    let subscription = app.buttons["subscribe_holidays"]
+    for _ in 0..<5 where !subscription.exists {
+      app.swipeUp()
+    }
+    XCTAssertTrue(subscription.exists, "the holiday subscription row is missing")
   }
 
   @MainActor
