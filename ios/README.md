@@ -74,8 +74,9 @@ The XCUITests in `NepDateUITests` run inside gate 4, so the gate count is unchan
 read `NEPDATE_UI_TEST_TODAY` (for example `2083-06-20`) to pin today, so every UI test sees Asoj
 2083 and the audit counts are exact; a release build always uses the clock. The tests check that the
 pager opens on today, that a swipe moves one month each way and stops at Chaitra 2199 and Baisakh
-1901, and that 21 swipes cross the window recentre and land on Asar 2085. The day sheet test taps
-Asoj 25, checks every spoken field and event, taps Copy date and reads the action's accessibility
+1901, that 21 swipes cross the window recentre and land on Asar 2085, and that two swipes taken
+without a pause across either edge of the window still move exactly two months. The day sheet test
+taps Asoj 25, checks every spoken field and event, taps Copy date and reads the action's accessibility
 value, then audits the sheet.
 
 The month bar holds Settings, which the shell puts in the bar, and the Today button, which appears
@@ -95,9 +96,14 @@ together with the arrow keys. `MonthPagingTests` checks that a swipe pages one m
 swipe past either end does not move.
 
 The pager holds 49 months around the shown one, because a 3588-page accessibility tree made the
-audit time out. When a swipe comes within five pages of an edge the window is rebuilt around the
-month. Rebuilding keeps the scroll offset, not the page, so the screen now ignores paging updates
-until it has scrolled back to the month; before that fix the swipe test landed on Asoj 2093.
+audit time out. When the shown month comes within five pages of the forward edge, the next months
+are appended after the window. Existing pages keep their positions, so the pixel offset and the
+shown page do not move and a quick next swipe can continue immediately. Near the backward edge, or
+once forward paging has grown the window past 97 pages, the window is rebuilt around the month when
+the pager comes to rest, with the offset put back on the month in the same update, so no gesture
+can start from a stale offset. Both changes run only at rest. Before this, a second quick swipe
+could start from the offset a rebuild left behind: the existing test hid it with a two second wait,
+and run 43014018570 ended on Kartik 2088 after the twenty-first swipe.
 
 The audit runs one category per call (contrast, Dynamic Type, element detection, hit region,
 element description, clipped text, traits), on the grid at the default size and on the list at

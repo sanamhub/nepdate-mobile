@@ -184,3 +184,20 @@ The widget preview checklist. These rows need a device or emulator; issue
 |---|---|---|---|
 | "Open converter" opens the Converter tab; "Open today" opens Month on today. | Not run | n/a | n/a |
 | Both controls appear in the gallery and can be placed in Control Center, the Lock Screen and the Action button. | Not run | n/a | n/a |
+
+## Features added since the last checklist
+
+| Check | iPhone | Android A15 class | Android low-end |
+|---|---|---|---|
+| Search: a name query in English and Nepali returns the same festivals, grouped by BS month, and a tapped result opens that day. The landing state shows the last five searches and the next three festivals. Pass: every result opens the right day, and Clear empties the history. | Not run | Not run | Not run |
+| Year view: twelve mini months, the holiday count per month, and previous and next year stopping at BS 1901 and 2199. Tapping a month returns to that month. Pass: the counts match the month grid and the ends do not move. | Not run | Not run | Not run |
+| Interactive Month widget: Previous, Today and Next change the month inside the widget, and a day tap opens that day. Pass: each button changes only the widget and the next midnight returns it to today's month. | Not run | Not run | Not run |
+| Interactive Next festival widget: the arrows step forward and back and stop at both ends. Pass: the shown festival changes by one, and the next midnight returns to the nearest festival. | Not run | Not run | Not run |
+| Festivals list widget: the Holidays only filter hides days without a public holiday, and the list ends with the data-ends line near coverage. Pass: no row is cut and the filter survives a redraw. | Not run | Not run | Not run |
+| Notification bar (Android): turn on "Day in status bar" and grant the permission. The BS day appears as the status bar icon and tapping it opens the app. Turn it off; the icon goes. | n/a | Not run | Not run |
+| Notification card (Android): turn on "Date in notifications". A silent card shows the weekday, BS date, tithi, AD date and today's holiday. Turn both switches off; no notification remains. | n/a | Not run | Not run |
+| Lock-screen visibility (Android): with a date notification showing, lock the phone, then turn NepDate notifications off in the system notification settings. Pass: the date card follows the system lock-screen setting, and turning it off hides the card without stopping the app. | n/a | Not run | Not run |
+| Quick Settings tile (Android): add the NepDate tile, then tap it. It shows today's BS date and opens Patro on today; the language and digits follow the app. | n/a | Not run | Not run |
+| Control Center and Lock Screen controls (iOS): place "Open today" and "Open converter" in Control Center, on the Lock Screen and on the Action button. Pass: each opens the named place. | Not run | n/a | n/a |
+| Lock Screen countdown gauge (iOS): place the W-06 circular face. Pass: the ring fills as the festival comes closer, the day count is legible, and the spoken label names the festival. | Not run | n/a | n/a |
+| Keyboard paging: with a hardware keyboard, the left and right arrows change the month while the month pager has focus. Pass: one press moves one month and stops at BS 1901 and 2199. | Not run | Not run | Not run |
