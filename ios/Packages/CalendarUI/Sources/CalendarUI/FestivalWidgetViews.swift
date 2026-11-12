@@ -42,9 +42,9 @@ public struct FestivalCountdownView: View {
             )
           )
           .font(.headline.weight(.bold))
-            .foregroundStyle(BrandColor.onHolidayContainer)
-            .minimumScaleFactor(0.6)
-            .lineLimit(1)
+          .foregroundStyle(BrandColor.onHolidayContainer)
+          .minimumScaleFactor(0.6)
+          .lineLimit(1)
         }
         .frame(width: 44, height: 44)
         .widgetAccentable()
