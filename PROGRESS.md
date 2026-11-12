@@ -51,7 +51,7 @@ below.
 | `systemExtraLargePortrait` (W-03) | Xcode 27 migration and a device review |
 | Cold start, frame trace, download size, widget peak memory | Device or reference hardware |
 | VoiceOver, TalkBack, Switch Access, haptics, notification permission dialog | Device pass |
-| `holidays.ics` subscription | The hub publishing the file |
+| `holidays.ics` subscription | The Settings row; the hub feed is live at patro.nepdate.com |
 | Library 1.0.0 | The library release |
 
 ## Earlier phases
@@ -63,5 +63,5 @@ below.
 - I2: iOS widgets. Done except the extra-large month family.
 - Redesign and M2: Material 3 Expressive, tester APK, benchmarks, icon, splash and the iOS design
   pass. Done, merged in #45, #49, #50, #52 and #58.
-- M4: pager race, parity audit and store listings. On the review branches; the merged pull
-  requests hold the detail.
+- M4: pager race, parity audit and store listings. Done, merged in #74, #75, #77, #78, #79
+  and #80.
